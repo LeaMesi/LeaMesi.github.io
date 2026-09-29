@@ -38,28 +38,34 @@
 
 | Módulo / Funcionalidad | Estado | Descripción |
 | :--- | :--- | :--- |
-| **Modelo de Datos Relacional** | 🟢 Definido | Esquema de entidades (`songs`, `artists`, `tags`, `genres`) adaptado a IndexedDB con soporte multilingüe en `lyrics_data`. |
-| **Soporte Multilingüe y Traducciones** | 🟢 Diseñado | Estructura en `languages` con indicador `isMain`, traducciones ilimitadas y renderizado bilingüe especificados. |
-| **Adaptador Lyricsfile 1.0 (.lyricsfile.yaml)** | 🟢 Diseñado | Mapeo bidireccional entre la especificación YAML 1.0 de `tranxuanthang/lyricsfile` y el formato interno de SarangaBaranga. |
-| **Entorno y Compilación** | 🟢 Operativo | Vite 8 compilando correctamente (`npm run build`). |
-| **Memory Bank** | 🟢 Actualizado | [`specs.md`](file:///home/hezztia/Documents/SarangaBaranga/specs.md), [`design.md`](file:///home/hezztia/Documents/SarangaBaranga/design.md), [`progress.md`](file:///home/hezztia/Documents/SarangaBaranga/progress.md), [`task.md`](file:///home/hezztia/Documents/SarangaBaranga/task.md) y [`GEMINI.md`](file:///home/hezztia/Documents/SarangaBaranga/GEMINI.md) alineados. |
-| **Base de Datos Local (IndexedDB)** | 🔴 Pendiente | Falta crear `src/services/db.js` y `src/services/songService.js` con soporte para CRUD y relaciones. |
-| **Motor Export / Import JSON** | 🔴 Pendiente | Falta crear `src/services/shareService.js` para exportar e importar canciones en JSON (con todas sus traducciones). |
-| **Servicio Lyricsfile (YAML)** | 🔴 Pendiente | Falta implementar `src/services/lyricsfileService.js` para parsear y exportar archivos `.lyricsfile.yaml`. |
-| **Adaptador de Audio / YouTube** | 🔴 Pendiente | Falta implementar el reproductor con soporte para YouTube IFrame API y audio local HTML5. |
-| **Modo Básico (Letra y Sílabas)** | 🔴 Pendiente | Falta implementar el componente de renderizado de versos, selección de idioma y animación por sílabas (karaoke). |
-| **Cálculo de Tiempos / BPM** | 🔴 Pendiente | Falta la función de conversión de BPM y compases a segundos relativos. |
-| **Modo Avanzado (Pixi.js / FX)** | ⚪ Pospuesto | Diseñado arquitectónicamente (`visuals_data`), pero aplazado deliberadamente hasta completar el Modo Básico. |
-| **Catálogo Supabase (Read-Only)** | ⚪ Pospuesto | Pospuesto para una fase futura como catálogo público de sólo lectura administrado por el creador. |
+| **Menú de Selección de Canciones** | 🟢 Operativo | `src/views/songMenuView.js` como pantalla de inicio con catálogo, buscador, importación, respaldo y acceso directo a Modo Letra. |
+| **Video YouTube Invisible (Audio)** | 🟢 Operativo | Host de YouTube alojado fuera de pantalla con opacidad 0, garantizando reproducción fiel sin elementos de video visibles. |
+| **Múltiples Videos con Offset** | 🟢 Operativo | Soporte para asociar N videos por canción (`videos: [{ id, name, url, offset }]`), cálculo dinámico de tiempos $\tau = t - \text{offset}$ y modal de edición (`src/views/videoManagerModal.js`). |
+| **Modelo de Datos Relacional** | 🟢 Operativo | Esquema de entidades (`songs`, `artists`, `tags`, `genres`) en IndexedDB con soporte multilingüe en `lyrics_data` y array dinámico de `videos`. |
+| **Soporte Multilingüe y Traducciones** | 🟢 Operativo | Implementado en `src/lyrics/languageManager.js` con indicador `isMain`, traducciones ilimitadas y renderizado bilingüe. |
+| **Adaptador Lyricsfile 1.0 (.lyricsfile.yaml)** | 🟢 Operativo | `src/services/lyricsfileService.js` con mapeo bidireccional YAML 1.0 (importar nueva canción, añadir traducción, exportar). |
+| **Entorno y Compilación** | 🟢 Operativo | Vite configurado con `base: './'` (`vite.config.js`), `.gitignore` y compilación verificada. |
+| **Memory Bank** | 🟢 Actualizado | `specs.md`, `design.md`, `progress.md`, `task.md` y `GEMINI.md` alineados. |
+| **Base de Datos Local (IndexedDB)** | 🟢 Operativo | `src/services/db.js` y `src/services/songService.js` con soporte para CRUD, relaciones N:M, gestión de videos, resolución y actualización dinámica de artista y sembrado automático con `mockSong`. |
+| **Motor Export / Import JSON** | 🟢 Operativo | `src/services/shareService.js` para exportar e importar paquetes `song-package.json` conservando colección de videos y offsets. |
+| **Servicio Lyricsfile (YAML)** | 🟢 Operativo | `src/services/lyricsfileService.js` validando versión 1.0, milisegundos y palabras/sílabas. |
+| **Adaptador de Audio / YouTube** | 🟢 Operativo | `src/player/mediaPlayer.js` con selector multi-video, cálculo de offset, audio HTML5 y Master Clock RAF bridge. |
+| **Modo Básico (Letra y Sílabas)** | 🟢 Operativo | `src/views/basicViewer.js` con renderizado DOM de versos, resaltado por sílabas (.active-syllable, .completed-syllable) y subtítulo bilingüe. |
+| **Cálculo de Tiempos / BPM** | 🟢 Operativo | `src/lyrics/timing.js` con utilidades de tiempo, compás y formateo mm:ss. |
+| **UI de Controles y Selector de Pista** | 🟢 Operativo | `src/views/controlsView.js` con barra de progreso, selector de video y offsets, botón de retorno al menú y toggles. |
+| **Modo Avanzado (Pixi.js / FX)** | 🟡 Operativo Básico | `src/views/advancedViewer.js` montado bajo demanda con lienzo interactivo y partículas ambientales sin interferir con el modo básico. |
+| **Editor de Creación y Edición de Letras** | 🟢 Operativo | `src/views/songEditorView.js` con creación desde cero, edición por frases, marcas de tiempo, sílabas, asistente de audio en vivo, importación rápida y edición interactiva de nombres y códigos ISO de idiomas. |
+| **Separador Fonético de Sílabas y Tiempos** | 🟢 Operativo | `src/lyrics/syllablesHelper.js` con silabeo fonético en español, división por palabras y distribución proporcional de tiempos. |
+| **Sistema de Iconos SVG Minimalistas** | 🟢 Operativo | `src/views/icons.js` con catálogo centralizado de iconos vectoriales SVG limpios. Sustitución de emojis en todas las vistas (`songMenuView`, `songEditorView`, `controlsView`, `libraryView`, `videoManagerModal`, `main.js`), eliminando ruido visual y limitando iconos exclusivamente a acciones funcionales (crear, editar, retroceder, guardar, reproducir, tiempos). |
+| **Catálogo Supabase (Read-Only)** | ⚪ Pospuesto | Reservado para fase futura como catálogo público de solo lectura administrado por el creador. |
 
 ---
 
 ## 3. Próximo Hito Prioritario
 
-**Construcción de la Persistencia Local, Export/Import, Adaptador Lyricsfile y Núcleo del Modo Sencillo:**
-1. Crear el servicio de base de datos local IndexedDB (`src/services/db.js`) y el repositorio de canciones (`src/services/songService.js`).
-2. Crear el motor de exportación e importación de paquetes JSON (`src/services/shareService.js`) con soporte multilingüe.
-3. Crear el adaptador de archivos `.lyricsfile.yaml` (`src/services/lyricsfileService.js`) para importar/exportar según el estándar abierto.
-4. Implementar el reproductor multimedia (YouTube IFrame API y audio HTML5 local).
-5. Crear el motor de sincronización de texto, idiomas y sílabas en pantalla (`lyrics_data.languages`).
-6. Permitir configurar y personalizar colores de fuente, traducción y fondo.
+**Refinamiento y Características Adicionales:**
+1. Corrección de alineación geométrica de títulos (`#song-header-info`) en el encabezado global mediante centrado absoluto (`50%`) y adaptación responsive en pantallas pequeñas.
+2. Pruebas de usuario y verificación de experiencia interactiva en vivo con canciones adicionales creadas por usuarios.
+3. Soporte para carga de archivos de audio locales en IndexedDB mediante `FileReader` / Blobs en el formulario de creación.
+4. Grabación de marcas de tiempo en tiempo real mediante toques/tecla espaciadora ("Tap to sync").
+

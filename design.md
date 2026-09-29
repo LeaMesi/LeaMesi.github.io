@@ -98,6 +98,20 @@ Los datos de cada canción se desacoplan en **tres estructuras conceptuales**, f
   "genres": ["Rock", "Pop"],
   "tags": ["acústico", "karaoke"],
   "audioPath": "songs/pista_demo.mp3",
+  "videos": [
+    {
+      "id": "vid-1",
+      "name": "Video Oficial",
+      "url": "https://www.youtube.com/watch?v=abc123xyz",
+      "offset": 0
+    },
+    {
+      "id": "vid-2",
+      "name": "Versión Karaoke con Intro",
+      "url": "https://www.youtube.com/watch?v=inst123xyz",
+      "offset": 12.5
+    }
+  ],
   "youtubeUrlFull": "https://www.youtube.com/watch?v=abc123xyz",
   "youtubeUrlInstrumental": "https://www.youtube.com/watch?v=inst123xyz"
 }
@@ -396,14 +410,42 @@ A futuro, se podrá añadir un conector opcional a Supabase con las siguientes p
 
 La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj Maestro**:
 
-1. **YouTube IFrame API:** Cuando la canción utiliza video oficial o versión solo pista desde YouTube. Un bucle `requestAnimationFrame` sondea `player.getCurrentTime()`.
+1. **YouTube IFrame API (Audio Invisible):** Cuando la canción utiliza videos asociados de YouTube. El reproductor IFrame de YouTube se inicializa de forma **invisible** (`position: fixed; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;`) para garantizar que no se renderice en pantalla pero continúe reproduciendo audio fielmente.
+   * **Múltiples Videos con Offset:** Cada video asociado cuenta con un `offset` en segundos que define la marca temporal del video donde comienza a cantarse la letra.
+   * **Fórmula de Sincronización:** El tiempo efectivo de la letra se calcula como:  
+     $$\tau_{\text{letra}} = t_{\text{video}} - \text{video.offset}$$
+   * **Búsqueda y Salto (Seek):** Al navegar a un segundo $\tau$, el reproductor salta a $\tau + \text{video.offset}$.
+   * **Transferencia Fluida:** Al alternar entre distintos videos asociados, se preserva la posición de canto $\tau_{\text{letra}}$.
 2. **Audio Nativo HTML5 / Archivo Local (`audio_path`):** Cuando la canción cuenta con un archivo de audio local (almacenado como Blob en IndexedDB o seleccionado mediante input file) o una URL de audio remota. El elemento `<audio>` emite eventos `timeupdate` de forma nativa o se reproduce vía Web Audio API.
 
 En ambos casos, el **Sincronizador de Letras** consume un único valor normalizado: `currentTime` en segundos.
 
 ---
 
-## 5. Implementación de los Dos Modos
+## 5. Navegación: Menú de Selección de Canciones y Modo Letra
+
+1. **Menú de Selección de Canciones (`songMenuView`):**
+   * Pantalla inicial de bienvenida y catálogo general de canciones en IndexedDB.
+   * Muestra tarjetas con metadatos, artistas, géneros, conteo de idiomas y videos asociados con sus offsets.
+   * Permite gestionar los videos asociados a cada canción mediante un modal dedicado (`videoManagerModal`), importar nuevos paquetes JSON o Lyricsfile YAML y exportar respaldos.
+   * Al seleccionar una canción ("🎤 Entrar a Modo Letra"), la canción se carga y se realiza la transición a la vista de letras.
+
+2. **Modo Letra (`BasicModeViewer` / `lyricsViewport`):**
+   * Pantalla dedicada a la visualización de la letra y el canto sincronizado sílaba a sílaba.
+   * Incorpora acceso rápido en el encabezado (`← Menú de Canciones`) y en los controles para regresar al menú en cualquier momento.
+   * Selector dinámico en la barra de controles para alternar entre cualquiera de los videos asociados a la canción y consultar sus offsets.
+   * Botón directo "✏️ Editar" para ingresar a ajustar la letra de la canción activa en cualquier momento.
+
+3. **Menú y Editor de Creación y Edición de Letras (`songEditorView`):**
+   * Pantalla completa para que los usuarios creen canciones desde cero o editen canciones existentes.
+   * **Metadatos y Videos:** Edición de título, artista, géneros, etiquetas y lista dinámica de videos de YouTube con offsets.
+   * **Asistente de Audio en Vivo:** Mini-reproductor integrado para escuchar la canción, pausar y capturar marcas de tiempo exactas en frases y sílabas mediante el botón de captura (`⏱️`).
+   * **Gestión Multilingüe:** Sistema de pestañas para crear idiomas ilimitados, editar interactivamente el nombre y código ISO al hacer clic sobre el idioma actual o su botón de edición, designar el idioma principal (`isMain: true`), alternar traducciones y copiar estructuras de tiempo entre idiomas.
+   * **Escritura por Frases y Tiempos:** Edición individual de versos (`startTime`, `endTime`, reordenamiento, preescucha puntual de fragmentos de audio).
+   * **Tiempos por Sílabas:** Sub-editor con motor fonético de silabeo (`syllablesHelper.js`), división por palabras, ajuste fino de duración e inicio por sílaba y distribución equitativa automática.
+   * **Importador Rápido:** Modal para pegar letras completas de corrido y calcular automáticamente versos, pausas y sílabas en segundos.
+
+
 
 ### 5.1. Modo Sencillo / Básico (`BasicModeViewer`)
 * **Datos fuente:** `songs.lyrics_data` (con soporte para colección `languages`).
@@ -430,3 +472,17 @@ En ambos casos, el **Sincronizador de Letras** consume un único valor normaliza
 
 1. **Configuración de Vite:** Configurar `base: './'` en [`vite.config.js`](file:///home/hezztia/Documents/SarangaBaranga/vite.config.js) para que las rutas a scripts y assets sean relativas.
 2. **Cero Dependencia de Servidores en Producción:** Todo el almacenamiento opera de forma local e independiente en el navegador del usuario (IndexedDB), garantizando una aplicación 100% estática, offline-first y sin riesgo de filtración de claves.
+
+---
+
+## 7. Sistema Visual y Biblioteca de Iconos SVG Minimalistas (`src/views/icons.js`)
+
+Para reducir el ruido visual y ofrecer una interfaz limpia, moderna y profesional, la aplicación reemplazó los emojis en toda la plataforma por iconos SVG geométricos embebidos:
+1. **Filosofía de Bajo Ruido:** Se eliminan los emojis decorativos innecesarios (emojis en títulos, badges, dropzones o encabezados). Los iconos quedan reservados exclusivamente a zonas funcionales clave:
+   * **Acciones CRUD y Navegación:** `iconPlus` (Crear / Añadir), `iconEdit` (Editar), `iconSave` (Guardar), `iconTrash` (Eliminar), `iconArrowLeft` (Volver / Retroceder), `iconClose` (Cerrar).
+   * **Reproducción y Audio:** `iconPlay` (Reproducir / Probar), `iconPause` (Pausar), `iconMic` (Modo Letra / Cantar).
+   * **Tiempos y Archivos:** `iconClock` (Captura de tiempos / Distribuir), `iconFileText` (Pegar Letra), `iconUpload` (Importar / Cargar), `iconDownload` (Exportar / Respaldo), `iconSettings` (Configuración), `iconChevronUp` / `iconChevronDown` (Expandir / Contraer / Reordenar).
+2. **Implementación Técnica:**
+   * Archivo centralizado: [`src/views/icons.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/icons.js).
+   * Los iconos son cadenas SVG vectoriales inline (`viewBox="0 0 24 24"`, `stroke="currentColor"`), adaptándose automáticamente al color de texto del botón o contenedor sin librerías externas ni fuentes pesadas de terceros.
+   * Reglas CSS en [`src/style.css`](file:///home/hezztia/Documents/SarangaBaranga/src/style.css) (`.icon-svg`) garantizan alineación vertical perfecta y comportamiento responsive.

@@ -1,60 +1,325 @@
 import './style.css'
-import heroImg from './assets/hero.png'
-import javascriptLogo from './assets/javascript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.js'
+import { getDB } from './services/db.js'
+import { listSongs, fetchSongById } from './services/songService.js'
+import { createMediaPlayer } from './player/mediaPlayer.js'
+import { createLanguageManager } from './lyrics/languageManager.js'
+import { createBasicViewer } from './views/basicViewer.js'
+import { createAdvancedViewer } from './views/advancedViewer.js'
+import { createControlsView } from './views/controlsView.js'
+import { createSongMenuView } from './views/songMenuView.js'
+import { createVideoManagerModal } from './views/videoManagerModal.js'
+import { createSongEditorView } from './views/songEditorView.js'
+import { iconArrowLeft } from './views/icons.js'
 
-document.querySelector('#app').innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${javascriptLogo}" class="framework" alt="JavaScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+async function initApp() {
+  const appContainer = document.querySelector('#app')
+  if (!appContainer) return
 
-<div class="ticks"></div>
+  // 1. Estructura HTML base de la aplicación
+  appContainer.innerHTML = `
+    <!-- Encabezado Global -->
+    <header class="app-header">
+      <div class="brand-section">
+        <h1 class="brand-title">SarangaBaranga</h1>
+        <span class="badge-mode" id="app-mode-badge">Modo Sencillo</span>
+      </div>
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-          <img class="button-icon" src="${javascriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+      <div class="song-header-info" id="song-header-info">
+        <h2 class="current-song-title" id="header-song-title">Menú de Selección de Canciones</h2>
+        <span class="current-song-artist" id="header-song-artist"></span>
+      </div>
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+      <div class="header-actions">
+        <button class="btn btn-outline btn-sm btn-header-nav" id="btn-header-back-menu" style="display: none;">
+          ${iconArrowLeft} Menú de Canciones
+        </button>
+      </div>
+    </header>
 
-setupCounter(document.querySelector('#counter'))
+    <!-- Lienzo de Efectos de Modo Avanzado -->
+    <div id="advanced-stage-container"></div>
+
+    <!-- Host de Audio de YouTube (100% invisible en pantalla, solo audio) -->
+    <div id="youtube-player-container" class="youtube-audio-host"></div>
+
+    <!-- Pantalla 1: Menú de Selección de Canciones -->
+    <section class="screen-view screen-menu" id="menu-screen"></section>
+
+    <!-- Pantalla 2: Modo Letra (Visualización y Controles) -->
+    <section class="screen-view screen-lyrics" id="lyrics-screen" style="display: none;">
+      <main class="main-stage-container">
+        <!-- Visor de Letras Sincronizadas -->
+        <section class="lyrics-stage-viewport" id="lyrics-viewport"></section>
+      </main>
+
+      <!-- Barra Inferior de Controles -->
+      <footer class="controls-dock" id="controls-dock"></footer>
+    </section>
+
+    <!-- Pantalla 3: Menú de Creación y Edición de Letras -->
+    <section class="screen-view screen-editor" id="editor-screen" style="display: none;"></section>
+
+    <!-- Modal de Gestión de Videos y Offsets -->
+    <div class="modal-container" id="video-modal"></div>
+  `
+
+  // 2. Elementos del DOM
+  const headerTitleEl = document.querySelector('#header-song-title')
+  const headerArtistEl = document.querySelector('#header-song-artist')
+  const modeBadgeEl = document.querySelector('#app-mode-badge')
+  const btnHeaderBackMenu = document.querySelector('#btn-header-back-menu')
+  const menuScreenEl = document.querySelector('#menu-screen')
+  const lyricsScreenEl = document.querySelector('#lyrics-screen')
+  const editorScreenEl = document.querySelector('#editor-screen')
+  const lyricsViewportEl = document.querySelector('#lyrics-viewport')
+  const controlsDockEl = document.querySelector('#controls-dock')
+  const videoModalEl = document.querySelector('#video-modal')
+  const advancedStageEl = document.querySelector('#advanced-stage-container')
+
+  // 3. Estado de la aplicación
+  let currentSong = null
+  let currentMode = 'basic'
+  let currentScreen = 'menu' // 'menu' | 'lyrics' | 'editor'
+
+  const languageManager = createLanguageManager([])
+  const basicViewer = createBasicViewer(lyricsViewportEl)
+  const advancedViewer = createAdvancedViewer(advancedStageEl)
+
+  // 4. Inicializar Reproductor Multimedia (Master Clock)
+  const mediaPlayer = createMediaPlayer({
+    containerId: 'youtube-player-container',
+    onTimeUpdate: (currentTime) => {
+      controlsView.setTime(currentTime)
+      basicViewer.updateTime(currentTime)
+      songEditorView.updateClock(currentTime)
+    },
+    onStateChange: () => {
+      controlsView.setPlayingState(mediaPlayer.getIsPlaying())
+      songEditorView.setPlayingState(mediaPlayer.getIsPlaying())
+    },
+    onDurationChange: (duration) => {
+      controlsView.setDuration(duration)
+    }
+  })
+
+  // 5. Inicializar Modal de Gestión de Videos y Offsets
+  const videoManagerModal = createVideoManagerModal({
+    containerElement: videoModalEl,
+    onVideosUpdated: async (songId, updatedVideos) => {
+      songMenuView.refresh()
+      if (currentSong && Number(currentSong.id) === Number(songId)) {
+        currentSong.videos = updatedVideos
+        await mediaPlayer.loadSong(currentSong, mediaPlayer.getActiveVideoId())
+        controlsView.setVideosState({
+          videos: updatedVideos,
+          activeId: mediaPlayer.getActiveVideoId()
+        })
+      }
+    }
+  })
+
+  // 6. Inicializar Editor de Letras y Creaciones
+  const songEditorView = createSongEditorView({
+    containerElement: editorScreenEl,
+    mediaPlayer,
+    onSongSaved: async (savedId) => {
+      await songMenuView.refresh()
+      const updated = await fetchSongById(savedId)
+      if (updated && currentSong && Number(currentSong.id) === Number(savedId)) {
+        currentSong = updated
+      }
+    },
+    onGoToMenu: () => showMenuScreen(),
+    onEnterLyricsMode: async (savedId) => {
+      await loadSongIntoApp(savedId)
+      showLyricsScreen()
+    }
+  })
+
+  // 7. Inicializar Barra de Controles (Modo Letra)
+  const controlsView = createControlsView({
+    containerElement: controlsDockEl,
+    onPlayToggle: () => mediaPlayer.togglePlay(),
+    onSeek: (seconds) => mediaPlayer.seek(seconds),
+    onVideoChange: (videoId) => {
+      mediaPlayer.setVideo(videoId)
+      controlsView.setVideosState({
+        videos: mediaPlayer.getVideos(),
+        activeId: videoId
+      })
+      controlsView.setDuration(mediaPlayer.getDuration())
+    },
+    onManageVideos: () => {
+      if (currentSong) {
+        videoManagerModal.open(currentSong)
+      }
+    },
+    onLanguageChange: (langCode) => languageManager.setActiveLanguage(langCode),
+    onTranslationChange: (langCode) => languageManager.setTranslationLanguage(langCode),
+    onBilingualToggle: (active) => languageManager.setBilingual(active),
+    onModeToggle: (newMode) => switchMode(newMode),
+    onGoToMenu: () => showMenuScreen(),
+    onEditSong: () => {
+      if (currentSong) {
+        showEditorScreen(currentSong)
+      }
+    }
+  })
+
+  // 8. Inicializar Menú de Selección de Canciones
+  const songMenuView = createSongMenuView({
+    containerElement: menuScreenEl,
+    onEnterLyricsMode: async (songId) => {
+      await loadSongIntoApp(songId)
+      showLyricsScreen()
+    },
+    onManageVideos: (song) => {
+      videoManagerModal.open(song)
+    },
+    onCreateNewSong: () => {
+      showEditorScreen(null)
+    },
+    onEditSong: (song) => {
+      showEditorScreen(song)
+    }
+  })
+
+  // 9. Reaccionar a cambios en idiomas
+  languageManager.subscribe(({ activeLanguage, translationLanguage, isBilingual, availableLanguages }) => {
+    controlsView.setLanguagesState({
+      languages: availableLanguages,
+      active: activeLanguage,
+      translation: translationLanguage,
+      bilingual: isBilingual
+    })
+
+    if (currentSong && activeLanguage) {
+      const transLines = isBilingual && translationLanguage ? translationLanguage.lines : []
+      basicViewer.setLyrics({
+        lines: activeLanguage.lines,
+        translations: transLines,
+        bilingual: isBilingual,
+        styles: currentSong.lyrics_data?.styles || {}
+      })
+    }
+  })
+
+  // 10. Alternar Pantallas (Menú vs Letra vs Editor)
+  function showMenuScreen() {
+    currentScreen = 'menu'
+    mediaPlayer.pause()
+
+    if (menuScreenEl) menuScreenEl.style.display = 'block'
+    if (lyricsScreenEl) lyricsScreenEl.style.display = 'none'
+    if (editorScreenEl) editorScreenEl.style.display = 'none'
+    if (btnHeaderBackMenu) {
+      btnHeaderBackMenu.style.display = 'none'
+      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} Menú de Canciones`
+    }
+
+    if (headerTitleEl) headerTitleEl.textContent = 'Menú de Selección de Canciones'
+    if (headerArtistEl) headerArtistEl.textContent = ''
+
+    songMenuView.refresh()
+  }
+
+  function showLyricsScreen() {
+    currentScreen = 'lyrics'
+
+    if (menuScreenEl) menuScreenEl.style.display = 'none'
+    if (lyricsScreenEl) lyricsScreenEl.style.display = 'flex'
+    if (editorScreenEl) editorScreenEl.style.display = 'none'
+    if (btnHeaderBackMenu) {
+      btnHeaderBackMenu.style.display = 'inline-flex'
+      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} Menú de Canciones`
+    }
+
+    if (currentSong) {
+      if (headerTitleEl) headerTitleEl.textContent = currentSong.title
+      if (headerArtistEl) headerArtistEl.textContent = currentSong.artist ? `por ${currentSong.artist}` : ''
+    }
+
+    controlsView.render()
+  }
+
+  function showEditorScreen(songToEdit = null) {
+    currentScreen = 'editor'
+    mediaPlayer.pause()
+
+    if (menuScreenEl) menuScreenEl.style.display = 'none'
+    if (lyricsScreenEl) lyricsScreenEl.style.display = 'none'
+    if (editorScreenEl) editorScreenEl.style.display = 'flex'
+    if (btnHeaderBackMenu) {
+      btnHeaderBackMenu.style.display = 'inline-flex'
+      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} Volver al Menú`
+    }
+
+    if (headerTitleEl) {
+      headerTitleEl.textContent = songToEdit ? `Editor: ${songToEdit.title}` : 'Crear Nueva Canción'
+    }
+    if (headerArtistEl) {
+      headerArtistEl.textContent = songToEdit && songToEdit.artist ? `por ${songToEdit.artist}` : 'Herramienta de Creación'
+    }
+
+    songEditorView.open(songToEdit)
+  }
+
+  // 11. Botón de volver al menú desde el header
+  if (btnHeaderBackMenu) {
+    btnHeaderBackMenu.addEventListener('click', () => {
+      showMenuScreen()
+    })
+  }
+
+  // 11. Cambio de Modo (Sencillo vs Avanzado)
+  function switchMode(newMode) {
+    currentMode = newMode
+    controlsView.setMode(newMode)
+
+    if (modeBadgeEl) {
+      modeBadgeEl.textContent = newMode === 'basic' ? 'Modo Sencillo' : 'Modo Avanzado'
+      modeBadgeEl.style.borderColor = newMode === 'basic' ? 'rgba(99, 102, 241, 0.4)' : 'rgba(251, 191, 36, 0.5)'
+      modeBadgeEl.style.color = newMode === 'basic' ? '#a5b4fc' : '#fde68a'
+    }
+
+    if (newMode === 'advanced') {
+      advancedViewer.mount()
+    } else {
+      advancedViewer.unmount()
+    }
+  }
+
+  // 12. Cargar canción activa en el reproductor y visor
+  async function loadSongIntoApp(songId) {
+    const song = await fetchSongById(songId)
+    if (!song) return
+
+    currentSong = song
+
+    const lyricsData = song.lyrics_data || {}
+    const languages = Array.isArray(lyricsData.languages) ? lyricsData.languages : []
+    languageManager.setLanguages(languages)
+
+    await mediaPlayer.loadSong(song)
+    controlsView.setVideosState({
+      videos: mediaPlayer.getVideos(),
+      activeId: mediaPlayer.getActiveVideoId()
+    })
+    controlsView.setTime(0)
+    controlsView.setPlayingState(false)
+    controlsView.setDuration(mediaPlayer.getDuration())
+  }
+
+  // 13. Inicializar Base de Datos y cargar menú inicial
+  try {
+    await getDB()
+    await songMenuView.refresh()
+    showMenuScreen()
+  } catch (err) {
+    console.error('Error durante la inicialización:', err)
+    if (headerTitleEl) headerTitleEl.textContent = 'Error al cargar la base de datos'
+  }
+}
+
+// Iniciar aplicación al cargar el DOM
+document.addEventListener('DOMContentLoaded', initApp)
