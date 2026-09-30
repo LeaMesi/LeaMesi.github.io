@@ -99,7 +99,10 @@ async function initApp() {
   let currentMode = 'basic'
   let currentScreen = 'menu' // 'menu' | 'lyrics' | 'editor'
 
-  const initialPreviewLines = Number(localStorage.getItem('saranga_preview_lines')) || 2
+  const savedPreviewLines = localStorage.getItem('saranga_preview_lines')
+  const initialPreviewLines = (savedPreviewLines !== null && !isNaN(Number(savedPreviewLines)))
+    ? Math.max(0, Math.min(3, Number(savedPreviewLines)))
+    : 2
 
   const languageManager = createLanguageManager([])
   const basicViewer = createBasicViewer(lyricsViewportEl, {

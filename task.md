@@ -81,7 +81,7 @@
   - Sincronización paralela para visualización dual (emparejamiento temporal entre idioma principal y traducción activa).
 - [x] **4.4. Componente de Visualización Enfocado (`src/views/basicViewer.js`):**
   - Frase actual centrada vertical y horizontalmente en el escenario principal con tamaño completo, animación de entrada y letra suelta (sin cajas, fondos ni bordes opacos).
-  - Frases siguientes (1 a 3 configurables) renderizadas directamente debajo a escala reducida (~70%), colores más apagados/atenuados y presentación suelta sin contenedor visible.
+  - Frases siguientes (0 a 3 configurables, admitiendo modo solo frase actual sin letras siguientes) renderizadas directamente debajo a escala reducida (~70%), colores más apagados/atenuados y presentación suelta sin contenedor visible.
   - Clic en frases siguientes para salto temporal interactivo (Seek).
 - [x] **4.5. Resaltado Fiel de Sílabas y Palabras sin Espacios Extra:**
   - Desglose contiguo (`join('')` sin saltos de línea ni espaciado espurio en template literals).
@@ -269,6 +269,21 @@
   - Función `exportThemePackage()`: exporta el tema a `saranga-theme-settings.json` mediante descarga dinámica con `Blob`.
   - Función `importThemePackage()`: procesa archivos JSON (paquetes o configuraciones directas), valida campos y rangos, sanea datos, guarda en `localStorage` y actualiza la UI de inmediato.
   - Botones de exportar e importar integrados tanto en la cabecera de presets como en el pie del diálogo de configuración con alertas de estado.
+
+---
+
+## Fase 13: Modo Solo Frase Actual y Configuración Flexible de Previsualización (0 a 3 Frases)
+
+- [x] **13.1. Soporte de 0 Frases Siguientes en el Motor de Renderizado (`src/views/basicViewer.js`):**
+  - Actualizada la lógica de corte `currentLines.slice` y el estado interno `previewCount` para admitir de forma nativa `0`.
+  - Renderizado condicional que omite completamente el contenedor `.upcoming-phrases-container` cuando `previewCount === 0`, asegurando que la frase activa se mantenga centrada en el escenario sin márgenes espurios.
+- [x] **13.2. Selector Dinámico de Frases Siguientes con Opción "Ninguna (solo actual)" (`src/views/controlsView.js`):**
+  - Incorporada la opción `<option value="0">Ninguna (solo actual)</option>` en el menú desplegable `#preview-lines-select`.
+  - Normalización de parsing y eventos para evitar conversiones booleanas falsas (`0 || 2`), permitiendo seleccionar y conservar `0` sin saltar al valor por defecto.
+- [x] **13.3. Persistencia Robusta de Preferencia de Previsualización (`src/main.js`):**
+  - Ajustada la lectura inicial desde `localStorage` (`saranga_preview_lines`) con validación de valor no nulo (`savedPreviewLines !== null && !isNaN(Number(savedPreviewLines))`), preservando la preferencia `0` entre sesiones y recargas de página.
+- [x] **13.4. Reglas CSS y Limpieza Estética (`src/style.css`):**
+  - Incorporada regla `.upcoming-phrases-container:empty { display: none; margin: 0; }` para prevenir cualquier desfase vertical cuando no haya versos siguientes disponibles.
 
 
 

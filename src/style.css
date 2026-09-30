@@ -335,6 +335,11 @@ input[type="number"] {
   position: relative;
 }
 
+.upcoming-phrases-container:empty {
+  display: none;
+  margin: 0;
+}
+
 .upcoming-phrase-item {
   width: 100%;
   padding: 6px 14px;

@@ -1,7 +1,7 @@
 # Estado del Desarrollo: SarangaBaranga (`proy-letras`)
 
 > **Estado Global:** Arquitectura reorientada a **Persistencia Local en Navegador (IndexedDB)** y compartición mediante **Exportación/Importación JSON**. Enfoque activo en **Modo Sencillo / Básico**.  
-> **Última actualización:** 2026-09-29  
+> **Última actualización:** 2026-09-30  
 > **Plataforma:** SPA Estática (GitHub Pages) + IndexedDB Local & Export/Import JSON (+ Catálogo Opcional Supabase Read-Only a futuro)
 
 ---
@@ -50,9 +50,10 @@
 | **Motor Export / Import JSON** | 🟢 Operativo | `src/services/shareService.js` para exportar e importar paquetes `song-package.json` conservando colección de videos y offsets. |
 | **Servicio Lyricsfile (YAML)** | 🟢 Operativo | `src/services/lyricsfileService.js` validando versión 1.0, milisegundos y palabras/sílabas. |
 | **Adaptador de Audio / YouTube** | 🟢 Operativo | `src/player/mediaPlayer.js` con selector multi-video, cálculo de offset, audio HTML5 y Master Clock RAF bridge con arranque inmediato en `play()` y resiliencia ante estados `BUFFERING`. |
-| **Modo Básico (Letra y Sílabas)** | 🟢 Operativo | `src/views/basicViewer.js` con escenario enfocado y letras sueltas (sin cajas, bordes ni fondos): frase actual en el centro, frases siguientes debajo reducidas al 70% con colores atenuados, cantidad de frases configurables (1 a 3), resaltado continuo sin espacios extra ni deformación de escala, y subtítulo de traducción en cursiva. |
+| **Modo Básico (Letra y Sílabas)** | 🟢 Operativo | `src/views/basicViewer.js` con escenario enfocado y letras sueltas (sin cajas, bordes ni fondos): frase actual en el centro, frases siguientes debajo reducidas al 70% con colores atenuados, cantidad de frases configurables (0 a 3, incluyendo modo solo actual sin frases siguientes), resaltado continuo sin espacios extra ni deformación de escala, y subtítulo de traducción en cursiva. |
 | **Cálculo de Tiempos / BPM** | 🟢 Operativo | `src/lyrics/timing.js` con utilidades de tiempo, compás y formateo mm:ss con soporte de milisegundos de alta precisión (`mm:ss.mmm`). |
-| **UI de Controles y Selector de Pista** | 🟢 Operativo | `src/views/controlsView.js` con barra de progreso, selector de video y offsets, selector de traducción opcional, selector de frases siguientes (1 a 3), botón de retorno al menú y toggles. |
+| **UI de Controles y Selector de Pista** | 🟢 Operativo | `src/views/controlsView.js` con barra de progreso, selector de video y offsets, selector de traducción opcional, selector de frases siguientes (0 a 3, con opción 'Ninguna (solo actual)'), botón de retorno al menú y toggles. |
+| **Modo Solo Frase Actual (0 Siguientes)** | 🟢 Operativo | Soporte integral en `src/views/controlsView.js`, `src/views/basicViewer.js` y `src/main.js` para prescindir de frases siguientes, ocultando el contenedor inferior y presentando exclusivamente la frase en curso perfectamente centrada, con persistencia en `localStorage` (`saranga_preview_lines`). |
 | **Modo Avanzado (Pixi.js / FX)** | 🟡 Operativo Básico | `src/views/advancedViewer.js` montado bajo demanda con lienzo interactivo y partículas ambientales sin interferir con el modo básico. |
 | **Editor de Creación y Edición de Letras** | 🟢 Operativo | `src/views/songEditorView.js` con creación desde cero, edición por frases, marcas de tiempo con inputs limpios y oscuros (eliminación de flechas nativas y fondos blancos), sílabas, asistente de audio con reloj en vivo de alta precisión (`mm:ss.mmm`), importación rápida y edición interactiva de idiomas. |
 | **Separador Fonético de Sílabas y Tiempos** | 🟢 Operativo | `src/lyrics/syllablesHelper.js` con silabeo fonético en español, división por palabras y distribución proporcional de tiempos. |

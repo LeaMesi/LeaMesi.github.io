@@ -460,7 +460,7 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
 2. **Modo Letra (`BasicModeViewer` / `lyricsViewport`):**
    * Pantalla dedicada a la visualización de la letra y el canto sincronizado sílaba a sílaba.
    * Incorpora acceso rápido en el encabezado (`← Menú de Canciones`) y en los controles para regresar al menú en cualquier momento.
-   * Barra de controles con barra de progreso, botón de reproducción/pausa, selector dinámico de videos asociados con offsets, **slider interactivo de volumen y botón de silenciado**, selector de traducciones y selector de líneas siguientes.
+   * Barra de controles con barra de progreso, botón de reproducción/pausa, selector dinámico de videos asociados con offsets, **slider interactivo de volumen y botón de silenciado**, selector de traducciones y selector de líneas siguientes (0 a 3 frases).
    * Botón directo "✏️ Editar" para ingresar a ajustar la letra de la canción activa en cualquier momento.
 
 3. **Menú y Editor de Creación y Edición de Letras (`songEditorView`):**
@@ -486,7 +486,7 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
 * **Escenario Centrado con Letras Sueltas (Sin Cajas ni Fondos):**
   * **Filosofía de Letra Suelta:** Las frases no están encerradas en contenedores con bordes ni fondos opacos; flotan directamente sobre el escenario oscuro de la aplicación (`background: transparent; border: none;`), maximizando la inmersión del usuario.
   * **Frase Actual:** Se ubica permanentemente en el centro vertical y horizontal del visor con tamaño completo (`--lyrics-font-size`) y peso tipográfico destacado (700).
-  * **Frases Siguientes (Debajo):** Se muestran debajo de la frase actual, reducidas al 70% del tamaño (`calc(var(--lyrics-font-size) * 0.70)`), con colores más apagados/atenuados (`--text-muted`, `--text-inactive`). El usuario puede configurar mediante selector si desea previsualizar 1, 2 o 3 frases siguientes.
+  * **Frases Siguientes (Debajo):** Se muestran debajo de la frase actual, reducidas al 70% del tamaño (`calc(var(--lyrics-font-size) * 0.70)`), con colores más apagados/atenuados (`--text-muted`, `--text-inactive`). El usuario puede configurar mediante selector si desea ocultar las frases siguientes (0 frases / *Ninguna (solo actual)*) o previsualizar 1, 2 o 3 frases siguientes. En el modo de 0 frases, el contenedor inferior se omite por completo, manteniendo la frase actual perfectamente centrada en el escenario.
   * **Interacción Rápida:** Al hacer clic sobre cualquier frase siguiente en previsualización, el reproductor salta instantáneamente a su tiempo de inicio (`startTime`).
 * **Resaltado Sílaba a Sílaba / Palabra por Palabra sin Espacios Extra:**
   * Descompone los versos activos en elementos `<span>` continuos e inline (`display: inline; white-space: pre-wrap;`) concatenados de forma contigua (`join('')`), eliminando saltos de línea intermedios y evitando la inserción de espacios espurios en el DOM.
