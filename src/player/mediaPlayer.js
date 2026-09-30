@@ -47,21 +47,46 @@ export function extractYouTubeVideoId(url) {
 
 let ytApiPromise = null
 function loadYouTubeApi() {
+  if (typeof window === 'undefined') return Promise.resolve(null)
   if (window.YT && window.YT.Player) {
     return Promise.resolve(window.YT)
   }
   if (!ytApiPromise) {
     ytApiPromise = new Promise((resolve) => {
+      let isDone = false
+      const safeResolve = (val) => {
+        if (!isDone) {
+          isDone = true
+          resolve(val)
+        }
+      }
+
+      // Timeout de seguridad: si después de 4 segundos no hay API (red lenta, offline, adblock), no colgar
+      const timer = setTimeout(() => {
+        console.warn('YouTube IFrame API: tiempo de espera alcanzado, continuando con fallback.')
+        safeResolve(window.YT || null)
+      }, 4000)
+
       const existing = document.querySelector('script[src*="youtube.com/iframe_api"]')
       if (!existing) {
         const tag = document.createElement('script')
         tag.src = 'https://www.youtube.com/iframe_api'
+        tag.async = true
+        tag.onerror = () => {
+          clearTimeout(timer)
+          console.warn('No se pudo cargar la API de YouTube (offline o bloqueada por adblock).')
+          safeResolve(null)
+        }
         document.head.appendChild(tag)
       }
+
       const prevOnReady = window.onYouTubeIframeAPIReady
       window.onYouTubeIframeAPIReady = () => {
-        if (typeof prevOnReady === 'function') prevOnReady()
-        resolve(window.YT)
+        clearTimeout(timer)
+        if (typeof prevOnReady === 'function') {
+          try { prevOnReady() } catch (_) {}
+        }
+        safeResolve(window.YT || null)
       }
     })
   }
@@ -70,6 +95,9 @@ function loadYouTubeApi() {
 
 export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, onDurationChange }) {
   let ytPlayer = null
+  let isPlayerReady = false
+  let pendingVideoLoad = null
+  let isInitializingYt = false
   let audioElement = null
   let activeSource = 'none' // 'youtube' | 'audio'
   let currentTrackType = TRACK_TYPE.OFFICIAL
@@ -137,57 +165,129 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
   }
 
   async function initYouTubePlayer(domElementId, initialVideoId) {
-    const YT = await loadYouTubeApi()
-    return new Promise((resolve) => {
-      ytPlayer = new YT.Player(domElementId, {
-        videoId: initialVideoId || '',
-        playerVars: {
-          autoplay: 0,
-          controls: 1,
-          modestbranding: 1,
-          rel: 0,
-          playsinline: 1,
-          enablejsapi: 1
-        },
-        events: {
-          onReady: () => {
-            if (ytPlayer.setVolume) {
-              ytPlayer.setVolume(currentVolume)
-            }
-            if (ytPlayer.getDuration) {
-              const dur = ytPlayer.getDuration()
-              if (dur > 0) {
-                lastKnownDuration = dur
-                if (onDurationChange) onDurationChange(getDuration())
-              }
-            }
+    if (ytPlayer) return ytPlayer
+    if (isInitializingYt) {
+      return new Promise((resolve) => {
+        const check = setInterval(() => {
+          if (!isInitializingYt) {
+            clearInterval(check)
             resolve(ytPlayer)
-          },
-          onStateChange: (event) => {
-            const state = event.data
-            if (state === PLAYER_STATE.PLAYING) {
-              isPlaying = true
-              startClock()
-              const dur = ytPlayer.getDuration ? ytPlayer.getDuration() : 0
-              if (dur > 0 && dur !== lastKnownDuration) {
-                lastKnownDuration = dur
-                if (onDurationChange) onDurationChange(getDuration())
-              }
-            } else if (state === PLAYER_STATE.BUFFERING) {
-              // Si el usuario activó la reproducción, no detener el reloj ni marcar en falso
-              if (isPlaying) {
-                startClock()
-              }
-            } else if (state === PLAYER_STATE.PAUSED || state === PLAYER_STATE.ENDED) {
-              isPlaying = false
-              stopClock()
-              if (onTimeUpdate) onTimeUpdate(getCurrentTime())
-            }
-            if (onStateChange) onStateChange(state)
+          }
+        }, 100)
+      })
+    }
+
+    isInitializingYt = true
+    try {
+      const YT = await loadYouTubeApi()
+      if (!YT || !YT.Player) {
+        console.warn('YouTube IFrame API no disponible. Se utilizará modo de audio virtual/local.')
+        return null
+      }
+
+      return await new Promise((resolve) => {
+        let hasResolved = false
+        const safeResolve = (val) => {
+          if (!hasResolved) {
+            hasResolved = true
+            isInitializingYt = false
+            resolve(val)
           }
         }
+
+        // Timeout de seguridad: si onReady no dispara en 3.5 segundos, resolver para no trabar la interfaz
+        const timer = setTimeout(() => {
+          console.warn('YouTube Player onReady demoró más de 3.5s. Continuando de forma no bloqueante.')
+          safeResolve(ytPlayer)
+        }, 3500)
+
+        try {
+          ytPlayer = new YT.Player(domElementId, {
+            videoId: initialVideoId || '',
+            playerVars: {
+              autoplay: 0,
+              controls: 1,
+              modestbranding: 1,
+              rel: 0,
+              playsinline: 1,
+              enablejsapi: 1
+            },
+            events: {
+              onReady: () => {
+                clearTimeout(timer)
+                isPlayerReady = true
+                if (ytPlayer && ytPlayer.setVolume) {
+                  try { ytPlayer.setVolume(currentVolume) } catch (_) {}
+                }
+                if (ytPlayer && ytPlayer.getDuration) {
+                  try {
+                    const dur = ytPlayer.getDuration()
+                    if (dur > 0) {
+                      lastKnownDuration = dur
+                      if (onDurationChange) onDurationChange(getDuration())
+                    }
+                  } catch (_) {}
+                }
+                if (pendingVideoLoad && ytPlayer && ytPlayer.cueVideoById) {
+                  const { videoId, offset } = pendingVideoLoad
+                  pendingVideoLoad = null
+                  try {
+                    ytPlayer.cueVideoById({
+                      videoId,
+                      startSeconds: Math.max(0, offset)
+                    })
+                    ytPlayer.seekTo(Math.max(0, offset), true)
+                  } catch (err) {
+                    console.warn('Error cueing pending video onReady:', err)
+                  }
+                }
+                safeResolve(ytPlayer)
+              },
+              onError: (event) => {
+                clearTimeout(timer)
+                console.warn('YouTube Player error code:', event?.data)
+                safeResolve(ytPlayer)
+              },
+              onStateChange: (event) => {
+                const state = event.data
+                if (state === PLAYER_STATE.PLAYING) {
+                  isPlaying = true
+                  startClock()
+                  if (ytPlayer && ytPlayer.getDuration) {
+                    try {
+                      const dur = ytPlayer.getDuration()
+                      if (dur > 0 && dur !== lastKnownDuration) {
+                        lastKnownDuration = dur
+                        if (onDurationChange) onDurationChange(getDuration())
+                      }
+                    } catch (_) {}
+                  }
+                } else if (state === PLAYER_STATE.BUFFERING) {
+                  // Si el usuario activó la reproducción, no detener el reloj ni marcar en falso
+                  if (isPlaying) {
+                    startClock()
+                  }
+                } else if (state === PLAYER_STATE.PAUSED || state === PLAYER_STATE.ENDED) {
+                  isPlaying = false
+                  stopClock()
+                  if (onTimeUpdate) onTimeUpdate(getCurrentTime())
+                }
+                if (onStateChange) onStateChange(state)
+              }
+            }
+          })
+        } catch (playerErr) {
+          clearTimeout(timer)
+          console.warn('Error al instanciar YT.Player:', playerErr)
+          safeResolve(null)
+        }
       })
-    })
+    } catch (err) {
+      console.warn('Error general inicializando reproductor YouTube:', err)
+      return null
+    } finally {
+      isInitializingYt = false
+    }
   }
 
   async function loadSong(song, preferredVideoId = null) {
@@ -195,6 +295,17 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     isPlaying = false
     fallbackTime = 0
     currentSong = song
+
+    if (audioElement) {
+      audioElement.pause()
+      audioElement.removeAttribute('src')
+      audioElement.load()
+    }
+    if (ytPlayer && isPlayerReady && ytPlayer.pauseVideo) {
+      try {
+        ytPlayer.pauseVideo()
+      } catch (_) {}
+    }
 
     const metadata = song.metadata || song
     const lyricsData = song.lyrics_data || song.basic || {}
@@ -215,15 +326,31 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
 
     if (primaryVideoId) {
       activeSource = 'youtube'
-      if (!ytPlayer) {
-        await initYouTubePlayer(containerId, primaryVideoId)
-      } else if (ytPlayer.cueVideoById) {
-        ytPlayer.cueVideoById(primaryVideoId)
+      try {
+        if (!ytPlayer) {
+          pendingVideoLoad = { videoId: primaryVideoId, offset: activeOffset }
+          await initYouTubePlayer(containerId, primaryVideoId)
+        } else if (isPlayerReady && ytPlayer.cueVideoById) {
+          pendingVideoLoad = null
+          ytPlayer.cueVideoById({
+            videoId: primaryVideoId,
+            startSeconds: Math.max(0, activeOffset)
+          })
+          ytPlayer.seekTo(Math.max(0, activeOffset), true)
+        } else {
+          pendingVideoLoad = { videoId: primaryVideoId, offset: activeOffset }
+        }
+      } catch (ytErr) {
+        console.warn('Error al cargar video en YouTube player:', ytErr)
       }
     } else if (audioUrl) {
       activeSource = 'audio'
-      audioElement.src = audioUrl
-      audioElement.load()
+      try {
+        audioElement.src = audioUrl
+        audioElement.load()
+      } catch (audioErr) {
+        console.warn('Error al cargar audio:', audioErr)
+      }
     } else {
       // Modo emulado sin audio / local
       activeSource = 'virtual'
@@ -249,52 +376,87 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
 
     if (ytVideoId && ytPlayer) {
       activeSource = 'youtube'
-      if (isPlaying && ytPlayer.loadVideoById) {
-        ytPlayer.loadVideoById({
-          videoId: ytVideoId,
-          startSeconds: targetVideoTime
-        })
-      } else if (ytPlayer.cueVideoById) {
-        ytPlayer.cueVideoById({
-          videoId: ytVideoId,
-          startSeconds: targetVideoTime
-        })
-        ytPlayer.seekTo(targetVideoTime, true)
+      if (isPlayerReady) {
+        if (isPlaying && ytPlayer.loadVideoById) {
+          ytPlayer.loadVideoById({
+            videoId: ytVideoId,
+            startSeconds: targetVideoTime
+          })
+        } else if (ytPlayer.cueVideoById) {
+          ytPlayer.cueVideoById({
+            videoId: ytVideoId,
+            startSeconds: targetVideoTime
+          })
+          ytPlayer.seekTo(targetVideoTime, true)
+        }
+      } else {
+        pendingVideoLoad = { videoId: ytVideoId, offset: targetVideoTime }
       }
     }
   }
 
-  function play() {
+  function startVirtualPlayback() {
+    startClock()
+    if (fallbackTimer) clearInterval(fallbackTimer)
+    let lastTime = performance.now()
+    fallbackTimer = setInterval(() => {
+      const now = performance.now()
+      fallbackTime += (now - lastTime) / 1000
+      lastTime = now
+      if (fallbackTime >= lastKnownDuration) {
+        pause()
+        seek(0)
+        if (onStateChange) onStateChange(PLAYER_STATE.ENDED)
+      }
+    }, 50)
+    if (onStateChange) onStateChange(PLAYER_STATE.PLAYING)
+  }
+
+  async function play() {
     isPlaying = true
-    if (activeSource === 'youtube' && ytPlayer && ytPlayer.playVideo) {
-      startClock()
-      ytPlayer.playVideo()
-    } else if (activeSource === 'audio' && audioElement) {
-      audioElement.play().catch(err => console.warn('Audio play prevented:', err))
-      startClock()
-      if (onStateChange) onStateChange(PLAYER_STATE.PLAYING)
-    } else if (activeSource === 'virtual') {
-      startClock()
-      let lastTime = performance.now()
-      fallbackTimer = setInterval(() => {
-        const now = performance.now()
-        fallbackTime += (now - lastTime) / 1000
-        lastTime = now
-        if (fallbackTime >= lastKnownDuration) {
-          pause()
-          seek(0)
-          if (onStateChange) onStateChange(PLAYER_STATE.ENDED)
+    if (activeSource === 'youtube') {
+      if (!isPlayerReady && ytPlayer) {
+        // Esperar brevemente (hasta 3s) si el reproductor está terminando de inicializar
+        await new Promise((resolve) => {
+          let count = 0
+          const check = setInterval(() => {
+            count++
+            if (isPlayerReady || count > 30) {
+              clearInterval(check)
+              resolve()
+            }
+          }, 100)
+        })
+      }
+
+      if (ytPlayer && isPlayerReady && ytPlayer.playVideo) {
+        startClock()
+        try {
+          ytPlayer.playVideo()
+        } catch (err) {
+          console.warn('Error al invocar playVideo en YouTube:', err)
+          startVirtualPlayback()
         }
-      }, 50)
+      } else {
+        startVirtualPlayback()
+      }
+    } else if (activeSource === 'audio' && audioElement) {
+      audioElement.play().catch(err => {
+        console.warn('Audio play prevented:', err)
+        startVirtualPlayback()
+      })
+      startClock()
       if (onStateChange) onStateChange(PLAYER_STATE.PLAYING)
+    } else {
+      startVirtualPlayback()
     }
   }
 
   function pause() {
     isPlaying = false
     stopClock()
-    if (activeSource === 'youtube' && ytPlayer && ytPlayer.pauseVideo) {
-      ytPlayer.pauseVideo()
+    if (activeSource === 'youtube' && ytPlayer && isPlayerReady && ytPlayer.pauseVideo) {
+      try { ytPlayer.pauseVideo() } catch (_) {}
     } else if (activeSource === 'audio' && audioElement) {
       audioElement.pause()
     }
@@ -314,7 +476,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     const target = Math.max(0, Math.min(targetLyricsSeconds, dur))
     const targetVideoTime = Math.max(0, target + activeOffset)
 
-    if (activeSource === 'youtube' && ytPlayer && ytPlayer.seekTo) {
+    if (activeSource === 'youtube' && ytPlayer && isPlayerReady && ytPlayer.seekTo) {
       ytPlayer.seekTo(targetVideoTime, true)
     } else if (activeSource === 'audio' && audioElement) {
       audioElement.currentTime = targetVideoTime
@@ -325,7 +487,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
   }
 
   function getCurrentTime() {
-    if (activeSource === 'youtube' && ytPlayer && ytPlayer.getCurrentTime) {
+    if (activeSource === 'youtube' && ytPlayer && isPlayerReady && ytPlayer.getCurrentTime) {
       const rawVideoTime = ytPlayer.getCurrentTime() || 0
       return rawVideoTime - activeOffset
     }
@@ -336,7 +498,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
   }
 
   function getRawVideoTime() {
-    if (activeSource === 'youtube' && ytPlayer && ytPlayer.getCurrentTime) {
+    if (activeSource === 'youtube' && ytPlayer && isPlayerReady && ytPlayer.getCurrentTime) {
       return ytPlayer.getCurrentTime() || 0
     }
     if (activeSource === 'audio' && audioElement) {
@@ -346,7 +508,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
   }
 
   function getDuration() {
-    if (activeSource === 'youtube' && ytPlayer && ytPlayer.getDuration) {
+    if (activeSource === 'youtube' && ytPlayer && isPlayerReady && ytPlayer.getDuration) {
       const dur = ytPlayer.getDuration()
       if (dur > 0) return Math.max(1, dur - activeOffset)
     }

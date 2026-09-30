@@ -180,17 +180,17 @@ input[type="number"] {
   overflow: hidden;
 }
 
-/* Host de Audio de YouTube (100% invisible en pantalla, mantiene audio activo) */
+/* Host de Audio de YouTube (100% invisible para el usuario, en viewport y detrás de controls-dock z-index 30 para evitar throttling del navegador) */
 .youtube-audio-host,
 #youtube-player-container {
   position: fixed !important;
-  top: -9999px !important;
-  left: -9999px !important;
-  width: 320px !important;
-  height: 240px !important;
-  opacity: 0 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 200px !important;
+  height: 150px !important;
+  opacity: 0.01 !important;
   pointer-events: none !important;
-  z-index: -9999 !important;
+  z-index: 2 !important;
 }
 
 /* Pantallas Principales de la Aplicación */
@@ -272,13 +272,13 @@ input[type="number"] {
   font-weight: var(--lyrics-original-font-weight, 700);
   font-style: var(--lyrics-original-font-style, normal);
   line-height: 1.35;
-  color: var(--lyrics-original-color, var(--text-inactive));
+  color: var(--lyrics-original-color, var(--text-main, #f8fafc));
   letter-spacing: -0.5px;
   word-wrap: break-word;
 }
 
 .plain-active-line {
-  color: var(--lyrics-active-color, var(--text-active));
+  color: var(--lyrics-active-color, var(--text-active, #fbbf24));
   text-shadow: var(--lyrics-active-glow);
   font-weight: var(--lyrics-active-font-weight, 700);
   font-style: var(--lyrics-active-font-style, normal);
@@ -289,23 +289,23 @@ input[type="number"] {
   display: inline;
   white-space: pre-wrap;
   transition: color 0.12s ease, text-shadow 0.15s ease;
-  color: var(--lyrics-original-color, var(--text-inactive));
+  color: var(--lyrics-original-color, var(--text-main, #cbd5e1));
   font-weight: var(--lyrics-original-font-weight, 700);
   font-style: var(--lyrics-original-font-style, normal);
 }
 
 .syllable.is-upcoming-syl {
-  color: var(--lyrics-original-color, var(--text-inactive));
+  color: var(--lyrics-original-color, var(--text-main, #cbd5e1));
   font-weight: var(--lyrics-original-font-weight, 700);
   font-style: var(--lyrics-original-font-style, normal);
 }
 
 .syllable.is-completed-syl {
-  color: var(--text-completed);
+  color: var(--text-completed, #f59e0b);
 }
 
 .syllable.is-active-syl {
-  color: var(--lyrics-active-color, var(--text-active));
+  color: var(--lyrics-active-color, var(--text-active, #fbbf24));
   text-shadow: var(--lyrics-active-glow);
   font-weight: var(--lyrics-active-font-weight, 700);
   font-style: var(--lyrics-active-font-style, normal);
@@ -587,6 +587,7 @@ input[type="number"] {
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
+  pointer-events: none;
 }
 
 .btn-primary {
@@ -1090,13 +1091,15 @@ input[type="number"] {
   font-weight: 600;
   padding: 8px 14px;
   white-space: nowrap;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  background: var(--primary-color);
   color: var(--primary-contrast, #fff);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
 .btn-enter-lyrics:hover {
-  transform: translateY(-1px);
+  background: var(--primary-hover);
+  filter: brightness(1.08);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 

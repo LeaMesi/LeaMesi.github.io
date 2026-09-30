@@ -88,11 +88,13 @@ export function normalizeVideos(metadata = {}, basic = {}) {
   }))
 }
 
-function normalizeLanguages(basic) {
+export function normalizeLanguages(basic = {}) {
+  const source = basic.lyrics_data || basic.basic || basic
+
   // Retrocompatibilidad con esquemas anteriores mono-idioma
-  if (Array.isArray(basic.languages) && basic.languages.length > 0) {
+  if (Array.isArray(source.languages) && source.languages.length > 0) {
     let hasMain = false
-    return basic.languages.map((lang, index) => {
+    return source.languages.map((lang, index) => {
       const isMain = lang.isMain ?? (index === 0 && !hasMain)
       if (isMain) hasMain = true
       return {
@@ -105,15 +107,15 @@ function normalizeLanguages(basic) {
     })
   }
 
-  // Si venía un esquema antiguo con lines en la raíz de basic
-  if (Array.isArray(basic.lines)) {
+  // Si venía un esquema antiguo con lines en la raíz de basic o lyrics_data
+  if (Array.isArray(source.lines) && source.lines.length > 0) {
     return [
       {
         code: 'und',
         name: 'Original',
         isMain: true,
-        plain: basic.plain || '',
-        lines: normalizeLines(basic.lines)
+        plain: source.plain || '',
+        lines: normalizeLines(source.lines)
       }
     ]
   }

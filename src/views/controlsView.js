@@ -42,8 +42,8 @@ export function createControlsView({
   let availableLanguages = []
   let activeLanguage = null
   let translationLanguage = null
-  let isBilingual = true
-  let previewLinesCount = Math.max(1, Math.min(3, Number(initialPreviewLines) || 2))
+  const initialPreviewNum = Number(initialPreviewLines)
+  let previewLinesCount = !isNaN(initialPreviewNum) ? Math.max(0, Math.min(3, initialPreviewNum)) : 2
   let currentMode = 'basic' // 'basic' | 'advanced'
 
   function render() {
@@ -124,10 +124,11 @@ export function createControlsView({
               </select>
             </div>
 
-            <!-- Selector de Frases Siguientes (1 a 3) -->
+            <!-- Selector de Frases Siguientes (0 a 3) -->
             <div class="selector-group preview-lines-group" title="Cantidad de frases siguientes visibles debajo de la actual">
               <label for="preview-lines-select">Siguientes:</label>
               <select id="preview-lines-select" class="select-input select-small">
+                <option value="0" ${previewLinesCount === 0 ? 'selected' : ''}>0 (Solo actual)</option>
                 <option value="1" ${previewLinesCount === 1 ? 'selected' : ''}>1 frase</option>
                 <option value="2" ${previewLinesCount === 2 ? 'selected' : ''}>2 frases</option>
                 <option value="3" ${previewLinesCount === 3 ? 'selected' : ''}>3 frases</option>
@@ -241,7 +242,8 @@ export function createControlsView({
     const previewLinesSelect = containerElement.querySelector('#preview-lines-select')
     if (previewLinesSelect) {
       previewLinesSelect.addEventListener('change', (e) => {
-        const count = Number(e.target.value) || 2
+        const val = Number(e.target.value)
+        const count = !isNaN(val) ? Math.max(0, Math.min(3, val)) : 2
         previewLinesCount = count
         localStorage.setItem('saranga_preview_lines', count)
         if (onPreviewLinesChange) onPreviewLinesChange(count)
@@ -334,7 +336,8 @@ export function createControlsView({
   }
 
   function setPreviewLinesCount(count) {
-    previewLinesCount = Math.max(1, Math.min(3, Number(count) || 2))
+    const val = Number(count)
+    previewLinesCount = !isNaN(val) ? Math.max(0, Math.min(3, val)) : 2
     const sel = containerElement?.querySelector('#preview-lines-select')
     if (sel) sel.value = String(previewLinesCount)
   }

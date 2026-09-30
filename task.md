@@ -81,7 +81,7 @@
   - Sincronización paralela para visualización dual (emparejamiento temporal entre idioma principal y traducción activa).
 - [x] **4.4. Componente de Visualización Enfocado (`src/views/basicViewer.js`):**
   - Frase actual centrada vertical y horizontalmente en el escenario principal con tamaño completo, animación de entrada y letra suelta (sin cajas, fondos ni bordes opacos).
-  - Frases siguientes (1 a 3 configurables) renderizadas directamente debajo a escala reducida (~70%), colores más apagados/atenuados y presentación suelta sin contenedor visible.
+  - Frases siguientes (0 a 3 configurables, con opción "0 (Solo actual)" que oculta por completo las frases venideras para máxima inmersión) renderizadas directamente debajo a escala reducida (~70%), colores más apagados/atenuados y presentación suelta sin contenedor visible.
   - Clic en frases siguientes para salto temporal interactivo (Seek).
 - [x] **4.5. Resaltado Fiel de Sílabas y Palabras sin Espacios Extra:**
   - Desglose contiguo (`join('')` sin saltos de línea ni espaciado espurio en template literals).
@@ -269,6 +269,44 @@
   - Función `exportThemePackage()`: exporta el tema a `saranga-theme-settings.json` mediante descarga dinámica con `Blob`.
   - Función `importThemePackage()`: procesa archivos JSON (paquetes o configuraciones directas), valida campos y rangos, sanea datos, guarda en `localStorage` y actualiza la UI de inmediato.
   - Botones de exportar e importar integrados tanto en la cabecera de presets como en el pie del diálogo de configuración con alertas de estado.
+
+---
+
+## Fase 13: Resiliencia de Navegación a Modo Letra y Estabilidad Visual
+
+- [x] **13.1. Navegación Inmediata y Resiliente (`src/main.js`):**
+  - Transición garantizada hacia la pantalla de Modo Letra con bloque `try / finally { showLyricsScreen() }` tanto desde el Menú de Canciones (`songMenuView`) como desde el Editor de Canciones (`songEditorView`).
+  - Actualización síncrona inmediata de la metadata, idiomas y visor básico en `loadSongIntoApp` para respuesta instantánea de la interfaz.
+  - Carga desacoplada del reproductor multimedia en segundo plano con captura de excepciones.
+- [x] **13.2. Robustez del Reproductor Multimedia y YouTube API (`src/player/mediaPlayer.js`):**
+  - Prevención de cuelgues ante bloqueadores de anuncios (adblock) o falta de conexión: captura de errores con `tag.onerror` y timeout de seguridad de 4s en `loadYouTubeApi()`.
+  - Prevención de condiciones de carrera e inicializaciones múltiples con bloqueo (`isInitializingYt`) y timeout de 3.5s en `initYouTubePlayer` para no depender eternamente del evento `onReady`.
+  - Implementación de `startVirtualPlayback()` como mecanismo de respaldo cuando el audio externo no responde o no está disponible.
+- [x] **13.3. Estabilidad Visual y Corrección de Parpadeo en Hover (`src/style.css`):**
+  - Reubicación técnica de `#youtube-player-container` dentro del viewport (`bottom: 0; right: 0; width: 200px; height: 150px; opacity: 0.01; pointer-events: none; z-index: 2`), impidiendo que Chromium y Firefox suspendan la carga del reproductor por clasificarlo como iframe fuera de pantalla.
+  - Corrección del parpadeo en `.btn-enter-lyrics` mediante colores del tema planos y transiciones suaves (`background-color`, `box-shadow`, `filter`), eliminando el conflicto de interpolación de degradados.
+  - Supresión de `transform: translateY(-1px)` en hover para erradicar el bucle de vibración y jitter con respecto a la tarjeta contenedora.
+  - Declaración de `pointer-events: none` en `.icon-svg` para neutralizar micro-interferencias de eventos del ratón.
+
+---
+
+## Fase 14: Corrección de Carga de Audio Inicial, Conmutación de Canciones y Visibilidad de Letras
+
+- [x] **14.1. Ciclo de Vida y Disponibilidad de YouTube IFrame API (`src/player/mediaPlayer.js`):**
+  - Implementada bandera `isPlayerReady` y cola `pendingVideoLoad` para rastrear con exactitud el evento `onReady`.
+  - En `onReady`, procesamiento instantáneo de `pendingVideoLoad` aplicando `cueVideoById` y `seekTo(offset)` con el formato de objeto oficial.
+  - Al cambiar de canción en `loadSong()`, detención y reseteo estricto del audio anterior (pausa de `audioElement` y `ytPlayer.pauseVideo()`), cargando/cueando correctamente el nuevo video y offset sin dejar sonar la pista previa.
+  - En `play()`, espera activa breve por `isPlayerReady` antes de intentar reproducir, erradicando caídas a reproducción virtual muda.
+- [x] **14.2. Prevención de Throttling del Navegador en Iframe de Audio (`src/style.css`):**
+  - Configuración de `#youtube-player-container` con `z-index: 2` (positivo) y `opacity: 0.01` dentro del viewport, situado detrás de `.controls-dock` (`z-index: 30`). Evita que los motores Chromium suspendan el postMessage del reproductor por calificarlo de iframe oculto (`z-index: -9999`).
+- [x] **14.3. Normalización Universal de Letras y Renderizado Forzado (`src/services/schemaValidator.js`, `src/main.js`, `src/views/basicViewer.js`):**
+  - Exportación de `normalizeLanguages(basic)` para garantizar que cualquier formato de canción (con `languages`, `lines` raíz o mono-idioma antiguo) genere versos e idiomas válidos.
+  - En `loadSongIntoApp`, entrega síncrona de versos normalizados con `basicViewer.setLyrics` y actualización de estado de idiomas.
+  - Incorporado método `basicViewer.forceRender()` invocado al transicionar a Modo Letra (`showLyricsScreen`) y al modificar temas (`onThemeChanged`).
+  - Corrección en `controlsView.setPreviewLinesCount` para preservar la configuración de 0 frases siguientes.
+  - Fallbacks de alto contraste en `src/style.css` para `.lyric-line-main` y `.syllable`.
+
+
 
 
 
