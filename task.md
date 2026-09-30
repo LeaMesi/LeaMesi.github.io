@@ -265,6 +265,11 @@
 - [x] **12.4. Estilos y Nuevos Iconos SVG (`src/style.css`, `src/views/icons.js`):**
   - Nuevos iconos SVG `iconPalette`, `iconCheck` e `iconRotateCcw`.
   - Estilos responsivos para el diálogo de temas, cuadrícula de colores, tarjetas de control, sliders y chips tipográficos.
+- [x] **12.5. Importación y Exportación de Configuraciones de Tema (`src/services/themeService.js`, `src/views/themeSettingsModal.js`):**
+  - Función `exportThemePackage()`: exporta el tema a `saranga-theme-settings.json` mediante descarga dinámica con `Blob`.
+  - Función `importThemePackage()`: procesa archivos JSON (paquetes o configuraciones directas), valida campos y rangos, sanea datos, guarda en `localStorage` y actualiza la UI de inmediato.
+  - Botones de exportar e importar integrados tanto en la cabecera de presets como en el pie del diálogo de configuración con alertas de estado.
+
 
 
 

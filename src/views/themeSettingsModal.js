@@ -7,6 +7,8 @@ import {
   saveThemeSettings,
   resetThemeSettings,
   applyTheme,
+  exportThemePackage,
+  importThemePackage,
   THEME_PRESETS,
   DEFAULT_THEME,
   hexToRgba
@@ -15,15 +17,20 @@ import {
   iconPalette,
   iconClose,
   iconRotateCcw,
-  iconCheck
+  iconCheck,
+  iconDownload,
+  iconUpload
 } from './icons.js'
 
 export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
   let isOpen = false
   let currentSettings = getThemeSettings()
+  let statusMessage = ''
+  let statusType = 'info' // 'info' | 'success' | 'error'
 
   function open() {
     isOpen = true
+    statusMessage = ''
     currentSettings = getThemeSettings()
     render()
     if (containerElement) {
@@ -33,6 +40,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
 
   function close() {
     isOpen = false
+    statusMessage = ''
     if (containerElement) {
       containerElement.classList.remove('is-open')
     }
@@ -201,10 +209,27 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
           <button class="btn-close-modal" id="btn-close-theme-modal" title="Cerrar configuración">${iconClose}</button>
         </div>
 
+        ${statusMessage ? `
+          <div class="status-alert status-${statusType}" style="margin: 14px 22px 0;">
+            ${escapeHtml(statusMessage)}
+          </div>
+        ` : ''}
+
         <div class="modal-body theme-modal-body">
-          <!-- 0. Presets Rápidos -->
+          <!-- 0. Presets Rápidos y Compartir -->
           <div class="theme-section theme-presets-section">
-            <label class="theme-section-title">Temas Predefinidos:</label>
+            <div class="theme-presets-header">
+              <label class="theme-section-title">Temas Predefinidos:</label>
+              <div class="theme-share-actions">
+                <button type="button" class="btn btn-outline btn-xs" id="btn-theme-export" title="Exportar configuración de tema a archivo JSON">
+                  ${iconDownload} Exportar
+                </button>
+                <label class="btn btn-outline btn-xs file-input-label" title="Importar configuración de tema desde archivo JSON">
+                  ${iconUpload} Importar
+                  <input type="file" id="input-theme-file" class="hidden-input" accept=".json,application/json" />
+                </label>
+              </div>
+            </div>
             <div class="theme-presets-bar">
               ${presetsHtml}
               ${activePreset === 'custom' ? `
@@ -414,9 +439,18 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
         </div>
 
         <div class="modal-footer theme-modal-footer">
-          <button type="button" class="btn btn-outline" id="btn-theme-reset" title="Restablecer todos los valores por defecto">
-            ${iconRotateCcw} Restablecer Predeterminados
-          </button>
+          <div class="theme-footer-left">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-theme-export-footer" title="Exportar configuración de tema a archivo JSON">
+              ${iconDownload} Exportar Tema
+            </button>
+            <label class="btn btn-outline btn-sm file-input-label" title="Importar configuración de tema desde archivo JSON">
+              ${iconUpload} Importar Tema
+              <input type="file" id="input-theme-file-footer" class="hidden-input" accept=".json,application/json" />
+            </label>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-theme-reset" title="Restablecer todos los valores por defecto">
+              ${iconRotateCcw} Restablecer
+            </button>
+          </div>
           <button type="button" class="btn btn-primary" id="btn-theme-save-close">
             ${iconCheck} Listo
           </button>
@@ -426,6 +460,16 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
 
     bindEvents()
     updatePreview()
+  }
+
+  function escapeHtml(str) {
+    if (!str) return ''
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
   }
 
   function bindEvents() {
@@ -443,6 +487,59 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
 
     const resetBtn = containerElement.querySelector('#btn-theme-reset')
     if (resetBtn) resetBtn.addEventListener('click', handleReset)
+
+    // Exportar configuración
+    function handleExport() {
+      try {
+        exportThemePackage()
+        statusMessage = 'Tema exportado exitosamente como saranga-theme-settings.json'
+        statusType = 'success'
+        render()
+      } catch (err) {
+        statusMessage = 'Error al exportar tema: ' + err.message
+        statusType = 'error'
+        render()
+      }
+    }
+
+    const exportBtnTop = containerElement.querySelector('#btn-theme-export')
+    if (exportBtnTop) exportBtnTop.addEventListener('click', handleExport)
+
+    const exportBtnFooter = containerElement.querySelector('#btn-theme-export-footer')
+    if (exportBtnFooter) exportBtnFooter.addEventListener('click', handleExport)
+
+    // Importar configuración
+    async function handleImport(file) {
+      if (!file) return
+      try {
+        const imported = await importThemePackage(file)
+        currentSettings = imported
+        statusMessage = '¡Tema importado y aplicado correctamente!'
+        statusType = 'success'
+        render()
+        if (onThemeChanged) {
+          onThemeChanged(currentSettings)
+        }
+      } catch (err) {
+        statusMessage = 'Error al importar tema: ' + err.message
+        statusType = 'error'
+        render()
+      }
+    }
+
+    const fileInputTop = containerElement.querySelector('#input-theme-file')
+    if (fileInputTop) {
+      fileInputTop.addEventListener('change', (e) => {
+        handleImport(e.target.files?.[0])
+      })
+    }
+
+    const fileInputFooter = containerElement.querySelector('#input-theme-file-footer')
+    if (fileInputFooter) {
+      fileInputFooter.addEventListener('change', (e) => {
+        handleImport(e.target.files?.[0])
+      })
+    }
 
     // Presets
     const presetBtns = containerElement.querySelectorAll('.btn-theme-preset')

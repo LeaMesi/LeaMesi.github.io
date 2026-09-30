@@ -185,6 +185,7 @@ export function adjustBrightness(hex, percent) {
  * Obtiene la configuración guardada o la predeterminada
  */
 export function getThemeSettings() {
+  if (typeof localStorage === 'undefined') return { ...DEFAULT_THEME }
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return { ...DEFAULT_THEME }
@@ -202,7 +203,9 @@ export function getThemeSettings() {
 export function saveThemeSettings(newSettings) {
   try {
     const merged = { ...getThemeSettings(), ...newSettings }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+    }
     applyTheme(merged)
     notifyListeners(merged)
     return merged
@@ -320,4 +323,92 @@ function notifyListeners(theme) {
       console.error('Error en listener de tema:', e)
     }
   })
+}
+
+function triggerDownload(content, filename, contentType = 'application/json') {
+  if (typeof document === 'undefined') return
+  const blob = new Blob([content], { type: contentType })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+/**
+ * Exporta la configuración del tema actual como archivo JSON descargable
+ */
+export function exportThemePackage() {
+  const currentTheme = getThemeSettings()
+  const pkg = {
+    app: 'SarangaBaranga',
+    type: 'saranga-theme-settings',
+    version: '1.0.0',
+    exportedAt: new Date().toISOString(),
+    theme: currentTheme
+  }
+  const jsonStr = JSON.stringify(pkg, null, 2)
+  const filename = 'saranga-theme-settings.json'
+  triggerDownload(jsonStr, filename)
+  return pkg
+}
+
+/**
+ * Importa y aplica una configuración de tema desde un archivo JSON o string
+ */
+export async function importThemePackage(fileOrString) {
+  let jsonString = ''
+  if (typeof fileOrString === 'string') {
+    jsonString = fileOrString
+  } else if (fileOrString instanceof Blob || fileOrString instanceof File) {
+    jsonString = await fileOrString.text()
+  } else if (typeof fileOrString === 'object' && fileOrString !== null) {
+    jsonString = JSON.stringify(fileOrString)
+  }
+
+  let parsed
+  try {
+    parsed = JSON.parse(jsonString)
+  } catch (err) {
+    throw new Error('El archivo seleccionado no es un formato JSON válido.')
+  }
+
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('El archivo de tema no contiene un objeto válido.')
+  }
+
+  const rawTheme = (parsed.theme && typeof parsed.theme === 'object') ? parsed.theme : parsed
+
+  const validKeys = [
+    'bgColor', 'panelBg', 'primaryColor', 'textMain',
+    'lyricsScale', 'translationScale',
+    'originalColor', 'translationColor', 'activeColor',
+    'originalBold', 'originalItalic', 'translationBold', 'translationItalic',
+    'activeBold', 'activeItalic', 'activeGlow'
+  ]
+
+  const hasAnyKey = validKeys.some(key => key in rawTheme)
+  if (!hasAnyKey) {
+    throw new Error('El archivo no contiene una configuración de tema válida para SarangaBaranga.')
+  }
+
+  const cleanSettings = {}
+  validKeys.forEach(key => {
+    if (key in rawTheme) {
+      cleanSettings[key] = rawTheme[key]
+    }
+  })
+
+  if ('lyricsScale' in cleanSettings) {
+    cleanSettings.lyricsScale = Math.max(50, Math.min(200, Number(cleanSettings.lyricsScale) || 100))
+  }
+  if ('translationScale' in cleanSettings) {
+    cleanSettings.translationScale = Math.max(50, Math.min(200, Number(cleanSettings.translationScale) || 100))
+  }
+
+  const merged = saveThemeSettings(cleanSettings)
+  return merged
 }
