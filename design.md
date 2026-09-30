@@ -431,12 +431,7 @@ La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj M
 
 1. **YouTube IFrame API con Soporte Universal (YouTube & YouTube Music):**
    * **Compatibilidad Extensa de URLs:** Soporte para enlaces directos de `https://music.youtube.com/watch?v=...`, `https://www.youtube.com/watch?v=...`, `https://youtu.be/...`, shorts (`/shorts/...`), embed (`/embed/...`) y parámetros adicionales (`&si=`, `&list=`). El parser extrae limpiamente el identificador único de 11 caracteres.
-   * **Audio Invisible y Anti-Throttling:** El reproductor IFrame de YouTube se aloja permanentemente dentro del viewport con dimensiones compactas (200x200px), opacidad casi nula (`opacity: 0.01`), deshabilitado para interacción (`pointer-events: none`) y con un índice de apilamiento positivo (`z-index: 2`), situado por detrás de la barra de controles (`.controls-dock` con `z-index: 30`). Esta configuración evita que Chromium y Firefox suspendan o descarten los mensajes `postMessage` de la API de YouTube, problema que ocurría al situarlo con `z-index: -9999` o fuera de pantalla.
-   * **Gestión de Ciclo de Vida y Cola de Carga (`isPlayerReady` y `pendingVideoLoad`):**
-     * Si una canción se carga antes de que el evento `onReady` de la IFrame API se dispare, la petición se encola en `pendingVideoLoad = { videoId, offset }`.
-     * Al dispararse `onReady`, se activa `isPlayerReady = true` y se procesa inmediatamente el video encolado mediante `cueVideoById({ videoId, startSeconds: offset })`.
-     * Si el usuario presiona reproducir mientras la API aún termina de sincronizarse, `play()` aguarda de manera asíncrona la confirmación de disponibilidad antes de invocar `playVideo()`, eliminando caídas prematuras a modo de reproducción silenciosa virtual.
-   * **Alternancia Limpia de Canciones:** Al cargar una nueva canción (`loadSong`), el reproductor pausa y resetea cualquier audio previo (HTML5 o YouTube), limpia la cola pendiente y precarga el nuevo video con su offset correspondiente (`startSeconds`), garantizando que al cambiar de tema nunca persista el audio de la canción anterior.
+   * **Audio Invisible:** El reproductor IFrame de YouTube se inicializa de forma **invisible** (`position: fixed; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;`) para garantizar que no se renderice en pantalla pero continúe reproduciendo audio fielmente.
    * **Múltiples Videos con Offset:** Cada video asociado cuenta con un `offset` en segundos que define la marca temporal del video donde comienza a cantarse la letra.
    * **Fórmula de Sincronización:** El tiempo efectivo de la letra se calcula como:  
      $$\tau_{\text{letra}} = t_{\text{video}} - \text{video.offset}$$
@@ -460,8 +455,7 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
    * Muestra tarjetas con metadatos, artistas, géneros, conteo de idiomas y videos asociados con sus offsets.
    * **Botón "Buscar en BetterLyrics":** Ubicado junto al botón "Crear Canción", abre el modal `betterLyricsModal` para buscar y precargar canciones directamente desde la comunidad.
    * Permite gestionar los videos asociados a cada canción mediante un modal dedicado (`videoManagerModal`), importar nuevos paquetes JSON o Lyricsfile YAML y exportar respaldos.
-   * **Transición Inmediata y Resiliente:** Al seleccionar una canción ("🎤 Entrar a Modo Letra" o clic en la tarjeta), la interfaz navega instantáneamente al visor de letras (`finally { showLyricsScreen() }`). La carga del reproductor en segundo plano opera con timeouts de seguridad y fallbacks ante bloqueadores de anuncios o entornos sin conexión, impidiendo que la pantalla se quede congelada.
-   * **Estabilidad Visual en Tarjetas:** Botones estilizados con transiciones puras de color de fondo y sombras, eliminando oscilaciones de escala (`translateY`) que provocaban bucles de parpadeo (jitter) al interactuar con el cursor.
+   * Al seleccionar una canción ("🎤 Entrar a Modo Letra"), la canción se carga y se realiza la transición a la vista de letras.
 
 2. **Modo Letra (`BasicModeViewer` / `lyricsViewport`):**
    * Pantalla dedicada a la visualización de la letra y el canto sincronizado sílaba a sílaba.
@@ -492,7 +486,7 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
 * **Escenario Centrado con Letras Sueltas (Sin Cajas ni Fondos):**
   * **Filosofía de Letra Suelta:** Las frases no están encerradas en contenedores con bordes ni fondos opacos; flotan directamente sobre el escenario oscuro de la aplicación (`background: transparent; border: none;`), maximizando la inmersión del usuario.
   * **Frase Actual:** Se ubica permanentemente en el centro vertical y horizontal del visor con tamaño completo (`--lyrics-font-size`) y peso tipográfico destacado (700).
-  * **Frases Siguientes (Debajo):** Se muestran debajo de la frase actual, reducidas al 70% del tamaño (`calc(var(--lyrics-font-size) * 0.70)`), con colores más apagados/atenuados (`--text-muted`, `--text-inactive`). El usuario puede configurar mediante selector en la barra de controles si desea previsualizar **0 (solo frase actual)**, 1, 2 o 3 frases siguientes.
+  * **Frases Siguientes (Debajo):** Se muestran debajo de la frase actual, reducidas al 70% del tamaño (`calc(var(--lyrics-font-size) * 0.70)`), con colores más apagados/atenuados (`--text-muted`, `--text-inactive`). El usuario puede configurar mediante selector si desea previsualizar 1, 2 o 3 frases siguientes.
   * **Interacción Rápida:** Al hacer clic sobre cualquier frase siguiente en previsualización, el reproductor salta instantáneamente a su tiempo de inicio (`startTime`).
 * **Resaltado Sílaba a Sílaba / Palabra por Palabra sin Espacios Extra:**
   * Descompone los versos activos en elementos `<span>` continuos e inline (`display: inline; white-space: pre-wrap;`) concatenados de forma contigua (`join('')`), eliminando saltos de línea intermedios y evitando la inserción de espacios espurios en el DOM.

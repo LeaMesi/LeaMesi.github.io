@@ -2,7 +2,6 @@ import './style.css'
 import { getDB } from './services/db.js'
 import { listSongs, fetchSongById } from './services/songService.js'
 import { applyTheme } from './services/themeService.js'
-import { normalizeLanguages } from './services/schemaValidator.js'
 import { createMediaPlayer } from './player/mediaPlayer.js'
 import { createLanguageManager } from './lyrics/languageManager.js'
 import { createBasicViewer } from './views/basicViewer.js'
@@ -100,10 +99,7 @@ async function initApp() {
   let currentMode = 'basic'
   let currentScreen = 'menu' // 'menu' | 'lyrics' | 'editor'
 
-  const storedPreviewLines = localStorage.getItem('saranga_preview_lines')
-  const initialPreviewLines = (storedPreviewLines !== null && !isNaN(Number(storedPreviewLines)))
-    ? Math.max(0, Math.min(3, Number(storedPreviewLines)))
-    : 2
+  const initialPreviewLines = Number(localStorage.getItem('saranga_preview_lines')) || 2
 
   const languageManager = createLanguageManager([])
   const basicViewer = createBasicViewer(lyricsViewportEl, {
@@ -158,7 +154,6 @@ async function initApp() {
     containerElement: themeModalEl,
     onThemeChanged: () => {
       // Las variables CSS se actualizan reactivamente en :root
-      basicViewer.forceRender()
     }
   })
 
@@ -181,13 +176,8 @@ async function initApp() {
     },
     onGoToMenu: () => showMenuScreen(),
     onEnterLyricsMode: async (savedId) => {
-      try {
-        await loadSongIntoApp(savedId)
-      } catch (err) {
-        console.error('Error al preparar modo letra desde editor:', err)
-      } finally {
-        showLyricsScreen()
-      }
+      await loadSongIntoApp(savedId)
+      showLyricsScreen()
     }
   })
 
@@ -232,13 +222,8 @@ async function initApp() {
   const songMenuView = createSongMenuView({
     containerElement: menuScreenEl,
     onEnterLyricsMode: async (songId) => {
-      try {
-        await loadSongIntoApp(songId)
-      } catch (err) {
-        console.error('Error al preparar modo letra desde menú:', err)
-      } finally {
-        showLyricsScreen()
-      }
+      await loadSongIntoApp(songId)
+      showLyricsScreen()
     },
     onManageVideos: (song) => {
       videoManagerModal.open(song)
@@ -310,7 +295,6 @@ async function initApp() {
     }
 
     controlsView.render()
-    basicViewer.forceRender()
   }
 
   function showEditorScreen(songToEdit = null) {
@@ -367,45 +351,18 @@ async function initApp() {
 
     currentSong = song
 
-    const languages = normalizeLanguages(song)
+    const lyricsData = song.lyrics_data || {}
+    const languages = Array.isArray(lyricsData.languages) ? lyricsData.languages : []
     languageManager.setLanguages(languages)
 
-    const activeLang = languageManager.getActiveLanguage()
-    const transLang = languageManager.getTranslationLanguage()
-    const isBilingual = languageManager.isBilingual()
-
-    controlsView.setLanguagesState({
-      languages,
-      active: activeLang,
-      translation: transLang,
-      bilingual: isBilingual
-    })
-
+    await mediaPlayer.loadSong(song)
     controlsView.setVideosState({
-      videos: song.videos || [],
-      activeId: song.videos?.[0]?.id || null
+      videos: mediaPlayer.getVideos(),
+      activeId: mediaPlayer.getActiveVideoId()
     })
     controlsView.setTime(0)
     controlsView.setPlayingState(false)
-
-    basicViewer.setLyrics({
-      lines: activeLang?.lines || [],
-      translations: isBilingual && transLang ? transLang.lines : [],
-      isTranslationActive: isBilingual,
-      styles: song.lyrics_data?.styles || song.basic?.styles || {}
-    })
-    basicViewer.updateTime(0)
-
-    try {
-      await mediaPlayer.loadSong(song)
-      controlsView.setVideosState({
-        videos: mediaPlayer.getVideos(),
-        activeId: mediaPlayer.getActiveVideoId()
-      })
-      controlsView.setDuration(mediaPlayer.getDuration())
-    } catch (err) {
-      console.warn('Advertencia al cargar audio en mediaPlayer:', err)
-    }
+    controlsView.setDuration(mediaPlayer.getDuration())
   }
 
   // 13. Inicializar Base de Datos y cargar menú inicial

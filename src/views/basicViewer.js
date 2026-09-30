@@ -7,8 +7,7 @@ export function createBasicViewer(containerElement, options = {}) {
   let currentLines = []
   let translationLines = []
   let isTranslationActive = false
-  const initialCountNum = Number(initialPreviewCount)
-  let previewCount = !isNaN(initialCountNum) ? Math.max(0, Math.min(3, initialCountNum)) : 2
+  let previewCount = Math.max(1, Math.min(3, Number(initialPreviewCount) || 2))
   let activeLineIndex = -1
   let renderedActiveIndex = -999
 
@@ -20,8 +19,7 @@ export function createBasicViewer(containerElement, options = {}) {
   }
 
   function setPreviewCount(count) {
-    const val = Number(count)
-    const num = !isNaN(val) ? Math.max(0, Math.min(3, val)) : 2
+    const num = Math.max(1, Math.min(3, Number(count) || 2))
     if (previewCount !== num) {
       previewCount = num
       renderedActiveIndex = -999
@@ -86,9 +84,7 @@ export function createBasicViewer(containerElement, options = {}) {
 
     const safeIdx = Math.max(0, Math.min(currentLines.length - 1, activeIdx))
     const activeLine = currentLines[safeIdx]
-    const upcomingLines = previewCount > 0
-      ? currentLines.slice(safeIdx + 1, safeIdx + 1 + previewCount)
-      : []
+    const upcomingLines = currentLines.slice(safeIdx + 1, safeIdx + 1 + previewCount)
 
     const activeMainHtml = renderLineMainContent(activeLine, true)
     const activeTransHtml = renderTranslationLine(activeLine, safeIdx, true)
@@ -105,15 +101,6 @@ export function createBasicViewer(containerElement, options = {}) {
       `
     }).join('')
 
-    const upcomingContainerHtml = (previewCount > 0 && upcomingItemsHtml)
-      ? `
-        <!-- Frases Siguientes (Debajo) -->
-        <div class="upcoming-phrases-container" id="upcoming-phrases-box">
-          ${upcomingItemsHtml}
-        </div>
-      `
-      : ''
-
     containerElement.innerHTML = `
       <div class="lyrics-stage-display">
         <!-- Frase Actual en el centro -->
@@ -124,7 +111,10 @@ export function createBasicViewer(containerElement, options = {}) {
           </div>
         </div>
 
-        ${upcomingContainerHtml}
+        <!-- Frases Siguientes (Debajo) -->
+        <div class="upcoming-phrases-container" id="upcoming-phrases-box">
+          ${upcomingItemsHtml}
+        </div>
       </div>
     `
 
@@ -174,16 +164,6 @@ export function createBasicViewer(containerElement, options = {}) {
     }
   }
 
-  function forceRender(targetIndex = null) {
-    renderedActiveIndex = -999
-    if (currentLines.length > 0) {
-      const idx = targetIndex !== null ? targetIndex : (activeLineIndex >= 0 ? activeLineIndex : 0)
-      renderStage(idx)
-    } else {
-      renderEmpty()
-    }
-  }
-
   function escapeHtml(str) {
     if (!str) return ''
     return str
@@ -198,7 +178,6 @@ export function createBasicViewer(containerElement, options = {}) {
     setLyrics,
     updateTime,
     setPreviewCount,
-    applyStyles,
-    forceRender
+    applyStyles
   }
 }
