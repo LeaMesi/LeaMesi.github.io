@@ -404,13 +404,34 @@ A futuro, se podrá añadir un conector opcional a Supabase con las siguientes p
 * **Curaduría Manual del Creador:** Las canciones oficiales son añadidas a Supabase exclusivamente por el autor desde el backend/dashboard de Supabase.
 * **Descarga a Biblioteca Local:** El usuario puede navegar el catálogo público en línea e "importar a mi biblioteca", clonando la canción en su IndexedDB local para usarla offline y personalizarla.
 
+### 3.7. Integración con la API de Letras y Traducciones: BetterLyrics & Unison (`src/services/betterLyricsService.js`)
+Para acelerar la creación de canciones y facilitar el acceso a miles de letras sincronizadas con traducciones, SarangaBaranga se integra con el ecosistema abierto de **BetterLyrics** y **Unison** (`unison.boidu.dev` / `api.betterlyrics.org`):
+* **Búsqueda Abierta en Tiempo Real:** Consulta sin requerimiento de API key a `GET https://unison.boidu.dev/lyrics/search?q={query}`, retornando resultados clasificados con título, artista, duración, `videoId` de YouTube y tipo de sincronización (`richsync` por sílabas vs `linesync` por versos).
+* **Carga de Letras en Formato TTML (Timed Text Markup Language):**
+  * Obtención del documento TTML mediante `GET https://unison.boidu.dev/lyrics/:id` (con fallback a `https://api.betterlyrics.org/getLyrics?s=...&a=...`).
+  * Parser nativo mediante `DOMParser` del navegador que extrae versos (`<p begin="..." end="...">`) y sílabas/palabras (`<span begin="..." end="...">texto</span>`).
+  * Conversión de marcas temporales (`M:SS.mmm` / `H:MM:SS.mmm` / `SS.mmm`) a segundos decimales con precisión de milisegundos.
+* **Sincronización Automática para Fuentes LRC o Línea a Línea:** Si la canción solo cuenta con marcas de tiempo por frase (`linesync`), el servicio ejecuta automáticamente el motor fonético de silabeo (`src/lyrics/syllablesHelper.js`), distribuyendo proporcionalmente las sílabas dentro del intervalo `[startTime, endTime]`.
+* **Traducción Automática Multilingüe:**
+  * Integración con el endpoint de traducción de Unison (`POST https://unison.boidu.dev/translate`), que traduce los versos al idioma solicitado (ej. español `es`) y provee romanización fonética.
+  * Creación automática de la pestaña de traducción en `lyrics_data.languages` (`isMain: false`), dejando la canción preparada para el subtitulado bilingüe simultáneo.
+* **Motor de Búsqueda Multi-Modo y Filtro Estricto:**
+  * **Modo General:** Búsqueda libre por cualquier término o detección automática de videoId/URL de YouTube.
+  * **Modo Solo por Artista:** Consulta la base de datos de Unison y aplica un algoritmo de filtrado estricto (`isArtistMatch`) que descarta falsos positivos (canciones de otros artistas que contienen la palabra en el título, ej. "Queen & Poet"), admitiendo únicamente temas interpretados por el artista objetivo o sus colaboraciones directas (`feat.`, `ft.`, `&`, `with`, `x`, `vs.`).
+  * **Modo Artista y Título:** Consulta dual con endpoint de búsqueda exacta (`GET /lyrics/search?song=...&artist=...`) y fallback inteligente clasificado, situando en primera posición la coincidencia combinada.
+  * **Modo Video / Enlace YouTube:** Consulta directa a `GET /lyrics?v=...` y `GET /lyrics/variants/...` para traer la sincronización comunitaria oficial y sus variantes registradas para ese video musical.
+  * **Filtros de Sincronización:** Posibilidad de discriminar entre canciones con sincronización sílaba a sílaba (`richsync` / TTML) o por versos completos (`linesync` / LRC).
+* **Flujo Precargado Hacia el Editor (`songEditorView`):** Al seleccionar un tema en el modal de búsqueda, se ensambla un objeto de canción completo y se transfiere a `songEditorView.open(preconfiguredSong)`, abriendo el editor con metadatos, video de YouTube, versos, sílabas y traducción ya colocados, listos para ajuste fino y guardado local en IndexedDB.
+
 ---
 
 ## 4. Master Clock y Reproducción
 
 La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj Maestro**:
 
-1. **YouTube IFrame API (Audio Invisible):** Cuando la canción utiliza videos asociados de YouTube. El reproductor IFrame de YouTube se inicializa de forma **invisible** (`position: fixed; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;`) para garantizar que no se renderice en pantalla pero continúe reproduciendo audio fielmente.
+1. **YouTube IFrame API con Soporte Universal (YouTube & YouTube Music):**
+   * **Compatibilidad Extensa de URLs:** Soporte para enlaces directos de `https://music.youtube.com/watch?v=...`, `https://www.youtube.com/watch?v=...`, `https://youtu.be/...`, shorts (`/shorts/...`), embed (`/embed/...`) y parámetros adicionales (`&si=`, `&list=`). El parser extrae limpiamente el identificador único de 11 caracteres.
+   * **Audio Invisible:** El reproductor IFrame de YouTube se inicializa de forma **invisible** (`position: fixed; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;`) para garantizar que no se renderice en pantalla pero continúe reproduciendo audio fielmente.
    * **Múltiples Videos con Offset:** Cada video asociado cuenta con un `offset` en segundos que define la marca temporal del video donde comienza a cantarse la letra.
    * **Fórmula de Sincronización:** El tiempo efectivo de la letra se calcula como:  
      $$\tau_{\text{letra}} = t_{\text{video}} - \text{video.offset}$$
@@ -418,7 +439,12 @@ La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj M
    * **Transferencia Fluida:** Al alternar entre distintos videos asociados, se preserva la posición de canto $\tau_{\text{letra}}$.
 2. **Audio Nativo HTML5 / Archivo Local (`audio_path`):** Cuando la canción cuenta con un archivo de audio local (almacenado como Blob en IndexedDB o seleccionado mediante input file) o una URL de audio remota. El elemento `<audio>` emite eventos `timeupdate` de forma nativa o se reproduce vía Web Audio API.
 
-En ambos casos, el **Sincronizador de Letras** consume un único valor normalizado: `currentTime` en segundos.
+### 4.1. Control Maestro de Volumen y Silenciado (Master Volume)
+* **Gestión Unificada:** `mediaPlayer.js` expone `setVolume(volume)` (0 a 100) y `getVolume()`, gobernando simultáneamente tanto la YouTube IFrame API (`ytPlayer.setVolume(vol)`) como el elemento de audio HTML5 (`audioElement.volume = vol / 100`).
+* **Persistencia Local:** El nivel de volumen preferido del usuario se almacena en `localStorage` (`saranga_player_volume`), manteniéndose constante entre canciones, recargas de página y sesiones.
+* **Control en Barra de Controles (`controlsView.js`):** Slider interactivo estilizado (`.volume-slider`) con botón mute/unmute que conmuta entre silencio y el volumen anterior.
+
+En ambos orígenes de audio, el **Sincronizador de Letras** consume un único valor normalizado: `currentTime` en segundos.
 
 ---
 
@@ -427,36 +453,44 @@ En ambos casos, el **Sincronizador de Letras** consume un único valor normaliza
 1. **Menú de Selección de Canciones (`songMenuView`):**
    * Pantalla inicial de bienvenida y catálogo general de canciones en IndexedDB.
    * Muestra tarjetas con metadatos, artistas, géneros, conteo de idiomas y videos asociados con sus offsets.
+   * **Botón "Buscar en BetterLyrics":** Ubicado junto al botón "Crear Canción", abre el modal `betterLyricsModal` para buscar y precargar canciones directamente desde la comunidad.
    * Permite gestionar los videos asociados a cada canción mediante un modal dedicado (`videoManagerModal`), importar nuevos paquetes JSON o Lyricsfile YAML y exportar respaldos.
    * Al seleccionar una canción ("🎤 Entrar a Modo Letra"), la canción se carga y se realiza la transición a la vista de letras.
 
 2. **Modo Letra (`BasicModeViewer` / `lyricsViewport`):**
    * Pantalla dedicada a la visualización de la letra y el canto sincronizado sílaba a sílaba.
    * Incorpora acceso rápido en el encabezado (`← Menú de Canciones`) y en los controles para regresar al menú en cualquier momento.
-   * Selector dinámico en la barra de controles para alternar entre cualquiera de los videos asociados a la canción y consultar sus offsets.
+   * Barra de controles con barra de progreso, botón de reproducción/pausa, selector dinámico de videos asociados con offsets, **slider interactivo de volumen y botón de silenciado**, selector de traducciones y selector de líneas siguientes.
    * Botón directo "✏️ Editar" para ingresar a ajustar la letra de la canción activa en cualquier momento.
 
 3. **Menú y Editor de Creación y Edición de Letras (`songEditorView`):**
-   * Pantalla completa para que los usuarios creen canciones desde cero o editen canciones existentes.
+   * Pantalla completa para que los usuarios creen canciones desde cero, editen canciones existentes o afinen canciones importadas desde BetterLyrics.
+
    * **Metadatos y Videos:** Edición de título, artista, géneros, etiquetas y lista dinámica de videos de YouTube con offsets.
-   * **Asistente de Audio en Vivo:** Mini-reproductor integrado para escuchar la canción, pausar y capturar marcas de tiempo exactas en frases y sílabas mediante el botón de captura (`⏱️`).
+   * **Asistente de Audio en Vivo:** Mini-reproductor integrado para escuchar la canción, pausar y capturar marcas de tiempo exactas en frases y sílabas mediante el botón de captura. Cuenta con un reloj en vivo de alta precisión en tiempo real (`mm:ss.mmm`) gobernado por el Master Clock (`requestAnimationFrame`), con arranque inmediato al reproducir y estilizado con números tabulares (`tabular-nums`) para evitar oscilaciones de layout.
    * **Gestión Multilingüe:** Sistema de pestañas para crear idiomas ilimitados, editar interactivamente el nombre y código ISO al hacer clic sobre el idioma actual o su botón de edición, designar el idioma principal (`isMain: true`), alternar traducciones y copiar estructuras de tiempo entre idiomas.
    * **Escritura por Frases y Tiempos:** Edición individual de versos (`startTime`, `endTime`, reordenamiento, preescucha puntual de fragmentos de audio).
+   * **Campos Numéricos Limpios:** Los inputs de tiempo (`type="number"`) eliminan las flechas nativas y fondos blancos rígidos del navegador (`appearance: textfield; -webkit-appearance: none`), ofreciendo un aspecto oscuro, limpio y espacioso, manteniendo el ajuste por teclado (flechas arriba/abajo) y rueda del ratón.
    * **Tiempos por Sílabas:** Sub-editor con motor fonético de silabeo (`syllablesHelper.js`), división por palabras, ajuste fino de duración e inicio por sílaba y distribución equitativa automática.
+   * **Herramientas de Borrado de Sílabas:** Controles dedicados para vaciar las sílabas de un verso individual (disponible en el encabezado de la tarjeta y en la barra de acciones rápidas de sílabas) y borrado masivo para todas las frases del idioma activo con confirmación obligatoria previa (`window.confirm`), informando el número total de versos y sílabas afectadas antes de ejecutar la acción destructiva.
    * **Importador Rápido:** Modal para pegar letras completas de corrido y calcular automáticamente versos, pausas y sílabas en segundos.
 
 
 
 ### 5.1. Modo Sencillo / Básico (`BasicModeViewer`)
 * **Datos fuente:** `songs.lyrics_data` (con soporte para colección `languages`).
-* **Gestión Dinámica de Idiomas (`LanguageManager`):**
-  * **Selector de Idioma:** Permite al usuario conmutar entre el idioma principal (`isMain: true`) y cualquiera de las traducciones disponibles (`isMain: false`).
-  * **Modo de Subtitulado Simultáneo / Bilingüe:** 
-    * El usuario puede activar la visualización dual: el visor muestra la línea en el **idioma principal** en tipografía destacada con resaltado sílaba a sílaba (`.active-syllable`), y simultáneamente en el renglón inferior muestra la línea correspondiente de la **traducción seleccionada** (con estilo secundario `--translation-color`).
-    * La sincronización empareja los intervalos temporales (`startTime` y `endTime`) entre la pista principal y la traducción.
-* **Renderizado DOM:**
-  * Descompone los versos activos en elementos `<span>` por cada sílaba o palabra.
-  * Cuando `currentTime` coincide con el intervalo de una sílaba, aplica la clase `.active-syllable` y realiza la animación de color o relleno (GSAP o CSS transitions).
+* **Regla del Idioma Original:** La letra cantada principal siempre corresponde al idioma original de la canción (`isMain: true`). No se reemplaza por traducciones.
+* **Gestión de Traducciones Opcionales:**
+  * El usuario dispone de un selector dedicado en la barra de controles para activar o desactivar la traducción ("(Sin traducción)" o cualquiera de las pistas secundarias con `isMain: false`).
+  * Si se selecciona una traducción, el texto traducido aparece inmediatamente debajo de la frase original con estilo en cursiva (`font-style: italic`) y color secundario (`--translation-color`).
+* **Escenario Centrado con Letras Sueltas (Sin Cajas ni Fondos):**
+  * **Filosofía de Letra Suelta:** Las frases no están encerradas en contenedores con bordes ni fondos opacos; flotan directamente sobre el escenario oscuro de la aplicación (`background: transparent; border: none;`), maximizando la inmersión del usuario.
+  * **Frase Actual:** Se ubica permanentemente en el centro vertical y horizontal del visor con tamaño completo (`--lyrics-font-size`) y peso tipográfico destacado (700).
+  * **Frases Siguientes (Debajo):** Se muestran debajo de la frase actual, reducidas al 70% del tamaño (`calc(var(--lyrics-font-size) * 0.70)`), con colores más apagados/atenuados (`--text-muted`, `--text-inactive`). El usuario puede configurar mediante selector si desea previsualizar 1, 2 o 3 frases siguientes.
+  * **Interacción Rápida:** Al hacer clic sobre cualquier frase siguiente en previsualización, el reproductor salta instantáneamente a su tiempo de inicio (`startTime`).
+* **Resaltado Sílaba a Sílaba / Palabra por Palabra sin Espacios Extra:**
+  * Descompone los versos activos en elementos `<span>` continuos e inline (`display: inline; white-space: pre-wrap;`) concatenados de forma contigua (`join('')`), eliminando saltos de línea intermedios y evitando la inserción de espacios espurios en el DOM.
+  * Sin transformaciones de escala artificiales (`transform: scale` removido de `.syllable.is-active-syl`), garantizando que la tipografía y el espaciado original permanezcan fidedignos y que únicamente se resalten con color de acento (`--text-active`) y brillo (`text-shadow`).
 * **Consumo de recursos:** Extremadamente bajo, optimizado para cualquier dispositivo móvil o de escritorio sin sobrecarga gráfica.
 
 ### 5.2. Modo Avanzado (`AdvancedModeViewer`)
@@ -479,10 +513,38 @@ En ambos casos, el **Sincronizador de Letras** consume un único valor normaliza
 
 Para reducir el ruido visual y ofrecer una interfaz limpia, moderna y profesional, la aplicación reemplazó los emojis en toda la plataforma por iconos SVG geométricos embebidos:
 1. **Filosofía de Bajo Ruido:** Se eliminan los emojis decorativos innecesarios (emojis en títulos, badges, dropzones o encabezados). Los iconos quedan reservados exclusivamente a zonas funcionales clave:
-   * **Acciones CRUD y Navegación:** `iconPlus` (Crear / Añadir), `iconEdit` (Editar), `iconSave` (Guardar), `iconTrash` (Eliminar), `iconArrowLeft` (Volver / Retroceder), `iconClose` (Cerrar).
-   * **Reproducción y Audio:** `iconPlay` (Reproducir / Probar), `iconPause` (Pausar), `iconMic` (Modo Letra / Cantar).
+   * **Acciones CRUD y Navegación:** `iconPlus` (Crear / Añadir), `iconEdit` (Editar), `iconSave` (Guardar), `iconTrash` (Eliminar), `iconArrowLeft` (Volver / Retroceder), `iconClose` (Cerrar), `iconSearch` (Buscar en biblioteca), `iconGlobe` (Buscador externo BetterLyrics).
+   * **Reproducción y Audio:** `iconPlay` (Reproducir / Probar), `iconPause` (Pausar), `iconMic` (Modo Letra / Cantar), `iconVolume` (Volumen activo), `iconVolumeMute` (Silenciado).
    * **Tiempos y Archivos:** `iconClock` (Captura de tiempos / Distribuir), `iconFileText` (Pegar Letra), `iconUpload` (Importar / Cargar), `iconDownload` (Exportar / Respaldo), `iconSettings` (Configuración), `iconChevronUp` / `iconChevronDown` (Expandir / Contraer / Reordenar).
 2. **Implementación Técnica:**
    * Archivo centralizado: [`src/views/icons.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/icons.js).
    * Los iconos son cadenas SVG vectoriales inline (`viewBox="0 0 24 24"`, `stroke="currentColor"`), adaptándose automáticamente al color de texto del botón o contenedor sin librerías externas ni fuentes pesadas de terceros.
    * Reglas CSS en [`src/style.css`](file:///home/hezztia/Documents/SarangaBaranga/src/style.css) (`.icon-svg`) garantizan alineación vertical perfecta y comportamiento responsive.
+
+---
+
+## 8. Sistema de Configuración de Temas, Paletas de Interfaz y Personalización de Letras (`src/services/themeService.js` y `src/views/themeSettingsModal.js`)
+
+Para ofrecer soberanía visual total al usuario sin alterar las canciones de la biblioteca, la plataforma incorpora un sistema de preferencias y temas con persistencia local en `localStorage` (`saranga_theme_settings`):
+
+### 8.1. Los 4 Colores Base de la Interfaz
+El usuario puede personalizar 4 colores fundamentales que gobiernan la totalidad de la interfaz de la aplicación:
+1. **Color de Fondo (`bgColor` -> `--bg-color`):** Escenario general, fondo de pantalla del menú, del visor y del editor.
+2. **Barras y Paneles (`panelBg` -> `--panel-bg` y `--panel-border`):** Fondo del encabezado superior (`.app-header`), barra inferior de controles (`.controls-dock`), modales (`.modal-dialog`), tarjetas de canciones (`.song-menu-card`) y paneles de importación.
+3. **Botones y Acentos (`primaryColor` -> `--primary-color`, `--primary-hover` y `--primary-contrast`):** Botones principales de acción (`.btn-primary`, `.btn-play-pause`, `.btn-enter-lyrics`), elementos activos de progreso, badges de modo y estados de foco. La luminancia calcula automáticamente el contraste óptimo de texto (`#ffffff` o `#0f172a`).
+4. **Texto de la Interfaz (`textMain` -> `--text-main`, `--text-muted` y `--text-inactive`):** Títulos de canciones, etiquetas, opciones de selectores y tipografía general.
+
+### 8.2. Sliders de Escala para Modo Canción (50% a 200%)
+Control deslizante independiente para regular la escala de visualización sin romper la jerarquía armónica:
+* **Slider Letra Original (`lyricsScale`):** Rango de 50% a 200% (default 100%). Modifica `--lyrics-scale` y `--lyrics-original-size: calc(2.3rem * var(--lyrics-scale))`.
+* **Slider Letra de Traducciones (`translationScale`):** Rango de 50% a 200% (default 100%). Modifica `--translation-scale` y `--lyrics-translation-size: calc(1.265rem * var(--translation-scale))`.
+
+### 8.3. Estilización y Efectos de Canto
+* **Colores Específicos:** Selector de color independiente para la letra original (`originalColor`), subtítulos de traducción (`translationColor`) y seguimiento de sílabas activas (`activeColor` / `--lyrics-active-color`).
+* **Atributos Tipográficos:** Conmutadores independientes para negrita (`bold`) y cursiva (`italic`) aplicables tanto a la letra principal como a la traducción y sílabas activas.
+* **Efecto de Brillo (Glow):** Interruptor para activar/desactivar el resplandor difuminado de karaoke (`text-shadow`), calculado dinámicamente sobre la tonalidad seleccionada con doble halo difuso (`0 0 16px rgba(..., 0.8), 0 0 32px rgba(..., 0.45)`).
+
+### 8.4. Modal y Vista Previa en Tiempo Real (`src/views/themeSettingsModal.js`)
+* **Live Preview Box:** Escenario miniatura interactivo dentro del diálogo de configuración que refleja instantáneamente el efecto de cada cambio de color, tamaño, estilo tipográfico o resplandor.
+* **Presets Rápidos:** Acceso directo a combinaciones temáticas (*Predeterminado Oscuro*, *Cyberpunk Neón*, *Bosque Esmeralda*, *Atardecer Cálido*, *Minimalista Claro*), además de detección de tema personalizado y botón de restauración de fábrica.
+

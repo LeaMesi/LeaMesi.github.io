@@ -2,17 +2,13 @@
 
 export function createLanguageManager(initialLanguages = []) {
   let languages = Array.isArray(initialLanguages) ? [...initialLanguages] : []
-  let activeLanguageCode = null
   let translationLanguageCode = null
-  let isBilingualActive = true
   const listeners = []
 
   function setLanguages(newLanguages) {
     languages = Array.isArray(newLanguages) ? [...newLanguages] : []
-    const main = getMainLanguage()
-    activeLanguageCode = main ? main.code : (languages[0]?.code || null)
-
     const translations = getTranslations()
+    // Si hay traducciones, por defecto preseleccionamos la primera traducción disponible
     translationLanguageCode = translations[0]?.code || null
     notify()
   }
@@ -30,36 +26,40 @@ export function createLanguageManager(initialLanguages = []) {
   }
 
   function getActiveLanguage() {
-    return languages.find(l => l.code === activeLanguageCode) || getMainLanguage()
+    // El idioma original rige siempre la pista principal cantada
+    return getMainLanguage()
   }
 
   function getTranslationLanguage() {
-    return languages.find(l => l.code === translationLanguageCode) || getTranslations()[0] || null
+    if (!translationLanguageCode) return null
+    return languages.find(l => l.code === translationLanguageCode && !l.isMain) || null
   }
 
   function setActiveLanguage(code) {
-    if (activeLanguageCode !== code) {
-      activeLanguageCode = code
-      notify()
-    }
+    // Mantenido por retrocompatibilidad; el idioma original siempre permanece activo
   }
 
   function setTranslationLanguage(code) {
-    if (translationLanguageCode !== code) {
-      translationLanguageCode = code
+    const nextCode = code && code.trim() ? code.trim() : null
+    if (translationLanguageCode !== nextCode) {
+      translationLanguageCode = nextCode
       notify()
     }
   }
 
   function setBilingual(active) {
-    if (isBilingualActive !== active) {
-      isBilingualActive = active
-      notify()
+    if (!active) {
+      setTranslationLanguage(null)
+    } else {
+      const translations = getTranslations()
+      if (translations.length > 0 && !translationLanguageCode) {
+        setTranslationLanguage(translations[0].code)
+      }
     }
   }
 
   function isBilingual() {
-    return isBilingualActive && getTranslations().length > 0 && activeLanguageCode !== translationLanguageCode
+    return Boolean(getTranslationLanguage())
   }
 
   function subscribe(callback) {
@@ -71,11 +71,18 @@ export function createLanguageManager(initialLanguages = []) {
   }
 
   function notify() {
+    const mainLang = getMainLanguage()
+    const transLang = getTranslationLanguage()
+    const isTransActive = Boolean(transLang)
+
     listeners.forEach(cb => cb({
-      activeLanguage: getActiveLanguage(),
-      translationLanguage: getTranslationLanguage(),
-      isBilingual: isBilingual(),
-      availableLanguages: languages
+      mainLanguage: mainLang,
+      activeLanguage: mainLang,
+      translationLanguage: transLang,
+      isBilingual: isTransActive,
+      isTranslationActive: isTransActive,
+      availableLanguages: languages,
+      translations: getTranslations()
     }))
   }
 

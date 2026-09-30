@@ -1,7 +1,7 @@
 # Estado del Desarrollo: SarangaBaranga (`proy-letras`)
 
 > **Estado Global:** Arquitectura reorientada a **Persistencia Local en Navegador (IndexedDB)** y compartición mediante **Exportación/Importación JSON**. Enfoque activo en **Modo Sencillo / Básico**.  
-> **Última actualización:** 2026-09-28  
+> **Última actualización:** 2026-09-29  
 > **Plataforma:** SPA Estática (GitHub Pages) + IndexedDB Local & Export/Import JSON (+ Catálogo Opcional Supabase Read-Only a futuro)
 
 ---
@@ -49,14 +49,20 @@
 | **Base de Datos Local (IndexedDB)** | 🟢 Operativo | `src/services/db.js` y `src/services/songService.js` con soporte para CRUD, relaciones N:M, gestión de videos, resolución y actualización dinámica de artista y sembrado automático con `mockSong`. |
 | **Motor Export / Import JSON** | 🟢 Operativo | `src/services/shareService.js` para exportar e importar paquetes `song-package.json` conservando colección de videos y offsets. |
 | **Servicio Lyricsfile (YAML)** | 🟢 Operativo | `src/services/lyricsfileService.js` validando versión 1.0, milisegundos y palabras/sílabas. |
-| **Adaptador de Audio / YouTube** | 🟢 Operativo | `src/player/mediaPlayer.js` con selector multi-video, cálculo de offset, audio HTML5 y Master Clock RAF bridge. |
-| **Modo Básico (Letra y Sílabas)** | 🟢 Operativo | `src/views/basicViewer.js` con renderizado DOM de versos, resaltado por sílabas (.active-syllable, .completed-syllable) y subtítulo bilingüe. |
-| **Cálculo de Tiempos / BPM** | 🟢 Operativo | `src/lyrics/timing.js` con utilidades de tiempo, compás y formateo mm:ss. |
-| **UI de Controles y Selector de Pista** | 🟢 Operativo | `src/views/controlsView.js` con barra de progreso, selector de video y offsets, botón de retorno al menú y toggles. |
+| **Adaptador de Audio / YouTube** | 🟢 Operativo | `src/player/mediaPlayer.js` con selector multi-video, cálculo de offset, audio HTML5 y Master Clock RAF bridge con arranque inmediato en `play()` y resiliencia ante estados `BUFFERING`. |
+| **Modo Básico (Letra y Sílabas)** | 🟢 Operativo | `src/views/basicViewer.js` con escenario enfocado y letras sueltas (sin cajas, bordes ni fondos): frase actual en el centro, frases siguientes debajo reducidas al 70% con colores atenuados, cantidad de frases configurables (1 a 3), resaltado continuo sin espacios extra ni deformación de escala, y subtítulo de traducción en cursiva. |
+| **Cálculo de Tiempos / BPM** | 🟢 Operativo | `src/lyrics/timing.js` con utilidades de tiempo, compás y formateo mm:ss con soporte de milisegundos de alta precisión (`mm:ss.mmm`). |
+| **UI de Controles y Selector de Pista** | 🟢 Operativo | `src/views/controlsView.js` con barra de progreso, selector de video y offsets, selector de traducción opcional, selector de frases siguientes (1 a 3), botón de retorno al menú y toggles. |
 | **Modo Avanzado (Pixi.js / FX)** | 🟡 Operativo Básico | `src/views/advancedViewer.js` montado bajo demanda con lienzo interactivo y partículas ambientales sin interferir con el modo básico. |
-| **Editor de Creación y Edición de Letras** | 🟢 Operativo | `src/views/songEditorView.js` con creación desde cero, edición por frases, marcas de tiempo, sílabas, asistente de audio en vivo, importación rápida y edición interactiva de nombres y códigos ISO de idiomas. |
+| **Editor de Creación y Edición de Letras** | 🟢 Operativo | `src/views/songEditorView.js` con creación desde cero, edición por frases, marcas de tiempo con inputs limpios y oscuros (eliminación de flechas nativas y fondos blancos), sílabas, asistente de audio con reloj en vivo de alta precisión (`mm:ss.mmm`), importación rápida y edición interactiva de idiomas. |
 | **Separador Fonético de Sílabas y Tiempos** | 🟢 Operativo | `src/lyrics/syllablesHelper.js` con silabeo fonético en español, división por palabras y distribución proporcional de tiempos. |
 | **Sistema de Iconos SVG Minimalistas** | 🟢 Operativo | `src/views/icons.js` con catálogo centralizado de iconos vectoriales SVG limpios. Sustitución de emojis en todas las vistas (`songMenuView`, `songEditorView`, `controlsView`, `libraryView`, `videoManagerModal`, `main.js`), eliminando ruido visual y limitando iconos exclusivamente a acciones funcionales (crear, editar, retroceder, guardar, reproducir, tiempos). |
+| **Soporte YouTube Music** | 🟢 Operativo | Parser universal `extractYouTubeVideoId` en `src/player/mediaPlayer.js` con soporte para `music.youtube.com`, `youtube.com/shorts/`, `youtu.be`, embeds y parámetros de query. |
+| **Slider de Volumen (Modo Canción)** | 🟢 Operativo | Control deslizante de volumen y botón mute/unmute en `src/views/controlsView.js` con control directo sobre YouTube IFrame y audio HTML5 en `src/player/mediaPlayer.js`, persistencia en `localStorage` e iconos SVG dedicados. |
+| **Integración BetterLyrics / Unison** | 🟢 Operativo | Búsqueda comunitaria en tiempo real desde el menú principal (`src/views/betterLyricsModal.js`), parser de TTML silábico y LRC con milisegundos (`src/services/betterLyricsService.js`), traducción automática a español y precarga completa en el editor de canciones (`src/views/songEditorView.js`). |
+| **Búsqueda Avanzada Multi-Modo BetterLyrics** | 🟢 Operativo | Búsqueda versátil con 4 modos dedicados (*General*, *Solo por Artista* con filtro estricto del 100%, *Artista y Título* con coincidencia dual de alta precisión, y *Enlace / Video YouTube* por ID o URL), filtros de sincronización (*Todas*, *Sílabas*, *Versos*), badges de *Artista Verificado* y sugerencias interactivas. |
+| **Borrado de Sílabas (Frase y Masivo)** | 🟢 Operativo | Botón de borrado de sílabas por frase individual (`.btn-clear-line-syllables`) en encabezado y barra rápida, y botón de borrado masivo (`#btn-clear-all-syllables`) con confirmación obligatoria previa (`window.confirm`) y contador silábico en tiempo real (`.phrases-syl-count`) en `src/views/songEditorView.js`. |
+| **Configuración de Temas y Visualización** | 🟢 Operativo | `src/services/themeService.js` y `src/views/themeSettingsModal.js` con selección de 4 colores de interfaz globales (fondo, paneles, botones, texto), sliders de tamaño de fuente (50% a 200%) para original y traducción, selectores de color para letra original, traducción y sílabas activas, conmutadores de negrita, cursiva y efecto de brillo (glow), vista previa interactiva en vivo, presets rápidos y persistencia en `localStorage`. |
 | **Catálogo Supabase (Read-Only)** | ⚪ Pospuesto | Reservado para fase futura como catálogo público de solo lectura administrado por el creador. |
 
 ---
@@ -64,8 +70,9 @@
 ## 3. Próximo Hito Prioritario
 
 **Refinamiento y Características Adicionales:**
-1. Corrección de alineación geométrica de títulos (`#song-header-info`) en el encabezado global mediante centrado absoluto (`50%`) y adaptación responsive en pantallas pequeñas.
-2. Pruebas de usuario y verificación de experiencia interactiva en vivo con canciones adicionales creadas por usuarios.
-3. Soporte para carga de archivos de audio locales en IndexedDB mediante `FileReader` / Blobs en el formulario de creación.
-4. Grabación de marcas de tiempo en tiempo real mediante toques/tecla espaciadora ("Tap to sync").
+1. Grabación de marcas de tiempo en tiempo real mediante toques/tecla espaciadora ("Tap to sync") en el editor de canciones.
+2. Soporte para carga de archivos de audio locales en IndexedDB mediante `FileReader` / Blobs en el formulario de creación.
+3. Pruebas de usuario y verificación de experiencia interactiva en vivo con canciones adicionales creadas por usuarios.
+
+
 

@@ -45,7 +45,7 @@ export function createSongEditorView({
       videos: [
         {
           id: `vid-${Date.now()}-0`,
-          name: 'Video Oficial / YouTube',
+          name: 'Video Oficial (YouTube / YT Music)',
           url: '',
           offset: 0
         }
@@ -145,6 +145,7 @@ export function createSongEditorView({
     const lines = activeLang?.lines || []
     const videos = currentSong.videos || []
     const isNew = !currentSong.id
+    const totalSylCount = lines.reduce((acc, l) => acc + (l.syllables?.length || 0), 0)
 
     // Pestañas de idiomas
     const langTabsHtml = languages.map((lang, idx) => {
@@ -278,6 +279,11 @@ export function createSongEditorView({
                 <button class="btn btn-xs btn-outline btn-toggle-syllables" data-line-idx="${lineIdx}" title="${isExpanded ? 'Contraer sílabas' : 'Editar sílabas y tiempos'}">
                   Sílabas (${sylCount}) ${isExpanded ? iconChevronUp : iconChevronDown}
                 </button>
+                ${sylCount > 0 ? `
+                  <button class="btn btn-xs btn-outline btn-danger-outline btn-clear-line-syllables" data-line-idx="${lineIdx}" title="Borrar todas las sílabas de este verso">
+                    ${iconTrash} Sílabas
+                  </button>
+                ` : ''}
                 <button class="btn btn-xs btn-outline btn-move-line-up" data-line-idx="${lineIdx}" title="Mover arriba" ${lineIdx === 0 ? 'disabled' : ''}>${iconChevronUp}</button>
                 <button class="btn btn-xs btn-outline btn-move-line-down" data-line-idx="${lineIdx}" title="Mover abajo" ${lineIdx === lines.length - 1 ? 'disabled' : ''}>${iconChevronDown}</button>
                 <button class="btn btn-xs btn-outline btn-delete-line" data-line-idx="${lineIdx}" title="Eliminar este verso">${iconTrash}</button>
@@ -305,6 +311,9 @@ export function createSongEditorView({
                     </button>
                     <button class="btn btn-xs btn-primary btn-add-syllable" data-line-idx="${lineIdx}">
                       ${iconPlus} Añadir Sílaba
+                    </button>
+                    <button class="btn btn-xs btn-outline btn-danger-outline btn-clear-line-syllables" data-line-idx="${lineIdx}" title="Borrar todas las sílabas de este verso" ${sylCount === 0 ? 'disabled' : ''}>
+                      ${iconTrash} Borrar Sílabas
                     </button>
                   </div>
                 </div>
@@ -340,7 +349,7 @@ export function createSongEditorView({
         <input
           type="text"
           class="input-vid-url"
-          placeholder="URL de YouTube (ej. https://www.youtube.com/watch?v=...)"
+          placeholder="URL de YouTube / YouTube Music (ej. https://music.youtube.com/watch?v=...)"
           value="${escapeHtml(vid.url)}"
           data-video-idx="${vIdx}"
         />
@@ -370,8 +379,8 @@ export function createSongEditorView({
               ${iconArrowLeft} Menú
             </button>
             <div class="editor-title-block">
-              <h2 class="editor-heading">${isNew ? 'Crear Nueva Canción' : `Editar Letra: ${escapeHtml(currentSong.title || 'Sin Título')}`}</h2>
-              <span class="editor-subheading">${isNew ? 'Añade metadatos, videos de YouTube y letras multilingües con sílabas' : `Artista: ${escapeHtml(currentSong.artist || 'Desconocido')} | ID: ${currentSong.id}`}</span>
+              <h2 class="editor-heading">${isNew ? 'Crear Nueva Canción' : `Edición`}</h2>
+              <span class="editor-subheading">${isNew ? 'Añade metadatos, videos de YouTube / YouTube Music y letras multilingües con sílabas' : `${escapeHtml(currentSong.title || 'Sin Título')} - ${escapeHtml(currentSong.artist || 'Desconocido')}`}</span>
             </div>
           </div>
 
@@ -412,7 +421,7 @@ export function createSongEditorView({
             
             <div class="assistant-clock">
               <span class="clock-label">Tiempo Actual (τ):</span>
-              <span class="clock-time" id="assistant-clock-time">00:00.0</span>
+              <span class="clock-time" id="assistant-clock-time">${formatTime(Math.max(0, mediaPlayer?.getCurrentTime() || 0), true)}</span>
             </div>
 
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="1" title="Adelantar 1 segundo">+1s</button>
@@ -480,7 +489,7 @@ export function createSongEditorView({
               <!-- Lista de videos asociados -->
               <div class="videos-management-block">
                 <div class="block-header">
-                  <h4>Videos de YouTube Asociados y Offsets</h4>
+                  <h4>Videos de YouTube / YouTube Music y Offsets</h4>
                   <button class="btn btn-xs btn-outline" id="btn-add-new-video">${iconPlus} Asociar Otro Video</button>
                 </div>
                 <div class="videos-list-container">
@@ -544,11 +553,20 @@ export function createSongEditorView({
             <div class="phrases-toolbar">
               <div class="phrases-count">
                 <span>Versos en <strong>${escapeHtml(activeLang?.name || 'Idioma')}</strong> (${lines.length})</span>
+                ${totalSylCount > 0 ? `<span class="phrases-syl-count">• <strong>${totalSylCount}</strong> sílaba(s)</span>` : ''}
               </div>
 
               <div class="phrases-tools">
                 <button class="btn btn-sm btn-outline btn-open-quick-import" title="Pegar texto completo y dividir en versos">
                   ${iconFileText} Pegar Letra Completa
+                </button>
+                <button
+                  class="btn btn-sm btn-outline btn-danger-outline"
+                  id="btn-clear-all-syllables"
+                  title="${totalSylCount > 0 ? 'Borrar todas las sílabas de las frases de este idioma' : 'No hay sílabas configuradas en ninguna frase'}"
+                  ${totalSylCount === 0 ? 'disabled' : ''}
+                >
+                  ${iconTrash} Borrar Todas las Sílabas
                 </button>
                 <button class="btn btn-sm btn-primary" id="btn-add-phrase-top">
                   ${iconPlus} Añadir Frase
@@ -566,6 +584,11 @@ export function createSongEditorView({
                 <button class="btn btn-outline" id="btn-add-phrase-bottom">
                   ${iconPlus} Añadir Frase al Final
                 </button>
+                ${totalSylCount > 0 ? `
+                  <button class="btn btn-outline btn-danger-outline btn-clear-all-syllables-trigger" title="Borrar todas las sílabas de las frases de este idioma">
+                    ${iconTrash} Borrar Todas las Sílabas
+                  </button>
+                ` : ''}
               </div>
             ` : ''}
           </section>
@@ -810,7 +833,7 @@ export function createSongEditorView({
               showStatus('Error al cargar video: ' + err.message, 'error')
             }
           } else {
-            showStatus('Ingresá una URL de YouTube válida primero.', 'error')
+            showStatus('Ingresá una URL de YouTube o YouTube Music válida primero.', 'error')
           }
         })
       }
@@ -1115,6 +1138,18 @@ export function createSongEditorView({
         })
       }
 
+      // Borrar todas las sílabas de este verso específico
+      const clearSylBtns = card.querySelectorAll('.btn-clear-line-syllables')
+      clearSylBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation()
+          if (!line.syllables || line.syllables.length === 0) return
+          line.syllables = []
+          render()
+          showStatus(`Sílabas borradas del verso #${lIdx + 1}.`, 'info')
+        })
+      })
+
       // Edición individual de sílabas
       const sylChips = card.querySelectorAll('.syllable-edit-chip')
       sylChips.forEach(chip => {
@@ -1160,6 +1195,32 @@ export function createSongEditorView({
         }
       })
     })
+
+    // Borrar sílabas de todas las frases del idioma activo con confirmación previa
+    const handleClearAllSyllables = () => {
+      const currentTotal = lines.reduce((acc, l) => acc + (l.syllables?.length || 0), 0)
+      if (currentTotal === 0) {
+        showStatus('No hay sílabas configuradas en ninguna frase de este idioma.', 'info')
+        return
+      }
+
+      const langName = activeLang?.name || 'este idioma'
+      const confirmMsg = `¿Estás seguro de que deseas borrar todas las sílabas (${currentTotal} sílaba${currentTotal !== 1 ? 's' : ''} en ${lines.length} verso${lines.length !== 1 ? 's' : ''}) del idioma "${langName}"?\n\nEsta acción eliminará los tiempos silábicos de canto de todas las frases.`
+
+      if (window.confirm(confirmMsg)) {
+        lines.forEach(line => {
+          line.syllables = []
+        })
+        render()
+        showStatus(`Se han borrado todas las sílabas de los ${lines.length} versos en "${langName}".`, 'success')
+      }
+    }
+
+    const clearAllTopBtn = containerElement.querySelector('#btn-clear-all-syllables')
+    if (clearAllTopBtn) clearAllTopBtn.addEventListener('click', handleClearAllSyllables)
+
+    const clearAllBottomBtn = containerElement.querySelector('.btn-clear-all-syllables-trigger')
+    if (clearAllBottomBtn) clearAllBottomBtn.addEventListener('click', handleClearAllSyllables)
 
     // 7. Modales
     // Modal importación rápida
@@ -1424,7 +1485,7 @@ export function createSongEditorView({
   function updateClock(time) {
     const clockEl = containerElement?.querySelector('#assistant-clock-time')
     if (clockEl) {
-      clockEl.textContent = formatTime(Math.max(0, time))
+      clockEl.textContent = formatTime(Math.max(0, time), true)
     }
   }
 

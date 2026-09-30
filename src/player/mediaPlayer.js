@@ -15,13 +15,33 @@ export const PLAYER_STATE = {
   CUED: 5
 }
 
-function extractYouTubeVideoId(url) {
+export function extractYouTubeVideoId(url) {
   if (!url) return null
-  const str = url.trim()
+  const str = String(url).trim()
   if (/^[a-zA-Z0-9_-]{11}$/.test(str)) {
     return str
   }
-  const match = str.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)
+  try {
+    const urlObj = new URL(str.startsWith('http') ? str : `https://${str}`)
+    const host = urlObj.hostname.toLowerCase()
+    if (host.includes('youtube.com')) {
+      if (urlObj.searchParams.has('v')) {
+        const v = urlObj.searchParams.get('v')
+        if (/^[a-zA-Z0-9_-]{11}$/.test(v)) return v
+      }
+      const parts = urlObj.pathname.split('/').filter(Boolean)
+      if (['embed', 'v', 'shorts', 'live'].includes(parts[0]) && parts[1]) {
+        const candidate = parts[1]
+        if (/^[a-zA-Z0-9_-]{11}$/.test(candidate)) return candidate
+      }
+    } else if (host === 'youtu.be') {
+      const candidate = urlObj.pathname.replace(/^\//, '').split(/[?#]/)[0]
+      if (/^[a-zA-Z0-9_-]{11}$/.test(candidate)) return candidate
+    }
+  } catch (_) {
+    // Si falla la construcción con URL, recurrir a regex robusto
+  }
+  const match = str.match(/(?:(?:music\.|www\.|m\.)?youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)
   return match ? match[1] : null
 }
 
@@ -64,10 +84,19 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
   let lastKnownDuration = 0
   let fallbackTime = 0
   let fallbackTimer = null
+  let currentVolume = (() => {
+    const saved = localStorage.getItem('saranga_player_volume')
+    if (saved !== null) {
+      const n = Number(saved)
+      if (!isNaN(n) && n >= 0 && n <= 100) return n
+    }
+    return 80
+  })()
 
   // Inicializar elemento de audio HTML5
   audioElement = document.createElement('audio')
   audioElement.preload = 'metadata'
+  audioElement.volume = currentVolume / 100
   document.body.appendChild(audioElement)
 
   audioElement.addEventListener('durationchange', () => {
@@ -122,6 +151,9 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
         },
         events: {
           onReady: () => {
+            if (ytPlayer.setVolume) {
+              ytPlayer.setVolume(currentVolume)
+            }
             if (ytPlayer.getDuration) {
               const dur = ytPlayer.getDuration()
               if (dur > 0) {
@@ -141,7 +173,12 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
                 lastKnownDuration = dur
                 if (onDurationChange) onDurationChange(getDuration())
               }
-            } else {
+            } else if (state === PLAYER_STATE.BUFFERING) {
+              // Si el usuario activó la reproducción, no detener el reloj ni marcar en falso
+              if (isPlaying) {
+                startClock()
+              }
+            } else if (state === PLAYER_STATE.PAUSED || state === PLAYER_STATE.ENDED) {
               isPlaying = false
               stopClock()
               if (onTimeUpdate) onTimeUpdate(getCurrentTime())
@@ -230,6 +267,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
   function play() {
     isPlaying = true
     if (activeSource === 'youtube' && ytPlayer && ytPlayer.playVideo) {
+      startClock()
       ytPlayer.playVideo()
     } else if (activeSource === 'audio' && audioElement) {
       audioElement.play().catch(err => console.warn('Audio play prevented:', err))
@@ -329,6 +367,22 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     }
   }
 
+  function setVolume(volume) {
+    const v = Math.max(0, Math.min(100, Number(volume) || 0))
+    currentVolume = v
+    localStorage.setItem('saranga_player_volume', String(v))
+    if (ytPlayer && ytPlayer.setVolume) {
+      ytPlayer.setVolume(currentVolume)
+    }
+    if (audioElement) {
+      audioElement.volume = currentVolume / 100
+    }
+  }
+
+  function getVolume() {
+    return currentVolume
+  }
+
   function destroy() {
     stopClock()
     if (ytPlayer && ytPlayer.destroy) {
@@ -359,6 +413,9 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     setTrackType,
     getTrackType: () => currentTrackType,
     getIsPlaying: () => isPlaying,
+    setVolume,
+    getVolume,
     destroy
   }
 }
+

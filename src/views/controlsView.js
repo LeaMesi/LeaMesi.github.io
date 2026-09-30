@@ -5,27 +5,37 @@ import {
   iconPause,
   iconSettings,
   iconEdit,
-  iconArrowLeft
+  iconArrowLeft,
+  iconVolume,
+  iconVolumeMute,
+  iconPalette
 } from './icons.js'
 
 export function createControlsView({
   containerElement,
+  initialPreviewLines = 2,
+  initialVolume = 80,
   onPlayToggle,
   onSeek,
+  onVolumeChange,
   onVideoChange,
   onManageVideos,
   onTrackToggle,
   onLanguageChange,
   onTranslationChange,
   onBilingualToggle,
+  onPreviewLinesChange,
   onOpenLibrary,
   onGoToMenu,
   onModeToggle,
-  onEditSong
+  onEditSong,
+  onOpenTheme
 }) {
   let isPlaying = false
   let duration = 0
   let currentTime = 0
+  let currentVolume = Math.max(0, Math.min(100, Number(initialVolume) || 80))
+  let previousVolume = currentVolume > 0 ? currentVolume : 80
   let currentTrackType = TRACK_TYPE.OFFICIAL
   let availableVideos = []
   let activeVideoId = null
@@ -33,23 +43,21 @@ export function createControlsView({
   let activeLanguage = null
   let translationLanguage = null
   let isBilingual = true
+  let previewLinesCount = Math.max(1, Math.min(3, Number(initialPreviewLines) || 2))
   let currentMode = 'basic' // 'basic' | 'advanced'
 
   function render() {
     if (!containerElement) return
 
-    const languagesHtml = availableLanguages.map(lang => `
-      <option value="${lang.code}" ${activeLanguage && activeLanguage.code === lang.code ? 'selected' : ''}>
-        ${lang.name} ${lang.isMain ? '(Principal)' : ''}
-      </option>
-    `).join('')
-
     const translations = availableLanguages.filter(l => !l.isMain)
-    const translationsHtml = translations.map(lang => `
-      <option value="${lang.code}" ${translationLanguage && translationLanguage.code === lang.code ? 'selected' : ''}>
-        ${lang.name}
-      </option>
-    `).join('')
+    const translationsHtml = `
+      <option value="">(Sin traducción)</option>
+      ${translations.map(lang => `
+        <option value="${lang.code}" ${translationLanguage && translationLanguage.code === lang.code ? 'selected' : ''}>
+          ${lang.name}
+        </option>
+      `).join('')}
+    `
 
     const videosOptionsHtml = (availableVideos.length === 0)
       ? '<option value="">(Sin videos asociados)</option>'
@@ -77,6 +85,24 @@ export function createControlsView({
               <span class="label">${isPlaying ? 'Pausa' : 'Cantar'}</span>
             </button>
 
+            <!-- Control de Volumen -->
+            <div class="volume-control-group" title="Volumen: ${currentVolume}%">
+              <button class="btn btn-xs btn-outline btn-mute-toggle" title="${currentVolume === 0 ? 'Activar sonido' : 'Silenciar'}">
+                ${currentVolume === 0 ? iconVolumeMute : iconVolume}
+              </button>
+              <input
+                type="range"
+                class="volume-slider"
+                min="0"
+                max="100"
+                step="1"
+                value="${currentVolume}"
+                title="Volumen: ${currentVolume}%"
+                aria-label="Volumen"
+              />
+              <span class="volume-percent-label">${currentVolume}%</span>
+            </div>
+
             <!-- Selector dinámico de videos asociados con offset -->
             <div class="video-selector-group" title="Seleccionar pista o video asociado">
               <label for="video-select">Video:</label>
@@ -90,31 +116,31 @@ export function createControlsView({
           </div>
 
           <div class="center-controls">
-            <!-- Selector de idioma activo -->
-            <div class="selector-group">
-              <label for="lang-select">Idioma:</label>
-              <select id="lang-select" class="select-input">
-                ${languagesHtml}
+            <!-- Selector de Traducción -->
+            <div class="selector-group translation-group" title="Seleccionar subtítulo de traducción en cursiva">
+              <label for="trans-select">Traducción:</label>
+              <select id="trans-select" class="select-input select-small" ${translations.length === 0 ? 'disabled' : ''}>
+                ${translationsHtml}
               </select>
             </div>
 
-            <!-- Subtítulo bilingüe -->
-            ${translations.length > 0 ? `
-              <div class="bilingual-group">
-                <label class="checkbox-label" title="Mostrar traducción simultánea bajo la letra original">
-                  <input type="checkbox" id="bilingual-toggle" ${isBilingual ? 'checked' : ''} />
-                  <span>Subtítulo</span>
-                </label>
-                ${isBilingual && translations.length > 1 ? `
-                  <select id="trans-lang-select" class="select-input select-small">
-                    ${translationsHtml}
-                  </select>
-                ` : ''}
-              </div>
-            ` : ''}
+            <!-- Selector de Frases Siguientes (1 a 3) -->
+            <div class="selector-group preview-lines-group" title="Cantidad de frases siguientes visibles debajo de la actual">
+              <label for="preview-lines-select">Siguientes:</label>
+              <select id="preview-lines-select" class="select-input select-small">
+                <option value="1" ${previewLinesCount === 1 ? 'selected' : ''}>1 frase</option>
+                <option value="2" ${previewLinesCount === 2 ? 'selected' : ''}>2 frases</option>
+                <option value="3" ${previewLinesCount === 3 ? 'selected' : ''}>3 frases</option>
+              </select>
+            </div>
           </div>
 
           <div class="right-controls">
+            <!-- Personalizar Tema y Visualización -->
+            <button class="btn btn-outline" id="btn-controls-theme" title="Personalizar tema, tamaños de letra y colores">
+              ${iconPalette} Temas
+            </button>
+
             <!-- Alternador de Modo: Sencillo vs Avanzado -->
             <button class="btn btn-mode-toggle" title="Cambiar modo de visualización">
               ${currentMode === 'basic' ? 'Modo Avanzado' : 'Modo Sencillo'}
@@ -155,6 +181,40 @@ export function createControlsView({
       })
     }
 
+    const volumeSlider = containerElement.querySelector('.volume-slider')
+    const volumeLabel = containerElement.querySelector('.volume-percent-label')
+    const muteBtn = containerElement.querySelector('.btn-mute-toggle')
+
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', (e) => {
+        const val = Number(e.target.value)
+        currentVolume = val
+        if (val > 0) previousVolume = val
+        if (volumeLabel) volumeLabel.textContent = `${val}%`
+        if (muteBtn) {
+          muteBtn.innerHTML = val === 0 ? iconVolumeMute : iconVolume
+          muteBtn.title = val === 0 ? 'Activar sonido' : 'Silenciar'
+        }
+        if (onVolumeChange) onVolumeChange(val)
+      })
+    }
+
+    if (muteBtn) {
+      muteBtn.addEventListener('click', () => {
+        if (currentVolume > 0) {
+          previousVolume = currentVolume
+          currentVolume = 0
+        } else {
+          currentVolume = previousVolume > 0 ? previousVolume : 80
+        }
+        if (volumeSlider) volumeSlider.value = currentVolume
+        if (volumeLabel) volumeLabel.textContent = `${currentVolume}%`
+        muteBtn.innerHTML = currentVolume === 0 ? iconVolumeMute : iconVolume
+        muteBtn.title = currentVolume === 0 ? 'Activar sonido' : 'Silenciar'
+        if (onVolumeChange) onVolumeChange(currentVolume)
+      })
+    }
+
     const videoSelect = containerElement.querySelector('#video-select')
     if (videoSelect) {
       videoSelect.addEventListener('change', (e) => {
@@ -171,24 +231,20 @@ export function createControlsView({
       })
     }
 
-    const langSelect = containerElement.querySelector('#lang-select')
-    if (langSelect) {
-      langSelect.addEventListener('change', (e) => {
-        if (onLanguageChange) onLanguageChange(e.target.value)
-      })
-    }
-
-    const bilingualToggle = containerElement.querySelector('#bilingual-toggle')
-    if (bilingualToggle) {
-      bilingualToggle.addEventListener('change', (e) => {
-        if (onBilingualToggle) onBilingualToggle(e.target.checked)
-      })
-    }
-
-    const transLangSelect = containerElement.querySelector('#trans-lang-select')
-    if (transLangSelect) {
-      transLangSelect.addEventListener('change', (e) => {
+    const transSelect = containerElement.querySelector('#trans-select')
+    if (transSelect) {
+      transSelect.addEventListener('change', (e) => {
         if (onTranslationChange) onTranslationChange(e.target.value)
+      })
+    }
+
+    const previewLinesSelect = containerElement.querySelector('#preview-lines-select')
+    if (previewLinesSelect) {
+      previewLinesSelect.addEventListener('change', (e) => {
+        const count = Number(e.target.value) || 2
+        previewLinesCount = count
+        localStorage.setItem('saranga_preview_lines', count)
+        if (onPreviewLinesChange) onPreviewLinesChange(count)
       })
     }
 
@@ -204,6 +260,13 @@ export function createControlsView({
     if (editBtn) {
       editBtn.addEventListener('click', () => {
         if (onEditSong) onEditSong()
+      })
+    }
+
+    const themeBtn = containerElement.querySelector('#btn-controls-theme')
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        if (onOpenTheme) onOpenTheme()
       })
     }
 
@@ -270,9 +333,30 @@ export function createControlsView({
     render()
   }
 
+  function setPreviewLinesCount(count) {
+    previewLinesCount = Math.max(1, Math.min(3, Number(count) || 2))
+    const sel = containerElement?.querySelector('#preview-lines-select')
+    if (sel) sel.value = String(previewLinesCount)
+  }
+
   function setMode(mode) {
     currentMode = mode
     render()
+  }
+
+  function setVolume(val) {
+    const v = Math.max(0, Math.min(100, Number(val) || 0))
+    currentVolume = v
+    if (v > 0) previousVolume = v
+    const volumeSlider = containerElement?.querySelector('.volume-slider')
+    const volumeLabel = containerElement?.querySelector('.volume-percent-label')
+    const muteBtn = containerElement?.querySelector('.btn-mute-toggle')
+    if (volumeSlider) volumeSlider.value = String(v)
+    if (volumeLabel) volumeLabel.textContent = `${v}%`
+    if (muteBtn) {
+      muteBtn.innerHTML = v === 0 ? iconVolumeMute : iconVolume
+      muteBtn.title = v === 0 ? 'Activar sonido' : 'Silenciar'
+    }
   }
 
   return {
@@ -283,6 +367,8 @@ export function createControlsView({
     setVideosState,
     setTrackType,
     setLanguagesState,
-    setMode
+    setPreviewLinesCount,
+    setMode,
+    setVolume
   }
 }

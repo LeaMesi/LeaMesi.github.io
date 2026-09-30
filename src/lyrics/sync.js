@@ -57,16 +57,24 @@ export function evaluateSyllablesState(syllables, currentTime) {
   })
 }
 
-export function findMatchingTranslationLine(translationLines, mainLine) {
+export function findMatchingTranslationLine(translationLines, mainLine, lineIndex = -1) {
   if (!Array.isArray(translationLines) || !mainLine) return null
 
-  // Emparejar por superposición temporal
+  // 1. Si coincide por índice directo y los tiempos son cercanos
+  if (lineIndex >= 0 && translationLines[lineIndex]) {
+    const candidate = translationLines[lineIndex]
+    const diff = Math.abs((candidate.startTime ?? 0) - (mainLine.startTime ?? 0))
+    if (diff < 5.0) {
+      return candidate
+    }
+  }
+
+  // 2. Emparejar por superposición temporal
   const targetMid = (mainLine.startTime + mainLine.endTime) / 2
   let bestMatch = null
   let minDiff = Infinity
 
   for (const transLine of translationLines) {
-    // Si se superponen
     if (transLine.startTime <= mainLine.endTime && transLine.endTime >= mainLine.startTime) {
       return transLine
     }
@@ -78,5 +86,12 @@ export function findMatchingTranslationLine(translationLines, mainLine) {
     }
   }
 
-  return minDiff < 4.0 ? bestMatch : null
+  if (minDiff < 4.0) return bestMatch
+
+  // 3. Fallback al mismo índice si existe
+  if (lineIndex >= 0 && translationLines[lineIndex]) {
+    return translationLines[lineIndex]
+  }
+
+  return null
 }

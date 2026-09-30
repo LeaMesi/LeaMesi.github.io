@@ -1,6 +1,7 @@
 import './style.css'
 import { getDB } from './services/db.js'
 import { listSongs, fetchSongById } from './services/songService.js'
+import { applyTheme } from './services/themeService.js'
 import { createMediaPlayer } from './player/mediaPlayer.js'
 import { createLanguageManager } from './lyrics/languageManager.js'
 import { createBasicViewer } from './views/basicViewer.js'
@@ -8,10 +9,15 @@ import { createAdvancedViewer } from './views/advancedViewer.js'
 import { createControlsView } from './views/controlsView.js'
 import { createSongMenuView } from './views/songMenuView.js'
 import { createVideoManagerModal } from './views/videoManagerModal.js'
+import { createBetterLyricsModal } from './views/betterLyricsModal.js'
+import { createThemeSettingsModal } from './views/themeSettingsModal.js'
 import { createSongEditorView } from './views/songEditorView.js'
-import { iconArrowLeft } from './views/icons.js'
+import { iconArrowLeft, iconPalette } from './views/icons.js'
 
 async function initApp() {
+  // Aplicar tema guardado inmediatamente
+  applyTheme()
+
   const appContainer = document.querySelector('#app')
   if (!appContainer) return
 
@@ -30,6 +36,9 @@ async function initApp() {
       </div>
 
       <div class="header-actions">
+        <button class="btn btn-outline btn-sm" id="btn-header-theme" title="Personalizar temas, tamaños de letra y colores">
+          ${iconPalette} Temas
+        </button>
         <button class="btn btn-outline btn-sm btn-header-nav" id="btn-header-back-menu" style="display: none;">
           ${iconArrowLeft} Menú de Canciones
         </button>
@@ -61,12 +70,19 @@ async function initApp() {
 
     <!-- Modal de Gestión de Videos y Offsets -->
     <div class="modal-container" id="video-modal"></div>
+
+    <!-- Modal de Búsqueda de BetterLyrics -->
+    <div class="modal-container" id="betterlyrics-modal"></div>
+
+    <!-- Modal de Configuración de Temas y Visualización -->
+    <div class="modal-container" id="theme-modal"></div>
   `
 
   // 2. Elementos del DOM
   const headerTitleEl = document.querySelector('#header-song-title')
   const headerArtistEl = document.querySelector('#header-song-artist')
   const modeBadgeEl = document.querySelector('#app-mode-badge')
+  const btnHeaderTheme = document.querySelector('#btn-header-theme')
   const btnHeaderBackMenu = document.querySelector('#btn-header-back-menu')
   const menuScreenEl = document.querySelector('#menu-screen')
   const lyricsScreenEl = document.querySelector('#lyrics-screen')
@@ -74,6 +90,8 @@ async function initApp() {
   const lyricsViewportEl = document.querySelector('#lyrics-viewport')
   const controlsDockEl = document.querySelector('#controls-dock')
   const videoModalEl = document.querySelector('#video-modal')
+  const betterlyricsModalEl = document.querySelector('#betterlyrics-modal')
+  const themeModalEl = document.querySelector('#theme-modal')
   const advancedStageEl = document.querySelector('#advanced-stage-container')
 
   // 3. Estado de la aplicación
@@ -81,8 +99,13 @@ async function initApp() {
   let currentMode = 'basic'
   let currentScreen = 'menu' // 'menu' | 'lyrics' | 'editor'
 
+  const initialPreviewLines = Number(localStorage.getItem('saranga_preview_lines')) || 2
+
   const languageManager = createLanguageManager([])
-  const basicViewer = createBasicViewer(lyricsViewportEl)
+  const basicViewer = createBasicViewer(lyricsViewportEl, {
+    initialPreviewCount: initialPreviewLines,
+    onSeekLine: (seconds) => mediaPlayer.seek(seconds)
+  })
   const advancedViewer = createAdvancedViewer(advancedStageEl)
 
   // 4. Inicializar Reproductor Multimedia (Master Clock)
@@ -118,6 +141,28 @@ async function initApp() {
     }
   })
 
+  // 5b. Inicializar Modal de Búsqueda de BetterLyrics
+  const betterLyricsModal = createBetterLyricsModal({
+    containerElement: betterlyricsModalEl,
+    onSongReady: (songPackage) => {
+      showEditorScreen(songPackage)
+    }
+  })
+
+  // 5c. Inicializar Modal de Configuración de Temas y Visualización
+  const themeSettingsModal = createThemeSettingsModal({
+    containerElement: themeModalEl,
+    onThemeChanged: () => {
+      // Las variables CSS se actualizan reactivamente en :root
+    }
+  })
+
+  if (btnHeaderTheme) {
+    btnHeaderTheme.addEventListener('click', () => {
+      themeSettingsModal.open()
+    })
+  }
+
   // 6. Inicializar Editor de Letras y Creaciones
   const songEditorView = createSongEditorView({
     containerElement: editorScreenEl,
@@ -139,8 +184,11 @@ async function initApp() {
   // 7. Inicializar Barra de Controles (Modo Letra)
   const controlsView = createControlsView({
     containerElement: controlsDockEl,
+    initialPreviewLines,
+    initialVolume: mediaPlayer.getVolume(),
     onPlayToggle: () => mediaPlayer.togglePlay(),
     onSeek: (seconds) => mediaPlayer.seek(seconds),
+    onVolumeChange: (vol) => mediaPlayer.setVolume(vol),
     onVideoChange: (videoId) => {
       mediaPlayer.setVideo(videoId)
       controlsView.setVideosState({
@@ -154,15 +202,19 @@ async function initApp() {
         videoManagerModal.open(currentSong)
       }
     },
-    onLanguageChange: (langCode) => languageManager.setActiveLanguage(langCode),
     onTranslationChange: (langCode) => languageManager.setTranslationLanguage(langCode),
-    onBilingualToggle: (active) => languageManager.setBilingual(active),
+    onPreviewLinesChange: (count) => {
+      basicViewer.setPreviewCount(count)
+    },
     onModeToggle: (newMode) => switchMode(newMode),
     onGoToMenu: () => showMenuScreen(),
     onEditSong: () => {
       if (currentSong) {
         showEditorScreen(currentSong)
       }
+    },
+    onOpenTheme: () => {
+      themeSettingsModal.open()
     }
   })
 
@@ -178,6 +230,9 @@ async function initApp() {
     },
     onCreateNewSong: () => {
       showEditorScreen(null)
+    },
+    onSearchBetterLyrics: () => {
+      betterLyricsModal.open()
     },
     onEditSong: (song) => {
       showEditorScreen(song)
@@ -198,7 +253,7 @@ async function initApp() {
       basicViewer.setLyrics({
         lines: activeLanguage.lines,
         translations: transLines,
-        bilingual: isBilingual,
+        isTranslationActive: isBilingual,
         styles: currentSong.lyrics_data?.styles || {}
       })
     }

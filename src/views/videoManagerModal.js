@@ -58,8 +58,8 @@ export function createVideoManagerModal({ containerElement, onVideosUpdated }) {
 
             <div class="video-item-fields">
               <div class="form-group">
-                <label>URL de YouTube / ID:</label>
-                <input type="text" class="input-video-url" value="${escapeHtml(video.url)}" placeholder="https://www.youtube.com/watch?v=..." data-index="${index}" />
+                <label>URL de YouTube / YouTube Music o ID:</label>
+                <input type="text" class="input-video-url" value="${escapeHtml(video.url)}" placeholder="https://music.youtube.com/watch?v=... o https://www.youtube.com/watch?v=..." data-index="${index}" />
               </div>
 
               <div class="form-group form-group-offset">
@@ -112,8 +112,8 @@ export function createVideoManagerModal({ containerElement, onVideosUpdated }) {
                   <input type="text" id="new-video-name" class="input-text" placeholder="Ej. Video Oficial, Karaoke, En Vivo" required />
                 </div>
                 <div class="form-group flex-2">
-                  <label for="new-video-url">URL de YouTube o ID:</label>
-                  <input type="text" id="new-video-url" class="input-text" placeholder="https://www.youtube.com/watch?v=..." required />
+                  <label for="new-video-url">URL de YouTube / YouTube Music o ID:</label>
+                  <input type="text" id="new-video-url" class="input-text" placeholder="https://music.youtube.com/watch?v=... o https://www.youtube.com/watch?v=..." required />
                 </div>
                 <div class="form-group flex-1">
                   <label for="new-video-offset">Offset (segundos):</label>

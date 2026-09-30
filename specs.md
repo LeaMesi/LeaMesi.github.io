@@ -16,7 +16,8 @@ Para facilitar la colaboración y el intercambio entre la comunidad sin requerir
 
 A futuro, se contempla la posibilidad de integrar **Supabase** de manera opcional y exclusivamente en modo **Solo Lectura (Read-Only)**, actuando como un catálogo público de canciones oficiales administradas directamente por el creador del proyecto (donde la escritura y curación la realiza únicamente el administrador).
 
-El reproductor musical admite enlaces a **videos de YouTube** (permitiendo conmutar fluidamente entre la versión oficial con voz y la versión instrumental / solo pista) así como archivos de audio locales o remotos, ofreciendo dos modos de visualización claramente diferenciados: **Modo Sencillo (Básico)** y **Modo Avanzado**.
+El reproductor musical admite enlaces a **videos de YouTube y canciones de YouTube Music (`music.youtube.com`)** (permitiendo asociar múltiples videos y pistas con offsets de sincronización individuales) así como archivos de audio locales o remotos, con control maestro de volumen y silenciado. Además, la aplicación se conecta con la API abierta de **BetterLyrics y Unison** para permitir la búsqueda instantánea de canciones sincronizadas con sílabas y traducciones automáticas desde la pantalla de inicio, precargándolas de forma inmediata en el editor de canciones.
+
 
 ---
 
@@ -107,6 +108,8 @@ Para garantizar la separación de responsabilidades, permitir exportar/importar 
 * **Persistencia Local (Client-Side DB):** Motor de base de datos en el navegador utilizando **IndexedDB**, implementando las entidades relacionales (`artists`, `songs`, `tags`, `genres`, `song_tags`, `song_genres`) sin dependencias de backend obligatorias.
 * **Portabilidad y Estándares Abiertos:** Soporte completo de **Exportación e Importación** de canciones en formato JSON nativo y compatibilidad bidireccional con el formato abierto **Lyricsfile 1.0 (YAML)**.
 * **Gestión Multilingüe:** Modelo de datos capaz de albergar un idioma nativo y múltiples traducciones por canción, con códigos normalizados (ISO 639-1 / BCP 47) y renderizado bilingüe sincronizado.
-* **Soporte Multimedia Dual:** Soporte para videos de YouTube (oficial e instrumental con sincronización de tiempo) mediante la **YouTube IFrame Player API** y reproducción de archivos de audio nativos (`<audio>` HTML5 / Blob).
+* **Soporte Multimedia Universal:** Soporte integral para videos y canciones de **YouTube y YouTube Music (`music.youtube.com`)** mediante la **YouTube IFrame Player API**, con soporte multi-video, cálculo dinámico de offsets, control maestro de volumen (0-100), botón de silenciado y reproducción de archivos de audio nativos (`<audio>` HTML5 / Blob).
+* **Integración con API de Letras Comunitarias:** Búsqueda en vivo y obtención de letras en formato TTML/LRC y traducciones automáticas mediante la API abierta de **BetterLyrics & Unison**, con precarga completa en el editor de canciones.
 * **Sincronización:** Margen de error inferior a 50 milisegundos entre el tiempo de reproducción reportado y la actualización visual de la letra.
 * **Preparación para Catálogo Remoto Opcional:** Arquitectura de repositorio desacoplada para admitir en el futuro una fuente de canciones en Supabase configurada en modo **Read-Only**.
+

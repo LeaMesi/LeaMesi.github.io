@@ -11,7 +11,8 @@ import {
   iconSettings,
   iconSearch,
   iconClose,
-  iconMusic
+  iconMusic,
+  iconGlobe
 } from './icons.js'
 
 export function createSongMenuView({
@@ -19,6 +20,7 @@ export function createSongMenuView({
   onEnterLyricsMode,
   onManageVideos,
   onCreateNewSong,
+  onSearchBetterLyrics,
   onEditSong
 }) {
   let songs = []
@@ -65,6 +67,7 @@ export function createSongMenuView({
           ${songs.length === 0 ? `
             <div class="empty-btn-group">
               <button class="btn btn-primary btn-create-empty-song">${iconPlus} Crear Primera Canción</button>
+              <button class="btn btn-secondary btn-search-bl-empty">${iconGlobe} Buscar en BetterLyrics</button>
               <button class="btn btn-outline btn-open-import">${iconUpload} Importar Canción</button>
             </div>
           ` : ''}
@@ -142,6 +145,9 @@ export function createSongMenuView({
           <div class="menu-actions">
             <button class="btn btn-primary" id="btn-create-song" title="Crear una nueva canción desde cero">
               ${iconPlus} Crear Canción
+            </button>
+            <button class="btn btn-secondary" id="btn-search-betterlyrics" title="Buscar letras y sincronizaciones en BetterLyrics">
+              ${iconGlobe} Buscar en BetterLyrics
             </button>
             <button class="btn btn-outline btn-toggle-import">
               ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
@@ -231,6 +237,21 @@ export function createSongMenuView({
     if (createEmptySongBtn) {
       createEmptySongBtn.addEventListener('click', () => {
         if (onCreateNewSong) onCreateNewSong()
+      })
+    }
+
+    // Buscar en BetterLyrics
+    const searchBetterLyricsBtn = containerElement.querySelector('#btn-search-betterlyrics')
+    if (searchBetterLyricsBtn) {
+      searchBetterLyricsBtn.addEventListener('click', () => {
+        if (onSearchBetterLyrics) onSearchBetterLyrics()
+      })
+    }
+
+    const searchBlEmptyBtn = containerElement.querySelector('.btn-search-bl-empty')
+    if (searchBlEmptyBtn) {
+      searchBlEmptyBtn.addEventListener('click', () => {
+        if (onSearchBetterLyrics) onSearchBetterLyrics()
       })
     }
 
