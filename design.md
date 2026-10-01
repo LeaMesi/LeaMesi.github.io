@@ -477,10 +477,10 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
 
 1. **Menú de Selección de Canciones (`songMenuView`):**
    * Pantalla inicial de bienvenida y catálogo general de canciones en IndexedDB.
-   * Muestra tarjetas con metadatos, artistas, géneros, conteo de idiomas y videos asociados con sus offsets.
-   * **Botón "Buscar en BetterLyrics":** Ubicado junto al botón "Crear Canción", abre el modal `betterLyricsModal` para buscar y precargar canciones directamente desde la comunidad.
+   * **Modos de Vista Dual (Cuadrícula / Lista):** El usuario puede conmutar entre visualización en **Cuadrícula** (tarjetas amplias con cabecera y metadatos) y **Lista** (filas horizontales compactas tipo biblioteca multimedia), con persistencia de su preferencia en `localStorage` (`saranga_menu_view_mode`) y controles integrados en la barra de búsqueda mediante iconos SVG vectoriales (`iconGrid`, `iconList`).
+   * **Botón "Buscar Canción Online":** Ubicado junto al botón "Crear Canción", abre el modal unificado `onlineLyricsModal` para buscar y precargar canciones directamente desde BetterLyrics, Genius.com y LRCLIB.
    * Permite gestionar los videos asociados a cada canción mediante un modal dedicado (`videoManagerModal`), importar nuevos paquetes JSON o Lyricsfile YAML y exportar respaldos.
-   * Al seleccionar una canción ("🎤 Entrar a Modo Letra"), la canción se carga y se realiza la transición a la vista de letras.
+   * Al seleccionar una canción ("🎤 Entrar a Modo Letra" o clic directo en la tarjeta/fila), la canción se carga y se realiza la transición a la vista de letras.
 
 2. **Modo Letra (`BasicModeViewer` / `lyricsViewport`):**
    * Pantalla dedicada a la visualización de la letra y el canto sincronizado sílaba a sílaba.

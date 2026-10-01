@@ -324,6 +324,24 @@
   - Soporte y reenvío de `syncType` en [`src/services/onlineLyricsService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/onlineLyricsService.js) y [`src/services/lrclibService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/lrclibService.js).
   - Acceso seguro mediante encadenamiento opcional a `import.meta.env?.VITE_GENIUS_ACCESS_TOKEN` en [`src/services/geniusService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/geniusService.js).
 
+---
+
+## Fase 15: Modos de Vista Dual en Menú de Canciones (Cuadrícula / Lista)
+
+- [x] **15.1. Iconos Vectoriales para Modos de Vista (`src/views/icons.js`):**
+  - Incorporados nuevos iconos SVG limpios `iconGrid` (matriz 2x2) e `iconList` (filas ordenadas con viñetas) con `stroke="currentColor"`.
+- [x] **15.2. Control de Alternancia y Persistencia Local (`src/views/songMenuView.js`):**
+  - Estado reactivo `viewMode` (`'grid'` | `'list'`) persistido en `localStorage` (`saranga_menu_view_mode`).
+  - Grupo de botones de conmutación rápida `.view-mode-toggle-group` situado en la barra de búsqueda y filtro junto al contador de canciones.
+- [x] **15.3. Renderizado y Maquetación de Vista en Lista (`src/views/songMenuView.js`, `src/style.css`):**
+  - Componente de fila horizontal interactiva (`.song-menu-card.song-menu-list-row`) con distribución balanceada:
+    - Columna principal con icono musical (`.list-song-icon-wrap`), título y artista con truncado seguro (`ellipsis`).
+    - Columna de metadatos con badges de idioma principal, traducciones, géneros y etiquetas.
+    - Columna de videos con resumen y botón de gestión (`btn-manage-videos`).
+    - Columna de acciones compactas (Editar, JSON, Lyricsfile YAML, Eliminar y botón destacado "🎤 Entrar").
+  - Preservación del 100% de los identificadores de eventos (`data-song-id`, clic en fila para reproducir, atajos de edición y exportación).
+  - Adaptación responsive para pantallas medianas y móviles con envoltura fluida.
+
 
 
 

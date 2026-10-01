@@ -12,7 +12,9 @@ import {
   iconSearch,
   iconClose,
   iconMusic,
-  iconGlobe
+  iconGlobe,
+  iconGrid,
+  iconList
 } from './icons.js'
 
 export function createSongMenuView({
@@ -29,6 +31,18 @@ export function createSongMenuView({
   let statusMessage = ''
   let statusType = 'info' // 'info' | 'success' | 'error'
   let isImportOpen = false
+  const savedViewMode = typeof localStorage !== 'undefined' ? localStorage.getItem('saranga_menu_view_mode') : null
+  let viewMode = (savedViewMode === 'list' || savedViewMode === 'grid') ? savedViewMode : 'grid'
+
+  function setViewMode(mode) {
+    if (mode !== 'grid' && mode !== 'list') return
+    if (viewMode === mode) return
+    viewMode = mode
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('saranga_menu_view_mode', mode)
+    }
+    render()
+  }
 
   async function loadSongs() {
     try {
@@ -86,6 +100,55 @@ export function createSongMenuView({
             const offStr = off !== 0 ? ` (${off > 0 ? '+' : ''}${off}s)` : ''
             return `<span class="video-pill" title="Offset: ${off}s">${escapeHtml(v.name)}${offStr}</span>`
           }).join('')
+
+        if (viewMode === 'list') {
+          return `
+            <article class="song-menu-card song-menu-list-row" data-song-id="${song.id}">
+              <div class="list-col-main">
+                <div class="list-song-icon-wrap" title="Canción">
+                  ${iconMusic}
+                </div>
+                <div class="list-title-group">
+                  <h3 class="card-title list-card-title">${escapeHtml(song.title)}</h3>
+                  <p class="card-artist list-card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
+                </div>
+              </div>
+
+              <div class="list-col-meta">
+                <span class="badge badge-lang" title="Idiomas disponibles">${langCount} [${escapeHtml(mainLang)}]</span>
+                ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
+                ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
+              </div>
+
+              <div class="list-col-videos">
+                <div class="videos-pill-list">
+                  ${videosSummary}
+                </div>
+                <button class="btn btn-outline btn-xs btn-manage-videos" data-song-id="${song.id}" title="Gestionar videos y configurar offsets">
+                  ${iconSettings} (${videos.length})
+                </button>
+              </div>
+
+              <div class="list-col-actions">
+                <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
+                  ${iconEdit} Editar
+                </button>
+                <button class="btn btn-xs btn-outline btn-export-json" data-song-id="${song.id}" title="Exportar paquete de canción JSON">
+                  JSON
+                </button>
+                <button class="btn btn-xs btn-outline btn-export-yaml" data-song-id="${song.id}" title="Exportar al estándar Lyricsfile (.yaml)">
+                  Lyricsfile
+                </button>
+                <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la biblioteca">
+                  ${iconTrash}
+                </button>
+                <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="Entrar al modo letra y cantar">
+                  ${iconMic} Entrar
+                </button>
+              </div>
+            </article>
+          `
+        }
 
         return `
           <article class="song-menu-card" data-song-id="${song.id}">
@@ -193,13 +256,35 @@ export function createSongMenuView({
             />
             ${filterQuery ? `<button class="btn-clear-search" id="btn-clear-search">${iconClose}</button>` : ''}
           </div>
-          <div class="song-count-badge">
-            ${filtered.length} de ${songs.length} canción(es)
+          <div class="menu-filter-right-controls">
+            <div class="song-count-badge">
+              ${filtered.length} de ${songs.length} canción(es)
+            </div>
+            <div class="view-mode-toggle-group" role="group" aria-label="Cambiar modo de vista">
+              <button
+                type="button"
+                class="btn-view-mode-toggle ${viewMode === 'grid' ? 'is-active' : ''}"
+                id="btn-view-grid"
+                title="Vista en cuadrícula"
+                aria-pressed="${viewMode === 'grid'}"
+              >
+                ${iconGrid}
+              </button>
+              <button
+                type="button"
+                class="btn-view-mode-toggle ${viewMode === 'list' ? 'is-active' : ''}"
+                id="btn-view-list"
+                title="Vista en lista"
+                aria-pressed="${viewMode === 'list'}"
+              >
+                ${iconList}
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Cuadrícula / Listado de Canciones -->
-        <div class="song-cards-grid">
+        <div class="song-cards-grid view-${viewMode}">
           ${songsCardsHtml}
         </div>
       </div>
@@ -277,6 +362,17 @@ export function createSongMenuView({
         filterQuery = ''
         render()
       })
+    }
+
+    // Conmutadores de Modo de Vista (Cuadrícula / Lista)
+    const btnGrid = containerElement.querySelector('#btn-view-grid')
+    if (btnGrid) {
+      btnGrid.addEventListener('click', () => setViewMode('grid'))
+    }
+
+    const btnList = containerElement.querySelector('#btn-view-list')
+    if (btnList) {
+      btnList.addEventListener('click', () => setViewMode('list'))
     }
 
     // Entrar a Modo Letra

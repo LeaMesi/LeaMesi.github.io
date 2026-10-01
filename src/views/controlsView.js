@@ -139,10 +139,6 @@ export function createControlsView({
           </div>
 
           <div class="right-controls">
-            <!-- Personalizar Tema y Visualización -->
-            <button class="btn btn-outline" id="btn-controls-theme" title="Personalizar tema, tamaños de letra y colores">
-              ${iconPalette} Temas
-            </button>
 
             <!-- Alternador de Modo: Sencillo vs Avanzado -->
             <button class="btn btn-mode-toggle" title="Cambiar modo de visualización">
@@ -152,11 +148,6 @@ export function createControlsView({
             <!-- Editar Letra de esta Canción -->
             <button class="btn btn-outline" id="btn-controls-edit" title="Editar letra, frases, sílabas e idiomas de esta canción">
               ${iconEdit} Editar
-            </button>
-
-            <!-- Volver al Menú de Selección de Canciones -->
-            <button class="btn btn-menu-return" id="btn-controls-menu" title="Volver al menú de selección de canciones">
-              ${iconArrowLeft} Menú Canciones
             </button>
           </div>
         </div>
