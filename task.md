@@ -289,7 +289,40 @@
 - [x] **13.3. Persistencia Robusta de Preferencia de Previsualización (`src/main.js`):**
   - Ajustada la lectura inicial desde `localStorage` (`saranga_preview_lines`) con validación de valor no nulo (`savedPreviewLines !== null && !isNaN(Number(savedPreviewLines))`), preservando la preferencia `0` entre sesiones y recargas de página.
 - [x] **13.4. Reglas CSS y Limpieza Estética (`src/style.css`):**
-  - Incorporada regla `.upcoming-phrases-container:empty { display: none; margin: 0; }` para prevenir cualquier desfase vertical cuando no haya versos siguientes disponibles.
+
+---
+
+## Fase 14: Búsqueda de Canciones Online Multi-Motor (BetterLyrics, Genius y LRCLIB)
+
+- [x] **14.1. Servicio de Integración LRCLIB (`src/services/lrclibService.js`):**
+  - Cliente HTTP para consulta directa a la API de LRCLIB (`https://lrclib.net/api/search`).
+  - Parser de letras sincronizadas LRC (`[mm:ss.xx]`) y texto plano.
+  - Distribución proporcional fonética de sílabas (`src/lyrics/syllablesHelper.js`) para canciones sincronizadas línea a línea.
+  - Soporte de traducción automática al español u otros idiomas mediante Unison.
+- [x] **14.2. Servicio de Integración Genius.com (`src/services/geniusService.js`):**
+  - Gestor de Client Access Token opcional con persistencia en `localStorage` (`saranga_genius_token`) y fallback a `VITE_GENIUS_ACCESS_TOKEN`.
+  - Búsqueda oficial con metadatos completos, artistas, álbumes y carátulas (`artwork`) en `https://api.genius.com/search` (con soporte CORS nativo).
+  - Cascada de recuperación de letras resiliente con fallback a LRCLIB y Lyrics.ovh para garantizar carga al 100%.
+- [x] **14.3. Orquestador Maestro Multi-Motor (`src/services/onlineLyricsService.js`):**
+  - Módulo centralizado que expone la lista de proveedores (`all`, `betterlyrics`, `genius`, `lrclib`).
+  - Búsqueda simultánea en paralelo (`Promise.allSettled`) en todas las fuentes con clasificación y ordenamiento heurístico (prioridad: sílabas/TTML > versos/LRC > texto plano, presencia de video y carátula).
+  - Ensamblado y saneamiento del paquete de canción (`buildSongPackageFromOnlineResult` y `normalizeSongPackage`) para su carga en SarangaBaranga.
+- [x] **14.4. Modal Unificado de Búsqueda Online (`src/views/onlineLyricsModal.js`):**
+  - Pestaña "Todas las Fuentes" con una única barra de búsqueda que consulta los 3 motores en paralelo.
+  - Pestañas individuales para BetterLyrics (conservando los 4 modos: General, Solo Artista con filtro estricto, Artista y Canción, y Video de YouTube, más filtros de sincronización), Genius (con configuración de token y modo general o dual) y LRCLIB.
+  - Badges visuales de origen (`BetterLyrics`, `Genius`, `LRCLIB`), badges de sincronización (`Sílabas TTML`, `Versos LRC`, `Letra Plana`), carátulas de álbumes y selector de idioma para traducción automática.
+  - Precarga directa de la canción seleccionada en el editor (`songEditorView.open(songPackage)`).
+- [x] **14.5. Integración en Shell, Menú y Retrocompatibilidad (`src/views/songMenuView.js`, `src/main.js`, `src/views/betterLyricsModal.js`):**
+  - Actualizados botones de cabecera y estado vacío en el Menú de Canciones a "Buscar Canción Online".
+  - Cableado reactivo en `src/main.js` y preservación de alias `createBetterLyricsModal` en `betterLyricsModal.js` para 100% de compatibilidad.
+- [x] **14.6. Estilos Visuales y Nuevos Iconos SVG (`src/style.css`, `src/views/icons.js`):**
+  - Nuevo icono SVG `iconSparkles` para sincronización silábica.
+  - Estilos de pestañas `.online-provider-tab` con acentos cromáticos por marca (púrpura BetterLyrics, ámbar Genius, cian LRCLIB).
+  - Badges cromáticos `.source-badge`, miniaturas `.result-card-artwork`, panel de token de Genius y reglas responsivas móviles.
+- [x] **14.7. Corrección de Parámetros de Sincronización y Acceso Seguro a Variables de Entorno:**
+  - Corregida la referencia `syncFilter` en `handleSearch` de [`src/views/onlineLyricsModal.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/onlineLyricsModal.js), resolviendo el error `ReferenceError: syncType is not defined` en búsquedas y clics de filtros.
+  - Soporte y reenvío de `syncType` en [`src/services/onlineLyricsService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/onlineLyricsService.js) y [`src/services/lrclibService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/lrclibService.js).
+  - Acceso seguro mediante encadenamiento opcional a `import.meta.env?.VITE_GENIUS_ACCESS_TOKEN` en [`src/services/geniusService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/geniusService.js).
 
 
 

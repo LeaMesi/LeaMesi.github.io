@@ -21,6 +21,7 @@ export function createSongMenuView({
   onManageVideos,
   onCreateNewSong,
   onSearchBetterLyrics,
+  onSearchOnlineLyrics,
   onEditSong
 }) {
   let songs = []
@@ -67,7 +68,7 @@ export function createSongMenuView({
           ${songs.length === 0 ? `
             <div class="empty-btn-group">
               <button class="btn btn-primary btn-create-empty-song">${iconPlus} Crear Primera Canción</button>
-              <button class="btn btn-secondary btn-search-bl-empty">${iconGlobe} Buscar en BetterLyrics</button>
+              <button class="btn btn-secondary btn-search-bl-empty" title="Buscar canciones en BetterLyrics, Genius y LRCLIB">${iconGlobe} Buscar Canción Online</button>
               <button class="btn btn-outline btn-open-import">${iconUpload} Importar Canción</button>
             </div>
           ` : ''}
@@ -146,8 +147,8 @@ export function createSongMenuView({
             <button class="btn btn-primary" id="btn-create-song" title="Crear una nueva canción desde cero">
               ${iconPlus} Crear Canción
             </button>
-            <button class="btn btn-secondary" id="btn-search-betterlyrics" title="Buscar letras y sincronizaciones en BetterLyrics">
-              ${iconGlobe} Buscar en BetterLyrics
+            <button class="btn btn-secondary" id="btn-search-betterlyrics" title="Buscar canciones online en BetterLyrics, Genius y LRCLIB">
+              ${iconGlobe} Buscar Canción Online
             </button>
             <button class="btn btn-outline btn-toggle-import">
               ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
@@ -240,18 +241,19 @@ export function createSongMenuView({
       })
     }
 
-    // Buscar en BetterLyrics
+    // Buscar Canción Online (BetterLyrics / Genius / LRCLIB)
+    const onOnlineSearch = onSearchOnlineLyrics || onSearchBetterLyrics
     const searchBetterLyricsBtn = containerElement.querySelector('#btn-search-betterlyrics')
     if (searchBetterLyricsBtn) {
       searchBetterLyricsBtn.addEventListener('click', () => {
-        if (onSearchBetterLyrics) onSearchBetterLyrics()
+        if (onOnlineSearch) onOnlineSearch()
       })
     }
 
     const searchBlEmptyBtn = containerElement.querySelector('.btn-search-bl-empty')
     if (searchBlEmptyBtn) {
       searchBlEmptyBtn.addEventListener('click', () => {
-        if (onSearchBetterLyrics) onSearchBetterLyrics()
+        if (onOnlineSearch) onOnlineSearch()
       })
     }
 

@@ -9,7 +9,7 @@ import { createAdvancedViewer } from './views/advancedViewer.js'
 import { createControlsView } from './views/controlsView.js'
 import { createSongMenuView } from './views/songMenuView.js'
 import { createVideoManagerModal } from './views/videoManagerModal.js'
-import { createBetterLyricsModal } from './views/betterLyricsModal.js'
+import { createOnlineLyricsModal } from './views/onlineLyricsModal.js'
 import { createThemeSettingsModal } from './views/themeSettingsModal.js'
 import { createSongEditorView } from './views/songEditorView.js'
 import { iconArrowLeft, iconPalette } from './views/icons.js'
@@ -144,8 +144,8 @@ async function initApp() {
     }
   })
 
-  // 5b. Inicializar Modal de Búsqueda de BetterLyrics
-  const betterLyricsModal = createBetterLyricsModal({
+  // 5b. Inicializar Modal de Búsqueda Online (BetterLyrics / Genius / LRCLIB)
+  const onlineLyricsModal = createOnlineLyricsModal({
     containerElement: betterlyricsModalEl,
     onSongReady: (songPackage) => {
       showEditorScreen(songPackage)
@@ -234,8 +234,11 @@ async function initApp() {
     onCreateNewSong: () => {
       showEditorScreen(null)
     },
+    onSearchOnlineLyrics: () => {
+      onlineLyricsModal.open()
+    },
     onSearchBetterLyrics: () => {
-      betterLyricsModal.open()
+      onlineLyricsModal.open()
     },
     onEditSong: (song) => {
       showEditorScreen(song)

@@ -152,3 +152,5 @@ function normalizeLines(lines) {
     }
   })
 }
+
+export { validateSongPackage as normalizeSongPackage }
