@@ -19,13 +19,16 @@ export const DEFAULT_THEME = {
   originalColor: '#cbd5e1',
   translationColor: '#38bdf8',
   activeColor: '#fbbf24',
+  completedColor: '#f59e0b',
   originalBold: true,
   originalItalic: false,
   translationBold: false,
   translationItalic: true,
   activeBold: true,
   activeItalic: false,
-  activeGlow: true
+  activeGlow: true,
+  completedBold: true,
+  completedItalic: false
 }
 
 export const THEME_PRESETS = [
@@ -42,13 +45,16 @@ export const THEME_PRESETS = [
       originalColor: '#cbd5e1',
       translationColor: '#38bdf8',
       activeColor: '#fbbf24',
+      completedColor: '#f59e0b',
       originalBold: true,
       originalItalic: false,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
       activeItalic: false,
-      activeGlow: true
+      activeGlow: true,
+      completedBold: true,
+      completedItalic: false
     }
   },
   {
@@ -64,13 +70,16 @@ export const THEME_PRESETS = [
       originalColor: '#c084fc',
       translationColor: '#22d3ee',
       activeColor: '#facc15',
+      completedColor: '#f472b6',
       originalBold: true,
       originalItalic: false,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
       activeItalic: false,
-      activeGlow: true
+      activeGlow: true,
+      completedBold: true,
+      completedItalic: false
     }
   },
   {
@@ -86,13 +95,16 @@ export const THEME_PRESETS = [
       originalColor: '#a7f3d0',
       translationColor: '#38bdf8',
       activeColor: '#fde047',
+      completedColor: '#34d399',
       originalBold: true,
       originalItalic: false,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
       activeItalic: false,
-      activeGlow: true
+      activeGlow: true,
+      completedBold: true,
+      completedItalic: false
     }
   },
   {
@@ -108,13 +120,16 @@ export const THEME_PRESETS = [
       originalColor: '#fed7aa',
       translationColor: '#fb7185',
       activeColor: '#fde047',
+      completedColor: '#f97316',
       originalBold: true,
       originalItalic: false,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
       activeItalic: false,
-      activeGlow: true
+      activeGlow: true,
+      completedBold: true,
+      completedItalic: false
     }
   },
   {
@@ -130,13 +145,16 @@ export const THEME_PRESETS = [
       originalColor: '#475569',
       translationColor: '#0284c7',
       activeColor: '#d97706',
+      completedColor: '#b45309',
       originalBold: true,
       originalItalic: false,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
       activeItalic: false,
-      activeGlow: false
+      activeGlow: false,
+      completedBold: true,
+      completedItalic: false
     }
   }
 ]
@@ -243,13 +261,16 @@ export function applyTheme(theme = getThemeSettings()) {
     originalColor,
     translationColor,
     activeColor,
+    completedColor,
     originalBold,
     originalItalic,
     translationBold,
     translationItalic,
     activeBold,
     activeItalic,
-    activeGlow
+    activeGlow,
+    completedBold,
+    completedItalic
   } = theme
 
   // 1. Aplicación de los 4 colores de la Interfaz
@@ -283,6 +304,8 @@ export function applyTheme(theme = getThemeSettings()) {
   root.style.setProperty('--translation-color', translationColor || '#38bdf8')
   root.style.setProperty('--lyrics-active-color', activeColor || '#fbbf24')
   root.style.setProperty('--text-active', activeColor || '#fbbf24')
+  root.style.setProperty('--lyrics-completed-color', completedColor || '#f59e0b')
+  root.style.setProperty('--text-completed', completedColor || '#f59e0b')
 
   // 4. Estilos tipográficos y Efecto de Brillo (Glow)
   root.style.setProperty('--lyrics-original-font-weight', originalBold ? '700' : '400')
@@ -293,6 +316,9 @@ export function applyTheme(theme = getThemeSettings()) {
 
   root.style.setProperty('--lyrics-active-font-weight', activeBold ? '700' : '400')
   root.style.setProperty('--lyrics-active-font-style', activeItalic ? 'italic' : 'normal')
+
+  root.style.setProperty('--lyrics-completed-font-weight', completedBold !== false ? '700' : '400')
+  root.style.setProperty('--lyrics-completed-font-style', completedItalic ? 'italic' : 'normal')
 
   if (activeGlow) {
     const glowColor1 = hexToRgba(activeColor || '#fbbf24', 0.8)
@@ -385,9 +411,9 @@ export async function importThemePackage(fileOrString) {
   const validKeys = [
     'bgColor', 'panelBg', 'primaryColor', 'textMain',
     'lyricsScale', 'translationScale',
-    'originalColor', 'translationColor', 'activeColor',
+    'originalColor', 'translationColor', 'activeColor', 'completedColor',
     'originalBold', 'originalItalic', 'translationBold', 'translationItalic',
-    'activeBold', 'activeItalic', 'activeGlow'
+    'activeBold', 'activeItalic', 'activeGlow', 'completedBold', 'completedItalic'
   ]
 
   const hasAnyKey = validKeys.some(key => key in rawTheme)

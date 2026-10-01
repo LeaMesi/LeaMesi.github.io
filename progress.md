@@ -1,7 +1,7 @@
 # Estado del Desarrollo: SarangaBaranga (`proy-letras`)
 
 > **Estado Global:** Arquitectura reorientada a **Persistencia Local en Navegador (IndexedDB)** y compartición mediante **Exportación/Importación JSON**. Enfoque activo en **Modo Sencillo / Básico**.  
-> **Última actualización:** 2026-09-30  
+> **Última actualización:** 2026-10-01  
 > **Plataforma:** SPA Estática (GitHub Pages) + IndexedDB Local & Export/Import JSON (+ Catálogo Opcional Supabase Read-Only a futuro)
 
 ---
@@ -63,7 +63,7 @@
 | **Integración BetterLyrics / Unison** | 🟢 Operativo | Búsqueda comunitaria en tiempo real desde el menú principal (`src/views/betterLyricsModal.js`), parser de TTML silábico y LRC con milisegundos (`src/services/betterLyricsService.js`), traducción automática a español y precarga completa en el editor de canciones (`src/views/songEditorView.js`). |
 | **Búsqueda Avanzada Multi-Modo BetterLyrics** | 🟢 Operativo | Búsqueda versátil con 4 modos dedicados (*General*, *Solo por Artista* con filtro estricto del 100%, *Artista y Título* con coincidencia dual de alta precisión, y *Enlace / Video YouTube* por ID o URL), filtros de sincronización (*Todas*, *Sílabas*, *Versos*), badges de *Artista Verificado* y sugerencias interactivas. |
 | **Borrado de Sílabas (Frase y Masivo)** | 🟢 Operativo | Botón de borrado de sílabas por frase individual (`.btn-clear-line-syllables`) en encabezado y barra rápida, y botón de borrado masivo (`#btn-clear-all-syllables`) con confirmación obligatoria previa (`window.confirm`) y contador silábico en tiempo real (`.phrases-syl-count`) en `src/views/songEditorView.js`. |
-| **Configuración de Temas y Visualización** | 🟢 Operativo | `src/services/themeService.js` y `src/views/themeSettingsModal.js` con selección de 4 colores de interfaz globales (fondo, paneles, botones, texto), sliders de tamaño de fuente (50% a 200%) para original y traducción, selectores de color para letra original, traducción y sílabas activas, conmutadores de negrita, cursiva y efecto de brillo (glow), exportación e importación de archivos de tema JSON (`saranga-theme-settings.json`), vista previa interactiva en vivo, presets rápidos y persistencia en `localStorage`. |
+| **Configuración de Temas y Visualización** | 🟢 Operativo | `src/services/themeService.js` y `src/views/themeSettingsModal.js` con selección de 4 colores de interfaz globales (fondo, paneles, botones, texto), sliders de tamaño de fuente (50% a 200%) para original y traducción, selectores de color para letra original, traducción, sílaba activa y sílabas anteriores cantadas (`completedColor` / `--lyrics-completed-color`), conmutadores de negrita, cursiva y efecto de brillo (glow), exportación e importación de archivos de tema JSON (`saranga-theme-settings.json`), vista previa interactiva en vivo (mostrando sílabas completadas, activas y pendientes), presets rápidos y persistencia en `localStorage`. |
 | **Catálogo Supabase (Read-Only)** | ⚪ Pospuesto | Reservado para fase futura como catálogo público de solo lectura administrado por el creador. |
 
 ---

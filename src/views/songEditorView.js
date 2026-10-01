@@ -60,6 +60,7 @@ export function createSongEditorView({
         styles: {
           textColor: '#94a3b8',
           activeColor: '#fbbf24',
+          completedColor: '#f59e0b',
           translationColor: '#38bdf8',
           backgroundColor: '#0f172a'
         },

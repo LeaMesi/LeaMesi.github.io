@@ -269,6 +269,12 @@
   - Función `exportThemePackage()`: exporta el tema a `saranga-theme-settings.json` mediante descarga dinámica con `Blob`.
   - Función `importThemePackage()`: procesa archivos JSON (paquetes o configuraciones directas), valida campos y rangos, sanea datos, guarda en `localStorage` y actualiza la UI de inmediato.
   - Botones de exportar e importar integrados tanto en la cabecera de presets como en el pie del diálogo de configuración con alertas de estado.
+- [x] **12.6. Personalización Cromática de Sílabas Anteriores / Cantadas (`src/services/themeService.js`, `src/views/themeSettingsModal.js`, `src/style.css`):**
+  - Incorporado parámetro `completedColor` (`--lyrics-completed-color` y `--text-completed`), `completedBold` y `completedItalic` en `DEFAULT_THEME` y en los 5 temas predefinidos.
+  - Añadida tarjeta "Sílabas Anteriores" en el modal de temas con selector dual (picker cromático + entrada hex) y toggles tipográficos de negrita y cursiva.
+  - Distinción explícita en la interfaz entre "Sílaba Activa (Resaltada)" y "Sílabas Anteriores".
+  - Actualizado el escenario de previsualización en vivo (`#theme-live-preview-box`) reflejando la progresión completa: sílaba completada ("Cami"), sílaba activa ("nan") y texto pendiente ("do por la ciudad").
+  - Inclusión en exportación/importación de paquetes de tema JSON y esquemas de canciones.
 
 ---
 

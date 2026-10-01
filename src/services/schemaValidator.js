@@ -35,6 +35,7 @@ export function validateSongPackage(pkg) {
       styles: {
         textColor: basic.styles?.textColor || '#94a3b8',
         activeColor: basic.styles?.activeColor || '#fbbf24',
+        completedColor: basic.styles?.completedColor || '#f59e0b',
         translationColor: basic.styles?.translationColor || '#38bdf8',
         backgroundColor: basic.styles?.backgroundColor || '#0f172a',
         fontFamily: basic.styles?.fontFamily || 'Inter, system-ui, sans-serif',

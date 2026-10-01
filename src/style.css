@@ -19,12 +19,15 @@
   --lyrics-translation-size: calc(var(--lyrics-font-size) * 0.55 * var(--translation-scale, 1));
   --lyrics-original-color: #cbd5e1;
   --lyrics-active-color: #fbbf24;
+  --lyrics-completed-color: #f59e0b;
   --lyrics-original-font-weight: 700;
   --lyrics-original-font-style: normal;
   --lyrics-translation-font-weight: 400;
   --lyrics-translation-font-style: italic;
   --lyrics-active-font-weight: 700;
   --lyrics-active-font-style: normal;
+  --lyrics-completed-font-weight: 700;
+  --lyrics-completed-font-style: normal;
   --lyrics-active-glow: 0 0 16px rgba(251, 191, 36, 0.8), 0 0 32px rgba(251, 191, 36, 0.45);
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -301,7 +304,9 @@ input[type="number"] {
 }
 
 .syllable.is-completed-syl {
-  color: var(--text-completed);
+  color: var(--lyrics-completed-color, var(--text-completed));
+  font-weight: var(--lyrics-completed-font-weight, var(--lyrics-original-font-weight, 700));
+  font-style: var(--lyrics-completed-font-style, var(--lyrics-original-font-style, normal));
 }
 
 .syllable.is-active-syl {
@@ -2929,6 +2934,11 @@ input[type="number"] {
   line-height: 1.35;
   letter-spacing: -0.3px;
   transition: all 0.2s;
+}
+
+.preview-syl-highlight,
+.preview-syl-completed {
+  transition: color 0.15s ease, text-shadow 0.15s ease;
 }
 
 .preview-line-trans {

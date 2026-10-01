@@ -540,16 +540,20 @@ Control deslizante independiente para regular la escala de visualización sin ro
 * **Slider Letra de Traducciones (`translationScale`):** Rango de 50% a 200% (default 100%). Modifica `--translation-scale` y `--lyrics-translation-size: calc(1.265rem * var(--translation-scale))`.
 
 ### 8.3. Estilización y Efectos de Canto
-* **Colores Específicos:** Selector de color independiente para la letra original (`originalColor`), subtítulos de traducción (`translationColor`) y seguimiento de sílabas activas (`activeColor` / `--lyrics-active-color`).
-* **Atributos Tipográficos:** Conmutadores independientes para negrita (`bold`) y cursiva (`italic`) aplicables tanto a la letra principal como a la traducción y sílabas activas.
-* **Efecto de Brillo (Glow):** Interruptor para activar/desactivar el resplandor difuminado de karaoke (`text-shadow`), calculado dinámicamente sobre la tonalidad seleccionada con doble halo difuso (`0 0 16px rgba(..., 0.8), 0 0 32px rgba(..., 0.45)`).
+* **Colores Específicos:** Selector de color independiente para la letra original (`originalColor`), subtítulos de traducción (`translationColor`), sílaba activa en curso (`activeColor` / `--lyrics-active-color`) y sílabas anteriores ya cantadas (`completedColor` / `--lyrics-completed-color` y `--text-completed`).
+* **Atributos Tipográficos:** Conmutadores independientes para negrita (`bold`) y cursiva (`italic`) aplicables a la letra principal, la traducción, la sílaba activa y las sílabas anteriores cantadas.
+* **Efecto de Brillo (Glow):** Interruptor para activar/desactivar el resplandor difuminado de karaoke (`text-shadow`), calculado dinámicamente sobre la tonalidad activa seleccionada con doble halo difuso (`0 0 16px rgba(..., 0.8), 0 0 32px rgba(..., 0.45)`).
+* **Ciclo Cromático de Sílabas en Tiempo Real:** 
+  1. Sílabas pendientes (`.is-upcoming-syl`): color original (`--lyrics-original-color`).
+  2. Sílaba activa (`.is-active-syl`): color activo (`--lyrics-active-color`) con brillo opcional.
+  3. Sílabas anteriores (`.is-completed-syl`): color de completado personalizable (`--lyrics-completed-color`, fallback a `--text-completed`).
 
 ### 8.4. Modal y Vista Previa en Tiempo Real (`src/views/themeSettingsModal.js`)
-* **Live Preview Box:** Escenario miniatura interactivo dentro del diálogo de configuración que refleja instantáneamente el efecto de cada cambio de color, tamaño, estilo tipográfico o resplandor.
+* **Live Preview Box:** Escenario miniatura interactivo dentro del diálogo de configuración que refleja instantáneamente el efecto de cada cambio de color, tamaño, estilo tipográfico o resplandor, mostrando simultáneamente una sílaba anterior cantada ("Cami"), una sílaba activa en curso ("nan") y texto pendiente ("do por la ciudad").
 * **Presets Rápidos:** Acceso directo a combinaciones temáticas (*Predeterminado Oscuro*, *Cyberpunk Neón*, *Bosque Esmeralda*, *Atardecer Cálido*, *Minimalista Claro*), además de detección de tema personalizado y botón de restauración de fábrica.
 
 ### 8.5. Importación y Exportación de Paquetes de Tema (`saranga-theme-settings.json`)
-* **Exportación (`exportThemePackage`):** Empaqueta la totalidad de los 4 colores de interfaz, escalas de texto y configuraciones tipográficas en un archivo JSON portable (`saranga-theme-settings.json`), desencadenando la descarga en el navegador con `Blob` (`application/json`).
+* **Exportación (`exportThemePackage`):** Empaqueta la totalidad de los 4 colores de interfaz, escalas de texto, colores y configuraciones tipográficas (incluyendo `completedColor`, `completedBold`, `completedItalic`) en un archivo JSON portable (`saranga-theme-settings.json`), desencadenando la descarga en el navegador con `Blob` (`application/json`).
 * **Importación (`importThemePackage`):** Admite la carga de archivos `.json` mediante input file o string. Realiza validación de campos, sanea escalas entre 50% y 200%, fusiona con `DEFAULT_THEME` para asegurar robustez, persiste en `localStorage` y actualiza inmediatamente todas las variables CSS de `:root` y la previsualización activa.
 
 

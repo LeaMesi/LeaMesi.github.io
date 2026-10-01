@@ -86,7 +86,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
         s.textMain.toLowerCase() === currentSettings.textMain.toLowerCase() &&
         s.originalColor.toLowerCase() === currentSettings.originalColor.toLowerCase() &&
         s.translationColor.toLowerCase() === currentSettings.translationColor.toLowerCase() &&
-        s.activeColor.toLowerCase() === currentSettings.activeColor.toLowerCase()
+        s.activeColor.toLowerCase() === currentSettings.activeColor.toLowerCase() &&
+        (!s.completedColor || !currentSettings.completedColor || s.completedColor.toLowerCase() === currentSettings.completedColor.toLowerCase())
       if (isMatch) return preset.id
     }
     return 'custom'
@@ -103,13 +104,16 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
       originalColor,
       translationColor,
       activeColor,
+      completedColor = '#f59e0b',
       originalBold,
       originalItalic,
       translationBold,
       translationItalic,
       activeBold,
       activeItalic,
-      activeGlow
+      activeGlow,
+      completedBold,
+      completedItalic
     } = currentSettings
 
     const lScale = (Math.max(50, Math.min(200, Number(lyricsScale) || 100)) / 100)
@@ -124,6 +128,12 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
       font-weight: ${originalBold ? '700' : '400'};
       font-style: ${originalItalic ? 'italic' : 'normal'};
       color: ${originalColor};
+    `
+
+    const sylCompletedStyle = `
+      color: ${completedColor};
+      font-weight: ${completedBold !== false ? '700' : '400'};
+      font-style: ${completedItalic ? 'italic' : 'normal'};
     `
 
     const sylActiveStyle = `
@@ -159,7 +169,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     previewContainer.innerHTML = `
       <div class="preview-phrase-active">
         <div class="preview-line-main" style="${mainActiveStyle}">
-          <span>Cami</span><span class="preview-syl-highlight" style="${sylActiveStyle}">nan</span><span>do por la ciudad</span>
+          <span class="preview-syl-completed" style="${sylCompletedStyle}">Cami</span><span class="preview-syl-highlight" style="${sylActiveStyle}">nan</span><span>do por la ciudad</span>
         </div>
         <div class="preview-line-trans" style="${transActiveStyle}">
           Walking through the city
@@ -409,10 +419,10 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
                 </div>
               </div>
 
-              <!-- Fila 3: Seguimiento de Sílabas (Karaoke) -->
+              <!-- Fila 3: Sílaba Activa (Resaltada) -->
               <div class="lyric-style-card is-highlight-card">
                 <div class="lyric-style-title-col">
-                  <strong>Seguimiento de Sílabas</strong>
+                  <strong>Sílaba Activa (Resaltada)</strong>
                   <span class="lyric-style-desc">Color y resplandor al cantar</span>
                 </div>
                 <div class="lyric-style-color-col">
@@ -431,6 +441,28 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
                   <label class="theme-toggle-chip chip-glow">
                     <input type="checkbox" id="check-active-glow" ${currentSettings.activeGlow ? 'checked' : ''} />
                     <span>Efecto de Brillo</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Fila 4: Sílabas Anteriores (Cantadas) -->
+              <div class="lyric-style-card">
+                <div class="lyric-style-title-col">
+                  <strong>Sílabas Anteriores</strong>
+                  <span class="lyric-style-desc">Color de las sílabas ya cantadas</span>
+                </div>
+                <div class="lyric-style-color-col">
+                  <input type="color" class="color-swatch-input" id="picker-completed-color" value="${currentSettings.completedColor || '#f59e0b'}" />
+                  <input type="text" class="color-hex-input" id="hex-completed-color" value="${currentSettings.completedColor || '#f59e0b'}" maxlength="7" />
+                </div>
+                <div class="lyric-style-toggles-col">
+                  <label class="theme-toggle-chip">
+                    <input type="checkbox" id="check-completed-bold" ${currentSettings.completedBold !== false ? 'checked' : ''} />
+                    <span>Negrita</span>
+                  </label>
+                  <label class="theme-toggle-chip">
+                    <input type="checkbox" id="check-completed-italic" ${currentSettings.completedItalic ? 'checked' : ''} />
+                    <span>Cursiva</span>
                   </label>
                 </div>
               </div>
@@ -603,6 +635,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     bindColorPair('#picker-orig-color', '#hex-orig-color', 'originalColor')
     bindColorPair('#picker-trans-color', '#hex-trans-color', 'translationColor')
     bindColorPair('#picker-active-color', '#hex-active-color', 'activeColor')
+    bindColorPair('#picker-completed-color', '#hex-completed-color', 'completedColor')
 
     // Toggles de Tipografía
     function bindCheckbox(id, stateKey) {
@@ -621,6 +654,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     bindCheckbox('#check-active-bold', 'activeBold')
     bindCheckbox('#check-active-italic', 'activeItalic')
     bindCheckbox('#check-active-glow', 'activeGlow')
+    bindCheckbox('#check-completed-bold', 'completedBold')
+    bindCheckbox('#check-completed-italic', 'completedItalic')
   }
 
   // Aplicar tema inicial inmediatamente
