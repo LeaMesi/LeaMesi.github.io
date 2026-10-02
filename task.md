@@ -8,7 +8,7 @@
 ## Fase 0: Configuración para GitHub Pages y Entorno
 
 - [x] **0.1. Compatibilidad con GitHub Pages:**
-  - Crear [`vite.config.js`](file:///home/hezztia/Documents/SarangaBaranga/vite.config.js) configurando `base: './'` para asegurar que las rutas a los bundles y assets sean relativas en `usuario.github.io`.
+  - Configurar [`vite.config.js`](file:///home/hezztia/Documents/SarangaBaranga/vite.config.js) con `base: '/'` adecuado para el repositorio y dominio de usuario raíz `LeaMesi.github.io`.
 - [x] **0.2. Entorno y Repositorio Git:**
   - Configurar `.gitignore` para dependencias y builds (.env, .env.local).
   - Creado `.env.example` reservado para futuro catálogo remoto Supabase.
@@ -576,6 +576,53 @@
   - Añadidas 4 pruebas en [`tests/services/shareService.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/services/shareService.test.js) para exportación, importación automática, combinación y creación con sufijo `(2)`.
   - Añadidas 8 pruebas en [`tests/views/songMenuView.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/views/songMenuView.test.js) para la barra de navegación, filtrado, renombrado, exportación, eliminación y diálogo de conflicto (185 pruebas automatizadas al 100%).
   - Compilación de producción con `npm run build` verificada sin errores.
+
+---
+
+## Fase 25: Despliegue en GitHub Pages y Automatización CI/CD con GitHub Actions
+
+- [x] **25.1. Configuración de Scripts y Dependencias de Despliegue ([`package.json`](file:///home/hezztia/Documents/SarangaBaranga/package.json)):**
+  - Añadida dependencia de desarrollo `gh-pages` (`^6.3.0`).
+  - Añadido script `"predeploy": "npm run build"` para compilación previa obligatoria antes de publicar.
+  - Añadido script `"deploy": "gh-pages -d dist"` para publicación directa a la rama remota `gh-pages`.
+- [x] **25.2. Ajuste de Base para Dominio de Usuario Raíz ([`vite.config.js`](file:///home/hezztia/Documents/SarangaBaranga/vite.config.js)):**
+  - Configurada propiedad `base: '/'` en `vite.config.js` adaptada a la URL canónica `https://leamesi.github.io/` de GitHub Pages (sitio de usuario raíz `username.github.io`).
+- [x] **25.3. Automatización de Despliegue Continuo ([`.github/workflows/deploy.yml`](file:///home/hezztia/Documents/SarangaBaranga/.github/workflows/deploy.yml)):**
+  - Creado flujo de trabajo de GitHub Actions activado automáticamente en cada push a la rama `main` (o manualmente vía `workflow_dispatch`).
+  - Configurado runner Ubuntu con Node.js 20 y caché de npm (`actions/setup-node@v4`).
+  - Pipeline de calidad y entrega continua: ejecuta `npm ci`, corre la suite de 185 pruebas automatizadas (`npm test`), compila los paquetes de producción (`npm run build`) y despliega `dist` a la rama `gh-pages` con `peaceiris/actions-gh-pages@v4` y `GITHUB_TOKEN`.
+
+---
+
+## Fase 26: Sistema de Playlist, Cola de Reproducción Dinámica e Interoperabilidad con Bibliotecas
+
+- [x] **26.1. Servicio de Playlist Reactivo y Persistente ([`src/services/playlistService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/playlistService.js)):**
+  - Singleton reactivo de cola de reproducción con persistencia automática en `localStorage` (`saranga_playlist`).
+  - Métodos `addSong`, `addSongs`, `removeSongByIndex`, `removeSongById`, `moveSong`, `moveUp`, `moveDown` y `shuffle` (Fisher-Yates) conservando y recalculando el índice de la canción que está sonando (`currentPlayingId`).
+  - Métodos de navegación secuencial `next`, `prev`, `hasNext`, `hasPrev`, `setCurrentSongById` y `clear`.
+  - Integración `savePlaylistAsLibrary` (guardar la playlist actual como una nueva biblioteca permanente en IndexedDB mediante `libraryService`) y `loadLibraryIntoPlaylist` (cargar biblioteca en orden o en orden aleatorio).
+- [x] **26.2. Iconos Vectoriales SVG para Controles de Reproducción y Playlist ([`src/views/icons.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/icons.js)):**
+  - Incorporados nuevos iconos vectoriales SVG `iconSkipBack`, `iconSkipForward`, `iconShuffle`, `iconListMusic` e `iconListPlus`.
+- [x] **26.3. Modal Interactivo de Playlist y Gestión de Cola ([`src/views/playlistModal.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/playlistModal.js), [`src/style.css`](file:///home/hezztia/Documents/SarangaBaranga/src/style.css)):**
+  - Modal interactivo `#playlist-modal` con listado ordenado de canciones, badge de canción activa, botones de reordenamiento arriba/abajo, botón de reproducir y botón de eliminar.
+  - Subpaneles colapsables para guardar como nueva biblioteca, cargar cualquier biblioteca existente en orden o aleatorio y búsqueda rápida en catálogo local para agregar canciones.
+  - Comportamiento no intrusivo: todas las acciones se realizan sin pausar ni alterar la música de fondo.
+- [x] **26.4. Controles de Transporte de Cola en Barra de Reproducción ([`src/views/controlsView.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/controlsView.js)):**
+  - Incorporados botones Anterior (`#btn-prev-song`) y Siguiente (`#btn-next-song`) flanqueando el botón central de cantar/pausa, deshabilitados automáticamente si no hay pista previa/siguiente.
+  - Botón de acceso a la playlist (`#btn-controls-playlist`) con badge dinámico de cantidad de canciones.
+- [x] **26.5. Integración en Catálogo del Menú de Canciones ([`src/views/songMenuView.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/songMenuView.js)):**
+  - Botón `+ Playlist` en cada tarjeta de cuadrícula y fila de lista con feedback visual inmediato (`✓ Añadida`).
+  - Botones "▶ Cargar Playlist" y "🔀 Cargar Aleatoria" en la barra de herramientas de cualquier biblioteca seleccionada.
+  - Botón directo de acceso a playlist en cabecera del menú con badge de conteo.
+- [x] **26.6. Orquestación, Audio Continuo en Segundo Plano y Auto-Avance ([`src/main.js`](file:///home/hezztia/Documents/SarangaBaranga/src/main.js)):**
+  - Botones `#btn-header-playlist` y `#btn-header-now-playing` en el encabezado global para alternar entre catálogo y letra sin perder la reproducción.
+  - `showMenuScreen` actualizado para permitir reproducción continua sin pausa forzada.
+  - Detección de fin de pista (`PLAYER_STATE.ENDED`) en `mediaPlayer.onStateChange` para avanzar automáticamente a la siguiente canción de la playlist si existe.
+- [x] **26.7. Suite de Pruebas Automatizadas y Verificación de Compilación:**
+  - Creadas suites de prueba `tests/services/playlistService.test.js` (11 pruebas) y `tests/views/playlistModal.test.js` (6 pruebas).
+  - Actualizadas `tests/views/icons.test.js`, `tests/views/controlsView.test.js` y `tests/views/songMenuView.test.js` (total 23 suites y 204 pruebas pasando al 100%).
+  - Compilación de producción con `npm run build` verificada sin errores.
+
 
 
 

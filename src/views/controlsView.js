@@ -10,7 +10,10 @@ import {
   iconVolumeMute,
   iconPalette,
   iconChevronDown,
-  iconChevronUp
+  iconChevronUp,
+  iconSkipBack,
+  iconSkipForward,
+  iconListMusic
 } from './icons.js'
 
 export function createControlsView({
@@ -33,12 +36,18 @@ export function createControlsView({
   onGoToMenu,
   onModeToggle,
   onEditSong,
-  onOpenTheme
+  onOpenTheme,
+  onPrevSong,
+  onNextSong,
+  onOpenPlaylist
 }) {
   let isPlaying = false
   let duration = 0
   let currentTime = 0
   let isUserSeeking = false
+  let playlistCount = 0
+  let hasNextSong = false
+  let hasPrevSong = false
   let currentVolume = Math.max(0, Math.min(100, Number(initialVolume) || 80))
   let previousVolume = currentVolume > 0 ? currentVolume : 80
   let currentTrackType = TRACK_TYPE.OFFICIAL
@@ -109,9 +118,22 @@ export function createControlsView({
         <!-- Fila de controles principales -->
         <div class="controls-main-row">
           <div class="left-controls">
-            <button class="btn btn-primary btn-play-pause" title="${isPlaying ? 'Pausar' : 'Reproducir'}">
-              <span class="icon">${isPlaying ? iconPause : iconPlay}</span>
-              <span class="label">${isPlaying ? 'Pausa' : 'Cantar'}</span>
+            <div class="playback-btn-group">
+              <button class="btn btn-xs btn-outline btn-prev-song" id="btn-prev-song" title="Canción anterior de la playlist" ${!hasPrevSong ? 'disabled' : ''}>
+                ${iconSkipBack}
+              </button>
+              <button class="btn btn-primary btn-play-pause" title="${isPlaying ? 'Pausar' : 'Reproducir'}">
+                <span class="icon">${isPlaying ? iconPause : iconPlay}</span>
+                <span class="label">${isPlaying ? 'Pausa' : 'Cantar'}</span>
+              </button>
+              <button class="btn btn-xs btn-outline btn-next-song" id="btn-next-song" title="Siguiente canción de la playlist" ${!hasNextSong ? 'disabled' : ''}>
+                ${iconSkipForward}
+              </button>
+            </div>
+
+            <!-- Botón de Lista de Reproducción -->
+            <button class="btn btn-xs btn-outline btn-open-playlist" id="btn-controls-playlist" title="Abrir lista de reproducción (${playlistCount} canciones)">
+              ${iconListMusic} <span class="playlist-badge-count ${playlistCount > 0 ? 'has-items' : ''}">${playlistCount}</span>
             </button>
 
             <!-- Control de Volumen -->
@@ -202,6 +224,15 @@ export function createControlsView({
   function bindEvents() {
     const playBtn = containerElement.querySelector('.btn-play-pause')
     if (playBtn) playBtn.addEventListener('click', () => onPlayToggle && onPlayToggle())
+
+    const prevBtn = containerElement.querySelector('#btn-prev-song')
+    if (prevBtn) prevBtn.addEventListener('click', () => onPrevSong && onPrevSong())
+
+    const nextBtn = containerElement.querySelector('#btn-next-song')
+    if (nextBtn) nextBtn.addEventListener('click', () => onNextSong && onNextSong())
+
+    const plBtn = containerElement.querySelector('#btn-controls-playlist')
+    if (plBtn) plBtn.addEventListener('click', () => onOpenPlaylist && onOpenPlaylist())
 
     const seekSlider = containerElement.querySelector('.seek-slider')
     if (seekSlider) {
@@ -462,6 +493,33 @@ export function createControlsView({
     }
   }
 
+  function setPlaylistState({ count = 0, hasNext = false, hasPrev = false } = {}) {
+    playlistCount = Number(count) || 0
+    hasNextSong = Boolean(hasNext)
+    hasPrevSong = Boolean(hasPrev)
+
+    const prevBtn = containerElement?.querySelector('#btn-prev-song')
+    if (prevBtn) prevBtn.disabled = !hasPrevSong
+
+    const nextBtn = containerElement?.querySelector('#btn-next-song')
+    if (nextBtn) nextBtn.disabled = !hasNextSong
+
+    const badgeEl = containerElement?.querySelector('.playlist-badge-count')
+    if (badgeEl) {
+      badgeEl.textContent = playlistCount
+      if (playlistCount > 0) {
+        badgeEl.classList.add('has-items')
+      } else {
+        badgeEl.classList.remove('has-items')
+      }
+    }
+
+    const plBtn = containerElement?.querySelector('#btn-controls-playlist')
+    if (plBtn) {
+      plBtn.title = `Abrir lista de reproducción (${playlistCount} canciones)`
+    }
+  }
+
   return {
     render,
     setPlayingState,
@@ -476,6 +534,7 @@ export function createControlsView({
     getScriptDisplayMode: () => scriptDisplayMode,
     setMode,
     setVolume,
+    setPlaylistState,
     getIsDockCollapsed: () => isDockCollapsed,
     setDockCollapsed: (val) => {
       isDockCollapsed = Boolean(val)

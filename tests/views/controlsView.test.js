@@ -168,4 +168,49 @@ describe('views/controlsView.js', () => {
     controls.setTime(60)
     expect(seekSlider.value).toBe('60')
   })
+
+  it('soporta controles de playlist (anterior, siguiente, apertura y estado reactivo)', () => {
+    const onPrevSong = vi.fn()
+    const onNextSong = vi.fn()
+    const onOpenPlaylist = vi.fn()
+
+    const controls = createControlsView({
+      containerElement: container,
+      onPrevSong,
+      onNextSong,
+      onOpenPlaylist
+    })
+    controls.render()
+
+    const prevBtn = container.querySelector('#btn-prev-song')
+    const nextBtn = container.querySelector('#btn-next-song')
+    const plBtn = container.querySelector('#btn-controls-playlist')
+    const countBadge = container.querySelector('.playlist-badge-count')
+
+    expect(prevBtn).not.toBeNull()
+    expect(nextBtn).not.toBeNull()
+    expect(plBtn).not.toBeNull()
+
+    // Inicialmente deshabilitados si no hay canciones
+    expect(prevBtn.disabled).toBe(true)
+    expect(nextBtn.disabled).toBe(true)
+
+    // Actualizar estado de playlist
+    controls.setPlaylistState({ count: 5, hasNext: true, hasPrev: true })
+    expect(prevBtn.disabled).toBe(false)
+    expect(nextBtn.disabled).toBe(false)
+    expect(countBadge.textContent).toBe('5')
+    expect(countBadge.classList.contains('has-items')).toBe(true)
+
+    // Clics
+    prevBtn.click()
+    expect(onPrevSong).toHaveBeenCalled()
+
+    nextBtn.click()
+    expect(onNextSong).toHaveBeenCalled()
+
+    plBtn.click()
+    expect(onOpenPlaylist).toHaveBeenCalled()
+  })
 })
+
