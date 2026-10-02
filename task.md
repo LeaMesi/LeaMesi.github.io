@@ -403,6 +403,25 @@
   - Estilos dedicados para `.lyric-line-alt`, `.is-primary-alt`, `.input-phrase-alt`, `.input-syl-alt` y reglas fluidas `clamp()` en móvil portrait y landscape.
   - Verificación de compilación exitosa con `npm run build`.
 
+---
+
+## Fase 18: Corrección y Normalización Universal de Carga de Letras Online (BetterLyrics, LRCLIB y Genius)
+
+- [x] **18.1. Normalización Universal de Esquemas (`src/services/schemaValidator.js`):**
+  - `validateSongPackage` adaptado para aceptar tanto el formato de paquete JSON (`{ version, metadata, basic, advanced }`) como el formato de entidad directa de canción (`{ id, title, artist, genres, tags, audio_path, videos, lyrics_data, visuals_data }`).
+  - Extracción tolerante a fallos de título (`metadata.title || pkg.title || pkg.song || pkg.trackName`), artista, videos y lenguajes.
+  - El objeto normalizado resultante incluye simultáneamente las propiedades de paquete (`metadata`, `basic`, `advanced`) y las de entidad plana (`id`, `title`, `artist`, `genres`, `tags`, `audio_path`, `videos`, `lyrics_data`, `visuals_data`), resolviendo el error `metadata.title` y garantizando compatibilidad cruzada al 100%.
+- [x] **18.2. Ensamblado Dual de Paquetes en Proveedores Online (`src/services/betterLyricsService.js`, `src/services/lrclibService.js`, `src/services/geniusService.js`):**
+  - `buildSongPackageFromBetterLyrics`, `buildSongPackageFromLrclib` y `buildSongPackageFromGenius` enriquecidos para incluir tanto las propiedades raíz como los objetos `metadata` y `basic`.
+  - Detección precisa de LRC mediante expresión regular `/\[\d{1,2}:\d{1,2}/` y fallback a texto plano para evitar que encabezados de sección tipo `[Verse 1]` vacíen la lista de versos.
+- [x] **18.3. Resiliencia de Consultas y Fallbacks en el Orquestador (`src/services/onlineLyricsService.js`):**
+  - Paso de parámetros de respaldo (`item.videoId`, `item.song`, `item.artist`) a `fetchBetterLyricsDetails`.
+  - Integración de fallback local en `fetchLrclibDetails` aprovechando los datos ya provistos por la API de búsqueda.
+- [x] **18.4. Desempaquetado Defensivo en el Editor (`src/views/songEditorView.js`):**
+  - `songEditorView.open(songToEdit)` desempaqueta defensivamente metadatos y colección lingüística si se recibe un paquete de canción o una entidad.
+  - Preservación de `altText` en versos y sílabas durante la persistencia en `handleSaveSong`.
+
+
 
 
 

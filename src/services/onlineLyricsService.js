@@ -132,10 +132,10 @@ export async function buildSongPackageFromOnlineResult(item, options = {}) {
   let rawPackage = null
 
   if (source === 'betterlyrics') {
-    const details = await fetchBetterLyricsDetails(item.id)
+    const details = await fetchBetterLyricsDetails(item.id, item.videoId, item.song, item.artist)
     rawPackage = await buildSongPackageFromBetterLyrics(details, options)
   } else if (source === 'lrclib') {
-    const details = await fetchLrclibDetails(item.rawId || item.id)
+    const details = await fetchLrclibDetails(item.rawId || item.id, item)
     rawPackage = await buildSongPackageFromLrclib(details, options)
   } else if (source === 'genius') {
     const details = await fetchGeniusDetails(item)

@@ -1,68 +1,125 @@
-// Validador y normalizador de paquetes de canciones (song-package.json)
+// Validador y normalizador universal de canciones y paquetes (song-package.json / song entity)
 
 export function validateSongPackage(pkg) {
   if (!pkg || typeof pkg !== 'object') {
     throw new Error('El archivo proporcionado no es un objeto JSON válido.')
   }
 
-  const metadata = pkg.metadata || {}
-  if (!metadata.title || typeof metadata.title !== 'string') {
+  // Extraer metadata, basic y advanced admitiendo tanto formato paquete como formato entidad directa
+  const rawMetadata = (pkg.metadata && typeof pkg.metadata === 'object') ? pkg.metadata : {}
+  const rawBasic = (pkg.basic && typeof pkg.basic === 'object')
+    ? pkg.basic
+    : ((pkg.lyrics_data && typeof pkg.lyrics_data === 'object') ? pkg.lyrics_data : {})
+  const rawAdvanced = (pkg.advanced && typeof pkg.advanced === 'object')
+    ? pkg.advanced
+    : ((pkg.visuals_data && typeof pkg.visuals_data === 'object') ? pkg.visuals_data : { enabled: false, effects: [] })
+
+  // Título: buscar en rawMetadata.title, o en la raíz (pkg.title, pkg.song, pkg.trackName)
+  const rawTitle = rawMetadata.title || pkg.title || pkg.song || pkg.trackName || ''
+  if (!rawTitle || typeof rawTitle !== 'string' || !rawTitle.trim()) {
     throw new Error('El paquete debe contener un título válido en metadata.title.')
   }
+  const title = rawTitle.trim()
 
-  const basic = pkg.basic || {}
-  const videos = normalizeVideos(metadata, basic)
+  // Artista: buscar en rawMetadata.artist, o en la raíz (pkg.artist, pkg.artistName)
+  const rawArtist = rawMetadata.artist || pkg.artist || pkg.artistName || 'Artista Desconocido'
+  const artist = (typeof rawArtist === 'string' && rawArtist.trim()) ? rawArtist.trim() : 'Artista Desconocido'
+
+  // Géneros y Etiquetas
+  const genres = Array.isArray(rawMetadata.genres)
+    ? rawMetadata.genres
+    : (Array.isArray(pkg.genres) ? pkg.genres : [])
+  const tags = Array.isArray(rawMetadata.tags)
+    ? rawMetadata.tags
+    : (Array.isArray(pkg.tags) ? pkg.tags : [])
+
+  // Audio path
+  const audioPath = rawMetadata.audioPath || pkg.audio_path || pkg.audioPath || ''
+
+  // Normalización de videos
+  const videos = normalizeVideos(rawMetadata, rawBasic, pkg)
+
+  const youtubeFull = rawMetadata.youtubeUrlFull || rawBasic.youtube?.full || pkg.youtubeUrlFull || (videos[0]?.url || '')
+  const youtubeInstrumental = rawMetadata.youtubeUrlInstrumental || rawBasic.youtube?.instrumental || pkg.youtubeUrlInstrumental || (videos[1]?.url || videos[0]?.url || '')
+
+  const normalizedLanguages = normalizeLanguages(rawBasic)
+
+  const timing = {
+    bpm: rawBasic.timing?.bpm || 120,
+    timeSignature: rawBasic.timing?.timeSignature || [4, 4],
+    syncMode: rawBasic.timing?.syncMode || 'timestamp',
+    globalOffset: rawBasic.timing?.globalOffset || 0
+  }
+
+  const styles = {
+    textColor: rawBasic.styles?.textColor || '#94a3b8',
+    activeColor: rawBasic.styles?.activeColor || '#fbbf24',
+    completedColor: rawBasic.styles?.completedColor || '#f59e0b',
+    translationColor: rawBasic.styles?.translationColor || '#38bdf8',
+    backgroundColor: rawBasic.styles?.backgroundColor || '#0f172a',
+    fontFamily: rawBasic.styles?.fontFamily || 'Inter, system-ui, sans-serif',
+    fontSize: rawBasic.styles?.fontSize || '2rem'
+  }
+
+  const youtube = {
+    full: youtubeFull,
+    instrumental: youtubeInstrumental
+  }
+
+  const lyricsData = {
+    timing,
+    styles,
+    videos,
+    youtube,
+    languages: normalizedLanguages
+  }
+
+  const visualsData = rawAdvanced && typeof rawAdvanced === 'object'
+    ? rawAdvanced
+    : { enabled: false, effects: [] }
 
   const normalizedPackage = {
+    // 1. Formato de Paquete JSON (song-package.json para shareService y db.js)
     version: pkg.version || '1.1.0',
     metadata: {
-      title: metadata.title.trim(),
-      artist: (metadata.artist || 'Artista Desconocido').trim(),
-      genres: Array.isArray(metadata.genres) ? metadata.genres : [],
-      tags: Array.isArray(metadata.tags) ? metadata.tags : [],
-      audioPath: metadata.audioPath || '',
+      title,
+      artist,
+      genres,
+      tags,
+      audioPath,
       videos,
-      youtubeUrlFull: metadata.youtubeUrlFull || basic.youtube?.full || (videos[0]?.url || ''),
-      youtubeUrlInstrumental: metadata.youtubeUrlInstrumental || basic.youtube?.instrumental || (videos[1]?.url || videos[0]?.url || '')
+      youtubeUrlFull: youtubeFull,
+      youtubeUrlInstrumental: youtubeInstrumental
     },
-    basic: {
-      timing: {
-        bpm: basic.timing?.bpm || 120,
-        timeSignature: basic.timing?.timeSignature || [4, 4],
-        syncMode: basic.timing?.syncMode || 'timestamp',
-        globalOffset: basic.timing?.globalOffset || 0
-      },
-      styles: {
-        textColor: basic.styles?.textColor || '#94a3b8',
-        activeColor: basic.styles?.activeColor || '#fbbf24',
-        completedColor: basic.styles?.completedColor || '#f59e0b',
-        translationColor: basic.styles?.translationColor || '#38bdf8',
-        backgroundColor: basic.styles?.backgroundColor || '#0f172a',
-        fontFamily: basic.styles?.fontFamily || 'Inter, system-ui, sans-serif',
-        fontSize: basic.styles?.fontSize || '2rem'
-      },
-      videos,
-      youtube: {
-        full: basic.youtube?.full || metadata.youtubeUrlFull || (videos[0]?.url || ''),
-        instrumental: basic.youtube?.instrumental || metadata.youtubeUrlInstrumental || (videos[1]?.url || videos[0]?.url || '')
-      },
-      languages: normalizeLanguages(basic)
-    },
-    advanced: pkg.advanced && typeof pkg.advanced === 'object' ? pkg.advanced : { enabled: false, effects: [] }
+    basic: lyricsData,
+    advanced: visualsData,
+
+    // 2. Formato de Entidad Directa (para songEditorView, mediaPlayer, main.js y DB)
+    id: pkg.id ?? null,
+    title,
+    artist,
+    genres,
+    tags,
+    audio_path: audioPath,
+    videos,
+    lyrics_data: lyricsData,
+    visuals_data: visualsData
   }
 
   return normalizedPackage
 }
 
-export function normalizeVideos(metadata = {}, basic = {}) {
+export function normalizeVideos(metadata = {}, basic = {}, pkg = {}) {
   let sourceVideos = []
   if (Array.isArray(metadata.videos) && metadata.videos.length > 0) {
     sourceVideos = metadata.videos
+  } else if (Array.isArray(pkg.videos) && pkg.videos.length > 0) {
+    sourceVideos = pkg.videos
   } else if (Array.isArray(basic.videos) && basic.videos.length > 0) {
     sourceVideos = basic.videos
   } else {
-    const full = metadata.youtubeUrlFull || basic.youtube?.full || ''
-    const inst = metadata.youtubeUrlInstrumental || basic.youtube?.instrumental || ''
+    const full = metadata.youtubeUrlFull || basic.youtube?.full || pkg.youtubeUrlFull || ''
+    const inst = metadata.youtubeUrlInstrumental || basic.youtube?.instrumental || pkg.youtubeUrlInstrumental || ''
     if (full) {
       sourceVideos.push({
         id: 'vid-1',

@@ -74,32 +74,52 @@ export async function searchLrclib({ query = '', artist = '', track = '', song =
 /**
  * Obtiene los detalles de una canción por su ID de LRCLIB
  */
-export async function fetchLrclibDetails(idOrRawId) {
+export async function fetchLrclibDetails(idOrRawId, fallbackItem = null) {
   const rawId = String(idOrRawId).replace(/^lrclib-/, '')
-  const url = `${LRCLIB_BASE_URL}/get/${rawId}`
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { 'Accept': 'application/json' }
-  })
+  try {
+    const url = `${LRCLIB_BASE_URL}/get/${rawId}`
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    })
 
-  if (!res.ok) {
-    throw new Error(`Error al obtener detalles de LRCLIB (${res.status})`)
+    if (res.ok) {
+      const item = await res.json()
+      return {
+        id: `lrclib-${item.id}`,
+        rawId: item.id,
+        source: 'lrclib',
+        sourceName: 'LRCLIB',
+        song: item.trackName || item.name || fallbackItem?.song || 'Sin Título',
+        artist: item.artistName || fallbackItem?.artist || 'Artista Desconocido',
+        album: item.albumName || fallbackItem?.album || '',
+        duration: Number(item.duration) || fallbackItem?.duration || 0,
+        syncedLyrics: item.syncedLyrics || null,
+        plainLyrics: item.plainLyrics || null
+      }
+    }
+  } catch (err) {
+    console.warn('Fallo al consultar endpoint get de LRCLIB, intentando fallback:', err)
   }
 
-  const item = await res.json()
-  return {
-    id: `lrclib-${item.id}`,
-    rawId: item.id,
-    source: 'lrclib',
-    sourceName: 'LRCLIB',
-    song: item.trackName || item.name || 'Sin Título',
-    artist: item.artistName || 'Artista Desconocido',
-    album: item.albumName || '',
-    duration: Number(item.duration) || 0,
-    syncedLyrics: item.syncedLyrics || null,
-    plainLyrics: item.plainLyrics || null
+  // Fallback con los datos ya presentes en el item de búsqueda
+  if (fallbackItem && (fallbackItem.syncedLyrics || fallbackItem.plainLyrics || fallbackItem.song)) {
+    return {
+      id: fallbackItem.id || `lrclib-${rawId}`,
+      rawId: fallbackItem.rawId || rawId,
+      source: 'lrclib',
+      sourceName: 'LRCLIB',
+      song: fallbackItem.song || 'Sin Título',
+      artist: fallbackItem.artist || 'Artista Desconocido',
+      album: fallbackItem.album || '',
+      duration: Number(fallbackItem.duration) || 0,
+      syncedLyrics: fallbackItem.syncedLyrics || null,
+      plainLyrics: fallbackItem.plainLyrics || null
+    }
   }
+
+  throw new Error(`No se pudo obtener la letra desde LRCLIB.`)
 }
 
 /**
@@ -183,31 +203,44 @@ export async function buildSongPackageFromLrclib(details, { translateTo = null }
     }
   }
 
-  return {
-    id: null,
+  const basic = {
+    timing: {
+      bpm: 120,
+      timeSignature: [4, 4],
+      syncMode: 'timestamp',
+      globalOffset: 0
+    },
+    styles: {
+      textColor: '#94a3b8',
+      activeColor: '#fbbf24',
+      completedColor: '#f59e0b',
+      translationColor: '#38bdf8',
+      backgroundColor: '#0f172a',
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      fontSize: '2.1rem'
+    },
+    languages
+  }
+
+  const metadata = {
     title: details.song || 'Canción de LRCLIB',
     artist: details.artist || 'Artista Desconocido',
     genres: [],
     tags: ['lrclib', details.syncedLyrics ? 'sincronizada' : 'letra-plana'],
+    audioPath: '',
+    videos: []
+  }
+
+  return {
+    id: null,
+    title: metadata.title,
+    artist: metadata.artist,
+    genres: metadata.genres,
+    tags: metadata.tags,
     audio_path: '',
     videos: [],
-    lyrics_data: {
-      timing: {
-        bpm: 120,
-        timeSignature: [4, 4],
-        syncMode: 'timestamp',
-        globalOffset: 0
-      },
-      styles: {
-        textColor: '#94a3b8',
-        activeColor: '#fbbf24',
-        completedColor: '#f59e0b',
-        translationColor: '#38bdf8',
-        backgroundColor: '#0f172a',
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-        fontSize: '2.1rem'
-      },
-      languages
-    }
+    lyrics_data: basic,
+    metadata,
+    basic
   }
 }

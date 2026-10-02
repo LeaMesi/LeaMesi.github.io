@@ -81,19 +81,44 @@ export function createSongEditorView({
     if (songToEdit) {
       // Clonar profundamente para no alterar el objeto original hasta guardar
       currentSong = JSON.parse(JSON.stringify(songToEdit))
-      
+
+      // Desempaquetar si viene en formato package { metadata, basic, advanced }
+      if (currentSong.metadata) {
+        if (!currentSong.title && currentSong.metadata.title) currentSong.title = currentSong.metadata.title
+        if (!currentSong.artist && currentSong.metadata.artist) currentSong.artist = currentSong.metadata.artist
+        if ((!currentSong.videos || currentSong.videos.length === 0) && currentSong.metadata.videos) {
+          currentSong.videos = currentSong.metadata.videos
+        }
+        if ((!currentSong.genres || currentSong.genres.length === 0) && currentSong.metadata.genres) {
+          currentSong.genres = currentSong.metadata.genres
+        }
+        if ((!currentSong.tags || currentSong.tags.length === 0) && currentSong.metadata.tags) {
+          currentSong.tags = currentSong.metadata.tags
+        }
+        if (!currentSong.audio_path && currentSong.metadata.audioPath) {
+          currentSong.audio_path = currentSong.metadata.audioPath
+        }
+      }
+
+      if (!currentSong.lyrics_data) {
+        currentSong.lyrics_data = currentSong.basic || {}
+      }
+
       // Normalizar estructura
-      if (!currentSong.lyrics_data) currentSong.lyrics_data = {}
       if (!Array.isArray(currentSong.lyrics_data.languages) || currentSong.lyrics_data.languages.length === 0) {
-        currentSong.lyrics_data.languages = [
-          {
-            code: 'es',
-            name: 'Español (Original)',
-            isMain: true,
-            plain: currentSong.lyrics_data.plain || '',
-            lines: currentSong.lyrics_data.lines || []
-          }
-        ]
+        if (currentSong.basic && Array.isArray(currentSong.basic.languages) && currentSong.basic.languages.length > 0) {
+          currentSong.lyrics_data.languages = currentSong.basic.languages
+        } else {
+          currentSong.lyrics_data.languages = [
+            {
+              code: 'es',
+              name: 'Español (Original)',
+              isMain: true,
+              plain: currentSong.lyrics_data.plain || '',
+              lines: currentSong.lyrics_data.lines || []
+            }
+          ]
+        }
       }
       if (!Array.isArray(currentSong.videos) || currentSong.videos.length === 0) {
         currentSong.videos = [
@@ -1476,11 +1501,13 @@ export function createSongEditorView({
             lines: (l.lines || []).map((line, lIdx) => ({
               id: line.id || `line-${l.code}-${lIdx}`,
               text: line.text || '',
+              altText: String(line.altText || line.romaji || '').trim(),
               startTime: Number(line.startTime) || 0,
               endTime: Number(line.endTime) || (Number(line.startTime || 0) + 3),
               syllables: (line.syllables || []).map((syl, sIdx) => ({
                 id: syl.id || `syl-${lIdx}-${sIdx}`,
                 text: syl.text || '',
+                altText: String(syl.altText || syl.romaji || '').trim(),
                 startTime: Number(syl.startTime) || 0,
                 duration: Number(syl.duration) || 0.3
               }))

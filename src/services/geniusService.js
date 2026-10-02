@@ -192,9 +192,13 @@ export async function buildSongPackageFromGenius(details, { translateTo = null }
 
   const rawLyrics = details.lyrics || details.plainLyrics || ''
 
-  if (details.syncedLyrics || rawLyrics.includes('[')) {
+  const hasTimestampLrc = Boolean(details.syncedLyrics) || /\[\d{1,2}:\d{1,2}/.test(rawLyrics)
+
+  if (hasTimestampLrc) {
     lines = parseLrc(details.syncedLyrics || rawLyrics)
-  } else {
+  }
+
+  if (!lines || lines.length === 0) {
     // Limpieza de marcadores de estructura como [Verse 1], [Chorus], etc.
     const rawLines = rawLyrics
       .split('\n')
@@ -267,31 +271,44 @@ export async function buildSongPackageFromGenius(details, { translateTo = null }
     }
   }
 
-  return {
-    id: null,
+  const basic = {
+    timing: {
+      bpm: 120,
+      timeSignature: [4, 4],
+      syncMode: 'timestamp',
+      globalOffset: 0
+    },
+    styles: {
+      textColor: '#94a3b8',
+      activeColor: '#fbbf24',
+      completedColor: '#f59e0b',
+      translationColor: '#38bdf8',
+      backgroundColor: '#0f172a',
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      fontSize: '2.1rem'
+    },
+    languages
+  }
+
+  const metadata = {
     title: details.song || 'Canción de Genius',
     artist: details.artist || 'Artista Desconocido',
     genres: [],
     tags: ['genius'],
+    audioPath: '',
+    videos: []
+  }
+
+  return {
+    id: null,
+    title: metadata.title,
+    artist: metadata.artist,
+    genres: metadata.genres,
+    tags: metadata.tags,
     audio_path: '',
     videos: [],
-    lyrics_data: {
-      timing: {
-        bpm: 120,
-        timeSignature: [4, 4],
-        syncMode: 'timestamp',
-        globalOffset: 0
-      },
-      styles: {
-        textColor: '#94a3b8',
-        activeColor: '#fbbf24',
-        completedColor: '#f59e0b',
-        translationColor: '#38bdf8',
-        backgroundColor: '#0f172a',
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-        fontSize: '2.1rem'
-      },
-      languages
-    }
+    lyrics_data: basic,
+    metadata,
+    basic
   }
 }

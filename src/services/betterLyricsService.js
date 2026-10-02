@@ -590,11 +590,17 @@ export async function buildSongPackageFromBetterLyrics(details, { translateTo = 
   const fmt = (details.format || '').toLowerCase()
   if (fmt === 'ttml' || details.lyrics.trim().startsWith('<tt')) {
     lines = parseTtml(details.lyrics)
-  } else if (fmt === 'lrc' || details.lyrics.includes('[')) {
+  } else if (fmt === 'lrc' || /\[\d{1,2}:\d{1,2}/.test(details.lyrics)) {
     lines = parseLrc(details.lyrics)
-  } else {
-    // Texto plano
-    const rawLines = details.lyrics.split('\n').map(l => l.trim()).filter(Boolean)
+  }
+
+  if (!lines || lines.length === 0) {
+    // Fallback a texto plano si no se pudieron extraer marcas de tiempo
+    const rawLines = details.lyrics
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => Boolean(l) && !l.startsWith('<') && !l.endsWith('>'))
+
     let curTime = 2.0
     lines = rawLines.map((text, idx) => {
       const startTime = curTime
@@ -665,37 +671,53 @@ export async function buildSongPackageFromBetterLyrics(details, { translateTo = 
     ? `https://music.youtube.com/watch?v=${details.videoId}`
     : ''
 
-  return {
-    id: null, // Canción nueva sin guardar aún en IndexedDB
+  const videos = [
+    {
+      id: `vid-${Date.now()}-0`,
+      name: 'Video Oficial (YouTube / YT Music)',
+      url: videoUrl,
+      offset: 0
+    }
+  ]
+
+  const basic = {
+    timing: {
+      bpm: 120,
+      timeSignature: [4, 4],
+      syncMode: 'timestamp',
+      globalOffset: 0
+    },
+    styles: {
+      textColor: '#94a3b8',
+      activeColor: '#fbbf24',
+      completedColor: '#f59e0b',
+      translationColor: '#38bdf8',
+      backgroundColor: '#0f172a',
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      fontSize: '2.1rem'
+    },
+    languages
+  }
+
+  const metadata = {
     title: details.song || 'Canción Importada',
     artist: details.artist || '',
     genres: ['Pop'],
     tags: ['betterlyrics', details.syncType || 'sincronizada'],
-    videos: [
-      {
-        id: `vid-${Date.now()}-0`,
-        name: 'Video Oficial (YouTube / YT Music)',
-        url: videoUrl,
-        offset: 0
-      }
-    ],
-    lyrics_data: {
-      timing: {
-        bpm: 120,
-        timeSignature: [4, 4],
-        syncMode: 'timestamp',
-        globalOffset: 0
-      },
-      styles: {
-        textColor: '#94a3b8',
-        activeColor: '#fbbf24',
-        completedColor: '#f59e0b',
-        translationColor: '#38bdf8',
-        backgroundColor: '#0f172a',
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-        fontSize: '2.1rem'
-      },
-      languages
-    }
+    audioPath: '',
+    videos
+  }
+
+  return {
+    id: null, // Canción nueva sin guardar aún en IndexedDB
+    title: metadata.title,
+    artist: metadata.artist,
+    genres: metadata.genres,
+    tags: metadata.tags,
+    audio_path: '',
+    videos,
+    lyrics_data: basic,
+    metadata,
+    basic
   }
 }
