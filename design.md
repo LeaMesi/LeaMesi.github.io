@@ -1,8 +1,8 @@
 # Diseño Técnico y Arquitectura: SarangaBaranga (`proy-letras`)
 
 > **Arquitectura del Sistema y Patrones de Software**  
-> **Versión:** 2.6.0  
-> **Plataforma:** SPA Estática (GitHub Pages / `usuario.github.io`) + Persistencia Local en Navegador (IndexedDB), Intercambio JSON & Compatibilidad con Estándar Abierto `lyricsfile` (.lyricsfile.yaml) (+ Catálogo Opcional Supabase Read-Only a futuro)
+> **Versión:** 2.8.0  
+> **Plataforma:** SPA Estática (GitHub Pages / `usuario.github.io`) + Persistencia Local en Navegador (IndexedDB), Sistema de Bibliotecas y Playlists, Intercambio JSON & Compatibilidad con Estándar Abierto `lyricsfile` (.lyricsfile.yaml) (+ Catálogo Opcional Supabase Read-Only a futuro)
 
 ---
 
@@ -23,7 +23,7 @@ El audio se reproduce principalmente a través de la **YouTube IFrame Player API
 graph TD
     subgraph Hosting ["Alojamiento Estático (GitHub Pages)"]
         HTML["index.html (#app)"]
-        ViteConfig["Vite Bundle (base: './')"]
+        ViteConfig["Vite Bundle (base: '/')"]
     end
 
     subgraph Client ["Frontend SPA (Navegador)"]
@@ -558,10 +558,24 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
 
 ---
 
-## 6. Despliegue en GitHub Pages (`usuario.github.io`)
+## 6. Despliegue en GitHub Pages (`usuario.github.io`) y Pipeline CI/CD
 
-1. **Configuración de Vite:** Configurar `base: './'` en [`vite.config.js`](file:///home/hezztia/Documents/SarangaBaranga/vite.config.js) para que las rutas a scripts y assets sean relativas.
-2. **Cero Dependencia de Servidores en Producción:** Todo el almacenamiento opera de forma local e independiente en el navegador del usuario (IndexedDB), garantizando una aplicación 100% estática, offline-first y sin riesgo de filtración de claves.
+1. **Configuración de Vite:** Configurar `base: '/'` en [`vite.config.js`](file:///home/hezztia/Documents/SarangaBaranga/vite.config.js) dado que el repositorio corresponde a la página de usuario raíz (`LeaMesi.github.io`), la cual se sirve directamente desde la raíz del dominio (`https://leamesi.github.io/`).
+2. **Dependencias y Scripts de Despliegue en `package.json`:**
+   * Dependencia de desarrollo: `gh-pages` (`^6.3.0`).
+   * `"predeploy": "npm run build"`: Compila la aplicación y genera los activos optimizados en `dist/`.
+   * `"deploy": "gh-pages -d dist"`: Despliegue manual directo a la rama `gh-pages`.
+3. **Automatización de Despliegue Continuo (CI/CD con GitHub Actions):**
+   * Flujo de trabajo en `.github/workflows/deploy.yml`.
+   * **Disparador:** Se ejecuta de forma automática en cada `git push` a la rama `main` (o manualmente mediante `workflow_dispatch`).
+   * **Pipeline de Verificación y Publicación:**
+     1. Clona el repositorio con `actions/checkout@v4`.
+     2. Configura Node.js 20 con caché de paquetes npm con `actions/setup-node@v4`.
+     3. Instala dependencias limpias con `npm ci`.
+     4. Ejecuta la suite de pruebas automatizadas con `npm test` para asegurar que nada roto sea desplegado.
+     5. Compila los artefactos de producción con `npm run build`.
+     6. Publica y actualiza la rama `gh-pages` mediante `peaceiris/actions-gh-pages@v4` utilizando `${{ secrets.GITHUB_TOKEN }}`.
+4. **Cero Dependencia de Servidores en Producción:** Todo el almacenamiento opera de forma local e independiente en el navegador del usuario (IndexedDB), garantizando una aplicación 100% estática, offline-first y sin riesgo de filtración de claves.
 
 ---
 
@@ -698,7 +712,9 @@ graph TD
     subgraph ServiceSuites ["Pruebas de Servicios y Persistencia"]
         SchemaTest["schemaValidator.test.js (Normalización dual paquete/entidad, altText, videos)"]
         DBTest["db_and_songService.test.js (IndexedDB SarangaDB, CRUD, joins relacionales, demos)"]
-        ShareTest["shareService.test.js (song-package.json y respaldos saranga-library-backup)"]
+        LibraryTest["libraryService.test.js (CRUD bibliotecas, nombres únicos con sufijos, N:M)"]
+        PlaylistTest["playlistService.test.js (Cola reactiva, shuffle, reordenamiento, auto-avance)"]
+        ShareTest["shareService.test.js (song-package, respaldos y paquetes de biblioteca con conflicto)"]
         LyricsfileTest["lyricsfileService.test.js (Parser y serializer YAML 1.0, ms a seg, palabras)"]
         ThemeTest["themeService.test.js (4 colores, sliders 50-200%, luminancia, contraste, CSS :root)"]
         OnlineTest["onlineLyricsService.test.js (BetterLyrics TTML/LRC, LRCLIB, Genius, scoring unificado)"]
@@ -706,9 +722,11 @@ graph TD
 
     subgraph ViewSuites ["Pruebas de Vistas e Interfaz (DOM)"]
         BasicViewerTest["basicViewer.test.js (Escenario centrado, preview 0-3 frases, sílabas activas, Romaji)"]
-        ControlsViewTest["controlsView.test.js (Dock de controles, volumen/mute, selectores, modo inmersivo)"]
-        SongMenuViewTest["songMenuView.test.js (Catálogo, vista cuadrícula/lista, buscador, creación)"]
+        ControlsViewTest["controlsView.test.js (Dock de controles, volumen/mute, prev/next, modo inmersivo)"]
+        SongMenuViewTest["songMenuView.test.js (Catálogo, vista cuadrícula/lista, bibliotecas, buscador)"]
         SongEditorTest["songEditorView.test.js (Plantilla nueva, precarga, añadir frases, metadatos)"]
+        PlaylistModalTest["playlistModal.test.js (Gestión de cola, reordenamiento, persistencia sin pausa)"]
+        FloatingPlayerTest["floatingPlayerView.test.js (Widget flotante mini, seek, volumen, restart/prev/next)"]
         VideoModalTest["videoManagerModal.test.js (Offsets, añadir/quitar videos, persistencia)"]
         ThemeModalTest["themeSettingsModal.test.js (Presets, sliders reactivos, live preview)"]
     end
@@ -770,6 +788,85 @@ Para garantizar un espacio de trabajo despejado y minimizar la sobrecarga cognit
 1. **Auto-Enriquecimiento al Importar:** Al buscar y cargar canciones en línea desde BetterLyrics, LRC.red, LRCLIB o Genius, el orquestador (`onlineLyricsService.js`) detecta automáticamente la presencia de caracteres japoneses, ejecuta `autoGenerateRomajiForLines(lines)` poblando `line.altText` y `syl.altText` y ajusta el código lingüístico a `'ja'` (`Japonés (Original)`).
 2. **Botón Interactivo en el Editor (`songEditorView.js`):** La barra de herramientas de frases detecta si la pista activa tiene caracteres japoneses y expone el botón `${iconSparkles} Romaji Automático`, permitiendo al usuario regenerar o actualizar las transliteraciones con un único clic.
 3. **Sincronización en Modo Letra (`basicViewer.js`):** El visor de letras y el dock de controles activan inmediatamente el selector "Texto: Caracteres + Alternativo | Solo Caracteres | Solo Alternativo (Romaji)", iluminando simultáneamente el kanji y el romaji al milisegundo exacto durante el canto.
+
+---
+
+## 14. Arquitectura del Sistema de Playlists y Cola de Reproducción Reactiva (v2.8.0)
+
+Para ofrecer reproducción ininterrumpida y gestión dinámica de colas de escucha sin acoplar la reproducción al estado de las vistas, SarangaBaranga implementa una arquitectura desacoplada de Playlist orientada a eventos.
+
+```mermaid
+graph TD
+    subgraph UI ["Capa de Interfaz de Usuario"]
+        MenuCatalog["Menú de Canciones (+ Playlist, Cargar Biblioteca)"]
+        PlaylistModal["Modal de Playlist (Reordenar, Quitar, Guardar Biblioteca)"]
+        ControlsDock["Dock de Controles (Prev, Next, Toggle Playlist)"]
+        HeaderNowPlaying["Header (Canción en curso, Regresar a Letra)"]
+    end
+
+    subgraph Service ["Capa de Servicio de Playlist"]
+        PlaylistStore["playlistService (Singleton Reactivo)"]
+        QueueState["Estado: songs[], currentIndex, currentSong"]
+        Storage["Persistencia localStorage (saranga_playlist)"]
+    end
+
+    subgraph AudioEngine ["Motor de Reproducción y Reloj"]
+        MediaPlayer["mediaPlayer.js (YouTube IFrame / HTML5 Audio)"]
+        EndedEvent["Evento: PLAYER_STATE.ENDED"]
+    end
+
+    subgraph DBIntegration ["Integración con Bibliotecas"]
+        LibraryService["libraryService.js (IndexedDB SarangaDB v3)"]
+    end
+
+    MenuCatalog -->|addSong / loadLibrary| PlaylistStore
+    PlaylistModal -->|moveUp / moveDown / remove / shuffle| PlaylistStore
+    ControlsDock -->|next / prev / open| PlaylistStore
+    PlaylistStore -->|subscribe / emit| UI
+    PlaylistStore --> Storage
+    PlaylistStore <-->|savePlaylistAsLibrary / loadLibraryIntoPlaylist| LibraryService
+    MediaPlayer -->|onStateChange(ENDED)| PlaylistStore
+    PlaylistStore -->|next() -> loadSong()| MediaPlayer
+```
+
+### 14.1. Principio de No Interferencia de Audio (Background Continuity)
+* **Reproducción Sin Cortes:** La música y el reloj maestro continúan reproduciéndose ininterrumpidamente mientras el usuario interactúa con la playlist. Abrir el modal de playlist (`playlistModal.js`), navegar hacia el Menú de Canciones (`showMenuScreen()`), reordenar temas o añadir canciones no interrumpe el audio en curso.
+* **Header Reactivo con Pista en Reproducción:** Cuando el usuario sale de Modo Letra hacia el Menú de Selección, el encabezado global activa `#btn-header-now-playing` mostrando el título de la canción en curso y permitiendo retornar al visor de letras con un solo clic.
+
+### 14.2. Gestor Reactivo de Cola (`src/services/playlistService.js`)
+* **Estado e Índices Estables:** Gestiona la lista ordenada de canciones (`songs: Song[]`) y el índice de reproducción activa (`currentIndex`).
+* **Estabilidad del Puntero Activo en Reordenamiento y Modo Aleatorio:**
+  * Al mover una canción hacia arriba (`moveUp`) o hacia abajo (`moveDown`), el puntero `currentIndex` se reajusta automáticamente rastreando el ID de la canción que está sonando (`currentPlayingId`), evitando saltos involuntarios de pista.
+  * Al activar el modo aleatorio (`shuffle()`), se aplica el algoritmo Fisher-Yates preservando la posición de la canción que está sonando y recalculando el nuevo índice de forma determinista.
+* **Navegación Secuencial:** Métodos `next()`, `prev()`, `hasNext()` y `hasPrev()` que orquestan el avance seguro sin errores de límites.
+* **Persistencia Transparente:** La cola y el índice se serializan automáticamente en `localStorage` (`saranga_playlist`) para sobrevivir a recargas de página.
+
+### 14.3. Avance Automático al Finalizar Canción (`PLAYER_STATE.ENDED`)
+* El adaptador multimedia `mediaPlayer.js` detecta el final natural del video de YouTube o pista de audio (`state === PLAYER_STATE.ENDED`, código `0`).
+* El orquestador principal (`main.js`) recibe la notificación del reproductor y, si la playlist tiene una siguiente canción disponible (`playlistService.hasNext()`), invoca automáticamente `playlistService.next()` y carga la siguiente canción en el reproductor y en el visor de letras sin intervención manual.
+
+### 14.4. Interoperabilidad Bidireccional con Bibliotecas
+* **Guardar Playlist como Nueva Biblioteca (`savePlaylistAsLibrary`):** El usuario puede materializar en cualquier momento el contenido de la playlist en una biblioteca permanente de IndexedDB mediante `savePlaylistAsLibrary(name, playlistSongs, { libraryService })`, con asignación masiva de canciones a través de `libraryService.addSongToLibrary`.
+* **Cargar Biblioteca a la Playlist (`loadLibraryIntoPlaylist`):** Desde el modal de playlist o directamente desde la barra de herramientas de cualquier biblioteca en el Menú de Canciones, es posible cargar todas las canciones de dicha biblioteca en la playlist:
+  * **En Orden:** Carga la secuencia original de la biblioteca.
+  * **Aleatorio (Shuffle):** Carga y baraja inmediatamente las canciones para iniciar una sesión de escucha dinámica.
+
+### 14.5. Reproductor Flotante Mini en Catálogo de Canciones (`src/views/floatingPlayerView.js`)
+* **Ubicación y Contención:** Widget flotante fijado en la esquina inferior derecha del viewport (`fixed; bottom: 24px; right: 24px; z-index: 90`), con bordes redondeados, desenfoque de fondo glassmorphism (`backdrop-filter: blur(16px)`) y tamaño compacto.
+* **Ámbito de Visibilidad Estricto:**
+  * Se muestra **exclusivamente en la lista / catálogo de canciones** (`#app[data-screen="menu"]`) cuando una canción se encuentra cargada o en reproducción (`currentSong !== null`).
+  * Se oculta automáticamente al navegar hacia Modo Letra (`showLyricsScreen()`) o al Editor (`showEditorScreen()`), y mediante reglas defensivas CSS (`#app:not([data-screen="menu"]) .floating-player-container { display: none !important; }`).
+* **Conjunto de Controles Integrados:**
+  * **Información y Acceso Rápido:** Título y artista con truncado seguro (`ellipsis`), más botón directo `${iconMic} Letra` y atajo táctil para regresar inmediatamente al visor de letras completo.
+  * **Control de Tiempo y Posición (Seek):** Barra deslizante interactiva con bloqueo por interacción (`isUserSeeking`) y etiquetas numéricas de tiempo transcurrido y duración total en formato tabular `mm:ss`.
+  * **Control de Volumen:** Deslizador de volumen (0-100) y botón de silenciado/activación (`iconVolume` / `iconVolumeMute`), sincronizados bidireccionalmente con `mediaPlayer` y `controlsView`.
+  * **Transporte Completo:**
+    * **Volver a Empezar:** Botón dedicado `${iconRotateCcw}` para reiniciar la canción al inicio (`0:00`).
+    * **Canción Anterior:** Botón `${iconSkipBack}` para retroceder en la cola con fallback al inicio.
+    * **Pausar / Reproducir:** Botón destacado circular `${iconPlay}` / `${iconPause}`.
+    * **Siguiente Canción:** Botón `${iconSkipForward}` para avanzar a la siguiente pista de la playlist.
+* **Diseño Responsivo Móvil:** Adaptación para dispositivos móviles con `max-width: calc(100vw - 32px)`, anclaje a safe areas (`env(safe-area-inset-bottom)`) y botones táctiles optimizados.
+
 
 
 

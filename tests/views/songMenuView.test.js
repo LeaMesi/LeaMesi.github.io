@@ -293,6 +293,55 @@ describe('views/songMenuView.js', () => {
     const libSongs = await getLibrarySongs(lib.id)
     expect(libSongs.some(s => s.title === 'Canción Desde Dropzone')).toBe(true)
   })
+
+  it('permite añadir canciones a la playlist y cargar bibliotecas como playlist', async () => {
+    const onAddToPlaylist = vi.fn().mockReturnValue(true)
+    const onOpenPlaylist = vi.fn()
+    const onLoadLibraryAsPlaylist = vi.fn().mockResolvedValue(2)
+
+    const { createLibrary, addSongToLibrary } = await import('../../src/services/libraryService.js')
+    const { listSongs } = await import('../../src/services/songService.js')
+    const allSongs = await listSongs()
+    const lib = await createLibrary('Lib Para Playlist')
+    if (allSongs[0]) await addSongToLibrary(allSongs[0].id, lib.id)
+
+    const menu = createSongMenuView({
+      containerElement: container,
+      onAddToPlaylist,
+      onOpenPlaylist,
+      onLoadLibraryAsPlaylist
+    })
+    await menu.refresh()
+
+    // 1. Clic en botón + Playlist de una canción
+    const addBtn = container.querySelector('.btn-add-playlist')
+    expect(addBtn).not.toBeNull()
+    addBtn.click()
+    expect(onAddToPlaylist).toHaveBeenCalled()
+
+    // 2. Clic en botón Playlist de cabecera
+    const topPlBtn = container.querySelector('#btn-top-playlist')
+    expect(topPlBtn).not.toBeNull()
+    topPlBtn.click()
+    expect(onOpenPlaylist).toHaveBeenCalled()
+
+    // 3. Seleccionar biblioteca y pulsar "Cargar Playlist"
+    const libTab = container.querySelector(`.lib-tab-pill[data-library-id="${lib.id}"]`)
+    expect(libTab).not.toBeNull()
+    libTab.click()
+
+    const loadPlBtn = container.querySelector('#btn-load-library-playlist')
+    expect(loadPlBtn).not.toBeNull()
+    loadPlBtn.click()
+    expect(onLoadLibraryAsPlaylist).toHaveBeenCalledWith(lib.id, { shuffle: false })
+
+    // 4. Pulsar "Cargar Aleatoria"
+    const loadShuffleBtn = container.querySelector('#btn-load-library-shuffle')
+    expect(loadShuffleBtn).not.toBeNull()
+    loadShuffleBtn.click()
+    expect(onLoadLibraryAsPlaylist).toHaveBeenCalledWith(lib.id, { shuffle: true })
+  })
 })
+
 
 

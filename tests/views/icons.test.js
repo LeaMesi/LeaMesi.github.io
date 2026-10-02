@@ -34,7 +34,12 @@ describe('views/icons.js', () => {
       'iconGrid',
       'iconList',
       'iconFolder',
-      'iconFolderPlus'
+      'iconFolderPlus',
+      'iconSkipBack',
+      'iconSkipForward',
+      'iconShuffle',
+      'iconListMusic',
+      'iconListPlus'
     ]
 
     requiredIcons.forEach(iconName => {

@@ -30,7 +30,12 @@ import {
   iconGrid,
   iconList,
   iconFolder,
-  iconFolderPlus
+  iconFolderPlus,
+  iconListMusic,
+  iconListPlus,
+  iconShuffle,
+  iconCheck,
+  iconPlay
 } from './icons.js'
 
 export function createSongMenuView({
@@ -40,11 +45,15 @@ export function createSongMenuView({
   onCreateNewSong,
   onSearchBetterLyrics,
   onSearchOnlineLyrics,
-  onEditSong
+  onEditSong,
+  onAddToPlaylist,
+  onOpenPlaylist,
+  onLoadLibraryAsPlaylist
 }) {
   let songs = []
   let libraries = []
   let activeLibraryId = 'all' // 'all' | number/string
+  let playlistCount = 0
   let filterQuery = ''
   let statusMessage = ''
   let statusType = 'info' // 'info' | 'success' | 'error'
@@ -213,15 +222,18 @@ export function createSongMenuView({
 
               <div class="list-col-actions">
                 <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
-                  ${iconFolder} Bibliotecas
+                  ${iconFolder}
                 </button>
                 ${activeLibrary ? `
                   <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
                     ${iconClose} Quitar
                   </button>
                 ` : ''}
+                <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
+                  ${iconListPlus} +
+                </button>
                 <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
-                  ${iconEdit} Editar
+                  ${iconEdit}
                 </button>
                 <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
                   ${iconTrash}
@@ -273,6 +285,9 @@ export function createSongMenuView({
                   ${iconClose} Quitar
                 </button>
               ` : ''}
+              <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
+                ${iconListPlus} + Playlist
+              </button>
               <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
                 ${iconEdit} Editar
               </button>
@@ -303,6 +318,9 @@ export function createSongMenuView({
             </button>
             <button class="btn btn-outline btn-toggle-import">
               ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
+            </button>
+            <button class="btn btn-outline" id="btn-top-playlist" title="Ver lista de reproducción activa">
+              ${iconListMusic} Playlist (${playlistCount})
             </button>
             <button class="btn btn-outline" id="btn-menu-backup" title="Exportar respaldo de todas las canciones">
               ${iconDownload} Respaldo Completo
@@ -379,10 +397,16 @@ export function createSongMenuView({
               <span class="active-lib-count">${candidateSongs.length} canción(es)</span>
             </div>
             <div class="active-lib-actions">
+              <button class="btn btn-xs btn-primary-outline" id="btn-load-library-playlist" title="Cargar canciones en la lista de reproducción (en orden actual)" ${candidateSongs.length === 0 ? 'disabled' : ''}>
+                ${iconPlay} Cargar Playlist
+              </button>
+              <button class="btn btn-xs btn-outline" id="btn-load-library-shuffle" title="Cargar canciones en la lista de reproducción en orden aleatorio (shuffle)" ${candidateSongs.length === 0 ? 'disabled' : ''}>
+                ${iconShuffle} Cargar Aleatoria
+              </button>
               <button class="btn btn-xs btn-outline" id="btn-rename-active-library" title="Modificar el nombre de esta biblioteca">
                 ${iconEdit} Renombrar
               </button>
-              <button class="btn btn-xs btn-primary-outline" id="btn-export-active-library" title="Exportar esta biblioteca para compartir con otros usuarios">
+              <button class="btn btn-xs btn-outline" id="btn-export-active-library" title="Exportar esta biblioteca para compartir con otros usuarios">
                 ${iconDownload} Exportar Biblioteca
               </button>
               <button class="btn btn-xs btn-outline btn-danger-subtle" id="btn-delete-active-library" title="Eliminar esta biblioteca">
@@ -406,6 +430,9 @@ export function createSongMenuView({
             ${filterQuery ? `<button class="btn-clear-search" id="btn-clear-search">${iconClose}</button>` : ''}
           </div>
           <div class="menu-filter-right-controls">
+            <button class="btn btn-xs btn-outline btn-menu-open-playlist" id="btn-menu-open-playlist" title="Abrir lista de reproducción activa (${playlistCount} canciones)">
+              ${iconListMusic} Playlist <span class="playlist-badge-pill ${playlistCount > 0 ? 'has-items' : ''}">${playlistCount}</span>
+            </button>
             <div class="song-count-badge">
               ${filtered.length} de ${candidateSongs.length} canción(es)
             </div>
@@ -574,6 +601,60 @@ export function createSongMenuView({
         }
       })
     }
+
+    // Cargar Biblioteca Activa como Playlist (en orden)
+    const loadLibPlaylistBtn = containerElement.querySelector('#btn-load-library-playlist')
+    if (loadLibPlaylistBtn && activeLibraryId !== 'all') {
+      loadLibPlaylistBtn.addEventListener('click', async () => {
+        if (onLoadLibraryAsPlaylist) {
+          const loaded = await onLoadLibraryAsPlaylist(activeLibraryId, { shuffle: false })
+          showStatus(`¡Se cargaron ${loaded} canciones de la biblioteca en la playlist!`, 'success')
+        }
+      })
+    }
+
+    // Cargar Biblioteca Activa como Playlist (en orden aleatorio / shuffle)
+    const loadLibShuffleBtn = containerElement.querySelector('#btn-load-library-shuffle')
+    if (loadLibShuffleBtn && activeLibraryId !== 'all') {
+      loadLibShuffleBtn.addEventListener('click', async () => {
+        if (onLoadLibraryAsPlaylist) {
+          const loaded = await onLoadLibraryAsPlaylist(activeLibraryId, { shuffle: true })
+          showStatus(`¡Se cargaron ${loaded} canciones de la biblioteca en orden aleatorio (shuffle)!`, 'success')
+        }
+      })
+    }
+
+    // Abrir Playlist Modal desde el menú
+    const openPlBtns = containerElement.querySelectorAll('#btn-menu-open-playlist, #btn-top-playlist')
+    openPlBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (onOpenPlaylist) onOpenPlaylist()
+      })
+    })
+
+    // Botones + Playlist en cada tarjeta / fila de canción
+    const addPlBtns = containerElement.querySelectorAll('.btn-add-playlist')
+    addPlBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const songId = Number(btn.dataset.songId)
+        const targetSong = songs.find(s => Number(s.id) === songId)
+        if (targetSong && onAddToPlaylist) {
+          const added = onAddToPlaylist(targetSong)
+          if (added !== false) {
+            btn.innerHTML = `${iconCheck} Añadida`
+            btn.classList.add('is-added')
+            setTimeout(() => {
+              btn.innerHTML = `${iconListPlus} + Playlist`
+              btn.classList.remove('is-added')
+            }, 1400)
+            showStatus(`"${targetSong.title}" añadida a la lista de reproducción.`, 'success')
+          } else {
+            showStatus(`"${targetSong.title}" ya está en la lista de reproducción.`, 'info')
+          }
+        }
+      })
+    })
 
     // Renombrar Biblioteca Activa
     const renameLibBtn = containerElement.querySelector('#btn-rename-active-library')
@@ -990,6 +1071,19 @@ export function createSongMenuView({
     getSongs: () => songs,
     getLibraries: () => libraries,
     getActiveLibraryId: () => activeLibraryId,
-    setActiveLibraryId: (id) => { activeLibraryId = id; render() }
+    setActiveLibraryId: (id) => { activeLibraryId = id; render() },
+    setPlaylistCount: (count) => {
+      playlistCount = Number(count) || 0
+      const badge = containerElement?.querySelector('.playlist-badge-pill')
+      if (badge) {
+        badge.textContent = playlistCount
+        if (playlistCount > 0) badge.classList.add('has-items')
+        else badge.classList.remove('has-items')
+      }
+      const topBtn = containerElement?.querySelector('#btn-top-playlist')
+      if (topBtn) {
+        topBtn.innerHTML = `${iconListMusic} Playlist (${playlistCount})`
+      }
+    }
   }
 }

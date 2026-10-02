@@ -137,13 +137,13 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     }
   }
 
-  async function initYouTubePlayer(domElementId, initialVideoId) {
+  async function initYouTubePlayer(domElementId, initialVideoId, autoplay = false) {
     const YT = await loadYouTubeApi()
     return new Promise((resolve) => {
       ytPlayer = new YT.Player(domElementId, {
         videoId: initialVideoId || '',
         playerVars: {
-          autoplay: 0,
+          autoplay: autoplay ? 1 : 0,
           controls: 1,
           modestbranding: 1,
           rel: 0,
@@ -161,6 +161,11 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
                 lastKnownDuration = dur
                 if (onDurationChange) onDurationChange(getDuration())
               }
+            }
+            if (autoplay) {
+              isPlaying = true
+              startClock()
+              if (ytPlayer.playVideo) ytPlayer.playVideo()
             }
             resolve(ytPlayer)
           },
@@ -191,9 +196,23 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     })
   }
 
-  async function loadSong(song, preferredVideoId = null) {
+  async function loadSong(song, preferredVideoId = null, options = {}) {
+    let autoplay = false
+    let targetVideoId = null
+
+    if (preferredVideoId && typeof preferredVideoId === 'object') {
+      autoplay = Boolean(preferredVideoId.autoplay)
+      targetVideoId = preferredVideoId.preferredVideoId || null
+    } else {
+      targetVideoId = preferredVideoId
+      if (options && typeof options === 'object') {
+        autoplay = Boolean(options.autoplay)
+        if (options.preferredVideoId) targetVideoId = options.preferredVideoId
+      }
+    }
+
     stopClock()
-    isPlaying = false
+    isPlaying = autoplay
     fallbackTime = 0
     currentSong = song
 
@@ -202,8 +221,8 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
 
     currentVideos = normalizeVideos(metadata, lyricsData)
 
-    if (preferredVideoId) {
-      activeVideo = currentVideos.find(v => String(v.id) === String(preferredVideoId)) || currentVideos[0] || null
+    if (targetVideoId) {
+      activeVideo = currentVideos.find(v => String(v.id) === String(targetVideoId)) || currentVideos[0] || null
     } else {
       activeVideo = currentVideos[0] || null
     }
@@ -217,22 +236,40 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     if (primaryVideoId) {
       activeSource = 'youtube'
       if (!ytPlayer) {
-        await initYouTubePlayer(containerId, primaryVideoId)
+        await initYouTubePlayer(containerId, primaryVideoId, autoplay)
+      } else if (autoplay && ytPlayer.loadVideoById) {
+        ytPlayer.loadVideoById(primaryVideoId)
+        isPlaying = true
+        startClock()
+        if (ytPlayer.playVideo) ytPlayer.playVideo()
       } else if (ytPlayer.cueVideoById) {
         ytPlayer.cueVideoById(primaryVideoId)
+        if (autoplay) {
+          isPlaying = true
+          startClock()
+          if (ytPlayer.playVideo) ytPlayer.playVideo()
+        }
       }
     } else if (audioUrl) {
       activeSource = 'audio'
       audioElement.src = audioUrl
       audioElement.load()
+      if (autoplay) {
+        isPlaying = true
+        startClock()
+        audioElement.play().catch(err => console.warn('Audio play prevented:', err))
+      }
     } else {
       // Modo emulado sin audio / local
       activeSource = 'virtual'
       lastKnownDuration = 180
       if (onDurationChange) onDurationChange(lastKnownDuration)
+      if (autoplay) {
+        play()
+      }
     }
 
-    if (onStateChange) onStateChange(PLAYER_STATE.CUED)
+    if (onStateChange) onStateChange(autoplay ? PLAYER_STATE.PLAYING : PLAYER_STATE.CUED)
   }
 
   function setVideo(videoId) {

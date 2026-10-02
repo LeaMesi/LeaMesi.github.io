@@ -143,5 +143,26 @@ describe('player/mediaPlayer.js', () => {
       // getLyricsTime reporta el tiempo ajustado para sincronizar las letras: 15 - 2 = 13s
       expect(player.getLyricsTime()).toBe(13)
     })
+
+    it('inicia reproducción automáticamente si autoplay es true al cargar canción', async () => {
+      let isPlayingReported = false
+      const playerInstance = createMediaPlayer({
+        containerId: 'yt-test-player',
+        onStateChange: (state) => {
+          if (state === PLAYER_STATE.PLAYING) {
+            isPlayingReported = true
+          }
+        }
+      })
+
+      await playerInstance.loadSong({
+        title: 'Virtual Track',
+        videos: []
+      }, null, { autoplay: true })
+
+      expect(playerInstance.getIsPlaying()).toBe(true)
+      expect(isPlayingReported).toBe(true)
+      playerInstance.destroy()
+    })
   })
 })

@@ -142,5 +142,26 @@ export const iconFolderPlus = createSvg(
   '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line>'
 )
 
+export const iconSkipBack = createSvg(
+  '<polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line>'
+)
+
+export const iconSkipForward = createSvg(
+  '<polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line>'
+)
+
+export const iconShuffle = createSvg(
+  '<polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line>'
+)
+
+export const iconListMusic = createSvg(
+  '<path d="M21 15V6"></path><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path><path d="M12 12H3"></path><path d="M16 6H3"></path><path d="M12 18H3"></path>'
+)
+
+export const iconListPlus = createSvg(
+  '<path d="M11 12H3"></path><path d="M16 6H3"></path><path d="M11 18H3"></path><path d="M18 9v6"></path><path d="M15 12h6"></path>'
+)
+
+
 
 

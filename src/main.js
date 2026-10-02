@@ -2,7 +2,7 @@ import './style.css'
 import { getDB } from './services/db.js'
 import { listSongs, fetchSongById } from './services/songService.js'
 import { applyTheme } from './services/themeService.js'
-import { createMediaPlayer } from './player/mediaPlayer.js'
+import { createMediaPlayer, PLAYER_STATE } from './player/mediaPlayer.js'
 import { createLanguageManager } from './lyrics/languageManager.js'
 import { createBasicViewer } from './views/basicViewer.js'
 import { createAdvancedViewer } from './views/advancedViewer.js'
@@ -12,7 +12,10 @@ import { createVideoManagerModal } from './views/videoManagerModal.js'
 import { createOnlineLyricsModal } from './views/onlineLyricsModal.js'
 import { createThemeSettingsModal } from './views/themeSettingsModal.js'
 import { createSongEditorView } from './views/songEditorView.js'
-import { iconArrowLeft, iconPalette } from './views/icons.js'
+import { createPlaylistService, loadLibraryIntoPlaylist } from './services/playlistService.js'
+import { createPlaylistModal } from './views/playlistModal.js'
+import { createFloatingPlayerView } from './views/floatingPlayerView.js'
+import { iconArrowLeft, iconPalette, iconListMusic, iconMic } from './views/icons.js'
 
 async function initApp() {
   // Aplicar tema guardado inmediatamente
@@ -38,6 +41,12 @@ async function initApp() {
       </div>
 
       <div class="header-actions">
+        <button class="btn btn-outline btn-sm" id="btn-header-playlist" title="Ver lista de reproducción activa">
+          ${iconListMusic} <span class="nav-text-full">Playlist</span> <span class="badge-playlist-count" id="header-playlist-count">0</span>
+        </button>
+        <button class="btn btn-primary btn-sm btn-header-now-playing" id="btn-header-now-playing" style="display: none;" title="Volver a la canción que está sonando">
+          ${iconMic} <span class="nav-text-full">Modo Letra</span><span class="nav-text-short">Letra</span>
+        </button>
         <button class="btn btn-outline btn-sm" id="btn-header-theme" title="Personalizar temas, tamaños de letra y colores">
           ${iconPalette} Temas
         </button>
@@ -78,12 +87,21 @@ async function initApp() {
 
     <!-- Modal de Configuración de Temas y Visualización -->
     <div class="modal-container" id="theme-modal"></div>
+
+    <!-- Modal de Lista de Reproducción (Playlist) -->
+    <div class="modal-container" id="playlist-modal"></div>
+
+    <!-- Reproductor Flotante Mini (Solo en Menú de Canciones si hay canción cargada) -->
+    <div id="floating-player-container" class="floating-player-container" style="display: none;"></div>
   `
 
   // 2. Elementos del DOM
   const headerTitleEl = document.querySelector('#header-song-title')
   const headerArtistEl = document.querySelector('#header-song-artist')
   const modeBadgeEl = document.querySelector('#app-mode-badge')
+  const btnHeaderPlaylist = document.querySelector('#btn-header-playlist')
+  const btnHeaderNowPlaying = document.querySelector('#btn-header-now-playing')
+  const headerPlaylistCountEl = document.querySelector('#header-playlist-count')
   const btnHeaderTheme = document.querySelector('#btn-header-theme')
   const btnHeaderBackMenu = document.querySelector('#btn-header-back-menu')
   const menuScreenEl = document.querySelector('#menu-screen')
@@ -94,6 +112,8 @@ async function initApp() {
   const videoModalEl = document.querySelector('#video-modal')
   const betterlyricsModalEl = document.querySelector('#betterlyrics-modal')
   const themeModalEl = document.querySelector('#theme-modal')
+  const playlistModalEl = document.querySelector('#playlist-modal')
+  const floatingPlayerContainerEl = document.querySelector('#floating-player-container')
   const advancedStageEl = document.querySelector('#advanced-stage-container')
 
   // 3. Estado de la aplicación
@@ -117,20 +137,42 @@ async function initApp() {
   })
   const advancedViewer = createAdvancedViewer(advancedStageEl)
 
+  // 3b. Inicializar Servicio de Lista de Reproducción (Playlist)
+  const playlistService = createPlaylistService()
+
   // 4. Inicializar Reproductor Multimedia (Master Clock)
   const mediaPlayer = createMediaPlayer({
     containerId: 'youtube-player-container',
     onTimeUpdate: (currentTime, lyricsTime) => {
-      controlsView.setTime(currentTime)
+      controlsView?.setTime(currentTime)
+      floatingPlayerView?.setTime(currentTime)
       basicViewer.updateTime(lyricsTime !== undefined ? lyricsTime : mediaPlayer.getLyricsTime())
       songEditorView.updateClock(currentTime)
     },
-    onStateChange: () => {
-      controlsView.setPlayingState(mediaPlayer.getIsPlaying())
-      songEditorView.setPlayingState(mediaPlayer.getIsPlaying())
+    onStateChange: async (state) => {
+      const isPlaying = mediaPlayer.getIsPlaying()
+      controlsView?.setPlayingState(isPlaying)
+      floatingPlayerView?.setPlayingState(isPlaying)
+      songEditorView.setPlayingState(isPlaying)
+
+      // Auto-avance de canción en la playlist al terminar
+      if (state === PLAYER_STATE.ENDED) {
+        if (playlistService.hasNext()) {
+          const nextSong = playlistService.next()
+          if (nextSong) {
+            await loadSongIntoApp(nextSong.id, { autoplay: true })
+            if (currentScreen === 'lyrics') {
+              showLyricsScreen()
+            }
+          }
+        }
+      }
+
+      updateHeaderPlaybackState()
     },
     onDurationChange: (duration) => {
-      controlsView.setDuration(duration)
+      controlsView?.setDuration(duration)
+      floatingPlayerView?.setDuration(duration)
     }
   })
 
@@ -166,6 +208,31 @@ async function initApp() {
     }
   })
 
+  // 5d. Inicializar Modal de Lista de Reproducción (Playlist)
+  const playlistModal = createPlaylistModal({
+    containerElement: playlistModalEl,
+    playlistService,
+    onPlaySong: async (song) => {
+      await loadSongIntoApp(song.id, { autoplay: true })
+      showLyricsScreen()
+    },
+    onLibraryCreated: () => {
+      songMenuView.refresh()
+    }
+  })
+
+  if (btnHeaderPlaylist) {
+    btnHeaderPlaylist.addEventListener('click', () => {
+      playlistModal.open()
+    })
+  }
+
+  if (btnHeaderNowPlaying) {
+    btnHeaderNowPlaying.addEventListener('click', () => {
+      showLyricsScreen()
+    })
+  }
+
   if (btnHeaderTheme) {
     btnHeaderTheme.addEventListener('click', () => {
       themeSettingsModal.open()
@@ -185,7 +252,7 @@ async function initApp() {
     },
     onGoToMenu: () => showMenuScreen(),
     onEnterLyricsMode: async (savedId) => {
-      await loadSongIntoApp(savedId)
+      await loadSongIntoApp(savedId, { autoplay: true })
       showLyricsScreen()
     }
   })
@@ -198,7 +265,10 @@ async function initApp() {
     initialScriptDisplayMode: initialScriptMode,
     onPlayToggle: () => mediaPlayer.togglePlay(),
     onSeek: (seconds) => mediaPlayer.seek(seconds),
-    onVolumeChange: (vol) => mediaPlayer.setVolume(vol),
+    onVolumeChange: (vol) => {
+      mediaPlayer.setVolume(vol)
+      floatingPlayerView?.setVolume(vol)
+    },
     onVideoChange: (videoId) => {
       mediaPlayer.setVideo(videoId)
       controlsView.setVideosState({
@@ -229,6 +299,70 @@ async function initApp() {
     },
     onOpenTheme: () => {
       themeSettingsModal.open()
+    },
+    onPrevSong: async () => {
+      if (mediaPlayer.getCurrentTime() > 3) {
+        mediaPlayer.seek(0)
+        mediaPlayer.play()
+      } else if (playlistService.hasPrev()) {
+        const prev = playlistService.prev()
+        if (prev) {
+          await loadSongIntoApp(prev.id, { autoplay: true })
+          showLyricsScreen()
+        }
+      } else {
+        mediaPlayer.seek(0)
+        mediaPlayer.play()
+      }
+    },
+    onNextSong: async () => {
+      const next = playlistService.next()
+      if (next) {
+        await loadSongIntoApp(next.id, { autoplay: true })
+        showLyricsScreen()
+      }
+    },
+    onOpenPlaylist: () => {
+      playlistModal.open()
+    }
+  })
+
+  // 7b. Inicializar Reproductor Flotante Mini (Solo para Menú de Canciones)
+  const floatingPlayerView = createFloatingPlayerView({
+    containerElement: floatingPlayerContainerEl,
+    initialVolume: mediaPlayer.getVolume(),
+    onPlayToggle: () => mediaPlayer.togglePlay(),
+    onSeek: (seconds) => mediaPlayer.seek(seconds),
+    onVolumeChange: (vol) => {
+      mediaPlayer.setVolume(vol)
+      controlsView.setVolume(vol)
+    },
+    onRestartSong: () => {
+      mediaPlayer.seek(0)
+      mediaPlayer.play()
+    },
+    onPrevSong: async () => {
+      if (mediaPlayer.getCurrentTime() > 3) {
+        mediaPlayer.seek(0)
+        mediaPlayer.play()
+      } else if (playlistService.hasPrev()) {
+        const prev = playlistService.prev()
+        if (prev) {
+          await loadSongIntoApp(prev.id, { autoplay: true })
+        }
+      } else {
+        mediaPlayer.seek(0)
+        mediaPlayer.play()
+      }
+    },
+    onNextSong: async () => {
+      const next = playlistService.next()
+      if (next) {
+        await loadSongIntoApp(next.id, { autoplay: true })
+      }
+    },
+    onOpenLyrics: () => {
+      showLyricsScreen()
     }
   })
 
@@ -236,7 +370,7 @@ async function initApp() {
   const songMenuView = createSongMenuView({
     containerElement: menuScreenEl,
     onEnterLyricsMode: async (songId) => {
-      await loadSongIntoApp(songId)
+      await loadSongIntoApp(songId, { autoplay: true })
       showLyricsScreen()
     },
     onManageVideos: (song) => {
@@ -253,6 +387,36 @@ async function initApp() {
     },
     onEditSong: (song) => {
       showEditorScreen(song)
+    },
+    onAddToPlaylist: (song) => {
+      return playlistService.addSong(song)
+    },
+    onOpenPlaylist: () => {
+      playlistModal.open()
+    },
+    onLoadLibraryAsPlaylist: async (libraryId, { shuffle = false }) => {
+      const count = await loadLibraryIntoPlaylist(libraryId, { shuffle, playlistService })
+      return count
+    }
+  })
+
+  // 8b. Suscribir a cambios en la playlist para sincronizar controles y menú
+  playlistService.subscribe((plState) => {
+    controlsView.setPlaylistState({
+      count: plState.count,
+      hasNext: plState.hasNext,
+      hasPrev: plState.hasPrev
+    })
+    floatingPlayerView.setPlaylistState({
+      hasNext: plState.hasNext,
+      hasPrev: plState.hasPrev
+    })
+    songMenuView.setPlaylistCount(plState.count)
+
+    if (headerPlaylistCountEl) {
+      headerPlaylistCountEl.textContent = plState.count
+      if (plState.count > 0) headerPlaylistCountEl.classList.add('has-items')
+      else headerPlaylistCountEl.classList.remove('has-items')
     }
   })
 
@@ -291,11 +455,41 @@ async function initApp() {
     }
   })
 
+  function updateHeaderPlaybackState() {
+    if (currentScreen === 'menu') {
+      if (currentSong && mediaPlayer.getIsPlaying()) {
+        if (headerTitleEl) headerTitleEl.textContent = `▶ ${currentSong.title}`
+        if (headerArtistEl) headerArtistEl.textContent = currentSong.artist ? `por ${currentSong.artist}` : ''
+        if (btnHeaderNowPlaying) {
+          btnHeaderNowPlaying.style.display = 'inline-flex'
+        }
+      } else {
+        if (headerTitleEl) headerTitleEl.textContent = 'Menú de Selección de Canciones'
+        if (headerArtistEl) headerArtistEl.textContent = ''
+        if (btnHeaderNowPlaying) {
+          btnHeaderNowPlaying.style.display = 'none'
+        }
+      }
+    } else if (currentScreen === 'lyrics') {
+      if (btnHeaderNowPlaying) {
+        btnHeaderNowPlaying.style.display = 'none'
+      }
+      if (currentSong) {
+        if (headerTitleEl) headerTitleEl.textContent = currentSong.title
+        if (headerArtistEl) headerArtistEl.textContent = currentSong.artist ? `por ${currentSong.artist}` : ''
+      }
+    } else {
+      if (btnHeaderNowPlaying) {
+        btnHeaderNowPlaying.style.display = 'none'
+      }
+    }
+  }
+
   // 10. Alternar Pantallas (Menú vs Letra vs Editor)
   function showMenuScreen() {
     currentScreen = 'menu'
     if (appContainer) appContainer.dataset.screen = 'menu'
-    mediaPlayer.pause()
+    // No pausamos mediaPlayer para que la música siga sonando de fondo mientras se edita la playlist o el menú
 
     if (menuScreenEl) menuScreenEl.style.display = 'block'
     if (lyricsScreenEl) lyricsScreenEl.style.display = 'none'
@@ -305,8 +499,17 @@ async function initApp() {
       btnHeaderBackMenu.innerHTML = `${iconArrowLeft} <span class="nav-text-full">Menú de Canciones</span><span class="nav-text-short">Menú</span>`
     }
 
-    if (headerTitleEl) headerTitleEl.textContent = 'Menú de Selección de Canciones'
-    if (headerArtistEl) headerArtistEl.textContent = ''
+    updateHeaderPlaybackState()
+
+    if (currentSong) {
+      floatingPlayerView.setSong(currentSong)
+      floatingPlayerView.setPlayingState(mediaPlayer.getIsPlaying())
+      floatingPlayerView.setDuration(mediaPlayer.getDuration())
+      floatingPlayerView.setTime(mediaPlayer.getCurrentTime())
+      floatingPlayerView.setVisible(true)
+    } else {
+      floatingPlayerView.setVisible(false)
+    }
 
     songMenuView.refresh()
   }
@@ -314,6 +517,7 @@ async function initApp() {
   function showLyricsScreen() {
     currentScreen = 'lyrics'
     if (appContainer) appContainer.dataset.screen = 'lyrics'
+    floatingPlayerView.setVisible(false)
 
     if (menuScreenEl) menuScreenEl.style.display = 'none'
     if (lyricsScreenEl) lyricsScreenEl.style.display = 'flex'
@@ -323,10 +527,7 @@ async function initApp() {
       btnHeaderBackMenu.innerHTML = `${iconArrowLeft} <span class="nav-text-full">Menú de Canciones</span><span class="nav-text-short">Menú</span>`
     }
 
-    if (currentSong) {
-      if (headerTitleEl) headerTitleEl.textContent = currentSong.title
-      if (headerArtistEl) headerArtistEl.textContent = currentSong.artist ? `por ${currentSong.artist}` : ''
-    }
+    updateHeaderPlaybackState()
 
     controlsView.render()
   }
@@ -334,6 +535,7 @@ async function initApp() {
   function showEditorScreen(songToEdit = null) {
     currentScreen = 'editor'
     if (appContainer) appContainer.dataset.screen = 'editor'
+    floatingPlayerView.setVisible(false)
     mediaPlayer.pause()
 
     if (menuScreenEl) menuScreenEl.style.display = 'none'
@@ -380,24 +582,38 @@ async function initApp() {
   }
 
   // 12. Cargar canción activa en el reproductor y visor
-  async function loadSongIntoApp(songId) {
+  async function loadSongIntoApp(songId, { autoplay = false } = {}) {
     const song = await fetchSongById(songId)
     if (!song) return
 
     currentSong = song
+    playlistService.setCurrentSongById(song.id)
+    updateHeaderPlaybackState()
 
     const lyricsData = song.lyrics_data || {}
     const languages = Array.isArray(lyricsData.languages) ? lyricsData.languages : []
     languageManager.setLanguages(languages)
 
-    await mediaPlayer.loadSong(song)
+    await mediaPlayer.loadSong(song, null, { autoplay })
     controlsView.setVideosState({
       videos: mediaPlayer.getVideos(),
       activeId: mediaPlayer.getActiveVideoId()
     })
     controlsView.setTime(0)
-    controlsView.setPlayingState(false)
+    controlsView.setPlayingState(autoplay)
     controlsView.setDuration(mediaPlayer.getDuration())
+
+    floatingPlayerView.setSong(currentSong)
+    floatingPlayerView.setDuration(mediaPlayer.getDuration())
+    floatingPlayerView.setTime(0)
+    floatingPlayerView.setPlayingState(autoplay)
+    if (currentScreen === 'menu') {
+      floatingPlayerView.setVisible(true)
+    }
+
+    if (autoplay) {
+      mediaPlayer.play()
+    }
   }
 
   // 13. Inicializar Base de Datos y cargar menú inicial

@@ -4914,4 +4914,682 @@ input[type="number"] {
   }
 }
 
+/* ==========================================================================
+   Playlist (Lista de Reproducción) & Controles de Cola
+   ========================================================================== */
+
+/* Grupo de botones de reproducción en controls dock */
+.playback-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.playback-btn-group .btn-prev-song,
+.playback-btn-group .btn-next-song {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.btn-open-playlist {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+}
+
+/* Badges de conteo de playlist */
+.playlist-badge-count,
+.playlist-badge-pill,
+.badge-playlist-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.playlist-badge-count.has-items,
+.playlist-badge-pill.has-items,
+.badge-playlist-count.has-items {
+  background: var(--primary-color, #6366f1);
+  color: #ffffff;
+}
+
+.btn-add-playlist {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-add-playlist.is-added {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #34d399;
+}
+
+.btn-header-now-playing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2); }
+}
+
+/* Modal Dialog de Playlist */
+.playlist-modal-dialog {
+  max-width: 680px;
+  width: 92%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.playlist-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.playlist-count-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.18);
+  color: var(--primary-light, #818cf8);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.playlist-modal-body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  max-height: calc(88vh - 75px);
+}
+
+/* Barra de herramientas superior de la playlist */
+.playlist-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.playlist-toolbar-left,
+.playlist-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Paneles inline (Guardar como Biblioteca, Cargar, Añadir) */
+.playlist-inline-panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.inline-panel-header strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.inline-panel-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.inline-form-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.inline-form-row .search-input {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* Mini lista para añadir canciones desde catálogo */
+.catalog-add-list {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.catalog-add-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 10px;
+}
+
+.catalog-add-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.catalog-add-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.catalog-add-artist {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Estado vacío de playlist */
+.playlist-empty-state {
+  text-align: center;
+  padding: 36px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.playlist-empty-state .empty-icon {
+  margin-bottom: 6px;
+  opacity: 0.5;
+}
+
+.playlist-empty-state h3 {
+  font-size: 1.05rem;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.playlist-empty-state p {
+  font-size: 0.85rem;
+  margin: 0 0 8px;
+  max-width: 380px;
+}
+
+/* Lista de canciones de playlist */
+.playlist-items-container {
+  min-height: 120px;
+}
+
+.playlist-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.playlist-item-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+}
+
+.playlist-item-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.playlist-item-card.is-active-item {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
+}
+
+.playlist-col-play {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 52px;
+}
+
+.item-order-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 20px;
+  text-align: right;
+}
+
+.btn-play-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-play-item:hover {
+  background: var(--primary-color, #6366f1);
+  border-color: var(--primary-color, #6366f1);
+  color: #fff;
+  transform: scale(1.06);
+}
+
+.badge-now-playing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--primary-color, #6366f1);
+  color: #fff;
+}
+
+.playlist-col-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.playlist-song-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-song-artist {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 1px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-col-reorder {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.btn-icon-only {
+  padding: 4px 6px;
+  min-width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playlist-col-delete {
+  display: flex;
+  align-items: center;
+}
+
+/* Responsividad móvil */
+@media (max-width: 600px) {
+  .playlist-modal-dialog {
+    width: 95%;
+    max-height: 92dvh;
+  }
+
+  .playlist-modal-body {
+    max-height: calc(92dvh - 65px);
+    padding: 12px 14px;
+  }
+
+  .playlist-toolbar-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .playlist-toolbar-left .btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    padding: 6px 4px;
+    font-size: 0.72rem;
+  }
+}
+
+/* ==========================================================================
+   Reproductor Flotante Mini (Solo en Lista / Menú de Canciones)
+   ========================================================================== */
+
+/* Regla defensiva global: solo visible cuando la pantalla activa es 'menu' */
+#app:not([data-screen="menu"]) .floating-player-container,
+#app:not([data-screen="menu"]) #floating-player-container {
+  display: none !important;
+}
+
+.floating-player-container {
+  position: fixed;
+  bottom: calc(24px + var(--safe-bottom, 0px));
+  right: calc(24px + var(--safe-right, 0px));
+  z-index: 90;
+  pointer-events: none;
+}
+
+.floating-player-widget {
+  pointer-events: auto;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-lg, 14px);
+  padding: 10px 14px 12px 14px;
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: floatPlayerFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+@keyframes floatPlayerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Fila 1: Header de pista */
+.floating-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.floating-track-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.floating-song-title {
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.floating-song-artist {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.btn-floating-action.btn-floating-lyrics {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+  border-radius: var(--radius-sm, 6px);
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.btn-floating-action.btn-floating-lyrics:hover {
+  background: var(--primary-color, #6366f1);
+  border-color: var(--primary-color, #6366f1);
+  color: var(--primary-contrast, #ffffff);
+}
+
+/* Fila 2: Progreso y Seek */
+.floating-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.floating-time {
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  min-width: 28px;
+  line-height: 1;
+}
+
+.floating-time-current {
+  text-align: right;
+}
+
+.floating-time-duration {
+  text-align: left;
+}
+
+.floating-seek-slider {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.floating-seek-slider:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.floating-seek-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--primary-color, #6366f1);
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.floating-seek-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+
+.floating-seek-slider::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--primary-color, #6366f1);
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+/* Fila 3: Controles y Volumen */
+.floating-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.floating-volume-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.floating-volume-slider {
+  width: 58px;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.floating-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-main, #f8fafc);
+  cursor: pointer;
+}
+
+.floating-volume-slider::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-main, #f8fafc);
+  border: none;
+  cursor: pointer;
+}
+
+.floating-transport-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-floating-icon {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.btn-floating-icon:hover:not(:disabled) {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-floating-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-floating-icon.btn-floating-play {
+  width: 32px;
+  height: 32px;
+  background: var(--primary-color, #6366f1);
+  color: var(--primary-contrast, #ffffff);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.btn-floating-icon.btn-floating-play:hover {
+  background: var(--primary-hover, #4f46e5);
+  transform: scale(1.05);
+  color: #fff;
+}
+
+/* Adaptación móvil */
+@media (max-width: 600px) {
+  .floating-player-container {
+    bottom: calc(14px + var(--safe-bottom, 0px));
+    right: 14px;
+    left: 14px;
+    width: auto;
+  }
+
+  .floating-player-widget {
+    width: 100%;
+    max-width: 100%;
+    padding: 8px 12px 10px 12px;
+  }
+
+  .floating-volume-slider {
+    width: 48px;
+  }
+}
+
+
+
 
