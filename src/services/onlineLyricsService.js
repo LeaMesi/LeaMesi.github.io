@@ -26,6 +26,7 @@ import {
   hasGeniusToken
 } from './geniusService.js'
 import { normalizeSongPackage } from './schemaValidator.js'
+import { autoEnrichSongWithRomaji } from '../lyrics/transliterationHelper.js'
 
 export {
   getGeniusToken,
@@ -172,5 +173,7 @@ export async function buildSongPackageFromOnlineResult(item, options = {}) {
   }
 
   // Normalizar y sanear el paquete garantizando compatibilidad con el esquema
-  return normalizeSongPackage(rawPackage)
+  const normalized = normalizeSongPackage(rawPackage)
+  // Enriquecer automáticamente con Romaji si se detecta texto en japonés
+  return autoEnrichSongWithRomaji(normalized)
 }

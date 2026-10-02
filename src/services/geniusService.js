@@ -4,6 +4,7 @@
 
 import { splitPhraseIntoSyllables, autoDistributeSyllables } from '../lyrics/syllablesHelper.js'
 import { parseLrc, translateLyricsLines, getLanguageName } from './betterLyricsService.js'
+import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 
 const GENIUS_API_BASE_URL = 'https://api.genius.com'
 const TOKEN_STORAGE_KEY = 'saranga_genius_token'
@@ -222,7 +223,17 @@ export async function buildSongPackageFromGenius(details, { translateTo = null }
     })
   }
 
-  const mainLangCode = details.language || 'en'
+  const sampleText = lines.map(l => l.text).join(' ')
+  const isJapaneseText = hasJapanese(sampleText)
+
+  if (isJapaneseText) {
+    lines = autoGenerateRomajiForLines(lines)
+  }
+
+  let mainLangCode = details.language || 'und'
+  if (isJapaneseText && (mainLangCode === 'en' || mainLangCode === 'und')) {
+    mainLangCode = 'ja'
+  }
   const mainLangName = `${getLanguageName(mainLangCode)} (Original)`
 
   const languages = [

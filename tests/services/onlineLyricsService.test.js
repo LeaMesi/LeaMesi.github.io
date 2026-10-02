@@ -332,5 +332,38 @@ describe('services/onlineLyricsService.js y proveedores', () => {
       expect(results[0].syncType).toBe('richsync')
       expect(results[0].song).toBe('Canción Silábica')
     })
+
+    it('auto-genera texto alternativo Romaji cuando la canción importada contiene caracteres japoneses', async () => {
+      const details = {
+        id: 222,
+        song: 'アイドル',
+        artist: 'YOASOBI',
+        language: 'en', // La API a menudo reporta 'en' erróneamente para canciones japonesas
+        format: 'ttml',
+        lyrics: `
+          <tt>
+            <body>
+              <div>
+                <p begin="0:00.589" end="0:03.197">
+                  <span begin="0:00.589" end="0:01.395">無敵の</span>
+                  <span begin="0:01.395" end="0:01.866">笑顔</span>
+                  <span begin="0:01.866" end="0:02.044">で</span>
+                  <span begin="0:02.044" end="0:02.346">荒らす</span>
+                  <span begin="0:02.346" end="0:02.798">メディ</span>
+                  <span begin="0:02.798" end="0:03.197">ア</span>
+                </p>
+              </div>
+            </body>
+          </tt>
+        `
+      }
+
+      const pkg = await buildSongPackageFromBetterLyrics(details)
+      expect(pkg.lyrics_data.languages[0].code).toBe('ja')
+      expect(pkg.lyrics_data.languages[0].lines[0].altText).toBe('muteki no egao de arasu media')
+      expect(pkg.lyrics_data.languages[0].lines[0].syllables[0].altText.trim()).toBe('muteki no')
+      expect(pkg.lyrics_data.languages[0].lines[0].syllables[1].altText.trim()).toBe('egao')
+      expect(pkg.lyrics_data.languages[0].lines[0].syllables[5].altText.trim()).toBe('a')
+    })
   })
 })

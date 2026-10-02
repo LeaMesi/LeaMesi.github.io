@@ -5,6 +5,7 @@
 
 import { splitPhraseIntoSyllables, autoDistributeSyllables } from '../lyrics/syllablesHelper.js'
 import { parseLrc, translateLyricsLines, getLanguageName } from './betterLyricsService.js'
+import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 
 const LRCLIB_BASE_URL = 'https://lrclib.net/api'
 
@@ -154,8 +155,15 @@ export async function buildSongPackageFromLrclib(details, { translateTo = null }
     })
   }
 
-  const mainLangCode = 'und'
-  const mainLangName = 'Original'
+  const sampleText = lines.map(l => l.text).join(' ')
+  const isJapaneseText = hasJapanese(sampleText)
+
+  if (isJapaneseText) {
+    lines = autoGenerateRomajiForLines(lines)
+  }
+
+  const mainLangCode = isJapaneseText ? 'ja' : 'und'
+  const mainLangName = isJapaneseText ? 'Japonés (Original)' : 'Original'
 
   const languages = [
     {

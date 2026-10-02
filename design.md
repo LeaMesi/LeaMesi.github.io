@@ -720,6 +720,32 @@ Para garantizar un espacio de trabajo despejado y minimizar la sobrecarga cognit
 * **Ocultamiento Condicional de "Texto" (`.script-selector-group`):** Si la pista activa no contiene texto alternativo o fonético (ej. canciones sin caracteres Kanji o sin Romaji, `!hasAltText`), el contenedor se oculta dinámicamente (`display: none`), evitando controles inoperantes.
 * **Ocultamiento Condicional de "Traducción" (`.translation-group`):** Si la canción solo cuenta con su idioma original (`translations.length === 0`), el selector de traducción se oculta por completo (`display: none`) para mantener la barra limpia y enfocada.
 
+---
+
+## 13. Arquitectura de Transliteración Fonética Automática a Romaji (Japonés)
+
+### 13.1. Ecosistema de Proveedores Online y Transliteración en Cliente
+* **Investigación de Fuentes:** Las APIs públicas de letras sincronizadas (**BetterLyrics / Unison**, **LRC.red**, **LRCLIB** y **Genius**) no devuelven texto alternativo ni Romaji en sus respuestas TTML silábicas o LRC; devuelven estrictamente los caracteres originales en kanji y kana japoneses.
+* **Origen del Romaji en Aplicaciones Nativas:** La aplicación de escritorio BetterLyrics para Windows no obtiene el Romaji de su API, sino a través de un plugin nativo de cliente (`BetterLyrics.Plugins.Transliteration.Romaji` basado en MeCab y el diccionario `unidic-mecab-2.1.2`).
+* **Enfoque de SarangaBaranga:** Al ser una SPA estática orientada a GitHub Pages sin servidor ni posibilidad de cargar diccionarios nativos de 40MB sin penalizar drásticamente la experiencia móvil y offline, SarangaBaranga implementa un **motor fonético autónomo de cliente** de alto rendimiento y tamaño pluma.
+
+### 13.2. Motor Fonético y Diccionario Embebido (`src/lyrics/kanjiDict.js` y `src/lyrics/transliterationHelper.js`)
+* **Diccionario Embebido (`kanjiDict.js`):**
+  * `KANJI_WORDS`: Más de 7,000 vocablos y compuestos (Jukugo) de uso frecuente en canciones, expresiones idiomáticas y vocabulario JLPT N5 a N1 mapeados a sus lecturas fonéticas.
+  * `KANJI_CHARS`: Mapeo de lecturas canónicas (priorizando kun'yomi en verbos y on'yomi en sustantivos) para los 2,136 caracteres kanji de uso general (Joyo Kanji).
+  * Peso total comprimido inferior a 25 KB con carga síncrona en microsegundos, sin peticiones de red adicionales ni fallos por captchas de terceros.
+* **Algoritmo de Transliteración Hepburn (`transliterationHelper.js`):**
+  1. **Coincidencia Codiciosa de Máxima Longitud (Greedy Longest-Match):** Ordena las claves del diccionario por longitud descendente para emparejar expresiones completas (ej. `一番星` $\rightarrow$ `ichibanboshi`, `無敵` $\rightarrow$ `muteki`, `笑顔` $\rightarrow$ `egao`, `秘密` $\rightarrow$ `himitsu`) antes de evaluar kanjis sueltos.
+  2. **Conversión Exhaustiva de Kana:** Cobertura de todas las filas gojūon, dakuon y handakuon, dígrafos yōon (`kya`, `shu`, `cho`, `ja`, etc.), préstamos extranjeros (`ti`, `di`, `tu`, `fa`, `fi`, `fe`, `fo`, `wi`, `we`, `vo`), duplicación de consonantes por sokuon (`っ` / `ッ`) y alargador chōonpu (`ー`).
+  3. **Normalización de Partículas Gramaticales:** Conversión automática de la partícula temática `は` a `wa` y de la partícula de objeto `を` a `o`.
+  4. **Detección Fina de Fronteras de Palabra entre Sílabas:** Identifica cuándo dos fragmentos silábicos contiguos forman parte de la misma palabra en katakana (ej. `メディ` + `ア` $\rightarrow$ `media`, `ミス` + `テリ` + `アス` $\rightarrow$ `misuteriasu`) para no insertar espacios espurios, y añade espacios tras fronteras gramaticales.
+
+### 13.3. Integración en el Flujo de la Aplicación
+1. **Auto-Enriquecimiento al Importar:** Al buscar y cargar canciones en línea desde BetterLyrics, LRC.red, LRCLIB o Genius, el orquestador (`onlineLyricsService.js`) detecta automáticamente la presencia de caracteres japoneses, ejecuta `autoGenerateRomajiForLines(lines)` poblando `line.altText` y `syl.altText` y ajusta el código lingüístico a `'ja'` (`Japonés (Original)`).
+2. **Botón Interactivo en el Editor (`songEditorView.js`):** La barra de herramientas de frases detecta si la pista activa tiene caracteres japoneses y expone el botón `${iconSparkles} Romaji Automático`, permitiendo al usuario regenerar o actualizar las transliteraciones con un único clic.
+3. **Sincronización en Modo Letra (`basicViewer.js`):** El visor de letras y el dock de controles activan inmediatamente el selector "Texto: Caracteres + Alternativo | Solo Caracteres | Solo Alternativo (Romaji)", iluminando simultáneamente el kanji y el romaji al milisegundo exacto durante el canto.
+
+
 
 
 

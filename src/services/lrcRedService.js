@@ -6,6 +6,7 @@
 import { splitPhraseIntoSyllables, autoDistributeSyllables } from '../lyrics/syllablesHelper.js'
 import { parseTtml, parseLrc, translateLyricsLines, getLanguageName } from './betterLyricsService.js'
 import { parseLyricsfile } from './lyricsfileService.js'
+import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 
 const LRC_RED_BASE_URL = 'https://lrc.red'
 
@@ -203,8 +204,18 @@ export async function fetchLrcRedDetails(idOrRawId, fallbackItem = null) {
  * a partir de un resultado o detalle de LRC.red.
  */
 export async function buildSongPackageFromLrcRed(details, { translateTo = null } = {}) {
-  const lines = details.lines || []
-  const mainLangCode = details.language && details.language !== 'und' ? details.language : 'und'
+  let lines = details.lines || []
+  const sampleText = lines.map(l => l.text).join(' ')
+  const isJapaneseText = hasJapanese(sampleText)
+
+  if (isJapaneseText) {
+    lines = autoGenerateRomajiForLines(lines)
+  }
+
+  let mainLangCode = details.language && details.language !== 'und' ? details.language : 'und'
+  if (isJapaneseText && (mainLangCode === 'und' || mainLangCode === 'en')) {
+    mainLangCode = 'ja'
+  }
   const mainLangName = getLanguageName(mainLangCode)
 
   const languages = [

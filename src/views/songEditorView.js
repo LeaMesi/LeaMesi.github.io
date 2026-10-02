@@ -17,8 +17,10 @@ import {
   iconChevronUp,
   iconChevronDown,
   iconMic,
-  iconDownload
+  iconDownload,
+  iconSparkles
 } from './icons.js'
+import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 
 export function createSongEditorView({
   containerElement,
@@ -175,6 +177,7 @@ export function createSongEditorView({
     const videos = currentSong.videos || []
     const isNew = !currentSong.id
     const totalSylCount = lines.reduce((acc, l) => acc + (l.syllables?.length || 0), 0)
+    const hasJpInActiveLang = (lines || []).some(l => hasJapanese(l.text)) || (activeLang && hasJapanese(activeLang.plain || ''))
 
     // Pestañas de idiomas
     const langTabsHtml = languages.map((lang, idx) => {
@@ -613,6 +616,11 @@ export function createSongEditorView({
                 <button class="btn btn-sm btn-outline btn-open-quick-import" title="Pegar texto completo y dividir en versos">
                   ${iconFileText} Pegar Letra Completa
                 </button>
+                ${hasJpInActiveLang ? `
+                  <button class="btn btn-sm btn-outline btn-auto-romaji" id="btn-auto-generate-romaji" title="Generar automáticamente texto alternativo y fonemas en Romaji para todas las frases y sílabas de este idioma">
+                    ${iconSparkles} Romaji Automático
+                  </button>
+                ` : ''}
                 <button
                   class="btn btn-sm btn-outline btn-danger-outline"
                   id="btn-clear-all-syllables"
@@ -1287,6 +1295,28 @@ export function createSongEditorView({
 
     const clearAllBottomBtn = containerElement.querySelector('.btn-clear-all-syllables-trigger')
     if (clearAllBottomBtn) clearAllBottomBtn.addEventListener('click', handleClearAllSyllables)
+
+    // Auto-generar Romaji para todas las frases y sílabas del idioma activo
+    const autoRomajiBtn = containerElement.querySelector('#btn-auto-generate-romaji')
+    if (autoRomajiBtn) {
+      autoRomajiBtn.addEventListener('click', () => {
+        if (!lines || lines.length === 0) {
+          showStatus('No hay frases para transliterar en este idioma.', 'info')
+          return
+        }
+
+        const updatedLines = autoGenerateRomajiForLines(lines)
+        if (activeLang) {
+          activeLang.lines = updatedLines
+          if (activeLang.code === 'und' || activeLang.code === 'en') {
+            activeLang.code = 'ja'
+            if (activeLang.isMain) activeLang.name = 'Japonés (Original)'
+          }
+        }
+        render()
+        showStatus('Texto alternativo y fonemas en Romaji generados con éxito para todas las frases y sílabas.', 'success')
+      })
+    }
 
     // 7. Modales
     // Modal importación rápida

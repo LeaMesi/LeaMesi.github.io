@@ -500,6 +500,29 @@
   - Incorporado bloque `finally` en `handleSelectSong` para garantizar que `isImporting` y `activeLoadingItemId` se restablezcan a `false` y `null` tras una carga exitosa.
   - Asegurado el restablecimiento de estado en las funciones `open()` y `close()` del modal para permitir que el usuario busque y cargue canciones consecutivas sin que los botones queden permanentemente deshabilitados.
 
+---
+
+## Fase 22: Transliteración Fonética Automática a Romaji para Canciones en Japonés
+
+- [x] **22.1. Investigación de Fuentes y Ecosistema BetterLyrics:**
+  - Verificado que las APIs online (BetterLyrics/Unison, LRC.red, LRCLIB, Genius) no devuelven Romaji en sus respuestas TTML o LRC; retornan exclusivamente caracteres originales en kanji y kana.
+  - Comprobado que la aplicación de escritorio BetterLyrics ofrece Romaji mediante un plugin de cliente (`BetterLyrics.Plugins.Transliteration.Romaji` basado en MeCab y diccionario UniDic local) y no a través de su API.
+- [x] **22.2. Diccionario Fonético Embebido Autónomo (`src/lyrics/kanjiDict.js`):**
+  - Mapeo de más de 7,000 vocablos de uso común y canciones japonesas (`KANJI_WORDS`) y lecturas individuales para 2,136 caracteres kanji Joyo (`KANJI_CHARS`), con carga instantánea y sin dependencias de red ni diccionarios pesados de 40MB.
+- [x] **22.3. Motor de Transliteración Hepburn Autónomo (`src/lyrics/transliterationHelper.js`):**
+  - Función `hasJapanese(text)` para detección precisa de Hiragana, Katakana y Kanji.
+  - Función `kanaToRomaji(text)` con soporte integral de dígrafos yōon (`kya`, `shu`, `cho`, `ti`, `di`, `fo`), duplicación por sokuon (`っ` / `ッ`), alargador chōonpu (`ー`) y puntuación japonesa.
+  - Función `transliterateJapaneseToRomaji(text)` con coincidencia más larga (greedy) de compuestos kanji, kanjis individuales y normalización de partículas gramaticales (`ha` -> `wa`, `wo` -> `o`).
+  - Función `transliterateSyllables(syllables)` con detección de fronteras de palabras para evitar separar fragmentos continuos de palabras en katakana (ej. `メディ` + `ア` -> `media`).
+  - Función `autoGenerateRomajiForLines(lines)` para poblar automáticamente `line.altText` y `syl.altText` en simultáneo manteniendo la sincronización milimétrica para Modo Letra.
+  - Función `autoEnrichSongWithRomaji(songPackage)` para enriquecer cualquier paquete de canción y corregir códigos de idioma `'und'` o `'en'` a `'ja'`.
+- [x] **22.4. Integración en Proveedores Online y Editor:**
+  - Auto-generación transparente al importar canciones desde BetterLyrics, LRC.red, LRCLIB y Genius.
+  - Botón interactivo `${iconSparkles} Romaji Automático` en la barra de herramientas de frases del editor (`src/views/songEditorView.js`), permitiendo re-transliterar o generar Romaji bajo demanda con un solo clic.
+- [x] **22.5. Pruebas y Validación de Compilación:**
+  - Creada suite `tests/lyrics/transliterationHelper.test.js` con 15 pruebas unitarias y añadida prueba de integración en `tests/services/onlineLyricsService.test.js` con la canción "YOASOBI - Idol" (20 suites, 155 pruebas pasando al 100%).
+  - Compilación de producción con `npm run build` verificada sin errores.
+
 
 
 

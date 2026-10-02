@@ -4,6 +4,7 @@
 
 import { splitPhraseIntoSyllables, autoDistributeSyllables } from '../lyrics/syllablesHelper.js'
 import { extractYouTubeVideoId } from '../player/mediaPlayer.js'
+import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 
 const UNISON_BASE_URL = 'https://unison.boidu.dev'
 const BETTER_LYRICS_BASE_URL = 'https://api.betterlyrics.org'
@@ -617,7 +618,17 @@ export async function buildSongPackageFromBetterLyrics(details, { translateTo = 
     })
   }
 
-  const mainLangCode = details.language || 'en'
+  const sampleText = lines.map(l => l.text).join(' ')
+  const isJapaneseText = hasJapanese(sampleText)
+
+  if (isJapaneseText) {
+    lines = autoGenerateRomajiForLines(lines)
+  }
+
+  let mainLangCode = details.language || 'und'
+  if (isJapaneseText && (mainLangCode === 'en' || mainLangCode === 'und')) {
+    mainLangCode = 'ja'
+  }
   const mainLangName = `${getLanguageName(mainLangCode)} (Original)`
 
   const languages = [
