@@ -1418,9 +1418,9 @@ input[type="number"] {
 }
 
 .badge-tag {
-  background: rgba(255, 255, 255, 0.05);
-  color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(125, 125, 125, 0.08);
+  color: var(--text-main);
+  border: 1px solid var(--panel-border);
 }
 
 .card-videos-row {
@@ -1428,10 +1428,10 @@ input[type="number"] {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(125, 125, 125, 0.08);
   padding: 8px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--panel-border);
 }
 
 .videos-pill-list {
@@ -2457,8 +2457,8 @@ input[type="number"] {
   justify-content: space-between;
   align-items: center;
   padding: 8px 24px;
-  background: rgba(30, 41, 59, 0.92);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--panel-border);
   gap: 14px;
   flex-wrap: wrap;
   z-index: 8;
@@ -2491,8 +2491,8 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(125, 125, 125, 0.12);
+  border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 4px 10px;
 }
@@ -2890,13 +2890,13 @@ input[type="number"] {
 
 .input-phrase-text {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(125, 125, 125, 0.08);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 6px 12px;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-main);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -2907,7 +2907,7 @@ input[type="number"] {
 
 .input-phrase-alt {
   width: 100%;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(125, 125, 125, 0.06);
   border: 1px dashed rgba(165, 243, 252, 0.35);
   border-radius: var(--radius-sm);
   padding: 4px 10px;
@@ -2921,7 +2921,7 @@ input[type="number"] {
 .input-phrase-alt:focus {
   border-color: var(--lyrics-alt-color, #a5f3fc);
   border-style: solid;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(125, 125, 125, 0.1);
 }
 
 .phrase-timing-bar {
@@ -2946,7 +2946,7 @@ input[type="number"] {
 
 .input-with-capture input {
   width: 68px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(125, 125, 125, 0.08);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm) 0 0 var(--radius-sm);
   padding: 4px 6px;
@@ -3028,15 +3028,15 @@ input[type="number"] {
 }
 
 .syllable-edit-chip {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 6px 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   width: 185px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .chip-top {
@@ -3053,8 +3053,8 @@ input[type="number"] {
 .input-syl-text {
   flex: 1;
   min-width: 0;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(125, 125, 125, 0.08);
+  border: 1px solid var(--panel-border);
   border-radius: 4px;
   padding: 3px 6px;
   color: var(--text-active);
@@ -3070,7 +3070,7 @@ input[type="number"] {
 .input-syl-alt {
   flex: 1;
   min-width: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(125, 125, 125, 0.06);
   border: 1px dashed rgba(165, 243, 252, 0.35);
   border-radius: 4px;
   padding: 3px 5px;
@@ -3118,11 +3118,11 @@ input[type="number"] {
 
 .syl-timing-item input {
   width: 58px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(125, 125, 125, 0.08);
+  border: 1px solid var(--panel-border);
   border-radius: 4px;
   padding: 2px 4px;
-  color: #fff;
+  color: var(--text-main);
   font-size: 0.75rem;
   text-align: center;
   outline: none;
@@ -4310,7 +4310,7 @@ input[type="number"] {
 }
 
 .color-picker-card {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(125, 125, 125, 0.06);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
@@ -4373,7 +4373,7 @@ input[type="number"] {
   font-family: monospace;
   font-size: 0.8rem;
   padding: 6px 8px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(125, 125, 125, 0.08);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   color: var(--text-main);
@@ -4388,7 +4388,7 @@ input[type="number"] {
 }
 
 .slider-control-card {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(125, 125, 125, 0.06);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
@@ -4414,7 +4414,7 @@ input[type="number"] {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--primary-color);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(125, 125, 125, 0.12);
   padding: 2px 8px;
   border-radius: 4px;
 }
@@ -4438,7 +4438,7 @@ input[type="number"] {
   appearance: none;
   height: 6px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(125, 125, 125, 0.2);
   outline: none;
   cursor: pointer;
 }
@@ -4450,7 +4450,7 @@ input[type="number"] {
   border-radius: 50%;
   background: var(--primary-color);
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
   transition: transform 0.1s ease;
 }
 
@@ -4465,7 +4465,7 @@ input[type="number"] {
   border-radius: 50%;
   background: var(--primary-color);
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Colores y Estilos de Letra */
@@ -4476,7 +4476,7 @@ input[type="number"] {
 }
 
 .lyric-style-card {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(125, 125, 125, 0.06);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
@@ -4488,8 +4488,8 @@ input[type="number"] {
 }
 
 .lyric-style-card.is-highlight-card {
-  border-color: rgba(251, 191, 36, 0.3);
-  background: rgba(251, 191, 36, 0.04);
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.06);
 }
 
 .lyric-style-title-col {
@@ -4522,7 +4522,7 @@ input[type="number"] {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(125, 125, 125, 0.08);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   font-size: 0.78rem;
@@ -4533,7 +4533,7 @@ input[type="number"] {
 }
 
 .theme-toggle-chip:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(125, 125, 125, 0.14);
 }
 
 .theme-toggle-chip input[type="checkbox"] {
@@ -4554,7 +4554,7 @@ input[type="number"] {
   align-items: center;
   padding: 14px 20px;
   border-top: 1px solid var(--panel-border);
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(125, 125, 125, 0.06);
   gap: 12px;
   flex-wrap: wrap;
 }
