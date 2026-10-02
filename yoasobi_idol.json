@@ -70,28 +70,28 @@
               {
                 "id": "syl-0-0",
                 "text": "無敵の",
-                "altText": "muteki no",
+                "altText": "muteki no ",
                 "startTime": 0.589,
                 "duration": 0.806
               },
               {
                 "id": "syl-0-1",
                 "text": "笑顔",
-                "altText": "egao",
+                "altText": "egao ",
                 "startTime": 1.395,
                 "duration": 0.471
               },
               {
                 "id": "syl-0-2",
                 "text": "で",
-                "altText": "de",
+                "altText": "de ",
                 "startTime": 1.866,
                 "duration": 0.178
               },
               {
                 "id": "syl-0-3",
                 "text": "荒らす",
-                "altText": "arasu",
+                "altText": "arasu ",
                 "startTime": 2.044,
                 "duration": 0.302
               },
@@ -121,21 +121,21 @@
               {
                 "id": "syl-1-0",
                 "text": "知りたい",
-                "altText": "shiritai",
+                "altText": "shiritai ",
                 "startTime": 3.491,
                 "duration": 0.598
               },
               {
                 "id": "syl-1-1",
                 "text": "その",
-                "altText": "sono",
+                "altText": "sono ",
                 "startTime": 4.089,
                 "duration": 0.382
               },
               {
                 "id": "syl-1-2",
                 "text": "秘密",
-                "altText": "himitsu",
+                "altText": "himitsu ",
                 "startTime": 4.471,
                 "duration": 0.444
               },
@@ -172,21 +172,21 @@
               {
                 "id": "syl-2-0",
                 "text": "抜けてる",
-                "altText": "nuketeru",
+                "altText": "nuketeru ",
                 "startTime": 6.075,
                 "duration": 0.665
               },
               {
                 "id": "syl-2-1",
                 "text": "とこさえ",
-                "altText": "tokosae",
+                "altText": "tokosae ",
                 "startTime": 6.74,
                 "duration": 0.761
               },
               {
                 "id": "syl-2-2",
                 "text": "彼女の",
-                "altText": "kanojo no",
+                "altText": "kanojo no ",
                 "startTime": 7.501,
                 "duration": 0.601
               },
@@ -216,35 +216,35 @@
               {
                 "id": "syl-3-0",
                 "text": "完璧",
-                "altText": "kanpeki",
+                "altText": "kanpeki ",
                 "startTime": 9.291,
                 "duration": 0.709
               },
               {
                 "id": "syl-3-1",
                 "text": "で",
-                "altText": "de",
+                "altText": "de ",
                 "startTime": 10,
                 "duration": 0.259
               },
               {
                 "id": "syl-3-2",
                 "text": "嘘",
-                "altText": "uso",
+                "altText": "uso ",
                 "startTime": 10.259,
                 "duration": 0.365
               },
               {
                 "id": "syl-3-3",
                 "text": "つきな",
-                "altText": "tsukina",
+                "altText": "tsukina ",
                 "startTime": 10.624,
                 "duration": 0.488
               },
               {
                 "id": "syl-3-4",
                 "text": "君",
-                "altText": "kimi",
+                "altText": "kimi ",
                 "startTime": 11.112,
                 "duration": 0.289
               },
@@ -267,21 +267,21 @@
               {
                 "id": "syl-4-0",
                 "text": "天才",
-                "altText": "tensai",
+                "altText": "tensai ",
                 "startTime": 11.891,
                 "duration": 0.662
               },
               {
                 "id": "syl-4-1",
                 "text": "的な",
-                "altText": "teki na",
+                "altText": "teki na ",
                 "startTime": 12.553,
                 "duration": 0.616
               },
               {
                 "id": "syl-4-2",
                 "text": "アイドル",
-                "altText": "aidoru",
+                "altText": "aidoru ",
                 "startTime": 13.169,
                 "duration": 0.68
               },
@@ -304,21 +304,21 @@
               {
                 "id": "syl-5-0",
                 "text": "今日",
-                "altText": "kyou",
+                "altText": "kyou ",
                 "startTime": 17.237,
                 "duration": 0.391
               },
               {
                 "id": "syl-5-1",
                 "text": "何",
-                "altText": "nani",
+                "altText": "nani ",
                 "startTime": 17.628,
                 "duration": 0.329
               },
               {
                 "id": "syl-5-2",
                 "text": "食べ",
-                "altText": "tabe",
+                "altText": "tabe ",
                 "startTime": 17.957,
                 "duration": 0.343
               },
@@ -341,14 +341,14 @@
               {
                 "id": "syl-6-0",
                 "text": "好きな",
-                "altText": "suki na",
+                "altText": "suki na ",
                 "startTime": 18.873,
                 "duration": 0.529
               },
               {
                 "id": "syl-6-1",
                 "text": "本",
-                "altText": "hon",
+                "altText": "hon ",
                 "startTime": 19.402,
                 "duration": 0.308
               },
@@ -371,21 +371,21 @@
               {
                 "id": "syl-7-0",
                 "text": "遊びに",
-                "altText": "asobi ni",
+                "altText": "asobi ni ",
                 "startTime": 20.338,
                 "duration": 0.73
               },
               {
                 "id": "syl-7-1",
                 "text": "行くなら",
-                "altText": "iku nara",
+                "altText": "iku nara ",
                 "startTime": 21.068,
                 "duration": 0.697
               },
               {
                 "id": "syl-7-2",
                 "text": "どこに行く",
-                "altText": "doko ni iku",
+                "altText": "doko ni iku ",
                 "startTime": 21.765,
                 "duration": 0.846
               },
@@ -408,14 +408,14 @@
               {
                 "id": "syl-8-0",
                 "text": "何も",
-                "altText": "nannimo",
+                "altText": "nannimo ",
                 "startTime": 23.192,
                 "duration": 0.41
               },
               {
                 "id": "syl-8-1",
                 "text": "食べて",
-                "altText": "tabete",
+                "altText": "tabete ",
                 "startTime": 23.602,
                 "duration": 0.576
               },
@@ -438,7 +438,7 @@
               {
                 "id": "syl-9-0",
                 "text": "それは",
-                "altText": "soreha",
+                "altText": "soreha ",
                 "startTime": 24.676,
                 "duration": 0.61
               },
@@ -461,14 +461,14 @@
               {
                 "id": "syl-10-0",
                 "text": "何を",
-                "altText": "nani o",
+                "altText": "nani o ",
                 "startTime": 26.092,
                 "duration": 0.542
               },
               {
                 "id": "syl-10-1",
                 "text": "聞かれて",
-                "altText": "kikarete",
+                "altText": "kikarete ",
                 "startTime": 26.634,
                 "duration": 0.78
               },
@@ -491,7 +491,7 @@
               {
                 "id": "syl-11-0",
                 "text": "のらり",
-                "altText": "norari",
+                "altText": "norari ",
                 "startTime": 27.55,
                 "duration": 0.61
               },
@@ -514,7 +514,7 @@
               {
                 "id": "syl-12-0",
                 "text": "そう",
-                "altText": "sou",
+                "altText": "sou ",
                 "startTime": 28.757,
                 "duration": 0.52
               },
@@ -537,7 +537,7 @@
               {
                 "id": "syl-13-0",
                 "text": "だけど",
-                "altText": "dakedo",
+                "altText": "dakedo ",
                 "startTime": 30.073,
                 "duration": 0.605
               },
@@ -560,42 +560,42 @@
               {
                 "id": "syl-14-0",
                 "text": "見えそうで",
-                "altText": "miesou de",
+                "altText": "miesou de ",
                 "startTime": 31.49,
                 "duration": 0.601
               },
               {
                 "id": "syl-14-1",
                 "text": "見えない",
-                "altText": "mienai",
+                "altText": "mienai ",
                 "startTime": 32.091,
                 "duration": 0.746
               },
               {
                 "id": "syl-14-2",
                 "text": "秘密",
-                "altText": "himitsu",
+                "altText": "himitsu ",
                 "startTime": 32.837,
                 "duration": 0.297
               },
               {
                 "id": "syl-14-3",
                 "text": "は",
-                "altText": "wa",
+                "altText": "wa ",
                 "startTime": 33.134,
                 "duration": 0.433
               },
               {
                 "id": "syl-14-4",
                 "text": "蜜",
-                "altText": "mitsu",
+                "altText": "mitsu ",
                 "startTime": 33.567,
                 "duration": 0.338
               },
               {
                 "id": "syl-14-5",
                 "text": "の",
-                "altText": "no",
+                "altText": "no ",
                 "startTime": 33.905,
                 "duration": 0.185
               },
@@ -618,7 +618,7 @@
               {
                 "id": "syl-15-0",
                 "text": "あれも",
-                "altText": "aremo",
+                "altText": "aremo ",
                 "startTime": 34.487,
                 "duration": 0.479
               },
@@ -641,7 +641,7 @@
               {
                 "id": "syl-16-0",
                 "text": "これも",
-                "altText": "koremo",
+                "altText": "koremo ",
                 "startTime": 35.808,
                 "duration": 0.661
               },
@@ -664,7 +664,7 @@
               {
                 "id": "syl-17-0",
                 "text": "好きなタイプ",
-                "altText": "suki nataipu",
+                "altText": "suki nataipu ",
                 "startTime": 37.325,
                 "duration": 0.855
               },
@@ -687,7 +687,7 @@
               {
                 "id": "syl-18-0",
                 "text": "相手",
-                "altText": "aite",
+                "altText": "aite ",
                 "startTime": 38.46,
                 "duration": 0.531
               },
@@ -710,14 +710,14 @@
               {
                 "id": "syl-19-0",
                 "text": "さあ",
-                "altText": "saa",
+                "altText": "saa ",
                 "startTime": 39.122,
                 "duration": 0.348
               },
               {
                 "id": "syl-19-1",
                 "text": "答え",
-                "altText": "kotae",
+                "altText": "kotae ",
                 "startTime": 39.527,
                 "duration": 0.543
               },
@@ -747,70 +747,70 @@
               {
                 "id": "syl-20-1",
                 "text": "誰",
-                "altText": "dare",
+                "altText": "dare ",
                 "startTime": 40.445,
                 "duration": 0.426
               },
               {
                 "id": "syl-20-2",
                 "text": "か",
-                "altText": "ka",
+                "altText": "ka ",
                 "startTime": 40.871,
                 "duration": 0.177
               },
               {
                 "id": "syl-20-3",
                 "text": "を",
-                "altText": "o",
+                "altText": "o ",
                 "startTime": 41.048,
                 "duration": 0.253
               },
               {
                 "id": "syl-20-4",
                 "text": "好き",
-                "altText": "suki",
+                "altText": "suki ",
                 "startTime": 41.301,
                 "duration": 0.722
               },
               {
                 "id": "syl-20-5",
                 "text": "に",
-                "altText": "ni",
+                "altText": "ni ",
                 "startTime": 42.023,
                 "duration": 0.315
               },
               {
                 "id": "syl-20-6",
                 "text": "なる",
-                "altText": "naru",
+                "altText": "naru ",
                 "startTime": 42.338,
                 "duration": 0.414
               },
               {
                 "id": "syl-20-7",
                 "text": "こと",
-                "altText": "koto",
+                "altText": "koto ",
                 "startTime": 42.752,
                 "duration": 0.348
               },
               {
                 "id": "syl-20-8",
                 "text": "なんて",
-                "altText": "nante",
+                "altText": "nante ",
                 "startTime": 43.298,
                 "duration": 0.573
               },
               {
                 "id": "syl-20-9",
                 "text": "私",
-                "altText": "watashi",
+                "altText": "watashi ",
                 "startTime": 44.069,
                 "duration": 0.537
               },
               {
                 "id": "syl-20-10",
                 "text": "分からなくて",
-                "altText": "wakaranakute",
+                "altText": "wakaranakute ",
                 "startTime": 44.731,
                 "duration": 1.131
               },
@@ -833,42 +833,42 @@
               {
                 "id": "syl-21-0",
                 "text": "嘘",
-                "altText": "uso",
+                "altText": "uso ",
                 "startTime": 46.204,
                 "duration": 0.374
               },
               {
                 "id": "syl-21-1",
                 "text": "か",
-                "altText": "ka",
+                "altText": "ka ",
                 "startTime": 46.578,
                 "duration": 0.23
               },
               {
                 "id": "syl-21-2",
                 "text": "本",
-                "altText": "hon",
+                "altText": "hon ",
                 "startTime": 46.898,
                 "duration": 0.492
               },
               {
                 "id": "syl-21-3",
                 "text": "当",
-                "altText": "a",
+                "altText": "a ",
                 "startTime": 47.39,
                 "duration": 0.336
               },
               {
                 "id": "syl-21-4",
                 "text": "か",
-                "altText": "ka",
+                "altText": "ka ",
                 "startTime": 47.726,
                 "duration": 0.328
               },
               {
                 "id": "syl-21-5",
                 "text": "知り得な",
-                "altText": "shiri e na",
+                "altText": "shiri e na ",
                 "startTime": 48.122,
                 "duration": 0.624
               },
@@ -891,35 +891,35 @@
               {
                 "id": "syl-22-0",
                 "text": "そんな",
-                "altText": "sonna",
+                "altText": "sonna ",
                 "startTime": 49,
                 "duration": 0.655
               },
               {
                 "id": "syl-22-1",
                 "text": "言葉",
-                "altText": "kotoba",
+                "altText": "kotoba ",
                 "startTime": 49.655,
                 "duration": 1.043
               },
               {
                 "id": "syl-22-2",
                 "text": "に",
-                "altText": "ni",
+                "altText": "ni ",
                 "startTime": 50.698,
                 "duration": 0.246
               },
               {
                 "id": "syl-22-3",
                 "text": "また一人",
-                "altText": "mata hitori",
+                "altText": "mata hitori ",
                 "startTime": 51.093,
                 "duration": 0.788
               },
               {
                 "id": "syl-22-4",
                 "text": "堕ち",
-                "altText": "ochi",
+                "altText": "ochi ",
                 "startTime": 51.881,
                 "duration": 0.517
               },
@@ -942,28 +942,28 @@
               {
                 "id": "syl-23-0",
                 "text": "また",
-                "altText": "mata",
+                "altText": "mata ",
                 "startTime": 52.801,
                 "duration": 0.412
               },
               {
                 "id": "syl-23-1",
                 "text": "好き",
-                "altText": "suki",
+                "altText": "suki ",
                 "startTime": 53.362,
                 "duration": 0.455
               },
               {
                 "id": "syl-23-2",
                 "text": "に",
-                "altText": "ni",
+                "altText": "ni ",
                 "startTime": 53.875,
                 "duration": 0.203
               },
               {
                 "id": "syl-23-3",
                 "text": "させ",
-                "altText": "sase",
+                "altText": "sase ",
                 "startTime": 54.078,
                 "duration": 0.422
               },
@@ -986,42 +986,42 @@
               {
                 "id": "syl-24-0",
                 "text": "誰",
-                "altText": "dare",
+                "altText": "dare ",
                 "startTime": 54.871,
                 "duration": 0.339
               },
               {
                 "id": "syl-24-1",
                 "text": "も",
-                "altText": "mo",
+                "altText": "mo ",
                 "startTime": 55.21,
                 "duration": 0.327
               },
               {
                 "id": "syl-24-2",
                 "text": "が",
-                "altText": "ga",
+                "altText": "ga ",
                 "startTime": 55.607,
                 "duration": 0.311
               },
               {
                 "id": "syl-24-3",
                 "text": "目を",
-                "altText": "me o",
+                "altText": "me o ",
                 "startTime": 55.97,
                 "duration": 0.377
               },
               {
                 "id": "syl-24-4",
                 "text": "奪",
-                "altText": "uba",
+                "altText": "uba ",
                 "startTime": 56.347,
                 "duration": 0.321
               },
               {
                 "id": "syl-24-5",
                 "text": "われてい",
-                "altText": "waretei",
+                "altText": "waretei ",
                 "startTime": 56.668,
                 "duration": 0.67
               },
@@ -1044,42 +1044,42 @@
               {
                 "id": "syl-25-0",
                 "text": "君",
-                "altText": "kimi",
+                "altText": "kimi ",
                 "startTime": 57.747,
                 "duration": 0.488
               },
               {
                 "id": "syl-25-1",
                 "text": "は",
-                "altText": "wa",
+                "altText": "wa ",
                 "startTime": 58.235,
                 "duration": 0.322
               },
               {
                 "id": "syl-25-2",
                 "text": "完",
-                "altText": "kan",
+                "altText": "kan ",
                 "startTime": 58.557,
                 "duration": 0.312
               },
               {
                 "id": "syl-25-3",
                 "text": "璧",
-                "altText": "tama",
+                "altText": "tama ",
                 "startTime": 58.869,
                 "duration": 0.259
               },
               {
                 "id": "syl-25-4",
                 "text": "で",
-                "altText": "de",
+                "altText": "de ",
                 "startTime": 59.128,
                 "duration": 0.198
               },
               {
                 "id": "syl-25-5",
                 "text": "究極の",
-                "altText": "kyuukyoku no",
+                "altText": "kyuukyoku no ",
                 "startTime": 59.396,
                 "duration": 0.863
               },
@@ -1102,21 +1102,21 @@
               {
                 "id": "syl-26-0",
                 "text": "金輪際",
-                "altText": "kane rin kiwa",
+                "altText": "kane rin kiwa ",
                 "startTime": 61.018,
                 "duration": 0.988
               },
               {
                 "id": "syl-26-1",
                 "text": "現",
-                "altText": "arawa",
+                "altText": "arawa ",
                 "startTime": 62.006,
                 "duration": 0.813
               },
               {
                 "id": "syl-26-2",
                 "text": "れな",
-                "altText": "rena",
+                "altText": "rena ",
                 "startTime": 62.819,
                 "duration": 0.333
               },
@@ -1139,42 +1139,42 @@
               {
                 "id": "syl-27-0",
                 "text": "一",
-                "altText": "ichi",
+                "altText": "ichi ",
                 "startTime": 63.505,
                 "duration": 0.406
               },
               {
                 "id": "syl-27-1",
                 "text": "番",
-                "altText": "ban",
+                "altText": "ban ",
                 "startTime": 63.911,
                 "duration": 0.248
               },
               {
                 "id": "syl-27-2",
                 "text": "星",
-                "altText": "hoshi",
+                "altText": "hoshi ",
                 "startTime": 64.159,
                 "duration": 0.496
               },
               {
                 "id": "syl-27-3",
                 "text": "の",
-                "altText": "no",
+                "altText": "no ",
                 "startTime": 64.655,
                 "duration": 0.23
               },
               {
                 "id": "syl-27-4",
                 "text": "生まれ",
-                "altText": "umare",
+                "altText": "umare ",
                 "startTime": 64.885,
                 "duration": 0.527
               },
               {
                 "id": "syl-27-5",
                 "text": "変",
-                "altText": "hen",
+                "altText": "hen ",
                 "startTime": 65.412,
                 "duration": 0.313
               },
@@ -1197,35 +1197,35 @@
               {
                 "id": "syl-28-0",
                 "text": "その",
-                "altText": "sono",
+                "altText": "sono ",
                 "startTime": 67.31,
                 "duration": 0.411
               },
               {
                 "id": "syl-28-1",
                 "text": "笑顔",
-                "altText": "egao",
+                "altText": "egao ",
                 "startTime": 67.721,
                 "duration": 0.494
               },
               {
                 "id": "syl-28-2",
                 "text": "で",
-                "altText": "de",
+                "altText": "de ",
                 "startTime": 68.215,
                 "duration": 0.275
               },
               {
                 "id": "syl-28-3",
                 "text": "愛",
-                "altText": "ai",
+                "altText": "ai ",
                 "startTime": 68.724,
                 "duration": 0.397
               },
               {
                 "id": "syl-28-4",
                 "text": "してる",
-                "altText": "shiteru",
+                "altText": "shiteru ",
                 "startTime": 69.121,
                 "duration": 0.573
               },
@@ -1248,21 +1248,21 @@
               {
                 "id": "syl-29-0",
                 "text": "誰も彼も",
-                "altText": "daremo kare mo",
+                "altText": "daremo kare mo ",
                 "startTime": 70.028,
                 "duration": 1.235
               },
               {
                 "id": "syl-29-1",
                 "text": "虜",
-                "altText": "toriko",
+                "altText": "toriko ",
                 "startTime": 71.263,
                 "duration": 0.566
               },
               {
                 "id": "syl-29-2",
                 "text": "にしてい",
-                "altText": "nishitei",
+                "altText": "nishitei ",
                 "startTime": 71.829,
                 "duration": 0.663
               },
@@ -1285,28 +1285,28 @@
               {
                 "id": "syl-30-0",
                 "text": "その",
-                "altText": "sono",
+                "altText": "sono ",
                 "startTime": 73.013,
                 "duration": 0.437
               },
               {
                 "id": "syl-30-1",
                 "text": "瞳",
-                "altText": "hitomi",
+                "altText": "hitomi ",
                 "startTime": 73.45,
                 "duration": 0.548
               },
               {
                 "id": "syl-30-2",
                 "text": "が",
-                "altText": "ga",
+                "altText": "ga ",
                 "startTime": 73.998,
                 "duration": 0.327
               },
               {
                 "id": "syl-30-3",
                 "text": "その言葉",
-                "altText": "sono kotoba",
+                "altText": "sono kotoba ",
                 "startTime": 74.585,
                 "duration": 0.669
               },
@@ -1329,21 +1329,21 @@
               {
                 "id": "syl-31-0",
                 "text": "嘘",
-                "altText": "uso",
+                "altText": "uso ",
                 "startTime": 75.462,
                 "duration": 0.458
               },
               {
                 "id": "syl-31-1",
                 "text": "でもそれは",
-                "altText": "demosoreha",
+                "altText": "demosoreha ",
                 "startTime": 75.92,
                 "duration": 0.9
               },
               {
                 "id": "syl-31-2",
                 "text": "完全な",
-                "altText": "kanzen na",
+                "altText": "kanzen na ",
                 "startTime": 76.82,
                 "duration": 0.746
               },
@@ -1366,21 +1366,21 @@
               {
                 "id": "syl-32-0",
                 "text": "はいはい",
-                "altText": "haihai",
+                "altText": "haihai ",
                 "startTime": 78.799,
                 "duration": 0.6
               },
               {
                 "id": "syl-32-1",
                 "text": "あの子は",
-                "altText": "ano ko wa",
+                "altText": "ano ko wa ",
                 "startTime": 79.399,
                 "duration": 0.706
               },
               {
                 "id": "syl-32-2",
                 "text": "特別",
-                "altText": "tokubetsu",
+                "altText": "tokubetsu ",
                 "startTime": 80.105,
                 "duration": 0.649
               },
@@ -1403,21 +1403,21 @@
               {
                 "id": "syl-33-0",
                 "text": "我々は",
-                "altText": "wareware wa",
+                "altText": "wareware wa ",
                 "startTime": 81.632,
                 "duration": 0.842
               },
               {
                 "id": "syl-33-1",
                 "text": "ハナから",
-                "altText": "hanakara",
+                "altText": "hanakara ",
                 "startTime": 82.474,
                 "duration": 0.679
               },
               {
                 "id": "syl-33-2",
                 "text": "おまけ",
-                "altText": "omake",
+                "altText": "omake ",
                 "startTime": 83.153,
                 "duration": 0.606
               },
@@ -1440,21 +1440,21 @@
               {
                 "id": "syl-34-0",
                 "text": "お星",
-                "altText": "o hoshi",
+                "altText": "o hoshi ",
                 "startTime": 84.146,
                 "duration": 0.533
               },
               {
                 "id": "syl-34-1",
                 "text": "様の",
-                "altText": "sama no",
+                "altText": "sama no ",
                 "startTime": 84.679,
                 "duration": 0.533
               },
               {
                 "id": "syl-34-2",
                 "text": "引き立て役",
-                "altText": "hi ki ta te eki",
+                "altText": "hi ki ta te eki ",
                 "startTime": 85.212,
                 "duration": 0.997
               },
@@ -1484,28 +1484,28 @@
               {
                 "id": "syl-35-0",
                 "text": "全",
-                "altText": "zen",
+                "altText": "zen ",
                 "startTime": 87.373,
                 "duration": 0.393
               },
               {
                 "id": "syl-35-1",
                 "text": "てが",
-                "altText": "tega",
+                "altText": "tega ",
                 "startTime": 87.766,
                 "duration": 0.393
               },
               {
                 "id": "syl-35-2",
                 "text": "あの子の",
-                "altText": "ano ko no",
+                "altText": "ano ko no ",
                 "startTime": 88.159,
                 "duration": 0.631
               },
               {
                 "id": "syl-35-3",
                 "text": "お陰な",
-                "altText": "o kage na",
+                "altText": "o kage na ",
                 "startTime": 88.79,
                 "duration": 0.711
               },
@@ -1528,7 +1528,7 @@
               {
                 "id": "syl-36-0",
                 "text": "洒落",
-                "altText": "sharaku",
+                "altText": "sharaku ",
                 "startTime": 90.242,
                 "duration": 0.366
               },
@@ -1551,7 +1551,7 @@
               {
                 "id": "syl-37-0",
                 "text": "妬み嫉妬なんて",
-                "altText": "neta mi shitto nante",
+                "altText": "neta mi shitto nante ",
                 "startTime": 90.978,
                 "duration": 1.083
               },
@@ -1574,7 +1574,7 @@
               {
                 "id": "syl-38-0",
                 "text": "これはネタ",
-                "altText": "korehaneta",
+                "altText": "korehaneta ",
                 "startTime": 93.224,
                 "duration": 0.536
               },
@@ -1597,7 +1597,7 @@
               {
                 "id": "syl-39-0",
                 "text": "からこそ",
-                "altText": "karakoso",
+                "altText": "karakoso ",
                 "startTime": 94.174,
                 "duration": 0.53
               },
@@ -1620,7 +1620,7 @@
               {
                 "id": "syl-40-0",
                 "text": "完璧じゃない",
-                "altText": "kanpeki janai",
+                "altText": "kanpeki janai ",
                 "startTime": 95.358,
                 "duration": 1.051
               },
@@ -1643,7 +1643,7 @@
               {
                 "id": "syl-41-0",
                 "text": "自分を",
-                "altText": "jibun o",
+                "altText": "jibun o ",
                 "startTime": 97.406,
                 "duration": 0.521
               },
@@ -1666,14 +1666,14 @@
               {
                 "id": "syl-42-0",
                 "text": "誰よりも強い",
-                "altText": "dare yorimo tsuyoi",
+                "altText": "dare yorimo tsuyoi ",
                 "startTime": 98.593,
                 "duration": 1.209
               },
               {
                 "id": "syl-42-1",
                 "text": "君以外は",
-                "altText": "kimi igai wa",
+                "altText": "kimi igai wa ",
                 "startTime": 99.802,
                 "duration": 0.639
               },
@@ -1696,42 +1696,42 @@
               {
                 "id": "syl-43-0",
                 "text": "誰",
-                "altText": "dare",
+                "altText": "dare ",
                 "startTime": 101.129,
                 "duration": 0.348
               },
               {
                 "id": "syl-43-1",
                 "text": "も",
-                "altText": "mo",
+                "altText": "mo ",
                 "startTime": 101.477,
                 "duration": 0.247
               },
               {
                 "id": "syl-43-2",
                 "text": "が",
-                "altText": "ga",
+                "altText": "ga ",
                 "startTime": 101.843,
                 "duration": 0.288
               },
               {
                 "id": "syl-43-3",
                 "text": "信じ",
-                "altText": "shinji",
+                "altText": "shinji ",
                 "startTime": 102.159,
                 "duration": 0.621
               },
               {
                 "id": "syl-43-4",
                 "text": "崇",
-                "altText": "aga",
+                "altText": "aga ",
                 "startTime": 102.78,
                 "duration": 0.527
               },
               {
                 "id": "syl-43-5",
                 "text": "めて",
-                "altText": "mete",
+                "altText": "mete ",
                 "startTime": 103.307,
                 "duration": 0.352
               },
@@ -1754,42 +1754,42 @@
               {
                 "id": "syl-44-0",
                 "text": "まさに",
-                "altText": "masani",
+                "altText": "masani ",
                 "startTime": 104.046,
                 "duration": 0.538
               },
               {
                 "id": "syl-44-1",
                 "text": "最",
-                "altText": "motto",
+                "altText": "motto ",
                 "startTime": 104.644,
                 "duration": 0.487
               },
               {
                 "id": "syl-44-2",
                 "text": "強",
-                "altText": "tsuyo",
+                "altText": "tsuyo ",
                 "startTime": 105.131,
                 "duration": 0.397
               },
               {
                 "id": "syl-44-3",
                 "text": "で",
-                "altText": "de",
+                "altText": "de ",
                 "startTime": 105.528,
                 "duration": 0.134
               },
               {
                 "id": "syl-44-4",
                 "text": "無",
-                "altText": "bu",
+                "altText": "bu ",
                 "startTime": 105.662,
                 "duration": 0.342
               },
               {
                 "id": "syl-44-5",
                 "text": "敵の",
-                "altText": "kataki no",
+                "altText": "kataki no ",
                 "startTime": 106.004,
                 "duration": 0.539
               },
@@ -1812,28 +1812,28 @@
               {
                 "id": "syl-45-0",
                 "text": "弱点",
-                "altText": "jakuten",
+                "altText": "jakuten ",
                 "startTime": 107.278,
                 "duration": 0.639
               },
               {
                 "id": "syl-45-1",
                 "text": "なんて",
-                "altText": "nante",
+                "altText": "nante ",
                 "startTime": 107.917,
                 "duration": 0.62
               },
               {
                 "id": "syl-45-2",
                 "text": "見",
-                "altText": "mi",
+                "altText": "mi ",
                 "startTime": 108.537,
                 "duration": 0.226
               },
               {
                 "id": "syl-45-3",
                 "text": "当たら",
-                "altText": "a tara",
+                "altText": "a tara ",
                 "startTime": 108.905,
                 "duration": 0.504
               },
@@ -1856,28 +1856,28 @@
               {
                 "id": "syl-46-0",
                 "text": "一番",
-                "altText": "ichiban",
+                "altText": "ichiban ",
                 "startTime": 109.796,
                 "duration": 0.738
               },
               {
                 "id": "syl-46-1",
                 "text": "星を",
-                "altText": "hoshi o",
+                "altText": "hoshi o ",
                 "startTime": 110.534,
                 "duration": 0.603
               },
               {
                 "id": "syl-46-2",
                 "text": "宿",
-                "altText": "yado",
+                "altText": "yado ",
                 "startTime": 111.137,
                 "duration": 0.635
               },
               {
                 "id": "syl-46-3",
                 "text": "してい",
-                "altText": "shitei",
+                "altText": "shitei ",
                 "startTime": 111.772,
                 "duration": 0.592
               },
@@ -1900,42 +1900,42 @@
               {
                 "id": "syl-47-0",
                 "text": "弱い",
-                "altText": "yowai",
+                "altText": "yowai ",
                 "startTime": 112.885,
                 "duration": 0.455
               },
               {
                 "id": "syl-47-1",
                 "text": "と",
-                "altText": "to",
+                "altText": "to ",
                 "startTime": 113.423,
                 "duration": 0.263
               },
               {
                 "id": "syl-47-2",
                 "text": "こ",
-                "altText": "ko",
+                "altText": "ko ",
                 "startTime": 113.769,
                 "duration": 0.337
               },
               {
                 "id": "syl-47-3",
                 "text": "なん",
-                "altText": "nan",
+                "altText": "nan ",
                 "startTime": 114.106,
                 "duration": 0.258
               },
               {
                 "id": "syl-47-4",
                 "text": "て",
-                "altText": "te",
+                "altText": "te ",
                 "startTime": 114.364,
                 "duration": 0.229
               },
               {
                 "id": "syl-47-5",
                 "text": "見せちゃ",
-                "altText": "mi secha",
+                "altText": "mi secha ",
                 "startTime": 114.649,
                 "duration": 0.578
               },
@@ -1958,28 +1958,28 @@
               {
                 "id": "syl-48-0",
                 "text": "知り",
-                "altText": "shiri",
+                "altText": "shiri ",
                 "startTime": 115.957,
                 "duration": 0.624
               },
               {
                 "id": "syl-48-1",
                 "text": "たく",
-                "altText": "taku",
+                "altText": "taku ",
                 "startTime": 116.581,
                 "duration": 0.589
               },
               {
                 "id": "syl-48-2",
                 "text": "ない",
-                "altText": "nai",
+                "altText": "nai ",
                 "startTime": 117.17,
                 "duration": 0.322
               },
               {
                 "id": "syl-48-3",
                 "text": "とこは",
-                "altText": "tokoha",
+                "altText": "tokoha ",
                 "startTime": 117.492,
                 "duration": 0.629
               },
@@ -2002,28 +2002,28 @@
               {
                 "id": "syl-49-0",
                 "text": "唯一",
-                "altText": "yuiitsu",
+                "altText": "yuiitsu ",
                 "startTime": 118.909,
                 "duration": 0.643
               },
               {
                 "id": "syl-49-1",
                 "text": "無二",
-                "altText": "bu ni",
+                "altText": "bu ni ",
                 "startTime": 119.552,
                 "duration": 0.532
               },
               {
                 "id": "syl-49-2",
                 "text": "じゃ",
-                "altText": "ja",
+                "altText": "ja ",
                 "startTime": 120.084,
                 "duration": 0.287
               },
               {
                 "id": "syl-49-3",
                 "text": "なくちゃ",
-                "altText": "nakucha",
+                "altText": "nakucha ",
                 "startTime": 120.462,
                 "duration": 0.545
               },
@@ -2053,28 +2053,28 @@
               {
                 "id": "syl-50-0",
                 "text": "そ",
-                "altText": "so",
+                "altText": "so ",
                 "startTime": 121.777,
                 "duration": 0.307
               },
               {
                 "id": "syl-50-1",
                 "text": "れ",
-                "altText": "re",
+                "altText": "re ",
                 "startTime": 122.084,
                 "duration": 0.349
               },
               {
                 "id": "syl-50-2",
                 "text": "こそ",
-                "altText": "koso",
+                "altText": "koso ",
                 "startTime": 122.433,
                 "duration": 0.506
               },
               {
                 "id": "syl-50-3",
                 "text": "本物の",
-                "altText": "honmono no",
+                "altText": "honmono no ",
                 "startTime": 122.939,
                 "duration": 0.902
               },
@@ -2097,35 +2097,35 @@
               {
                 "id": "syl-51-0",
                 "text": "得意の",
-                "altText": "tokui no",
+                "altText": "tokui no ",
                 "startTime": 125.12,
                 "duration": 0.753
               },
               {
                 "id": "syl-51-1",
                 "text": "笑",
-                "altText": "wara",
+                "altText": "wara ",
                 "startTime": 125.873,
                 "duration": 0.236
               },
               {
                 "id": "syl-51-2",
                 "text": "顔",
-                "altText": "kao",
+                "altText": "kao ",
                 "startTime": 126.109,
                 "duration": 0.415
               },
               {
                 "id": "syl-51-3",
                 "text": "で",
-                "altText": "de",
+                "altText": "de ",
                 "startTime": 126.524,
                 "duration": 0.099
               },
               {
                 "id": "syl-51-4",
                 "text": "沸かす",
-                "altText": "wakasu",
+                "altText": "wakasu ",
                 "startTime": 126.623,
                 "duration": 0.459
               },
@@ -2155,35 +2155,35 @@
               {
                 "id": "syl-52-0",
                 "text": "隠",
-                "altText": "kaku",
+                "altText": "kaku ",
                 "startTime": 128.27,
                 "duration": 0.352
               },
               {
                 "id": "syl-52-1",
                 "text": "しきる",
-                "altText": "shikiru",
+                "altText": "shikiru ",
                 "startTime": 128.622,
                 "duration": 0.647
               },
               {
                 "id": "syl-52-2",
                 "text": "この",
-                "altText": "kono",
+                "altText": "kono ",
                 "startTime": 129.269,
                 "duration": 0.347
               },
               {
                 "id": "syl-52-3",
                 "text": "秘密",
-                "altText": "himitsu",
+                "altText": "himitsu ",
                 "startTime": 129.616,
                 "duration": 0.575
               },
               {
                 "id": "syl-52-4",
                 "text": "だけ",
-                "altText": "dake",
+                "altText": "dake ",
                 "startTime": 130.191,
                 "duration": 0.495
               },
@@ -2213,7 +2213,7 @@
               {
                 "id": "syl-53-1",
                 "text": "るっ",
-                "altText": "ruっ",
+                "altText": "ruっ ",
                 "startTime": 131.909,
                 "duration": 0.308
               },
@@ -2264,28 +2264,28 @@
               {
                 "id": "syl-54-0",
                 "text": "これこそ",
-                "altText": "korekoso",
+                "altText": "korekoso ",
                 "startTime": 134.733,
                 "duration": 0.65
               },
               {
                 "id": "syl-54-1",
                 "text": "私",
-                "altText": "watashi",
+                "altText": "watashi ",
                 "startTime": 135.383,
                 "duration": 0.656
               },
               {
                 "id": "syl-54-2",
                 "text": "なりの",
-                "altText": "narino",
+                "altText": "narino ",
                 "startTime": 136.039,
                 "duration": 0.535
               },
               {
                 "id": "syl-54-3",
                 "text": "愛",
-                "altText": "ai",
+                "altText": "ai ",
                 "startTime": 136.574,
                 "duration": 0.5
               },
@@ -2322,7 +2322,7 @@
               {
                 "id": "syl-55-2",
                 "text": "綺麗な",
-                "altText": "綺 uruwa na",
+                "altText": "綺 uruwa na ",
                 "startTime": 139.383,
                 "duration": 0.431
               },
@@ -2396,21 +2396,21 @@
               {
                 "id": "syl-57-0",
                 "text": "歌い",
-                "altText": "uta i",
+                "altText": "uta i ",
                 "startTime": 143.965,
                 "duration": 0.615
               },
               {
                 "id": "syl-57-1",
                 "text": "踊り舞う",
-                "altText": "odori mau",
+                "altText": "odori mau ",
                 "startTime": 144.58,
                 "duration": 0.941
               },
               {
                 "id": "syl-57-2",
                 "text": "私は",
-                "altText": "watashi wa",
+                "altText": "watashi wa ",
                 "startTime": 145.521,
                 "duration": 0.724
               },
@@ -2440,28 +2440,28 @@
               {
                 "id": "syl-58-0",
                 "text": "そう",
-                "altText": "sou",
+                "altText": "sou ",
                 "startTime": 147.515,
                 "duration": 0.404
               },
               {
                 "id": "syl-58-1",
                 "text": "嘘",
-                "altText": "uso",
+                "altText": "uso ",
                 "startTime": 147.919,
                 "duration": 0.308
               },
               {
                 "id": "syl-58-2",
                 "text": "はとびきりの",
-                "altText": "hatobikirino",
+                "altText": "hatobikirino ",
                 "startTime": 148.227,
                 "duration": 1.235
               },
               {
                 "id": "syl-58-3",
                 "text": "愛",
-                "altText": "ai",
+                "altText": "ai ",
                 "startTime": 149.462,
                 "duration": 0.363
               },
@@ -2484,42 +2484,42 @@
               {
                 "id": "syl-59-0",
                 "text": "誰",
-                "altText": "dare",
+                "altText": "dare ",
                 "startTime": 151.484,
                 "duration": 0.321
               },
               {
                 "id": "syl-59-1",
                 "text": "かに",
-                "altText": "kani",
+                "altText": "kani ",
                 "startTime": 151.805,
                 "duration": 0.609
               },
               {
                 "id": "syl-59-2",
                 "text": "愛",
-                "altText": "ai",
+                "altText": "ai ",
                 "startTime": 152.414,
                 "duration": 0.334
               },
               {
                 "id": "syl-59-3",
                 "text": "さ",
-                "altText": "sa",
+                "altText": "sa ",
                 "startTime": 152.748,
                 "duration": 0.295
               },
               {
                 "id": "syl-59-4",
                 "text": "れた",
-                "altText": "reta",
+                "altText": "reta ",
                 "startTime": 153.162,
                 "duration": 0.543
               },
               {
                 "id": "syl-59-5",
                 "text": "こと",
-                "altText": "koto",
+                "altText": "koto ",
                 "startTime": 153.705,
                 "duration": 0.4
               },
@@ -2542,49 +2542,49 @@
               {
                 "id": "syl-60-0",
                 "text": "誰",
-                "altText": "dare",
+                "altText": "dare ",
                 "startTime": 154.473,
                 "duration": 0.393
               },
               {
                 "id": "syl-60-1",
                 "text": "か",
-                "altText": "ka",
+                "altText": "ka ",
                 "startTime": 154.866,
                 "duration": 0.285
               },
               {
                 "id": "syl-60-2",
                 "text": "のこ",
-                "altText": "noko",
+                "altText": "noko ",
                 "startTime": 155.264,
                 "duration": 0.375
               },
               {
                 "id": "syl-60-3",
                 "text": "と",
-                "altText": "to",
+                "altText": "to ",
                 "startTime": 155.639,
                 "duration": 0.348
               },
               {
                 "id": "syl-60-4",
                 "text": "愛",
-                "altText": "ai",
+                "altText": "ai ",
                 "startTime": 156.05,
                 "duration": 0.302
               },
               {
                 "id": "syl-60-5",
                 "text": "したこと",
-                "altText": "shitakoto",
+                "altText": "shitakoto ",
                 "startTime": 156.352,
                 "duration": 0.793
               },
               {
                 "id": "syl-60-6",
                 "text": "も",
-                "altText": "mo",
+                "altText": "mo ",
                 "startTime": 157.145,
                 "duration": 0.3
               },
@@ -2607,70 +2607,70 @@
               {
                 "id": "syl-61-0",
                 "text": "そんな",
-                "altText": "sonna",
+                "altText": "sonna ",
                 "startTime": 157.883,
                 "duration": 0.6
               },
               {
                 "id": "syl-61-1",
                 "text": "私",
-                "altText": "watashi",
+                "altText": "watashi ",
                 "startTime": 158.538,
                 "duration": 0.936
               },
               {
                 "id": "syl-61-2",
                 "text": "の",
-                "altText": "no",
+                "altText": "no ",
                 "startTime": 159.474,
                 "duration": 0.354
               },
               {
                 "id": "syl-61-3",
                 "text": "嘘",
-                "altText": "uso",
+                "altText": "uso ",
                 "startTime": 159.828,
                 "duration": 0.316
               },
               {
                 "id": "syl-61-4",
                 "text": "が",
-                "altText": "ga",
+                "altText": "ga ",
                 "startTime": 160.144,
                 "duration": 0.315
               },
               {
                 "id": "syl-61-5",
                 "text": "いつ",
-                "altText": "itsu",
+                "altText": "itsu ",
                 "startTime": 160.483,
                 "duration": 0.436
               },
               {
                 "id": "syl-61-6",
                 "text": "か",
-                "altText": "ka",
+                "altText": "ka ",
                 "startTime": 160.919,
                 "duration": 0.232
               },
               {
                 "id": "syl-61-7",
                 "text": "本",
-                "altText": "hon",
+                "altText": "hon ",
                 "startTime": 161.287,
                 "duration": 0.365
               },
               {
                 "id": "syl-61-8",
                 "text": "当",
-                "altText": "a",
+                "altText": "a ",
                 "startTime": 161.652,
                 "duration": 0.434
               },
               {
                 "id": "syl-61-9",
                 "text": "になるこ",
-                "altText": "ninaruko",
+                "altText": "ninaruko ",
                 "startTime": 162.086,
                 "duration": 1.094
               },
@@ -2693,7 +2693,7 @@
               {
                 "id": "syl-62-0",
                 "text": "信",
-                "altText": "shin",
+                "altText": "shin ",
                 "startTime": 163.766,
                 "duration": 0.534
               },
@@ -2716,35 +2716,35 @@
               {
                 "id": "syl-63-0",
                 "text": "いつか",
-                "altText": "itsuka",
+                "altText": "itsuka ",
                 "startTime": 164.947,
                 "duration": 0.525
               },
               {
                 "id": "syl-63-1",
                 "text": "きっと",
-                "altText": "kitto",
+                "altText": "kitto ",
                 "startTime": 165.472,
                 "duration": 0.697
               },
               {
                 "id": "syl-63-2",
                 "text": "全部",
-                "altText": "zenbu",
+                "altText": "zenbu ",
                 "startTime": 166.169,
                 "duration": 0.53
               },
               {
                 "id": "syl-63-3",
                 "text": "手に",
-                "altText": "te ni",
+                "altText": "te ni ",
                 "startTime": 166.699,
                 "duration": 0.558
               },
               {
                 "id": "syl-63-4",
                 "text": "入れ",
-                "altText": "i re",
+                "altText": "i re ",
                 "startTime": 167.257,
                 "duration": 0.357
               },
@@ -2767,21 +2767,21 @@
               {
                 "id": "syl-64-0",
                 "text": "私",
-                "altText": "watashi",
+                "altText": "watashi ",
                 "startTime": 167.997,
                 "duration": 0.688
               },
               {
                 "id": "syl-64-1",
                 "text": "はそう",
-                "altText": "hasou",
+                "altText": "hasou ",
                 "startTime": 168.685,
                 "duration": 0.724
               },
               {
                 "id": "syl-64-2",
                 "text": "欲張りな",
-                "altText": "yokubari na",
+                "altText": "yokubari na ",
                 "startTime": 169.409,
                 "duration": 0.951
               },
@@ -2811,28 +2811,28 @@
               {
                 "id": "syl-65-0",
                 "text": "等身",
-                "altText": "tou mi",
+                "altText": "tou mi ",
                 "startTime": 171.217,
                 "duration": 0.68
               },
               {
                 "id": "syl-65-1",
                 "text": "大",
-                "altText": "dai",
+                "altText": "dai ",
                 "startTime": 171.897,
                 "duration": 0.404
               },
               {
                 "id": "syl-65-2",
                 "text": "で",
-                "altText": "de",
+                "altText": "de ",
                 "startTime": 172.301,
                 "duration": 0.148
               },
               {
                 "id": "syl-65-3",
                 "text": "みんなの",
-                "altText": "minnano",
+                "altText": "minnano ",
                 "startTime": 172.449,
                 "duration": 0.617
               },
@@ -2855,49 +2855,49 @@
               {
                 "id": "syl-66-0",
                 "text": "ちゃん",
-                "altText": "chan",
+                "altText": "chan ",
                 "startTime": 173.763,
                 "duration": 0.374
               },
               {
                 "id": "syl-66-1",
                 "text": "と",
-                "altText": "to",
+                "altText": "to ",
                 "startTime": 174.137,
                 "duration": 0.211
               },
               {
                 "id": "syl-66-2",
                 "text": "愛",
-                "altText": "ai",
+                "altText": "ai ",
                 "startTime": 174.481,
                 "duration": 0.617
               },
               {
                 "id": "syl-66-3",
                 "text": "し",
-                "altText": "shi",
+                "altText": "shi ",
                 "startTime": 175.144,
                 "duration": 0.209
               },
               {
                 "id": "syl-66-4",
                 "text": "た",
-                "altText": "ta",
+                "altText": "ta ",
                 "startTime": 175.353,
                 "duration": 0.261
               },
               {
                 "id": "syl-66-5",
                 "text": "い",
-                "altText": "i",
+                "altText": "i ",
                 "startTime": 175.724,
                 "duration": 0.215
               },
               {
                 "id": "syl-66-6",
                 "text": "か",
-                "altText": "ka",
+                "altText": "ka ",
                 "startTime": 176.104,
                 "duration": 0.201
               },
@@ -2920,21 +2920,21 @@
               {
                 "id": "syl-67-0",
                 "text": "今日",
-                "altText": "kyou",
+                "altText": "kyou ",
                 "startTime": 176.681,
                 "duration": 0.363
               },
               {
                 "id": "syl-67-1",
                 "text": "も",
-                "altText": "mo",
+                "altText": "mo ",
                 "startTime": 177.044,
                 "duration": 0.285
               },
               {
                 "id": "syl-67-2",
                 "text": "嘘をつく",
-                "altText": "uso otsuku",
+                "altText": "uso otsuku ",
                 "startTime": 177.623,
                 "duration": 0.825
               },
@@ -2992,7 +2992,7 @@
               {
                 "id": "syl-68-5",
                 "text": "願っ",
-                "altText": "nega っ",
+                "altText": "nega っ ",
                 "startTime": 182.228,
                 "duration": 0.399
               },
@@ -3015,21 +3015,21 @@
               {
                 "id": "syl-69-0",
                 "text": "それ",
-                "altText": "sore",
+                "altText": "sore ",
                 "startTime": 183.313,
                 "duration": 0.364
               },
               {
                 "id": "syl-69-1",
                 "text": "でも",
-                "altText": "demo",
+                "altText": "demo ",
                 "startTime": 183.677,
                 "duration": 0.365
               },
               {
                 "id": "syl-69-2",
                 "text": "ま",
-                "altText": "ma",
+                "altText": "ma ",
                 "startTime": 184.042,
                 "duration": 0.205
               },
@@ -3052,56 +3052,56 @@
               {
                 "id": "syl-70-0",
                 "text": "君",
-                "altText": "kimi",
+                "altText": "kimi ",
                 "startTime": 184.782,
                 "duration": 0.208
               },
               {
                 "id": "syl-70-1",
                 "text": "と",
-                "altText": "to",
+                "altText": "to ",
                 "startTime": 184.99,
                 "duration": 0.147
               },
               {
                 "id": "syl-70-2",
                 "text": "君",
-                "altText": "kimi",
+                "altText": "kimi ",
                 "startTime": 185.203,
                 "duration": 0.351
               },
               {
                 "id": "syl-70-3",
                 "text": "にだけは",
-                "altText": "nidakeha",
+                "altText": "nidakeha ",
                 "startTime": 185.554,
                 "duration": 0.833
               },
               {
                 "id": "syl-70-4",
                 "text": "言えずに",
-                "altText": "i ezuni",
+                "altText": "i ezuni ",
                 "startTime": 186.387,
                 "duration": 0.591
               },
               {
                 "id": "syl-70-5",
                 "text": "い",
-                "altText": "i",
+                "altText": "i ",
                 "startTime": 186.978,
                 "duration": 0.211
               },
               {
                 "id": "syl-70-6",
                 "text": "た",
-                "altText": "ta",
+                "altText": "ta ",
                 "startTime": 187.318,
                 "duration": 0.251
               },
               {
                 "id": "syl-70-7",
                 "text": "け",
-                "altText": "ke",
+                "altText": "ke ",
                 "startTime": 187.688,
                 "duration": 0.152
               },
@@ -3124,7 +3124,7 @@
               {
                 "id": "syl-71-0",
                 "text": "やっ",
-                "altText": "yaっ",
+                "altText": "yaっ ",
                 "startTime": 189.2,
                 "duration": 0.249
               },
@@ -3161,21 +3161,21 @@
               {
                 "id": "syl-72-0",
                 "text": "これは絶",
-                "altText": "koreha ta",
+                "altText": "koreha ta ",
                 "startTime": 190.55,
                 "duration": 0.899
               },
               {
                 "id": "syl-72-1",
                 "text": "対",
-                "altText": "tai",
+                "altText": "tai ",
                 "startTime": 191.449,
                 "duration": 0.305
               },
               {
                 "id": "syl-72-2",
                 "text": "嘘",
-                "altText": "uso",
+                "altText": "uso ",
                 "startTime": 191.754,
                 "duration": 0.476
               },
@@ -3198,14 +3198,14 @@
               {
                 "id": "syl-73-0",
                 "text": "愛",
-                "altText": "ai",
+                "altText": "ai ",
                 "startTime": 192.733,
                 "duration": 0.625
               },
               {
                 "id": "syl-73-1",
                 "text": "して",
-                "altText": "shite",
+                "altText": "shite ",
                 "startTime": 193.358,
                 "duration": 0.324
               },

@@ -1577,7 +1577,7 @@ export function createSongEditorView({
               syllables: (line.syllables || []).map((syl, sIdx) => ({
                 id: syl.id || `syl-${lIdx}-${sIdx}`,
                 text: syl.text || '',
-                altText: String(syl.altText || syl.romaji || '').trim(),
+                altText: String(syl.altText || syl.romaji || ''),
                 startTime: Number(syl.startTime) || 0,
                 duration: Number(syl.duration) || 0.3
               }))

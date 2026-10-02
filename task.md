@@ -526,6 +526,25 @@
   - Creada suite `tests/lyrics/transliterationHelper.test.js` con 15 pruebas unitarias y añadida prueba de integración en `tests/services/onlineLyricsService.test.js` con la canción "YOASOBI - Idol" (20 suites, 155 pruebas pasando al 100%).
   - Compilación de producción con `npm run build` verificada sin errores.
 
+---
+
+## Fase 23: Corrección de Congelamiento en Barra de Progreso y Espacios en Letras Alternativas (Romaji)
+
+- [x] **23.1. Corrección de Congelamiento en Barra de Progreso (`src/views/controlsView.js`):**
+  - Sustituida la comprobación de foco persistente en el DOM (`document.activeElement !== seekSlider`) por una bandera reactiva de interacción de usuario `isUserSeeking`.
+  - Capturados eventos `pointerdown`, `mousedown`, `touchstart`, `pointerup`, `mouseup`, `touchend`, `input` y `change` con desenfoque (`seekSlider.blur()`) al completar la búsqueda.
+  - El icono y thumb de progreso avanzan inmediatamente al reproducir tras cualquier salto o clic sobre la barra sin necesidad de pausar.
+- [x] **23.2. Preservación y Reconstrucción de Espacios en Letras Alternativas (`src/views/basicViewer.js`):**
+  - Implementada la función `getSyllableAltTextsWithSpacing(line)` para alinear y restaurar con precisión los espacios entre palabras a partir de `line.altText` en la frase actual activa.
+  - Actualizados `renderLineAltContent` y `getLineAltText` para renderizar los spans de sílabas (`.syllable`) preservando todos los espacios intermedios (`display: inline; white-space: pre-wrap;`), garantizando paridad total con las frases siguientes (evitando aglutinaciones como `muteki noegaodearasumedia` y mostrando `muteki no egao de arasu media`).
+- [x] **23.3. Preservación de Espacios en Validación y Editor (`src/services/schemaValidator.js`, `src/views/songEditorView.js`, `yoasobi_idol.json`):**
+  - Eliminado `.trim()` destructivo sobre `syl.altText` en `normalizeLines` (`schemaValidator.js`) y en el guardado de canciones del editor (`songEditorView.js`), impidiendo la pérdida de espacios finales en sílabas intencionales.
+  - Sincronizado `yoasobi_idol.json` con el espaciado silábico adecuado en sus 74 versos.
+- [x] **23.4. Pruebas Automatizadas y Verificación de Compilación:**
+  - Añadidas pruebas unitarias en `tests/views/controlsView.test.js` y `tests/views/basicViewer.test.js` (20 suites, 158 pruebas pasando al 100%).
+  - Compilación de producción con `npm run build` verificada exitosamente.
+
+
 
 
 

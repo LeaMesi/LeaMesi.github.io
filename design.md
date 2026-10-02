@@ -476,6 +476,10 @@ La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj M
 * **Persistencia Local:** El nivel de volumen preferido del usuario se almacena en `localStorage` (`saranga_player_volume`), manteniéndose constante entre canciones, recargas de página y sesiones.
 * **Control en Barra de Controles (`controlsView.js`):** Slider interactivo estilizado (`.volume-slider`) con botón mute/unmute que conmuta entre silencio y el volumen anterior.
 
+### 4.2. Barra de Progreso y Búsqueda Continua (Seek Slider Interaction Model)
+* **Gestión de Interacción sin Congelamiento:** Para evitar que el thumb de la barra de progreso quede estático tras hacer clic o arrastrar en la línea de tiempo (problema causado por la retención persistente de foco en navegadores sobre elementos `<input type="range">`), `controlsView.js` gestiona la barra con la bandera de interacción activa `isUserSeeking`.
+* **Ciclo de Eventos:** Eventos `pointerdown`, `mousedown`, `touchstart` e `input` activan `isUserSeeking = true`. Al soltar el control (`change`, `pointerup`, `mouseup`, `touchend`), se apaga la bandera y se desenfoca el elemento (`seekSlider.blur()`), permitiendo que el Master Clock continúe actualizando `seekSlider.value` en cada fotograma (`requestAnimationFrame`) de forma ininterrumpida sin necesidad de pausar.
+
 En ambos orígenes de audio, el **Sincronizador de Letras** consume un único valor normalizado: `currentTime` en segundos.
 
 ---
@@ -523,6 +527,9 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
 * **Resaltado Sílaba a Sílaba / Palabra por Palabra sin Espacios Extra:**
   * Descompone los versos activos en elementos `<span>` continuos e inline (`display: inline; white-space: pre-wrap;`) concatenados de forma contigua (`join('')`), eliminando saltos de línea intermedios y evitando la inserción de espacios espurios en el DOM.
   * Sin transformaciones de escala artificiales (`transform: scale` removido de `.syllable.is-active-syl`), garantizando que la tipografía y el espaciado original permanezcan fidedignos y que únicamente se resalten con color de acento (`--text-active`) y brillo (`text-shadow`).
+* **Preservación y Alineación de Espacios en Letras Alternativas (Romaji / altText):**
+  * Para garantizar que la frase que se está cantando en ese momento (`isCurrent = true`) mantenga exactamente la misma estructura de palabras y espacios que las frases siguientes (`upcoming`), `basicViewer.js` ejecuta `getSyllableAltTextsWithSpacing(line)`.
+  * Este algoritmo alinea la secuencia silábica con `line.altText`, restaurando con precisión milimétrica los espacios intermedios y puntuaciones entre palabras (`white-space: pre-wrap;`), erradicando cualquier aglutinación fonética (ej. `muteki noegaodearasumedia` se transforma fielmente en `muteki no egao de arasu media`) y sincronizando el brillo activo de canto de cada segmento sin alterar la separación tipográfica.
 * **Consumo de recursos:** Extremadamente bajo, optimizado para cualquier dispositivo móvil o de escritorio sin sobrecarga gráfica.
 
 ### 5.2. Modo Avanzado (`AdvancedModeViewer`)

@@ -142,4 +142,30 @@ describe('views/controlsView.js', () => {
     const updatedTransGroup = container.querySelector('.translation-group')
     expect(updatedTransGroup.style.display).not.toBe('none')
   })
+
+  it('actualiza el valor de seek-slider con setTime tras hacer clic o buscar en la barra de progreso sin quedarse quieto', () => {
+    const onSeek = vi.fn()
+    const controls = createControlsView({ containerElement: container, onSeek })
+    controls.render()
+    controls.setDuration(200)
+
+    const seekSlider = container.querySelector('.seek-slider')
+    expect(seekSlider).not.toBeNull()
+
+    // 1. Simular clic/arrastre de búsqueda
+    seekSlider.focus()
+    seekSlider.value = '50'
+    seekSlider.dispatchEvent(new Event('input'))
+    seekSlider.dispatchEvent(new Event('change'))
+
+    expect(onSeek).toHaveBeenCalledWith(50)
+
+    // 2. setTime debe actualizar seekSlider a 55 aunque haya tenido foco
+    controls.setTime(55)
+    expect(seekSlider.value).toBe('55')
+
+    // 3. Continuar avanzando a 60
+    controls.setTime(60)
+    expect(seekSlider.value).toBe('60')
+  })
 })

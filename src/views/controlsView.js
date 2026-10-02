@@ -38,6 +38,7 @@ export function createControlsView({
   let isPlaying = false
   let duration = 0
   let currentTime = 0
+  let isUserSeeking = false
   let currentVolume = Math.max(0, Math.min(100, Number(initialVolume) || 80))
   let previousVolume = currentVolume > 0 ? currentVolume : 80
   let currentTrackType = TRACK_TYPE.OFFICIAL
@@ -204,16 +205,38 @@ export function createControlsView({
 
     const seekSlider = containerElement.querySelector('.seek-slider')
     if (seekSlider) {
+      const startSeek = () => {
+        isUserSeeking = true
+      }
+      const endSeek = () => {
+        if (isUserSeeking) {
+          isUserSeeking = false
+          const val = Number(seekSlider.value)
+          if (onSeek) onSeek(val)
+          seekSlider.blur()
+        }
+      }
+
+      seekSlider.addEventListener('pointerdown', startSeek)
+      seekSlider.addEventListener('mousedown', startSeek)
+      seekSlider.addEventListener('touchstart', startSeek, { passive: true })
+
       seekSlider.addEventListener('input', (e) => {
+        isUserSeeking = true
         const val = Number(e.target.value)
         currentTime = val
         const curEl = containerElement.querySelector('.current-time')
         if (curEl) curEl.textContent = formatTime(Math.max(0, val))
       })
       seekSlider.addEventListener('change', (e) => {
+        isUserSeeking = false
         const val = Number(e.target.value)
         if (onSeek) onSeek(val)
+        seekSlider.blur()
       })
+      seekSlider.addEventListener('pointerup', endSeek)
+      seekSlider.addEventListener('mouseup', endSeek)
+      seekSlider.addEventListener('touchend', endSeek)
     }
 
     const volumeSlider = containerElement.querySelector('.volume-slider')
@@ -369,7 +392,7 @@ export function createControlsView({
     const curEl = containerElement.querySelector('.current-time')
     if (curEl) curEl.textContent = formatTime(Math.max(0, time))
     const seekSlider = containerElement.querySelector('.seek-slider')
-    if (seekSlider && document.activeElement !== seekSlider) {
+    if (seekSlider && !isUserSeeking) {
       seekSlider.value = Math.max(0, time)
     }
   }

@@ -70,6 +70,81 @@ export function createBasicViewer(containerElement, options = {}) {
     `
   }
 
+  function getSyllableAltTextsWithSpacing(line) {
+    if (!line || !Array.isArray(line.syllables) || line.syllables.length === 0) return []
+    const syls = line.syllables
+    const lineAlt = (typeof line.altText === 'string' && line.altText.trim())
+      ? line.altText.trim()
+      : ((typeof line.romaji === 'string' && line.romaji.trim()) ? line.romaji.trim() : '')
+
+    if (lineAlt) {
+      let altIndex = 0
+      const result = []
+
+      for (let i = 0; i < syls.length; i++) {
+        const s = syls[i]
+        const rawAlt = s.altText || s.romaji || s.text || ''
+        const sRaw = rawAlt.trim()
+
+        if (!sRaw) {
+          result.push(rawAlt)
+          continue
+        }
+
+        // Si la sílaba ya incluye explícitamente espacio al final, respetarlo
+        if (rawAlt.endsWith(' ')) {
+          result.push(rawAlt)
+          const found = lineAlt.toLowerCase().indexOf(sRaw.toLowerCase(), altIndex)
+          if (found !== -1) {
+            altIndex = found + sRaw.length
+            while (altIndex < lineAlt.length && lineAlt[altIndex] === ' ') altIndex++
+          }
+          continue
+        }
+
+        const foundPos = lineAlt.toLowerCase().indexOf(sRaw.toLowerCase(), altIndex)
+        if (foundPos === -1) {
+          const nextSyl = syls[i + 1]
+          const needsSpace = i < syls.length - 1 && (!nextSyl || !(nextSyl.altText || nextSyl.romaji || '').startsWith(' '))
+          result.push(sRaw + (needsSpace ? ' ' : ''))
+          continue
+        }
+
+        const prefix = lineAlt.slice(altIndex, foundPos)
+        const matchedText = lineAlt.slice(foundPos, foundPos + sRaw.length)
+        const endPos = foundPos + sRaw.length
+        altIndex = endPos
+
+        let trailingSpace = ''
+        if (i < syls.length - 1) {
+          while (altIndex < lineAlt.length && lineAlt[altIndex] === ' ') {
+            trailingSpace += ' '
+            altIndex++
+          }
+        } else {
+          if (altIndex < lineAlt.length) {
+            trailingSpace = lineAlt.slice(altIndex)
+            altIndex = lineAlt.length
+          }
+        }
+
+        result.push(prefix + matchedText + trailingSpace)
+      }
+
+      return result
+    }
+
+    return syls.map((s, idx) => {
+      const rawAlt = s.altText || s.romaji || s.text || ''
+      if (rawAlt.endsWith(' ')) return rawAlt
+      const nextSyl = syls[idx + 1]
+      if (nextSyl && !(nextSyl.altText || nextSyl.romaji || '').startsWith(' ')) {
+        return rawAlt + ' '
+      }
+      return rawAlt
+    })
+  }
+
   function getLineAltText(line) {
     if (!line) return ''
     if (typeof line.altText === 'string' && line.altText.trim()) return line.altText
@@ -77,7 +152,7 @@ export function createBasicViewer(containerElement, options = {}) {
     if (Array.isArray(line.syllables) && line.syllables.length > 0) {
       const hasAnySylAlt = line.syllables.some(s => (s.altText && s.altText.trim()) || (s.romaji && s.romaji.trim()))
       if (hasAnySylAlt) {
-        return line.syllables.map(s => s.altText || s.romaji || s.text || '').join('')
+        return getSyllableAltTextsWithSpacing(line).join('')
       }
     }
     return ''
@@ -104,8 +179,12 @@ export function createBasicViewer(containerElement, options = {}) {
 
     if (isCurrent) {
       if (Array.isArray(line.syllables) && line.syllables.length > 0 && line.syllables.some(s => s.altText || s.romaji)) {
+        const spacedAltTexts = getSyllableAltTextsWithSpacing(line)
         return line.syllables
-          .map((syl, sIdx) => `<span class="syllable" data-syl="${sIdx}">${escapeHtml(syl.altText || syl.romaji || syl.text || '')}</span>`)
+          .map((syl, sIdx) => {
+            const sylText = spacedAltTexts[sIdx] ?? (syl.altText || syl.romaji || syl.text || '')
+            return `<span class="syllable" data-syl="${sIdx}">${escapeHtml(sylText)}</span>`
+          })
           .join('')
       }
       return `<span class="plain-active-line">${escapeHtml(altText)}</span>`

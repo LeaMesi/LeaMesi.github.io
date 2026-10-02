@@ -140,4 +140,58 @@ describe('views/basicViewer.js', () => {
 
     expect(onSeekLine).toHaveBeenCalledWith(10.0) // startTime de la segunda frase
   })
+
+  it('preserva los espacios entre palabras en la frase activa para letras alternativas (Romaji)', () => {
+    const viewer = createBasicViewer(container, { initialScriptDisplayMode: 'both' })
+    const jpLines = [
+      {
+        id: 'jp1',
+        startTime: 0,
+        endTime: 4,
+        text: '無敵の笑顔で荒らすメディア',
+        altText: 'muteki no egao de arasu media',
+        syllables: [
+          { text: '無敵の', altText: 'muteki no', startTime: 0, duration: 0.8 },
+          { text: '笑顔', altText: 'egao', startTime: 0.8, duration: 0.5 },
+          { text: 'で', altText: 'de', startTime: 1.3, duration: 0.2 },
+          { text: '荒らす', altText: 'arasu', startTime: 1.5, duration: 0.4 },
+          { text: 'メディ', altText: 'medi', startTime: 1.9, duration: 0.5 },
+          { text: 'ア', altText: 'a', startTime: 2.4, duration: 0.4 }
+        ]
+      },
+      {
+        id: 'jp2',
+        startTime: 4,
+        endTime: 8,
+        text: '知りたいその秘密ミステリアス',
+        altText: 'shiritai sono himitsu misuteriasu',
+        syllables: [
+          { text: '知りたい', altText: 'shiritai', startTime: 4, duration: 0.6 },
+          { text: 'その', altText: 'sono', startTime: 4.6, duration: 0.4 },
+          { text: '秘密', altText: 'himitsu', startTime: 5.0, duration: 0.5 },
+          { text: 'ミス', altText: 'misu', startTime: 5.5, duration: 0.4 },
+          { text: 'テリ', altText: 'teri', startTime: 5.9, duration: 0.4 },
+          { text: 'アス', altText: 'asu', startTime: 6.3, duration: 0.4 }
+        ]
+      }
+    ]
+
+    viewer.setLyrics({ lines: jpLines })
+
+    // Frase activa 0
+    const activeAlt = container.querySelector('#active-line-alt')
+    expect(activeAlt).not.toBeNull()
+    // El texto resultante debe tener exactamente todos los espacios, y no estar pegado
+    expect(activeAlt.textContent).toBe('muteki no egao de arasu media')
+
+    // Frase siguiente (previsualización)
+    const upcomingAlt = container.querySelector('.upcoming-phrase-item .lyric-line-alt')
+    expect(upcomingAlt).not.toBeNull()
+    expect(upcomingAlt.textContent).toBe('shiritai sono himitsu misuteriasu')
+
+    // Al avanzar a la frase 2 (tiempo 4.5s)
+    viewer.updateTime(4.5)
+    const newActiveAlt = container.querySelector('#active-line-alt')
+    expect(newActiveAlt.textContent).toBe('shiritai sono himitsu misuteriasu')
+  })
 })
