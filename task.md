@@ -494,8 +494,11 @@
   - Badges de procedencia `.badge-source-lrcred` con acento rojo carmesí de marca (`#ef4444` / `#f87171`) y estilo de pestaña activa `.tab-prov-lrcred.is-active`.
   - Placeholder e indicadores de ayuda actualizados en "Todas las Fuentes" reflejando la consulta simultánea a los 4 motores de búsqueda con tope de 6 por fuente.
 - [x] **21.4. Pruebas Automatizadas y Validación de Compilación:**
-  - Actualizadas suites de prueba `tests/services/onlineLyricsService.test.js` y `tests/views/onlineLyricsModal.test.js` con 4 nuevas pruebas automáticas (total 138 pruebas, 100% pasando).
+  - Actualizadas suites de prueba `tests/services/onlineLyricsService.test.js` y `tests/views/onlineLyricsModal.test.js` con 5 nuevas pruebas automáticas (total 139 pruebas, 100% pasando).
   - Compilación de producción con `npm run build` verificada sin errores.
+- [x] **21.5. Corrección del Estado de Importación y Botones Deshabilitados (`src/views/onlineLyricsModal.js`):**
+  - Incorporado bloque `finally` en `handleSelectSong` para garantizar que `isImporting` y `activeLoadingItemId` se restablezcan a `false` y `null` tras una carga exitosa.
+  - Asegurado el restablecimiento de estado en las funciones `open()` y `close()` del modal para permitir que el usuario busque y cargue canciones consecutivas sin que los botones queden permanentemente deshabilitados.
 
 
 

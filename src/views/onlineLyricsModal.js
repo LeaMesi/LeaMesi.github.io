@@ -71,6 +71,9 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
 
   function open() {
     isOpen = true
+    isImporting = false
+    activeLoadingItemId = null
+    isSearching = false
     statusMessage = ''
     geniusTokenInputVal = getGeniusToken()
     render()
@@ -79,6 +82,8 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
 
   function close() {
     isOpen = false
+    isImporting = false
+    activeLoadingItemId = null
     statusMessage = ''
     render()
   }
@@ -261,9 +266,10 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
       console.error('Error al procesar letra seleccionada:', err)
       statusMessage = 'No se pudo cargar la letra: ' + (err.message || err)
       statusType = 'error'
+      render()
+    } finally {
       isImporting = false
       activeLoadingItemId = null
-      render()
     }
   }
 
@@ -328,7 +334,7 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
             </button>
           </div>
           <p class="search-hint-text">
-            Consulta en paralelo todos los motores (máx. 6 por fuente) y unifica los resultados con su etiqueta de procedencia.
+            Consulta en todas las fuentes a la vez (max 6 resultados).
           </p>
         </div>
       `
