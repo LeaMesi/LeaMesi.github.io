@@ -1,4 +1,6 @@
 import { saveSong } from '../services/songService.js'
+import { exportSongPackage } from '../services/shareService.js'
+import { exportLanguageToLyricsfile } from '../services/lyricsfileService.js'
 import { formatTime } from '../lyrics/timing.js'
 import { splitPhraseIntoSyllables, splitPhraseIntoWords, autoDistributeSyllables } from '../lyrics/syllablesHelper.js'
 import {
@@ -14,7 +16,8 @@ import {
   iconFileText,
   iconChevronUp,
   iconChevronDown,
-  iconMic
+  iconMic,
+  iconDownload
 } from './icons.js'
 
 export function createSongEditorView({
@@ -431,6 +434,12 @@ export function createSongEditorView({
           <div class="editor-header-actions">
             <button class="btn btn-outline btn-sm btn-open-quick-import" title="Importar o pegar letra completa de un tirón">
               ${iconFileText} Pegar Letra Completa
+            </button>
+            <button class="btn btn-outline btn-sm" id="btn-editor-export-json" title="Exportar paquete de canción JSON (copia de seguridad)">
+              ${iconDownload} JSON
+            </button>
+            <button class="btn btn-outline btn-sm" id="btn-editor-export-yaml" title="Exportar al estándar Lyricsfile (.yaml)">
+              ${iconDownload} Lyricsfile
             </button>
             <button class="btn btn-primary btn-sm" id="btn-save-song" title="Guardar cambios en tu biblioteca local (IndexedDB)">
               ${iconSave} Guardar Canción
@@ -1448,6 +1457,37 @@ export function createSongEditorView({
       })
     }
 
+    // Exportar JSON desde el editor
+    const editorExportJsonBtn = containerElement.querySelector('#btn-editor-export-json')
+    if (editorExportJsonBtn) {
+      editorExportJsonBtn.addEventListener('click', async () => {
+        try {
+          const songId = await handleSaveSong(false)
+          if (!songId) return
+          await exportSongPackage(songId)
+          showStatus('Paquete de canción JSON descargado con éxito.', 'success')
+        } catch (err) {
+          showStatus('Error al exportar JSON: ' + err.message, 'error')
+        }
+      })
+    }
+
+    // Exportar YAML desde el editor
+    const editorExportYamlBtn = containerElement.querySelector('#btn-editor-export-yaml')
+    if (editorExportYamlBtn) {
+      editorExportYamlBtn.addEventListener('click', async () => {
+        try {
+          const songId = await handleSaveSong(false)
+          if (!songId) return
+          const activeLang = getActiveLanguage()
+          await exportLanguageToLyricsfile(songId, activeLang?.code || null)
+          showStatus('Archivo .lyricsfile.yaml descargado con éxito.', 'success')
+        } catch (err) {
+          showStatus('Error al exportar YAML: ' + err.message, 'error')
+        }
+      })
+    }
+
     // 8. Guardar Canción
     const saveSongBtn = containerElement.querySelector('#btn-save-song')
     if (saveSongBtn) {
@@ -1476,7 +1516,7 @@ export function createSongEditorView({
       if (details) details.open = true
       const titleInput = containerElement.querySelector('#input-song-title')
       if (titleInput) titleInput.focus()
-      return
+      return null
     }
 
     try {
@@ -1534,9 +1574,12 @@ export function createSongEditorView({
       if (enterLyricsAfter && onEnterLyricsMode) {
         onEnterLyricsMode(savedId)
       }
+
+      return savedId
     } catch (err) {
       console.error('Error al guardar la canción:', err)
       showStatus('Error al guardar la canción: ' + err.message, 'error')
+      return null
     }
   }
 

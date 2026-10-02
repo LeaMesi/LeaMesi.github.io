@@ -144,8 +144,19 @@ export function createControlsView({
           </div>
 
           <div class="center-controls">
+            <!-- Selector de Frases Siguientes (0 a 3) -->
+            <div class="selector-group preview-lines-group" title="Cantidad de frases siguientes visibles debajo de la actual">
+              <label for="preview-lines-select">Siguientes:</label>
+              <select id="preview-lines-select" class="select-input select-small">
+                <option value="0" ${previewLinesCount === 0 ? 'selected' : ''}>Ninguna (solo actual)</option>
+                <option value="1" ${previewLinesCount === 1 ? 'selected' : ''}>1 frase</option>
+                <option value="2" ${previewLinesCount === 2 ? 'selected' : ''}>2 frases</option>
+                <option value="3" ${previewLinesCount === 3 ? 'selected' : ''}>3 frases</option>
+              </select>
+            </div>
+
             <!-- Selector de Escritura / Alternativo (Caracteres vs Romaji) -->
-            <div class="selector-group script-selector-group" title="Modo de visualización de texto original y alternativo (Romaji)">
+            <div class="selector-group script-selector-group" title="Modo de visualización de texto original y alternativo (Romaji)" ${!hasAltText ? 'style="display: none;"' : ''}>
               <label for="script-select">Texto:</label>
               <select id="script-select" class="select-input select-small" ${!hasAltText ? 'disabled' : ''}>
                 <option value="both" ${scriptDisplayMode === 'both' ? 'selected' : ''}>Caracteres + Alternativo</option>
@@ -155,21 +166,10 @@ export function createControlsView({
             </div>
 
             <!-- Selector de Traducción -->
-            <div class="selector-group translation-group" title="Seleccionar subtítulo de traducción en cursiva">
+            <div class="selector-group translation-group" title="Seleccionar subtítulo de traducción en cursiva" ${translations.length === 0 ? 'style="display: none;"' : ''}>
               <label for="trans-select">Traducción:</label>
               <select id="trans-select" class="select-input select-small" ${translations.length === 0 ? 'disabled' : ''}>
                 ${translationsHtml}
-              </select>
-            </div>
-
-            <!-- Selector de Frases Siguientes (0 a 3) -->
-            <div class="selector-group preview-lines-group" title="Cantidad de frases siguientes visibles debajo de la actual">
-              <label for="preview-lines-select">Siguientes:</label>
-              <select id="preview-lines-select" class="select-input select-small">
-                <option value="0" ${previewLinesCount === 0 ? 'selected' : ''}>Ninguna (solo actual)</option>
-                <option value="1" ${previewLinesCount === 1 ? 'selected' : ''}>1 frase</option>
-                <option value="2" ${previewLinesCount === 2 ? 'selected' : ''}>2 frases</option>
-                <option value="3" ${previewLinesCount === 3 ? 'selected' : ''}>3 frases</option>
               </select>
             </div>
           </div>

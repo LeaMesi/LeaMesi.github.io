@@ -455,6 +455,28 @@
   - Ejecución integral de 19 suites de prueba (131 pruebas automáticas) concluidas exitosamente al 100%.
   - Compilación de producción con `npm run build` verificada sin errores.
 
+---
+
+## Fase 20: Refinamiento de UI y Ergonomía del Flujo de Trabajo
+
+- [x] **20.1. Reubicación de Botones de Respaldo Individual (JSON / Lyricsfile):**
+  - Eliminados los botones `.btn-export-json` y `.btn-export-yaml` de las tarjetas de canciones en el menú general (`src/views/songMenuView.js`, tanto en modo cuadrícula como en modo lista) para limpiar la interfaz y evitar sobrecarga visual.
+  - Reubicados en el encabezado del editor de canciones (`src/views/songEditorView.js`), posicionados a la derecha de "Pegar Letra Completa" y antes de "Guardar Canción".
+  - Cableado de persistencia previa con `handleSaveSong` antes de la exportación para asegurar que cualquier cambio sin guardar se incluya en el paquete exportado.
+- [x] **20.2. Corrección de Desbordamiento en Tarjetas de Cuadrícula:**
+  - Corregido el bug visual donde el botón "Entrar a Modo Letra" (`.btn-enter-lyrics`) se salía del contenedor en `.song-menu-card`.
+  - Añadido `overflow: hidden;` y `box-sizing: border-box;` en `.song-menu-card`.
+  - Añadido `flex-wrap: wrap;` en `.card-header` y `min-width: 0; word-break: break-word;` en `.card-title-group` y `.card-title`.
+  - Añadido `max-width: 100%; text-overflow: ellipsis; overflow: hidden;` en `.btn-enter-lyrics`.
+  - Ajustadas las columnas responsive de `.card-footer-actions` y `.list-col-actions` a 2 columnas para una distribución equilibrada.
+- [x] **20.3. Ergonomía en los Controles de Modo Letra (`src/views/controlsView.js`):**
+  - Reordenado el grupo central de controles (`.center-controls`) para que el selector "Siguientes:" (`.preview-lines-group`) ocupe siempre la primera posición.
+  - Ocultamiento dinámico (`display: none`) del selector "Texto:" (`.script-selector-group`) cuando la canción activa no cuenta con texto alternativo (`!hasAltText`).
+  - Ocultamiento dinámico (`display: none`) del selector "Traducción:" (`.translation-group`) cuando no hay pistas de traducción adicionales (`translations.length === 0`).
+- [x] **20.4. Pruebas y Verificación:**
+  - Actualizadas las suites `tests/views/songMenuView.test.js`, `tests/views/songEditorView.test.js` y `tests/views/controlsView.test.js` con 3 nuevas pruebas específicas (total 134 pruebas, 100% pasando).
+  - Compilación de Vite (`npm run build`) concluida con éxito.
+
 
 
 

@@ -92,4 +92,31 @@ describe('views/songEditorView.js', () => {
 
     expect(onGoToMenu).toHaveBeenCalled()
   })
+
+  it('renderiza los botones de exportación JSON y Lyricsfile en el encabezado del editor en la posición correcta', () => {
+    const editor = createSongEditorView({ containerElement: container })
+    editor.open(sampleSong)
+
+    const exportJsonBtn = container.querySelector('#btn-editor-export-json')
+    const exportYamlBtn = container.querySelector('#btn-editor-export-yaml')
+    const quickImportBtn = container.querySelector('.btn-open-quick-import')
+    const saveSongBtn = container.querySelector('#btn-save-song')
+
+    expect(exportJsonBtn).not.toBeNull()
+    expect(exportYamlBtn).not.toBeNull()
+    expect(exportJsonBtn.textContent).toContain('JSON')
+    expect(exportYamlBtn.textContent).toContain('Lyricsfile')
+
+    // Verificar orden: a la derecha de Pegar Letra Completa y antes de Guardar Canción
+    const headerActions = container.querySelector('.editor-header-actions')
+    const children = Array.from(headerActions.children)
+    const quickIdx = children.indexOf(quickImportBtn)
+    const jsonIdx = children.indexOf(exportJsonBtn)
+    const yamlIdx = children.indexOf(exportYamlBtn)
+    const saveIdx = children.indexOf(saveSongBtn)
+
+    expect(quickIdx).toBeLessThan(jsonIdx)
+    expect(jsonIdx).toBeLessThan(yamlIdx)
+    expect(yamlIdx).toBeLessThan(saveIdx)
+  })
 })

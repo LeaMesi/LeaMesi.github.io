@@ -105,4 +105,41 @@ describe('views/controlsView.js', () => {
 
     expect(onScriptDisplayModeChange).toHaveBeenCalledWith('alt')
   })
+
+  it('posiciona el selector de frases siguientes en primer lugar y oculta texto/traducción cuando no aplican', () => {
+    const controls = createControlsView({ containerElement: container })
+    controls.render()
+
+    const centerControls = container.querySelector('.center-controls')
+    const children = Array.from(centerControls.children)
+
+    // 1. Selector 'siguientes' debe ser el primer hijo
+    const previewGroup = container.querySelector('.preview-lines-group')
+    expect(children[0]).toBe(previewGroup)
+
+    // 2. Sin altText ni traducciones por defecto, texto y traducción deben estar ocultos (display: none)
+    const scriptGroup = container.querySelector('.script-selector-group')
+    const transGroup = container.querySelector('.translation-group')
+
+    expect(scriptGroup.style.display).toBe('none')
+    expect(transGroup.style.display).toBe('none')
+
+    // 3. Al activar hasAltText, el selector de texto debe hacerse visible
+    controls.setScriptState({ hasAltText: true, mode: 'both' })
+    const updatedScriptGroup = container.querySelector('.script-selector-group')
+    expect(updatedScriptGroup.style.display).not.toBe('none')
+
+    // 4. Al proveer traducciones disponibles, el selector de traducción debe hacerse visible
+    controls.setLanguagesState({
+      languages: [
+        { code: 'es', name: 'Español', isMain: true },
+        { code: 'en', name: 'English', isMain: false }
+      ],
+      active: { code: 'es' },
+      translation: null,
+      bilingual: false
+    })
+    const updatedTransGroup = container.querySelector('.translation-group')
+    expect(updatedTransGroup.style.display).not.toBe('none')
+  })
 })

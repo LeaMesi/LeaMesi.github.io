@@ -1,6 +1,6 @@
 import { listSongs, deleteSong } from '../services/songService.js'
-import { exportSongPackage, importSongPackage, exportLibraryBackup, importLibraryBackup } from '../services/shareService.js'
-import { exportLanguageToLyricsfile, importLyricsfileAsNewSong } from '../services/lyricsfileService.js'
+import { importSongPackage, exportLibraryBackup, importLibraryBackup } from '../services/shareService.js'
+import { importLyricsfileAsNewSong } from '../services/lyricsfileService.js'
 import {
   iconPlus,
   iconEdit,
@@ -133,12 +133,6 @@ export function createSongMenuView({
                 <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
                   ${iconEdit} Editar
                 </button>
-                <button class="btn btn-xs btn-outline btn-export-json" data-song-id="${song.id}" title="Exportar paquete de canción JSON">
-                  JSON
-                </button>
-                <button class="btn btn-xs btn-outline btn-export-yaml" data-song-id="${song.id}" title="Exportar al estándar Lyricsfile (.yaml)">
-                  Lyricsfile
-                </button>
                 <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la biblioteca">
                   ${iconTrash}
                 </button>
@@ -182,12 +176,6 @@ export function createSongMenuView({
             <div class="card-footer-actions">
               <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
                 ${iconEdit} Editar
-              </button>
-              <button class="btn btn-xs btn-outline btn-export-json" data-song-id="${song.id}" title="Exportar paquete de canción JSON">
-                JSON
-              </button>
-              <button class="btn btn-xs btn-outline btn-export-yaml" data-song-id="${song.id}" title="Exportar al estándar Lyricsfile (.yaml)">
-                Lyricsfile
               </button>
               <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la biblioteca">
                 ${iconTrash} Eliminar
@@ -422,35 +410,7 @@ export function createSongMenuView({
       })
     })
 
-    // Exportar JSON
-    const exportJsonButtons = containerElement.querySelectorAll('.btn-export-json')
-    exportJsonButtons.forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        try {
-          await exportSongPackage(songId)
-          showStatus('Paquete de canción JSON descargado con éxito.', 'success')
-        } catch (err) {
-          showStatus('Error al exportar JSON: ' + err.message, 'error')
-        }
-      })
-    })
 
-    // Exportar YAML
-    const exportYamlButtons = containerElement.querySelectorAll('.btn-export-yaml')
-    exportYamlButtons.forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        try {
-          await exportLanguageToLyricsfile(songId)
-          showStatus('Archivo .lyricsfile.yaml descargado con éxito.', 'success')
-        } catch (err) {
-          showStatus('Error al exportar YAML: ' + err.message, 'error')
-        }
-      })
-    })
 
     // Eliminar canción
     const deleteButtons = containerElement.querySelectorAll('.btn-delete-song')

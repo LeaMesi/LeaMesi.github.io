@@ -74,4 +74,19 @@ describe('views/songMenuView.js', () => {
     searchOnlineBtn.click()
     expect(onSearchOnlineLyrics).toHaveBeenCalled()
   })
+
+  it('no muestra los botones de exportación individual (JSON/Lyricsfile) en las tarjetas de la lista ni de la grilla', async () => {
+    const menu = createSongMenuView({ containerElement: container })
+    await menu.refresh()
+
+    // Modo cuadrícula
+    expect(container.querySelectorAll('.btn-export-json').length).toBe(0)
+    expect(container.querySelectorAll('.btn-export-yaml').length).toBe(0)
+
+    // Modo lista
+    const listBtn = container.querySelector('#btn-view-list')
+    listBtn.click()
+    expect(container.querySelectorAll('.btn-export-json').length).toBe(0)
+    expect(container.querySelectorAll('.btn-export-yaml').length).toBe(0)
+  })
 })

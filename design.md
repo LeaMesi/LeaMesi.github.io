@@ -1,7 +1,7 @@
 # Diseño Técnico y Arquitectura: SarangaBaranga (`proy-letras`)
 
 > **Arquitectura del Sistema y Patrones de Software**  
-> **Versión:** 2.5.0  
+> **Versión:** 2.6.0  
 > **Plataforma:** SPA Estática (GitHub Pages / `usuario.github.io`) + Persistencia Local en Navegador (IndexedDB), Intercambio JSON & Compatibilidad con Estándar Abierto `lyricsfile` (.lyricsfile.yaml) (+ Catálogo Opcional Supabase Read-Only a futuro)
 
 ---
@@ -693,6 +693,27 @@ graph TD
 2. **Persistencia Local en Memoria (`fake-indexeddb`):** Todas las pruebas de almacenamiento (`db.js`, `songService.js`, `shareService.js`, `lyricsfileService.js`) se ejecutan contra una implementación en memoria de IndexedDB que soporta Object Stores, índices compuestos y transacciones atómicas idénticas a las del navegador real.
 3. **Simulación DOM Ligera (`happy-dom`):** Ejecución ultrarrápida (sub-2 segundos para la totalidad de la suite) que reproduce eventos estándar del DOM (`click`, `input`, `change`, `submit`), `localStorage`, `document.documentElement.style` y manipulación de elementos.
 4. **Verificación Continua de Compilación:** La regla del sistema estipula que `npm test` y `npm run build` deben ejecutarse y concluir con código de salida 0 en cada ciclo de desarrollo.
+
+---
+
+## 12. Ergonomía de Interfaz y Arquitectura de Controles (v2.6.0)
+
+Para garantizar un espacio de trabajo despejado y minimizar la sobrecarga cognitiva en los distintos contextos de uso, la plataforma implementa los siguientes patrones de jerarquía y contención visual:
+
+### 12.1. Desacoplamiento de Respaldo: Menú Limpio vs. Editor Especializado
+* **Menú General Despejado (`songMenuView.js`):** Las tarjetas de catálogo (tanto en vista de cuadrícula como en filas de lista) preservan únicamente las acciones primarias: entrar a cantar (`.btn-enter-lyrics`), editar (`.btn-edit-song`), eliminar (`.btn-delete-song`) y configurar videos (`.btn-manage-videos`). Los botones de respaldo individual ("JSON" y "Lyricsfile") fueron removidos para evitar aglomeración.
+* **Respaldo Integrado en el Editor (`songEditorView.js`):** La exportación individual se traslada a la barra superior del editor (`.editor-header-actions`), posicionada estratégicamente entre el pegado rápido de letra y el botón de guardar. Al pulsar sobre "JSON" o "Lyricsfile", el editor ejecuta primero un guardado automático atómico (`handleSaveSong(false)`) para asegurar que el paquete descargado contenga las modificaciones y tiempos recién introducidos.
+
+### 12.2. Robustez de Contención en Tarjetas de Cuadrícula (`src/style.css`)
+* **Prevención de Desbordamiento:** `.song-menu-card` incorpora `overflow: hidden;` y `box-sizing: border-box;`.
+* **Alineación Flex Multilínea:** `.card-header` adopta `flex-wrap: wrap; gap: 12px;`, permitiendo que títulos extensos y el botón de acción principal coexistan fluidamente.
+* **Compresión Defensiva del Texto:** `.card-title-group` implementa `flex: 1 1 180px; min-width: 0; word-break: break-word; overflow-wrap: break-word;`, eliminando el comportamiento rígido donde el ancho intrínseco del texto forzaba a `.btn-enter-lyrics` a desbordarse fuera de la tarjeta.
+* **Límites de Botón:** `.btn-enter-lyrics` restringe su tamaño con `max-width: 100%; box-sizing: border-box; text-overflow: ellipsis; overflow: hidden;`.
+
+### 12.3. Jerarquía y Ocultamiento Inteligente de Controles (`controlsView.js`)
+* **Prioridad Incondicional del Selector "Siguientes":** Ubicado permanentemente en la **primera posición** de `.center-controls` (`.preview-lines-group`). Esto asegura que incluso cuando las opciones lingüísticas adicionales no apliquen a la canción en reproducción, el selector de cantidad de versos siguientes (0 a 3) conserve una posición estable y predecible.
+* **Ocultamiento Condicional de "Texto" (`.script-selector-group`):** Si la pista activa no contiene texto alternativo o fonético (ej. canciones sin caracteres Kanji o sin Romaji, `!hasAltText`), el contenedor se oculta dinámicamente (`display: none`), evitando controles inoperantes.
+* **Ocultamiento Condicional de "Traducción" (`.translation-group`):** Si la canción solo cuenta con su idioma original (`translations.length === 0`), el selector de traducción se oculta por completo (`display: none`) para mantener la barra limpia y enfocada.
 
 
 

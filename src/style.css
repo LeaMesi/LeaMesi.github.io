@@ -1342,6 +1342,8 @@ input[type="number"] {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .song-menu-card:hover {
@@ -1355,10 +1357,14 @@ input[type="number"] {
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .card-title-group {
-  flex: 1;
+  flex: 1 1 180px;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .card-title {
@@ -1366,12 +1372,16 @@ input[type="number"] {
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.25;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .card-artist {
   font-size: 0.9rem;
   color: var(--text-muted);
   margin-top: 4px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .btn-enter-lyrics {
@@ -1382,6 +1392,11 @@ input[type="number"] {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   color: var(--primary-contrast, #fff);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .btn-enter-lyrics:hover {
@@ -3541,7 +3556,7 @@ input[type="number"] {
 
   .card-footer-actions {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 6px;
   }
 
@@ -3576,14 +3591,14 @@ input[type="number"] {
   .list-col-actions {
     flex: 1 1 100%;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 6px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-top: 10px;
   }
 
   .list-col-actions .btn-enter-lyrics {
-    grid-column: span 4;
+    grid-column: span 2;
   }
 
   /* Editor de Canciones en Móvil */
@@ -4034,10 +4049,12 @@ input[type="number"] {
     flex-direction: row !important;
     align-items: center !important;
     gap: 8px !important;
+    flex-wrap: wrap !important;
   }
 
   .btn-enter-lyrics {
     width: auto !important;
+    max-width: 100% !important;
     min-height: 32px !important;
     font-size: 0.8rem !important;
     padding: 4px 10px !important;
