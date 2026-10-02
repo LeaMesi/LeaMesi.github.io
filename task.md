@@ -342,6 +342,39 @@
   - Preservación del 100% de los identificadores de eventos (`data-song-id`, clic en fila para reproducir, atajos de edición y exportación).
   - Adaptación responsive para pantallas medianas y móviles con envoltura fluida.
 
+---
+
+## Fase 16: Adaptación Completa para Teléfonos Móviles (Vertical y Horizontal) y Coexistencia PC
+
+- [x] **16.1. Soporte de Viewport y Áreas Seguras (`index.html`, `src/style.css`):**
+  - Añadido `viewport-fit=cover` en la metaetiqueta viewport de [`index.html`](file:///home/hezztia/Documents/SarangaBaranga/index.html).
+  - Variables CSS para safe areas (`--safe-top`, `--safe-bottom`, `--safe-left`, `--safe-right`) y altura dinámica moderna (`100dvh`) en `#app` y `body`.
+  - Regla global de prevención de zoom indeseado en iOS Safari (`font-size: 16px` en inputs/selects).
+  - Áreas táctiles mínimas $\ge 40\text{px} - 46\text{px}$ para pantallas touch (`@media (hover: none) and (pointer: coarse)`).
+- [x] **16.2. Encabezado Global Responsivo (`src/main.js`, `src/style.css`):**
+  - Identificador de pantalla activa en `appContainer.dataset.screen` (`menu`, `lyrics`, `editor`).
+  - Ocultamiento del título duplicado en el header en modo menú para pantallas móviles.
+  - Modo ultra-delgado en apaisado ($38\text{px}$ de altura) con alineación en línea de título de canción y acciones compactas.
+- [x] **16.3. Menú de Canciones Adaptable en Móvil (`src/style.css`):**
+  - Modo Vertical: cuadrícula a 1 columna (`grid-template-columns: 1fr`), botones de acción principales en cuadrícula 2x2, botón "Entrar a Modo Letra" de ancho completo, filas de lista apiladas limpiamente.
+  - Modo Horizontal: cuadrícula a 2 columnas (`grid-template-columns: repeat(2, 1fr)`), cabecera compacta y desplazamiento suave.
+- [x] **16.4. Escenario de Letras con Tipografía Fluida y Dock Colapsable (`src/views/controlsView.js`, `src/style.css`):**
+  - Tipografía responsiva fluida mediante `clamp(1.35rem, 5.5vw, 2.2rem)` para frase activa y escala adaptativa de traducciones y frases siguientes.
+  - Dock en vertical: 2 filas limpias (Fila 1: barra de avance con thumb de $22\text{px}$; Fila 2: play, volumen, selector de video, traducciones y edición).
+  - Dock en horizontal: ultra-delgado ($48\text{px}$) con elementos horizontales optimizados.
+  - Modo Inmersivo de Pantalla Completa: botón para colapsar/ocultar el dock (`btn-dock-collapse`) y botón flotante discreto (`btn-dock-floating-expand`) para restaurarlo con 1 toque.
+- [x] **16.5. Editor de Canciones en Teléfonos Móviles (`src/style.css`):**
+  - Asistente de audio fijado de forma compacta en la parte superior con reloj `mm:ss.mmm` y botones de captura accesibles sin colisionar con el teclado virtual.
+  - Tarjetas de frases y chips de sílabas con botones táctiles y campos de tiempo ordenados.
+  - Pestañas de idiomas con desplazamiento horizontal táctil (`-webkit-overflow-scrolling: touch`).
+- [x] **16.6. Modales del Sistema Responsivos (`src/style.css`):**
+  - Dimensionado flexible `95vw` / `90dvh` en vertical y `96vw` / `94dvh` en horizontal para modales de Búsqueda Online, Temas, Videos y Atajos.
+  - Cabeceras y pies fijos con scroll interno continuo.
+- [x] **16.7. Verificación de Compilación y Preservación de PC:**
+  - Compilación verificada con `npm run build` sin errores.
+  - 100% de los estilos y maquetación de PC ($\ge 1025\text{px}$) intactos y sin alteraciones.
+
+
 
 
 

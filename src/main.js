@@ -21,6 +21,8 @@ async function initApp() {
   const appContainer = document.querySelector('#app')
   if (!appContainer) return
 
+  if (appContainer) appContainer.dataset.screen = 'menu'
+
   // 1. Estructura HTML base de la aplicación
   appContainer.innerHTML = `
     <!-- Encabezado Global -->
@@ -40,7 +42,7 @@ async function initApp() {
           ${iconPalette} Temas
         </button>
         <button class="btn btn-outline btn-sm btn-header-nav" id="btn-header-back-menu" style="display: none;">
-          ${iconArrowLeft} Menú de Canciones
+          ${iconArrowLeft} <span class="nav-text-full">Menú de Canciones</span><span class="nav-text-short">Menú</span>
         </button>
       </div>
     </header>
@@ -268,6 +270,7 @@ async function initApp() {
   // 10. Alternar Pantallas (Menú vs Letra vs Editor)
   function showMenuScreen() {
     currentScreen = 'menu'
+    if (appContainer) appContainer.dataset.screen = 'menu'
     mediaPlayer.pause()
 
     if (menuScreenEl) menuScreenEl.style.display = 'block'
@@ -275,7 +278,7 @@ async function initApp() {
     if (editorScreenEl) editorScreenEl.style.display = 'none'
     if (btnHeaderBackMenu) {
       btnHeaderBackMenu.style.display = 'none'
-      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} Menú de Canciones`
+      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} <span class="nav-text-full">Menú de Canciones</span><span class="nav-text-short">Menú</span>`
     }
 
     if (headerTitleEl) headerTitleEl.textContent = 'Menú de Selección de Canciones'
@@ -286,13 +289,14 @@ async function initApp() {
 
   function showLyricsScreen() {
     currentScreen = 'lyrics'
+    if (appContainer) appContainer.dataset.screen = 'lyrics'
 
     if (menuScreenEl) menuScreenEl.style.display = 'none'
     if (lyricsScreenEl) lyricsScreenEl.style.display = 'flex'
     if (editorScreenEl) editorScreenEl.style.display = 'none'
     if (btnHeaderBackMenu) {
       btnHeaderBackMenu.style.display = 'inline-flex'
-      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} Menú de Canciones`
+      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} <span class="nav-text-full">Menú de Canciones</span><span class="nav-text-short">Menú</span>`
     }
 
     if (currentSong) {
@@ -305,6 +309,7 @@ async function initApp() {
 
   function showEditorScreen(songToEdit = null) {
     currentScreen = 'editor'
+    if (appContainer) appContainer.dataset.screen = 'editor'
     mediaPlayer.pause()
 
     if (menuScreenEl) menuScreenEl.style.display = 'none'
@@ -312,7 +317,7 @@ async function initApp() {
     if (editorScreenEl) editorScreenEl.style.display = 'flex'
     if (btnHeaderBackMenu) {
       btnHeaderBackMenu.style.display = 'inline-flex'
-      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} Volver al Menú`
+      btnHeaderBackMenu.innerHTML = `${iconArrowLeft} <span class="nav-text-full">Volver al Menú</span><span class="nav-text-short">Menú</span>`
     }
 
     if (headerTitleEl) {

@@ -581,4 +581,35 @@ Control deslizante independiente para regular la escala de visualización sin ro
 * **Exportación (`exportThemePackage`):** Empaqueta la totalidad de los 4 colores de interfaz, escalas de texto, colores y configuraciones tipográficas (incluyendo `completedColor`, `completedBold`, `completedItalic`) en un archivo JSON portable (`saranga-theme-settings.json`), desencadenando la descarga en el navegador con `Blob` (`application/json`).
 * **Importación (`importThemePackage`):** Admite la carga de archivos `.json` mediante input file o string. Realiza validación de campos, sanea escalas entre 50% y 200%, fusiona con `DEFAULT_THEME` para asegurar robustez, persiste en `localStorage` y actualiza inmediatamente todas las variables CSS de `:root` y la previsualización activa.
 
+---
+
+## 9. Arquitectura Responsiva y Soporte Móvil Integral (Vertical y Horizontal) con Coexistencia PC
+
+SarangaBaranga implementa una arquitectura de visualización adaptable que garantiza soporte nativo de primera clase tanto para **computadoras de escritorio (PC/Desktop)** como para **teléfonos móviles** en ambas orientaciones físicas (**Vertical / Portrait** y **Horizontal / Landscape**), sin sacrificar ninguna funcionalidad ni degradar el rendimiento:
+
+### 9.1. Principio de Cero Regresión en PC
+* La versión de escritorio ($\ge 1025\text{px}$) mantiene su maquetación original completa, barras espaciadas, múltiples columnas y atajos.
+* Las reglas móviles se encuentran encapsuladas en media queries selectivas (`@media (max-width: 1024px)`, `@media (max-width: 768px)`, `@media (max-height: 520px) and (orientation: landscape)`).
+
+### 9.2. Viewport Moderno y Soporte de Áreas Seguras (Safe Areas & Notch)
+* **`viewport-fit=cover`:** Permite que la aplicación aproveche todo el área de la pantalla hasta los bordes en dispositivos con muescas (notches), islas dinámicas o esquinas redondeadas.
+* **Tokens CSS de Insets:** Variables `--safe-top`, `--safe-bottom`, `--safe-left` y `--safe-right` mapeadas a las funciones estándar `env(safe-area-inset-*)` con valores seguros de respaldo.
+* **Dynamic Viewport Height (`100dvh`):** Previene saltos bruscos causados por el despliegue u ocultación de la barra de direcciones en navegadores móviles (Safari iOS, Chrome Mobile).
+
+### 9.3. Ergonomía Táctil y Prevención de Zoom
+* **Áreas Táctiles:** Objetivos de toque $\ge 40\text{px}-46\text{px}$ para botones y selectores en dispositivos táctiles (`@media (hover: none) and (pointer: coarse)`).
+* **Prevención de Zoom Automático en iOS:** Se fija `font-size: 16px` en todos los elementos de formulario (`<input>`, `<select>`, `<textarea>`) en pantallas móviles para evitar que Safari aplique un zoom invasivo al enfocar campos.
+
+### 9.4. Tipografía Fluida en Escenario de Letras
+* **Escala con `clamp()`:** En lugar de tamaños fijos que provocan saltos de línea antiestéticos en frases largas, la frase activa utiliza `clamp(1.35rem, 5.5vw, 2.2rem)` en portrait y `clamp(1.15rem, 5.5vh, 1.85rem)` en landscape, adaptando suavemente el texto a cualquier resolución.
+
+### 9.5. Barra de Controles Móvil y Modo Inmersivo de Pantalla Completa
+* **Vertical (Portrait):** Distribución en 2 filas limpias: Fila 1 para la barra de avance y tiempos; Fila 2 para reproducción, volumen, selector de video y traducciones.
+* **Horizontal (Landscape - Desafío de Altura Corta):** Encabezado ultra-delgado ($38\text{px}$) y barra de controles ultra-slim ($48\text{px}$) en una sola fila compacta.
+* **Modo Inmersivo (Dock Colapsable):** Botón para ocultar/colapsar el dock (`btn-dock-collapse`), permitiendo que el escenario de letras ocupe el 100% de la pantalla para una experiencia pura de karaoke, con botón flotante discreto (`btn-dock-floating-expand`) para restaurarlo inmediatamente.
+
+### 9.6. Editor Móvil con Asistente Fijo Superior
+* El Asistente de Audio permanece compacto en la parte superior con reloj `mm:ss.mmm` y botones de captura accesibles, mientras la lista de frases se desplaza suavemente por debajo sin interferir con el teclado en pantalla.
+
+
 

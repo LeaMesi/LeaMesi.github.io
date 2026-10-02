@@ -8,7 +8,9 @@ import {
   iconArrowLeft,
   iconVolume,
   iconVolumeMute,
-  iconPalette
+  iconPalette,
+  iconChevronDown,
+  iconChevronUp
 } from './icons.js'
 
 export function createControlsView({
@@ -47,9 +49,22 @@ export function createControlsView({
     ? Math.max(0, Math.min(3, Number(initialPreviewLines)))
     : 2
   let currentMode = 'basic' // 'basic' | 'advanced'
+  let isDockCollapsed = false
 
   function render() {
     if (!containerElement) return
+
+    if (isDockCollapsed) {
+      containerElement.classList.add('is-collapsed')
+      if (containerElement.parentElement) {
+        containerElement.parentElement.classList.add('has-collapsed-dock')
+      }
+    } else {
+      containerElement.classList.remove('is-collapsed')
+      if (containerElement.parentElement) {
+        containerElement.parentElement.classList.remove('has-collapsed-dock')
+      }
+    }
 
     const translations = availableLanguages.filter(l => !l.isMain)
     const translationsHtml = `
@@ -71,7 +86,12 @@ export function createControlsView({
       }).join('')
 
     containerElement.innerHTML = `
-      <div class="controls-wrapper">
+      ${isDockCollapsed ? `
+        <button class="btn-dock-floating-expand" id="btn-dock-expand" title="Mostrar barra de controles">
+          ${iconChevronUp} <span>Controles</span>
+        </button>
+      ` : ''}
+      <div class="controls-wrapper ${isDockCollapsed ? 'is-hidden-dock' : ''}">
         <!-- Barra de progreso superior -->
         <div class="progress-bar-row">
           <span class="time-label current-time">${formatTime(Math.max(0, currentTime))}</span>
@@ -148,6 +168,11 @@ export function createControlsView({
             <!-- Editar Letra de esta Canción -->
             <button class="btn btn-outline" id="btn-controls-edit" title="Editar letra, frases, sílabas e idiomas de esta canción">
               ${iconEdit} Editar
+            </button>
+
+            <!-- Botón Colapsar Barra de Controles (Modo Inmersivo) -->
+            <button class="btn btn-outline btn-dock-collapse" id="btn-dock-collapse" title="Ocultar controles para pantalla completa de letras">
+              ${iconChevronDown}
             </button>
           </div>
         </div>
@@ -272,6 +297,22 @@ export function createControlsView({
         else if (onOpenLibrary) onOpenLibrary()
       })
     }
+
+    const collapseBtn = containerElement.querySelector('#btn-dock-collapse')
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', () => {
+        isDockCollapsed = true
+        render()
+      })
+    }
+
+    const expandBtn = containerElement.querySelector('#btn-dock-expand')
+    if (expandBtn) {
+      expandBtn.addEventListener('click', () => {
+        isDockCollapsed = false
+        render()
+      })
+    }
   }
 
   function setPlayingState(playing) {
@@ -365,6 +406,11 @@ export function createControlsView({
     setLanguagesState,
     setPreviewLinesCount,
     setMode,
-    setVolume
+    setVolume,
+    getIsDockCollapsed: () => isDockCollapsed,
+    setDockCollapsed: (val) => {
+      isDockCollapsed = Boolean(val)
+      render()
+    }
   }
 }
