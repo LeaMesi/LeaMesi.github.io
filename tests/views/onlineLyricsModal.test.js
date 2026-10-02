@@ -18,18 +18,22 @@ describe('views/onlineLyricsModal.js', () => {
     expect(container.querySelector('#btn-do-online-search')).not.toBeNull()
 
     const providerTabs = container.querySelectorAll('.online-provider-tab')
-    expect(providerTabs.length).toBe(4)
+    expect(providerTabs.length).toBe(5)
   })
 
-  it('permite alternar entre pestañas de proveedores (BetterLyrics, Genius, LRCLIB)', () => {
+  it('permite alternar entre pestañas de proveedores (BetterLyrics, LRC.red, Genius, LRCLIB)', () => {
     const modal = createOnlineLyricsModal({ containerElement: container })
     modal.open()
 
     const blTab = container.querySelector('[data-provider="betterlyrics"]')
     expect(blTab).not.toBeNull()
     blTab.click()
-
     expect(container.querySelector('.bl-mode-tab')).not.toBeNull()
+
+    const redTab = container.querySelector('[data-provider="lrcred"]')
+    expect(redTab).not.toBeNull()
+    redTab.click()
+    expect(container.querySelector('#provider-input-general')).not.toBeNull()
   })
 
   it('cierra el diálogo al pulsar el botón de cerrar', () => {

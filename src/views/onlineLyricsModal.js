@@ -24,7 +24,8 @@ import {
   iconSparkles,
   iconFileText,
   iconPlus,
-  iconCheck
+  iconCheck,
+  iconMic
 } from './icons.js'
 
 function escapeHtml(str) {
@@ -192,6 +193,15 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
           syncType
         })
         lastSearchSummary = `Búsqueda en BetterLyrics (${blActiveMode}): "${blGeneralQuery || artistQuery || videoQuery}"`
+      } else if (activeProvider === 'lrcred') {
+        results = await searchOnlineLyrics({
+          provider: 'lrcred',
+          query: subMode === 'general' ? unifiedQuery : '',
+          artist: subMode === 'artist_song' ? artistQuery : '',
+          song: subMode === 'artist_song' ? songQuery : '',
+          syncType
+        })
+        lastSearchSummary = `Búsqueda en LRC.red: "${subMode === 'general' ? unifiedQuery : `${artistQuery} - ${songQuery}`}"`
       } else if (activeProvider === 'genius') {
         results = await searchOnlineLyrics({
           provider: 'genius',
@@ -283,6 +293,7 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
       const isSelected = activeProvider === p.id
       let icon = iconGlobe
       if (p.id === 'betterlyrics') icon = iconSparkles
+      else if (p.id === 'lrcred') icon = iconMic
       else if (p.id === 'genius') icon = iconMusicNote
       else if (p.id === 'lrclib') icon = iconFileText
 
@@ -309,7 +320,7 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
               type="text"
               id="online-input-all"
               class="form-input search-main-input"
-              placeholder="Buscar título, artista o enlace (BetterLyrics + Genius + LRCLIB)..."
+              placeholder="Buscar título, artista o enlace (BetterLyrics + LRC.red + LRCLIB + Genius)..."
               value="${escapeHtml(unifiedQuery)}"
             />
             <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
@@ -317,7 +328,7 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
             </button>
           </div>
           <p class="search-hint-text">
-            Consulta en paralelo todos los motores y unifica los resultados con su etiqueta de procedencia.
+            Consulta en paralelo todos los motores (máx. 6 por fuente) y unifica los resultados con su etiqueta de procedencia.
           </p>
         </div>
       `
@@ -439,6 +450,68 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
               <button type="button" class="bl-filter-pill ${syncFilter === 'all' ? 'is-active' : ''}" data-sync="all">Todas</button>
               <button type="button" class="bl-filter-pill ${syncFilter === 'richsync' ? 'is-active' : ''}" data-sync="richsync">${iconSparkles} Sílabas (TTML)</button>
               <button type="button" class="bl-filter-pill ${syncFilter === 'linesync' ? 'is-active' : ''}" data-sync="linesync">${iconMusicNote} Por Versos (LRC)</button>
+            </div>
+          </div>
+        </div>
+      `
+    } else if (activeProvider === 'lrcred') {
+      searchFormHtml = `
+        <div class="online-inputs-container">
+          <div class="bl-modes-bar">
+            <button type="button" class="bl-mode-tab ${subMode === 'general' ? 'is-active' : ''}" data-submode="general">Búsqueda General</button>
+            <button type="button" class="bl-mode-tab ${subMode === 'artist_song' ? 'is-active' : ''}" data-submode="artist_song">Artista y Canción</button>
+          </div>
+
+          ${subMode === 'general' ? `
+            <div class="search-input-group">
+              <span class="search-input-icon">${iconSearch}</span>
+              <input
+                type="text"
+                id="provider-input-general"
+                class="form-input search-main-input"
+                placeholder="Buscar canción, artista o álbum en LRC.red..."
+                value="${escapeHtml(unifiedQuery)}"
+              />
+              <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
+                ${isSearching ? 'Buscando...' : `${iconSearch} Buscar en LRC.red`}
+              </button>
+            </div>
+          ` : `
+            <div class="bl-dual-inputs-grid">
+              <div class="input-with-label">
+                <label for="provider-input-artist" class="field-sublabel">Artista / Banda:</label>
+                <input
+                  type="text"
+                  id="provider-input-artist"
+                  class="form-input"
+                  placeholder="ej. Queen"
+                  value="${escapeHtml(artistQuery)}"
+                />
+              </div>
+              <div class="input-with-label">
+                <label for="provider-input-song" class="field-sublabel">Canción:</label>
+                <input
+                  type="text"
+                  id="provider-input-song"
+                  class="form-input"
+                  placeholder="ej. Bohemian Rhapsody"
+                  value="${escapeHtml(songQuery)}"
+                />
+              </div>
+              <div class="dual-search-btn-col">
+                <label class="field-sublabel">&nbsp;</label>
+                <button type="button" class="btn btn-primary btn-block" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
+                  ${isSearching ? 'Buscando...' : `${iconSearch} Buscar`}
+                </button>
+              </div>
+            </div>
+          `}
+
+          <div class="bl-filters-bar">
+            <span class="filter-label">Filtro de formato:</span>
+            <div class="bl-filter-pills">
+              <button type="button" class="bl-filter-pill ${syncFilter === 'all' ? 'is-active' : ''}" data-sync="all">Todas</button>
+              <button type="button" class="bl-filter-pill ${syncFilter === 'linesync' ? 'is-active' : ''}" data-sync="linesync">${iconMusicNote} Sincronizadas</button>
             </div>
           </div>
         </div>
@@ -611,6 +684,9 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
         } else if (item.source === 'lrclib') {
           sourceBadgeClass = 'badge-source-lrclib'
           sourceBadgeName = 'LRCLIB'
+        } else if (item.source === 'lrcred') {
+          sourceBadgeClass = 'badge-source-lrcred'
+          sourceBadgeName = 'LRC.red'
         }
 
         // Badge de formato / sincronización
@@ -675,7 +751,7 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
             <h2 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
               ${iconGlobe} Buscar Canción Online
             </h2>
-            <p class="subtitle">Buscador multilínea con BetterLyrics, Genius y LRCLIB para importar canciones sincronizadas al editor.</p>
+            <p class="subtitle">Buscador multilínea con BetterLyrics, LRC.red, Genius y LRCLIB para importar canciones sincronizadas al editor.</p>
           </div>
           <button class="btn-close-modal" id="btn-close-online-modal" title="Cerrar modal">${iconClose}</button>
         </div>

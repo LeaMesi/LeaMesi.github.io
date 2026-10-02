@@ -8,6 +8,11 @@ import {
   buildSongPackageFromBetterLyrics
 } from './betterLyricsService.js'
 import {
+  searchLrcRed,
+  fetchLrcRedDetails,
+  buildSongPackageFromLrcRed
+} from './lrcRedService.js'
+import {
   searchLrclib,
   fetchLrclibDetails,
   buildSongPackageFromLrclib
@@ -31,6 +36,7 @@ export {
 export const ONLINE_PROVIDERS = [
   { id: 'all', name: 'Todas las Fuentes', badge: 'Todas' },
   { id: 'betterlyrics', name: 'BetterLyrics', badge: 'BetterLyrics' },
+  { id: 'lrcred', name: 'LRC.red', badge: 'LRC.red' },
   { id: 'genius', name: 'Genius', badge: 'Genius' },
   { id: 'lrclib', name: 'LRCLIB', badge: 'LRCLIB' }
 ]
@@ -40,7 +46,7 @@ export const ONLINE_PROVIDERS = [
  */
 export async function searchOnlineLyrics(options = {}) {
   const {
-    provider = 'all', // 'all' | 'betterlyrics' | 'genius' | 'lrclib'
+    provider = 'all', // 'all' | 'betterlyrics' | 'lrcred' | 'genius' | 'lrclib'
     query = '',
     artist = '',
     song = '',
@@ -57,44 +63,62 @@ export async function searchOnlineLyrics(options = {}) {
     return results.map(r => ({ ...r, source: 'betterlyrics', sourceName: 'BetterLyrics' }))
   }
 
-  // 2. Proveedor: Genius exclusivo
+  // 2. Proveedor: LRC.red exclusivo
+  if (provider === 'lrcred') {
+    const results = await searchLrcRed({ query, artist, track: song, song, syncType, limit })
+    return results.map(r => ({ ...r, source: 'lrcred', sourceName: 'LRC.red' }))
+  }
+
+  // 3. Proveedor: Genius exclusivo
   if (provider === 'genius') {
     const results = await searchGenius({ query, artist, song, limit })
     return results.map(r => ({ ...r, source: 'genius', sourceName: 'Genius' }))
   }
 
-  // 3. Proveedor: LRCLIB exclusivo
+  // 4. Proveedor: LRCLIB exclusivo
   if (provider === 'lrclib') {
     const results = await searchLrclib({ query, artist, track: song, syncType, limit })
     return results.map(r => ({ ...r, source: 'lrclib', sourceName: 'LRCLIB' }))
   }
 
-  // 4. Modo "all" (Todas las Fuentes) - Búsqueda simultánea en paralelo
+  // 5. Modo "all" (Todas las Fuentes) - Búsqueda simultánea en paralelo con máximo 6 resultados por fuente
+  const MAX_PER_SOURCE = 6
+  const cleanGeneralQuery = (query || `${artist} ${song}`).trim()
+
   const promises = [
-    // BetterLyrics
+    // BetterLyrics (máximo 6 resultados en búsqueda general)
     searchBetterLyrics({
       mode: 'general',
-      query: (query || `${artist} ${song}`).trim(),
+      query: cleanGeneralQuery,
       syncType,
-      limit: 25
-    }).then(items => items.map(i => ({ ...i, source: 'betterlyrics', sourceName: 'BetterLyrics' }))),
+      limit: 15
+    }).then(items => items.slice(0, MAX_PER_SOURCE).map(i => ({ ...i, source: 'betterlyrics', sourceName: 'BetterLyrics' }))),
 
-    // LRCLIB
+    // LRC.red (máximo 6 resultados en búsqueda general)
+    searchLrcRed({
+      query: cleanGeneralQuery,
+      artist: artist.trim(),
+      song: song.trim(),
+      syncType,
+      limit: 15
+    }).then(items => items.slice(0, MAX_PER_SOURCE).map(i => ({ ...i, source: 'lrcred', sourceName: 'LRC.red' }))),
+
+    // LRCLIB (máximo 6 resultados en búsqueda general)
     searchLrclib({
-      query: (query || `${artist} ${song}`).trim(),
+      query: cleanGeneralQuery,
       artist: artist.trim(),
       track: song.trim(),
       syncType,
-      limit: 25
-    }).then(items => items.map(i => ({ ...i, source: 'lrclib', sourceName: 'LRCLIB' }))),
+      limit: 15
+    }).then(items => items.slice(0, MAX_PER_SOURCE).map(i => ({ ...i, source: 'lrclib', sourceName: 'LRCLIB' }))),
 
-    // Genius (siempre busca, ya sea con token o fallback)
+    // Genius (máximo 6 resultados en búsqueda general)
     searchGenius({
-      query: (query || `${artist} ${song}`).trim(),
+      query: cleanGeneralQuery,
       artist: artist.trim(),
       song: song.trim(),
-      limit: 20
-    }).then(items => items.map(i => ({ ...i, source: 'genius', sourceName: 'Genius' })))
+      limit: 15
+    }).then(items => items.slice(0, MAX_PER_SOURCE).map(i => ({ ...i, source: 'genius', sourceName: 'Genius' })))
   ]
 
   const settled = await Promise.allSettled(promises)
@@ -102,13 +126,13 @@ export async function searchOnlineLyrics(options = {}) {
 
   settled.forEach(res => {
     if (res.status === 'fulfilled' && Array.isArray(res.value)) {
-      combined.push(...res.value)
+      combined.push(...res.value.slice(0, MAX_PER_SOURCE))
     }
   })
 
   // Ordenar inteligentemente los resultados unificados:
-  // 1. Sílabas / TTML (BetterLyrics richsync) primero
-  // 2. Versos / LRC (BetterLyrics / LRCLIB linesync) segundo
+  // 1. Sílabas / TTML (BetterLyrics / LRC.red richsync) primero
+  // 2. Versos / LRC (BetterLyrics / LRC.red / LRCLIB linesync) segundo
   // 3. Letras planas (Genius / LRCLIB plain)
   return combined.sort((a, b) => {
     const score = item => {
@@ -134,6 +158,9 @@ export async function buildSongPackageFromOnlineResult(item, options = {}) {
   if (source === 'betterlyrics') {
     const details = await fetchBetterLyricsDetails(item.id, item.videoId, item.song, item.artist)
     rawPackage = await buildSongPackageFromBetterLyrics(details, options)
+  } else if (source === 'lrcred') {
+    const details = await fetchLrcRedDetails(item.rawId || item.isrc || item.id, item)
+    rawPackage = await buildSongPackageFromLrcRed(details, options)
   } else if (source === 'lrclib') {
     const details = await fetchLrclibDetails(item.rawId || item.id, item)
     rawPackage = await buildSongPackageFromLrclib(details, options)

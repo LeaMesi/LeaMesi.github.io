@@ -11,6 +11,11 @@ import {
   buildSongPackageFromLrclib
 } from '../../src/services/lrclibService.js'
 import {
+  searchLrcRed,
+  fetchLrcRedDetails,
+  buildSongPackageFromLrcRed
+} from '../../src/services/lrcRedService.js'
+import {
   getGeniusToken,
   setGeniusToken,
   hasGeniusToken,
@@ -151,14 +156,149 @@ describe('services/onlineLyricsService.js y proveedores', () => {
     })
   })
 
+  describe('lrcRedService - búsqueda y ensamblado', () => {
+    it('searchLrcRed mapea correctamente los campos de respuesta de lrc.red', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          hits: [
+            {
+              isrc: 'GBUM71029604',
+              title: 'Bohemian Rhapsody',
+              artist: 'Queen',
+              album: 'A Night at the Opera',
+              year: 1975,
+              duration: 356.52,
+              cover: 'https://lrc.red/s/GBUM71029604.webp'
+            }
+          ]
+        })
+      })
+
+      const items = await searchLrcRed({ query: 'bohemian rhapsody' })
+      expect(items.length).toBe(1)
+      expect(items[0].id).toBe('lrcred-GBUM71029604')
+      expect(items[0].source).toBe('lrcred')
+      expect(items[0].sourceName).toBe('LRC.red')
+      expect(items[0].song).toBe('Bohemian Rhapsody')
+      expect(items[0].artist).toBe('Queen')
+      expect(items[0].duration).toBe(356.52)
+      expect(items[0].artwork).toBe('https://lrc.red/s/GBUM71029604.webp')
+      expect(items[0].hasSynced).toBe(true)
+    })
+
+    it('buildSongPackageFromLrcRed construye un paquete compatible con el esquema de SarangaBaranga', async () => {
+      const details = {
+        id: 'lrcred-TESTISRC',
+        song: 'Canción Test',
+        artist: 'Artista Test',
+        duration: 120,
+        language: 'es',
+        lines: [
+          {
+            id: 'line-1',
+            startTime: 10,
+            endTime: 14,
+            text: 'Primera línea',
+            syllables: [
+              { id: 'syl-1', text: 'Pri', startTime: 10, duration: 2 },
+              { id: 'syl-2', text: 'mera línea', startTime: 12, duration: 2 }
+            ]
+          }
+        ]
+      }
+
+      const pkg = await buildSongPackageFromLrcRed(details)
+      expect(pkg.title).toBe('Canción Test')
+      expect(pkg.artist).toBe('Artista Test')
+      expect(pkg.lyrics_data.languages[0].lines.length).toBe(1)
+      expect(pkg.tags).toContain('lrcred')
+    })
+  })
+
   describe('onlineLyricsService - orquestador', () => {
-    it('expone los proveedores configurados', () => {
-      expect(ONLINE_PROVIDERS.length).toBe(4)
-      expect(ONLINE_PROVIDERS.map(p => p.id)).toEqual(['all', 'betterlyrics', 'genius', 'lrclib'])
+    it('expone los proveedores configurados incluyendo LRC.red', () => {
+      expect(ONLINE_PROVIDERS.length).toBe(5)
+      expect(ONLINE_PROVIDERS.map(p => p.id)).toEqual(['all', 'betterlyrics', 'lrcred', 'genius', 'lrclib'])
+    })
+
+    it('limita a un máximo de 6 resultados por fuente en la búsqueda general (modo all)', async () => {
+      // Mock global fetch simulando 10 resultados para cada fuente
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+        const urlStr = String(url)
+        if (urlStr.includes('unison.boidu.dev/lyrics/search')) {
+          const tenItems = Array.from({ length: 10 }, (_, i) => ({
+            id: `bl-${i}`,
+            song: `BL Song ${i}`,
+            artist: 'BL Artist',
+            syncType: 'richsync',
+            format: 'ttml'
+          }))
+          return { ok: true, json: async () => ({ success: true, data: tenItems }) }
+        }
+        if (urlStr.includes('lrc.red/search.json')) {
+          const tenHits = Array.from({ length: 10 }, (_, i) => ({
+            isrc: `RED${i}`,
+            title: `Red Song ${i}`,
+            artist: 'Red Artist',
+            duration: 180
+          }))
+          return { ok: true, json: async () => ({ hits: tenHits }) }
+        }
+        if (urlStr.includes('lrclib.net/api/search')) {
+          const tenLrc = Array.from({ length: 10 }, (_, i) => ({
+            id: `lrc-${i}`,
+            trackName: `Lrclib Song ${i}`,
+            artistName: 'Lrclib Artist',
+            syncedLyrics: '[00:01.00]Test'
+          }))
+          return { ok: true, json: async () => tenLrc }
+        }
+        if (urlStr.includes('genius.com') || urlStr.includes('api.genius.com')) {
+          const tenGenius = Array.from({ length: 10 }, (_, i) => ({
+            id: `gen-${i}`,
+            title: `Genius Song ${i}`,
+            primary_artist: { name: 'Genius Artist' }
+          }))
+          return { ok: true, json: async () => ({ response: { hits: tenGenius.map(g => ({ result: g })) } }) }
+        }
+        return { ok: true, json: async () => [] }
+      })
+
+      const allResults = await searchOnlineLyrics({ query: 'rock', provider: 'all' })
+      const blCount = allResults.filter(r => r.source === 'betterlyrics').length
+      const redCount = allResults.filter(r => r.source === 'lrcred').length
+      const lrclibCount = allResults.filter(r => r.source === 'lrclib').length
+
+      // Ninguna fuente puede tener más de 6 resultados en búsqueda general
+      expect(blCount).toBeLessThanOrEqual(6)
+      expect(redCount).toBeLessThanOrEqual(6)
+      expect(lrclibCount).toBeLessThanOrEqual(6)
+      expect(blCount).toBe(6)
+      expect(redCount).toBe(6)
+      expect(lrclibCount).toBe(6)
+    })
+
+    it('no limita a 6 cuando se busca por proveedor individual (se mantiene el límite normal)', async () => {
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
+        const urlStr = String(url)
+        if (urlStr.includes('lrc.red/search.json')) {
+          const tenHits = Array.from({ length: 10 }, (_, i) => ({
+            isrc: `RED${i}`,
+            title: `Red Song ${i}`,
+            artist: 'Red Artist'
+          }))
+          return { ok: true, json: async () => ({ hits: tenHits }) }
+        }
+        return { ok: true, json: async () => [] }
+      })
+
+      const indResults = await searchOnlineLyrics({ query: 'rock', provider: 'lrcred', limit: 10 })
+      expect(indResults.length).toBe(10)
     })
 
     it('ordena resultados unificados priorizando richsync sobre linesync y plain', async () => {
-      // Mock global fetch para simular respuestas de los 3 proveedores
+      // Mock global fetch para simular respuestas de proveedores
       vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
         const urlStr = String(url)
         if (urlStr.includes('unison.boidu.dev/lyrics/search')) {

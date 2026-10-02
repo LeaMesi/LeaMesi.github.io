@@ -477,6 +477,27 @@
   - Actualizadas las suites `tests/views/songMenuView.test.js`, `tests/views/songEditorView.test.js` y `tests/views/controlsView.test.js` con 3 nuevas pruebas específicas (total 134 pruebas, 100% pasando).
   - Compilación de Vite (`npm run build`) concluida con éxito.
 
+---
+
+## Fase 21: Integración de LRC.red (https://lrc.red/) y Límite de 6 Resultados por Fuente en Búsqueda General
+
+- [x] **21.1. Servicio de Integración con LRC.red (`src/services/lrcRedService.js`):**
+  - Conexión cliente con la API de LRC.red (`https://lrc.red/search.json?q=...`) para búsqueda directa entre 29.8 millones de canciones sin requerir backend ni tokens.
+  - Endpoint de detalles `/s/{isrc}.json` con soporte para extracción de archivos `.ttml` (sincronización silábica precisa), `.lyricsfile.yaml` (estándar abierto) y `.lrc`.
+  - Soporte de traducción integrada mediante `translateLyricsLines` y saneamiento de metadatos.
+- [x] **21.2. Límite de 6 Resultados por Fuente en Búsqueda General (`src/services/onlineLyricsService.js`):**
+  - Configurado límite estricto de máximo 6 resultados por proveedor (`items.slice(0, 6)`) exclusivamente cuando se busca en "Todas las Fuentes" (`provider === 'all'`).
+  - Preservación sin recortes del límite normal (por defecto 30-40) al buscar individualmente en cualquiera de las fuentes (BetterLyrics, LRC.red, Genius, LRCLIB).
+  - Incorporado `lrcred` en el listado de proveedores (`ONLINE_PROVIDERS`) y en el mapeador de importación `buildSongPackageFromOnlineResult`.
+- [x] **21.3. UI de Búsqueda Online y Pestaña LRC.red (`src/views/onlineLyricsModal.js`, `src/style.css`):**
+  - Añadida pestaña interactiva dedicada para LRC.red con icono `iconMic`, con modos de Búsqueda General y Artista + Canción.
+  - Badges de procedencia `.badge-source-lrcred` con acento rojo carmesí de marca (`#ef4444` / `#f87171`) y estilo de pestaña activa `.tab-prov-lrcred.is-active`.
+  - Placeholder e indicadores de ayuda actualizados en "Todas las Fuentes" reflejando la consulta simultánea a los 4 motores de búsqueda con tope de 6 por fuente.
+- [x] **21.4. Pruebas Automatizadas y Validación de Compilación:**
+  - Actualizadas suites de prueba `tests/services/onlineLyricsService.test.js` y `tests/views/onlineLyricsModal.test.js` con 4 nuevas pruebas automáticas (total 138 pruebas, 100% pasando).
+  - Compilación de producción con `npm run build` verificada sin errores.
+
+
 
 
 

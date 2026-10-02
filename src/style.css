@@ -1757,6 +1757,13 @@ input[type="number"] {
   box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
 }
 
+.online-provider-tab.tab-prov-lrcred.is-active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #f87171;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
 .online-provider-tab.tab-prov-genius.is-active {
   background: rgba(245, 158, 11, 0.18);
   border-color: #f59e0b;
@@ -2214,6 +2221,12 @@ input[type="number"] {
   background: rgba(99, 102, 241, 0.18);
   color: #a5b4fc;
   border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.badge-source-lrcred {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
 }
 
 .badge-source-genius {

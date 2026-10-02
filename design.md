@@ -423,30 +423,35 @@ Para acelerar la creación de canciones y facilitar el acceso a miles de letras 
   * **Filtros de Sincronización:** Posibilidad de discriminar entre canciones con sincronización sílaba a sílaba (`richsync` / TTML) o por versos completos (`linesync` / LRC).
 * **Flujo Precargado Hacia el Editor (`songEditorView`):** Al seleccionar un tema en el modal de búsqueda, se ensambla un objeto de canción completo y se transfiere a `songEditorView.open(preconfiguredSong)`, abriendo el editor con metadatos, video de YouTube, versos, sílabas y traducción ya colocados, listos para ajuste fino y guardado local en IndexedDB.
 
-### 3.8. Arquitectura de Búsqueda Online Multi-Motor: BetterLyrics, Genius.com y LRCLIB (`src/services/onlineLyricsService.js`)
+### 3.8. Arquitectura de Búsqueda Online Multi-Motor: BetterLyrics, LRC.red, Genius.com y LRCLIB (`src/services/onlineLyricsService.js`)
 Para ampliar radicalmente la disponibilidad de canciones sin depender de un único proveedor, SarangaBaranga implementa una arquitectura desacoplada y extensible de búsqueda multi-motor:
-1. **Pestaña "Todas las Fuentes" (Búsqueda Simultánea Unificada):**
-   * Una única barra de búsqueda consulta en paralelo (`Promise.allSettled`) a BetterLyrics, Genius.com y LRCLIB.
+1. **Pestaña "Todas las Fuentes" (Búsqueda Simultánea Unificada con Límite de 6 por Fuente):**
+   * Una única barra de búsqueda consulta en paralelo (`Promise.allSettled`) a BetterLyrics, LRC.red, LRCLIB y Genius.com.
+   * **Límite de Resultados por Fuente:** Para garantizar un balance homogéneo y evitar que un solo proveedor acapare la lista, se limita a un **máximo estricto de 6 resultados por fuente** en la búsqueda general (`slice(0, 6)` por proveedor). En contraste, las búsquedas por proveedor individual mantienen su límite completo sin restricción.
    * **Algoritmo de Clasificación y Scoring:** Los resultados unificados se ordenan heurísticamente según su fidelidad técnica:
-     1. Canciones con sincronización silábica TTML (`richsync` de BetterLyrics): mayor prioridad para canto guiado.
-     2. Canciones con sincronización por versos LRC (`linesync` de BetterLyrics o LRCLIB).
+     1. Canciones con sincronización silábica TTML (`richsync` de BetterLyrics o LRC.red): mayor prioridad para canto guiado.
+     2. Canciones con sincronización por versos LRC (`linesync` de BetterLyrics, LRC.red o LRCLIB).
      3. Canciones con letra plana (Genius o LRCLIB).
      4. Bonificaciones adicionales por disponibilidad de video oficial de YouTube y arte de carátula (`artwork`).
-2. **Servicio LRCLIB (`src/services/lrclibService.js`):**
+2. **Servicio LRC.red (`src/services/lrcRedService.js`):**
+   * Integración con la plataforma comunitaria abierta LRC.red (`https://lrc.red/search.json?q=...`), con catálogo de 29.8 millones de canciones y soporte nativo de CORS libre de tokens.
+   * Recuperación de detalles y archivos de sincronización a través de `/s/{isrc}.json`, con descarga directa en formatos TTML silábico, Lyricsfile YAML 1.0 y LRC.
+3. **Servicio LRCLIB (`src/services/lrclibService.js`):**
    * Integración con la API comunitaria abierta de LRCLIB (`https://lrclib.net/api/search`).
    * Libre de autenticación o tokens y con soporte CORS nativo en el navegador.
    * Parser automático de marcas temporales LRC (`[mm:ss.xx]`) a segundos y distribución fonética proporcional de sílabas (`src/lyrics/syllablesHelper.js`).
-3. **Servicio Genius.com (`src/services/geniusService.js`):**
+4. **Servicio Genius.com (`src/services/geniusService.js`):**
    * Conexión con `https://api.genius.com/search` (con soporte CORS nativo con Bearer token).
    * Almacenamiento seguro del Client Access Token en `localStorage` (`saranga_genius_token`) o variable de entorno (`VITE_GENIUS_ACCESS_TOKEN`).
    * Cascada resiliente de obtención de letras (LRCLIB track/artist match -> Lyrics.ovh -> líneas de texto) para asegurar la carga completa de versos al 100%.
-4. **Modal Unificado (`src/views/onlineLyricsModal.js`):**
+5. **Modal Unificado (`src/views/onlineLyricsModal.js`):**
    * Pestañas superiores para alternar entre "Todas las Fuentes" y vistas especializadas por motor.
    * Al conmutar a **BetterLyrics**, se habilitan sus 4 modos exclusivos (*General*, *Solo por Artista* con filtro estricto, *Artista y Título*, y *Enlace / Video YouTube*) y filtros de sincronización.
+   * Al conmutar a **LRC.red**, se ofrecen modos de Búsqueda General y Artista + Canción, con filtros de sincronización.
    * Al conmutar a **Genius**, se habilita la barra de configuración de token y los campos duales de Artista y Título.
    * Al conmutar a **LRCLIB**, se ofrecen búsquedas generales o por Artista y Canción.
-   * Badges distintivos por color de proveedor (`.badge-source-betterlyrics`, `.badge-source-genius`, `.badge-source-lrclib`), miniaturas de carátula (`.result-card-artwork`) y traducción automática en vivo mediante Unison.
-   * Al seleccionar una canción, se genera el paquete normalizado y se entrega al editor (`songEditorView.open(songPackage)`) con todos los versos, sílabas y videos preconfigurados.
+   * Badges distintivos por color de proveedor (`.badge-source-betterlyrics`, `.badge-source-lrcred`, `.badge-source-genius`, `.badge-source-lrclib`), miniaturas de carátula (`.result-card-artwork`) y traducción automática en vivo mediante Unison.
+   * Al seleccionar una canción, se genera el paquete normalizado y se entrega al editor (`songEditorView.open(songPackage)`) con todos los versos, sílabas y metadatos preconfigurados.
 
 ---
 
