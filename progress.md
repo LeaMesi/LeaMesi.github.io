@@ -1,7 +1,7 @@
 # Estado del Desarrollo: SarangaBaranga (`proy-letras`)
 
 > **Estado Global:** Arquitectura reorientada a **Persistencia Local en Navegador (IndexedDB)** y compartición mediante **Exportación/Importación JSON**. Enfoque activo en **Modo Sencillo / Básico**.  
-> **Última actualización:** 2026-10-01  
+> **Última actualización:** 2026-10-02  
 > **Plataforma:** SPA Estática (GitHub Pages) + IndexedDB Local & Export/Import JSON (+ Catálogo Opcional Supabase Read-Only a futuro)
 
 ---
@@ -67,8 +67,8 @@
 | **Búsqueda Multi-Motor Online** | 🟢 Operativo | Modal unificado `src/views/onlineLyricsModal.js` y orquestador `src/services/onlineLyricsService.js` con búsqueda paralela simultánea en "Todas las Fuentes" (BetterLyrics, Genius.com y LRCLIB) y pestañas individuales por proveedor (conservando al 100% los 4 modos y filtros de BetterLyrics, búsqueda con carátulas y token en Genius, y letras sincronizadas LRC de LRCLIB), con badges de origen y precarga automática en el editor. |
 | **Modo de Vista Dual en Menú (Cuadrícula / Lista)** | 🟢 Operativo | Soporte interactivo en `src/views/songMenuView.js` para alternar fluidamente entre visualización en tarjetas de cuadrícula y filas en lista compacta, con persistencia en `localStorage` (`saranga_menu_view_mode`), iconos SVG dedicados (`iconGrid`, `iconList`) y maquetación responsive. |
 | **Adaptación Completa Móvil (Vertical y Horizontal)** | 🟢 Operativo | Soporte integral para teléfonos móviles en orientaciones Vertical (Portrait) y Horizontal (Landscape) preservando al 100% la versión PC/Escritorio: `viewport-fit=cover`, safe areas con notch/isla dinámica (`env(safe-area-inset-*)`), tipografía fluida `clamp()` en letras, dock de controles en 2 filas limpias (vertical) y ultra-delgado $48\text{px}$ (horizontal), modo inmersivo de pantalla completa con botón colapsable y botón flotante de expansión, editor con asistente de audio compacto fijado en la parte superior, prevención de zoom de iOS Safari (`font-size: 16px`), y modales responsivos `95vw`/`90dvh`. |
-| **Soporte de Texto Alternativo (Romaji) y Modos de Escritura** | 🟢 Operativo | Soporte integral para textos en japonés, ruso y otras escrituras no latinas: visualización simultánea de caracteres originales, texto alternativo (Romaji) y traducción en frase activa y siguientes; selector de 3 modos ('both' \| 'original' \| 'alt') que garantiza siempre uno de los dos; seguimiento sílaba a sílaba concurrente en ambas líneas; personalización en temas (color, slider de escala 50%-200%, negrita y cursiva); campos de edición en frases y sílabas en el editor de canciones; sembrado de canción demo en japonés ('君が好きだと叫びたい') e interoperabilidad con `.lyricsfile.yaml`. |
 | **Carga de Letras Online Normalizada (BetterLyrics, LRCLIB, Genius)** | 🟢 Operativo | Resuelto el error `metadata.title` mediante normalización universal dual (`schemaValidator.js`), ensamblado completo en los tres proveedores online, fallbacks resilientes y desempaquetado automático en `songEditorView.js`. |
+| **Suite de Pruebas Automatizadas (Vitest)** | 🟢 Operativo | 19 suites de pruebas unitarias y de integración (131 pruebas automatizadas al 100%) con Vitest, Happy-DOM y Fake-IndexedDB: cobertura integral de tiempos, silabeo fonético, gestor multilingüe, motor de sincronización de letras, reproductor multimedia híbrido con offsets, persistencia relacional local (IndexedDB), servicios de exportación/importación JSON y Lyricsfile YAML, configuración de temas y todas las vistas interactivas (`basicViewer`, `controlsView`, `songMenuView`, `songEditorView`, modales). |
 | **Catálogo Supabase (Read-Only)** | ⚪ Pospuesto | Reservado para fase futura como catálogo público de solo lectura administrado por el creador. |
 
 ---

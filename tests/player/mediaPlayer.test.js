@@ -1,0 +1,143 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import {
+  extractYouTubeVideoId,
+  createMediaPlayer,
+  TRACK_TYPE,
+  PLAYER_STATE
+} from '../../src/player/mediaPlayer.js'
+
+describe('player/mediaPlayer.js', () => {
+  describe('extractYouTubeVideoId', () => {
+    it('extrae ID directamente si es un string de 11 caracteres válido', () => {
+      expect(extractYouTubeVideoId('dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
+      expect(extractYouTubeVideoId('abc_12-XYZ9')).toBe('abc_12-XYZ9')
+    })
+
+    it('extrae ID de URLs estándar de YouTube', () => {
+      expect(extractYouTubeVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
+      expect(extractYouTubeVideoId('https://youtube.com/watch?v=dQw4w9WgXcQ&feature=shared')).toBe('dQw4w9WgXcQ')
+    })
+
+    it('extrae ID de URLs cortas de youtu.be', () => {
+      expect(extractYouTubeVideoId('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
+      expect(extractYouTubeVideoId('http://youtu.be/dQw4w9WgXcQ?t=10')).toBe('dQw4w9WgXcQ')
+    })
+
+    it('extrae ID de YouTube Music (music.youtube.com)', () => {
+      expect(extractYouTubeVideoId('https://music.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
+      expect(extractYouTubeVideoId('https://music.youtube.com/watch?v=dQw4w9WgXcQ&si=12345')).toBe('dQw4w9WgXcQ')
+    })
+
+    it('extrae ID de YouTube Shorts', () => {
+      expect(extractYouTubeVideoId('https://www.youtube.com/shorts/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
+    })
+
+    it('extrae ID de embeds de YouTube', () => {
+      expect(extractYouTubeVideoId('https://www.youtube.com/embed/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
+    })
+
+    it('retorna null para valores nulos o inválidos', () => {
+      expect(extractYouTubeVideoId(null)).toBeNull()
+      expect(extractYouTubeVideoId('')).toBeNull()
+      expect(extractYouTubeVideoId('https://google.com')).toBeNull()
+      expect(extractYouTubeVideoId('invalido')).toBeNull()
+    })
+  })
+
+  describe('createMediaPlayer', () => {
+    let player = null
+    let container = null
+
+    beforeEach(() => {
+      container = document.createElement('div')
+      container.id = 'yt-test-player'
+      document.body.appendChild(container)
+    })
+
+    afterEach(() => {
+      if (player) {
+        player.destroy()
+        player = null
+      }
+      if (container && container.parentNode) {
+        container.parentNode.removeChild(container)
+      }
+    })
+
+    it('inicializa con volumen desde localStorage o predeterminado 80', () => {
+      localStorage.setItem('saranga_player_volume', '65')
+      player = createMediaPlayer({ containerId: 'yt-test-player' })
+      expect(player.getVolume()).toBe(65)
+    })
+
+    it('actualiza y persiste el volumen entre 0 y 100', () => {
+      player = createMediaPlayer({ containerId: 'yt-test-player' })
+      player.setVolume(45)
+      expect(player.getVolume()).toBe(45)
+      expect(localStorage.getItem('saranga_player_volume')).toBe('45')
+
+      // Verificación de límites
+      player.setVolume(150)
+      expect(player.getVolume()).toBe(100)
+
+      player.setVolume(-20)
+      expect(player.getVolume()).toBe(0)
+    })
+
+    it('carga una canción con modo virtual y normaliza videos y offsets', async () => {
+      const mockSongData = {
+        title: 'Canción Demo',
+        videos: [
+          { id: 'v1', name: 'Pista 1', url: '', offset: 2.5 },
+          { id: 'v2', name: 'Pista 2', url: '', offset: 0 }
+        ]
+      }
+
+      player = createMediaPlayer({ containerId: 'yt-test-player' })
+      await player.loadSong(mockSongData)
+
+      expect(player.getVideos().length).toBe(2)
+      expect(player.getActiveVideoId()).toBe('v1')
+      expect(player.getActiveOffset()).toBe(2.5)
+
+      // Cambiar a pista instrumental
+      player.setTrackType(TRACK_TYPE.INSTRUMENTAL)
+      expect(player.getActiveVideoId()).toBe('v2')
+      expect(player.getActiveOffset()).toBe(0)
+    })
+
+    it('inicializa y reproduce con YouTube Player simulado', async () => {
+      window.YT = {
+        Player: class {
+          constructor(id, opts) {
+            this.opts = opts
+            setTimeout(() => {
+              if (opts.events?.onReady) opts.events.onReady()
+            }, 10)
+          }
+          setVolume() {}
+          getDuration() { return 120 }
+          getCurrentTime() { return 15 }
+          playVideo() {}
+          pauseVideo() {}
+          seekTo() {}
+          cueVideoById() {}
+          destroy() {}
+        }
+      }
+
+      player = createMediaPlayer({ containerId: 'yt-test-player' })
+      await player.loadSong({
+        title: 'Canción YouTube',
+        videos: [
+          { id: 'v-yt', name: 'Video Oficial', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', offset: 2 }
+        ]
+      })
+
+      expect(player.getActiveVideoId()).toBe('v-yt')
+      expect(player.getActiveOffset()).toBe(2)
+      // getCurrentTime reporta rawTime (15) - offset (2) = 13
+      expect(player.getCurrentTime()).toBe(13)
+    })
+  })
+})

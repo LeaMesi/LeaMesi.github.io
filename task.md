@@ -421,6 +421,41 @@
   - `songEditorView.open(songToEdit)` desempaqueta defensivamente metadatos y colección lingüística si se recibe un paquete de canción o una entidad.
   - Preservación de `altText` en versos y sílabas durante la persistencia en `handleSaveSong`.
 
+---
+
+## Fase 19: Suite de Pruebas Automatizadas Integrales (Vitest, Happy-DOM y Fake-IndexedDB)
+
+- [x] **19.1. Infraestructura y Configuración de Pruebas (`vite.config.js`, `package.json`, `tests/setup.js`):**
+  - Incorporadas dependencias de desarrollo `vitest`, `happy-dom` y `fake-indexeddb`.
+  - Configurado entorno de prueba `happy-dom` en `vite.config.js` y scripts `"test": "vitest run"` y `"test:watch": "vitest"` en `package.json`.
+  - Archivo de inicialización `tests/setup.js` con soporte en memoria de IndexedDB (`fake-indexeddb/auto`), mocks globales para `URL.createObjectURL`/`URL.revokeObjectURL` y limpieza automática de `localStorage`.
+- [x] **19.2. Pruebas de Núcleo Lírico y Tiempos (`tests/lyrics/`):**
+  - `tests/lyrics/timing.test.js`: Conversión bidireccional beats/segundos con BPMs variados y formateo `mm:ss` con milisegundos de alta precisión (`mm:ss.mmm`).
+  - `tests/lyrics/syllablesHelper.test.js`: Silabeo fonético en español (`syllabifyWord`, diptongos, hiatos, grupos consonánticos), división preservando espacios finales (`splitPhraseIntoSyllables`), división en palabras y distribución equitativa de tiempos (`autoDistributeSyllables`).
+  - `tests/lyrics/languageManager.test.js`: Gestión reactiva de idioma principal (`isMain: true`), lista de traducciones, selección activa, modo bilingüe y suscripciones a eventos.
+  - `tests/lyrics/sync.test.js`: Motor de búsqueda de verso activo (`findActiveLineIndex`, anticipación a < 1.5s), evaluación de estados de sílabas (`upcoming`, `active`, `completed`) y emparejamiento de traducciones (`findMatchingTranslationLine`).
+- [x] **19.3. Pruebas de Reproducción y Multimedia (`tests/player/`):**
+  - `tests/player/mediaPlayer.test.js`: Extractor universal de IDs de YouTube (enlaces estándar, acortados, Shorts, YouTube Music `music.youtube.com`, embeds, parámetros `&si=`), control maestro de volumen con persistencia en `localStorage`, cálculo de tiempos efectivos con offset ($\tau = t - \text{offset}$), conmutación de pista y compatibilidad con YouTube Player API simulado.
+- [x] **19.4. Pruebas de Servicios, Persistencia e Intercambio (`tests/services/`):**
+  - `tests/services/schemaValidator.test.js`: Normalización universal de paquetes (`song-package.json`) y entidades directas, validación de títulos, retrocompatibilidad mono-idioma, preservación de `altText`/`romaji` y normalización de videos.
+  - `tests/services/db_and_songService.test.js`: CRUD completo en IndexedDB (`SarangaDB`), joins lógicos (artista, géneros, tags, videos), sembrado automático de demos (`mockSong`, `mockJapaneseSong`), agregado de traducciones y actualización de videos con offsets.
+  - `tests/services/shareService.test.js`: Exportación e importación de paquetes `song-package.json` y respaldos completos de la biblioteca (`saranga-library-backup`).
+  - `tests/services/lyricsfileService.test.js`: Parser y serializador de la especificación YAML 1.0 (.lyricsfile.yaml), conversión milisegundos <-> segundos, preservación de `alt_text` e importación como nueva canción o traducción secundaria.
+  - `tests/services/themeService.test.js`: Utilidades cromáticas (`hexToRgb`, `hexToRgba`, luminancia, contrastes automáticos, brillo), persistencia en `localStorage`, inyección de variables CSS en `:root`, exportación e importación de paquetes de tema con saneamiento de escalas.
+  - `tests/services/onlineLyricsService.test.js`: Pruebas de BetterLyrics (parser TTML, LRC, coincidencia de artista `isArtistMatch`), Genius (tokens y letra plana), LRCLIB (letras sincronizadas) y orquestador maestro unificado con scoring heurístico (richsync > linesync > plain).
+- [x] **19.5. Pruebas de Vistas e Interfaz (`tests/views/`):**
+  - `tests/views/icons.test.js`: Validación de los 29 iconos SVG vectoriales libres de emojis.
+  - `tests/views/basicViewer.test.js`: Renderizado del escenario centrado, previsualización de 0 a 3 frases siguientes, subtitulado de traducción, resaltado de sílabas en tiempo real, modos de escritura (`both`, `original`, `alt`) e interacción de salto temporal (seek).
+  - `tests/views/controlsView.test.js`: Barra de controles, botón cantar/pausa, slider de volumen y mute, selectores de video, texto alternativo, traducción y frases siguientes, y modo inmersivo de dock colapsable.
+  - `tests/views/songMenuView.test.js`: Menú de bienvenida, alternancia entre vista cuadrícula y lista (`saranga_menu_view_mode`), buscador reactivo, entradas a Modo Letra y apertura de modales.
+  - `tests/views/songEditorView.test.js`: Plantilla en blanco, precarga de canciones existentes, creación de frases, asistentes de tiempo y navegación.
+  - `tests/views/videoManagerModal.test.js`: Modal de gestión de videos y offsets, adición, eliminación y actualización reactiva.
+  - `tests/views/themeSettingsModal.test.js`: Modal de temas, selección de presets, sliders de escala y previsualización en vivo.
+- [x] **19.6. Verificación y Compilación Continua:**
+  - Ejecución integral de 19 suites de prueba (131 pruebas automáticas) concluidas exitosamente al 100%.
+  - Compilación de producción con `npm run build` verificada sin errores.
+
+
 
 
 

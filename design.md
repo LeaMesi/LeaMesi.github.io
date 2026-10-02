@@ -1,7 +1,7 @@
 # Diseño Técnico y Arquitectura: SarangaBaranga (`proy-letras`)
 
 > **Arquitectura del Sistema y Patrones de Software**  
-> **Versión:** 2.4.0  
+> **Versión:** 2.5.0  
 > **Plataforma:** SPA Estática (GitHub Pages / `usuario.github.io`) + Persistencia Local en Navegador (IndexedDB), Intercambio JSON & Compatibilidad con Estándar Abierto `lyricsfile` (.lyricsfile.yaml) (+ Catálogo Opcional Supabase Read-Only a futuro)
 
 ---
@@ -642,6 +642,58 @@ En la barra de controles (`controlsView.js`), el usuario dispone de un selector 
 
 ### 10.5. Edición y Creación en el Editor
 * En `songEditorView.js`, cada tarjeta de frase dispone de un campo `.input-phrase-alt` para escribir la transliteración del verso completo, y cada chip de sílaba cuenta con un campo `.input-syl-alt` para la fonética silábica individual.
+
+---
+
+## 11. Arquitectura y Estrategia de Pruebas Automatizadas (Vitest, Happy-DOM y Fake-IndexedDB)
+
+Para asegurar la máxima estabilidad del proyecto, prevenir regresiones al introducir nuevas funcionalidades y garantizar la robustez tanto offline como con servicios en línea, SarangaBaranga implementa una suite integral de **Pruebas Automatizadas** ejecutadas con **Vitest**:
+
+```mermaid
+graph TD
+    subgraph TestRunner ["Entorno de Pruebas (Vitest + Happy-DOM)"]
+        TestSetup["tests/setup.js (Mocks globales, IndexedDB en memoria, localStorage cleanup)"]
+        RunnerCLI["npm test (vitest run)"]
+    end
+
+    subgraph UnitSuites ["Pruebas Unitarias de Núcleo"]
+        TimingTest["timing.test.js (BPM, compases, formatTime mm:ss.mmm)"]
+        SyllablesTest["syllablesHelper.test.js (Fonética española, diptongos, hiatos, distribución)"]
+        LanguageTest["languageManager.test.js (isMain, traducciones, suscripciones)"]
+        SyncTest["sync.test.js (findActiveLineIndex, evaluateSyllablesState, matching)"]
+        IconsTest["icons.test.js (29 iconos SVG vectoriales sin emojis)"]
+    end
+
+    subgraph ServiceSuites ["Pruebas de Servicios y Persistencia"]
+        SchemaTest["schemaValidator.test.js (Normalización dual paquete/entidad, altText, videos)"]
+        DBTest["db_and_songService.test.js (IndexedDB SarangaDB, CRUD, joins relacionales, demos)"]
+        ShareTest["shareService.test.js (song-package.json y respaldos saranga-library-backup)"]
+        LyricsfileTest["lyricsfileService.test.js (Parser y serializer YAML 1.0, ms a seg, palabras)"]
+        ThemeTest["themeService.test.js (4 colores, sliders 50-200%, luminancia, contraste, CSS :root)"]
+        OnlineTest["onlineLyricsService.test.js (BetterLyrics TTML/LRC, LRCLIB, Genius, scoring unificado)"]
+    end
+
+    subgraph ViewSuites ["Pruebas de Vistas e Interfaz (DOM)"]
+        BasicViewerTest["basicViewer.test.js (Escenario centrado, preview 0-3 frases, sílabas activas, Romaji)"]
+        ControlsViewTest["controlsView.test.js (Dock de controles, volumen/mute, selectores, modo inmersivo)"]
+        SongMenuViewTest["songMenuView.test.js (Catálogo, vista cuadrícula/lista, buscador, creación)"]
+        SongEditorTest["songEditorView.test.js (Plantilla nueva, precarga, añadir frases, metadatos)"]
+        VideoModalTest["videoManagerModal.test.js (Offsets, añadir/quitar videos, persistencia)"]
+        ThemeModalTest["themeSettingsModal.test.js (Presets, sliders reactivos, live preview)"]
+    end
+
+    RunnerCLI --> TestSetup
+    TestSetup --> UnitSuites
+    TestSetup --> ServiceSuites
+    TestSetup --> ViewSuites
+```
+
+### 11.1. Principios de la Suite de Pruebas
+1. **Zero Flakiness (Determinismo Total):** Todas las pruebas operan de forma aislada, sin depender de red externa. Las consultas a APIs externas (`unison.boidu.dev`, `api.betterlyrics.org`, `lrclib.net`, `api.genius.com`) se simulan mediante mocks de `fetch` con respuestas representativas.
+2. **Persistencia Local en Memoria (`fake-indexeddb`):** Todas las pruebas de almacenamiento (`db.js`, `songService.js`, `shareService.js`, `lyricsfileService.js`) se ejecutan contra una implementación en memoria de IndexedDB que soporta Object Stores, índices compuestos y transacciones atómicas idénticas a las del navegador real.
+3. **Simulación DOM Ligera (`happy-dom`):** Ejecución ultrarrápida (sub-2 segundos para la totalidad de la suite) que reproduce eventos estándar del DOM (`click`, `input`, `change`, `submit`), `localStorage`, `document.documentElement.style` y manipulación de elementos.
+4. **Verificación Continua de Compilación:** La regla del sistema estipula que `npm test` y `npm run build` deben ejecutarse y concluir con código de salida 0 en cada ciclo de desarrollo.
+
 
 
 
