@@ -19,6 +19,15 @@ export async function fetchSongById(songId) {
   const genrePromises = genreRels.map(rel => db.get('genres', rel.genre_id))
   const genres = (await Promise.all(genrePromises)).filter(Boolean)
 
+  // Obtener bibliotecas
+  let libraries = []
+  if (db.objectStoreNames.contains('song_libraries') && db.objectStoreNames.contains('libraries')) {
+    const libRels = await db.getAllFromIndex('song_libraries', 'song_id', id)
+    const libPromises = libRels.map(rel => db.get('libraries', rel.library_id))
+    const rawLibs = (await Promise.all(libPromises)).filter(Boolean)
+    libraries = rawLibs.map(l => ({ id: l.id, name: l.name }))
+  }
+
   const videos = normalizeVideos(song, song.lyrics_data)
 
   return {
@@ -27,7 +36,8 @@ export async function fetchSongById(songId) {
     artist: artist ? artist.name : '',
     artist_id: song.artist_id,
     tags: tags.map(t => t.name),
-    genres: genres.map(g => g.name)
+    genres: genres.map(g => g.name),
+    libraries
   }
 }
 
@@ -42,6 +52,15 @@ export async function listSongs() {
       const tags = (await Promise.all(tagRels.map(r => db.get('tags', r.tag_id)))).filter(Boolean)
       const genreRels = await db.getAllFromIndex('song_genres', 'song_id', song.id)
       const genres = (await Promise.all(genreRels.map(r => db.get('genres', r.genre_id)))).filter(Boolean)
+
+      let libraries = []
+      if (db.objectStoreNames.contains('song_libraries') && db.objectStoreNames.contains('libraries')) {
+        const libRels = await db.getAllFromIndex('song_libraries', 'song_id', song.id)
+        const libPromises = libRels.map(r => db.get('libraries', r.library_id))
+        const rawLibs = (await Promise.all(libPromises)).filter(Boolean)
+        libraries = rawLibs.map(l => ({ id: l.id, name: l.name }))
+      }
+
       const videos = normalizeVideos(song, song.lyrics_data)
 
       return {
@@ -49,7 +68,8 @@ export async function listSongs() {
         videos,
         artist: artist ? artist.name : 'Desconocido',
         tags: tags.map(t => t.name),
-        genres: genres.map(g => g.name)
+        genres: genres.map(g => g.name),
+        libraries
       }
     })
   )
@@ -148,7 +168,11 @@ export async function saveSong(songData) {
 export async function deleteSong(songId) {
   const db = await getDB()
   const id = Number(songId)
-  const tx = db.transaction(['songs', 'song_tags', 'song_genres'], 'readwrite')
+  const storeNames = ['songs', 'song_tags', 'song_genres']
+  if (db.objectStoreNames.contains('song_libraries')) {
+    storeNames.push('song_libraries')
+  }
+  const tx = db.transaction(storeNames, 'readwrite')
 
   try {
     await tx.objectStore('songs').delete(id)
@@ -161,6 +185,13 @@ export async function deleteSong(songId) {
     const genreRels = await tx.objectStore('song_genres').index('song_id').getAllKeys(id)
     for (const key of genreRels) {
       await tx.objectStore('song_genres').delete(key)
+    }
+
+    if (db.objectStoreNames.contains('song_libraries')) {
+      const libRels = await tx.objectStore('song_libraries').index('song_id').getAllKeys(id)
+      for (const key of libRels) {
+        await tx.objectStore('song_libraries').delete(key)
+      }
     }
 
     await tx.done

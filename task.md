@@ -544,6 +544,39 @@
   - Añadidas pruebas unitarias en `tests/views/controlsView.test.js` y `tests/views/basicViewer.test.js` (20 suites, 158 pruebas pasando al 100%).
   - Compilación de producción con `npm run build` verificada exitosamente.
 
+---
+
+## Fase 24: Gestión y Organización en Bibliotecas (Playlists / Grupos)
+
+- [x] **24.1. Esquema de Datos y Persistencia Local (SarangaDB v3):**
+  - Actualizada la versión de base de datos a `DB_VERSION = 3` en [`src/services/db.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/db.js).
+  - Creados los almacenes de objetos `libraries` (`keyPath: 'id'`, índices `name`, `created_at`) y `song_libraries` (`keyPath: 'id'`, índices `song_id`, `library_id` e índice compuesto único `song_library: [song_id, library_id]`).
+  - Actualizado `deleteSong` en [`src/services/songService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/songService.js) para limpiar automáticamente las relaciones huérfanas en `song_libraries`.
+  - Enriquecidas las funciones `fetchSongById` y `listSongs` para resolver e incluir la lista de bibliotecas (`libraries: [{ id, name }]`) a las que pertenece cada canción.
+- [x] **24.2. Módulo de Servicios de Bibliotecas ([`src/services/libraryService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/libraryService.js)):**
+  - Implementadas funciones CRUD completas: `createLibrary`, `listLibraries` con conteo reactivo de canciones (`songCount`), `getLibraryById`, `getLibraryByName`, `renameLibrary` y `deleteLibrary` (preservando intactas las canciones).
+  - Implementada gestión de relaciones N:M: `addSongToLibrary`, `removeSongFromLibrary`, `getSongLibraries`, `getLibrarySongs` y `setSongLibraries`.
+  - Implementado algoritmo `getNextUniqueLibraryName(baseName, existingNames)` para calcular automáticamente sufijos secuenciales `(2)`, `(3)`, etc., ante nombres repetidos.
+- [x] **24.3. Exportación e Importación de Paquetes de Biblioteca ([`src/services/shareService.js`](file:///home/hezztia/Documents/SarangaBaranga/src/services/shareService.js)):**
+  - Implementada función `exportLibraryPackage(libraryId)`: genera y descarga el archivo JSON `saranga-library-package` (`biblioteca-<nombre>.json`) conteniendo exclusivamente las canciones de la biblioteca seleccionada.
+  - Implementada función `importLibraryPackage(fileOrString, { onConflictChoice })`:
+    - Creación automática si la biblioteca no existe en la base de datos local.
+    - Detección de colisión de nombre con consulta al usuario mediante callback `onConflictChoice` o modal interactivo.
+    - Soporte de resolución dual: **Combinar** (añade las canciones a la existente) o **Crear nueva** (crea biblioteca con sufijo secuencial `(2)`, `(3)`, etc.).
+    - Prevención de duplicados a nivel de canciones vinculando temas existentes o registrando nuevas canciones.
+- [x] **24.4. Interfaz de Usuario y Navegación en el Menú ([`src/views/songMenuView.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/songMenuView.js), [`src/style.css`](file:///home/hezztia/Documents/SarangaBaranga/src/style.css)):**
+  - Barra de pestañas horizontal con soporte de desplazamiento táctil: pestaña "Todas" activa por defecto mostrando el total del catálogo, pestañas de bibliotecas personalizadas con badges de recuento y botón `+ Nueva Biblioteca`.
+  - Barra de herramientas para biblioteca activa con opciones de **Renombrar**, **Exportar Biblioteca** y **Eliminar Biblioteca**.
+  - Badges visuales `.badge-library` en tarjetas de cuadrícula y filas de lista.
+  - Botón `${iconFolder} Bibliotecas` en cada canción y modal interactivo `.song-libraries-modal` para asignar o desasignar bibliotecas con checkboxes y creación al vuelo.
+  - Diálogo interactivo de resolución de conflictos `.library-conflict-dialog` integrado en el flujo de importación desde dropzone/selector de archivos.
+  - Nuevos iconos SVG `iconFolder` e `iconFolderPlus` en [`src/views/icons.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/icons.js).
+- [x] **24.5. Suite de Pruebas Automatizadas y Verificación:**
+  - Creada suite de pruebas unitarias y de integración [`tests/services/libraryService.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/services/libraryService.test.js) con 15 pruebas cubriendo sufijos únicos, CRUD, conteos y relaciones N:M.
+  - Añadidas 4 pruebas en [`tests/services/shareService.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/services/shareService.test.js) para exportación, importación automática, combinación y creación con sufijo `(2)`.
+  - Añadidas 8 pruebas en [`tests/views/songMenuView.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/views/songMenuView.test.js) para la barra de navegación, filtrado, renombrado, exportación, eliminación y diálogo de conflicto (185 pruebas automatizadas al 100%).
+  - Compilación de producción con `npm run build` verificada sin errores.
+
 
 
 

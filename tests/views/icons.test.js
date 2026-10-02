@@ -32,7 +32,9 @@ describe('views/icons.js', () => {
       'iconRotateCcw',
       'iconSparkles',
       'iconGrid',
-      'iconList'
+      'iconList',
+      'iconFolder',
+      'iconFolderPlus'
     ]
 
     requiredIcons.forEach(iconName => {

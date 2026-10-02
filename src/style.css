@@ -1123,6 +1123,254 @@ input[type="number"] {
   animation: fadeIn 0.25s ease-out;
 }
 
+/* ==========================================================================
+   Navegación y Gestión de Bibliotecas (Song Libraries)
+   ========================================================================== */
+.libraries-nav-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.libraries-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.libraries-nav-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.libraries-tabs-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lib-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  color: var(--text-main);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.lib-tab-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.lib-tab-pill.is-active {
+  background: var(--primary-color);
+  color: var(--primary-contrast, #ffffff);
+  border-color: var(--primary-color);
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.lib-tab-count {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1px 7px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.lib-tab-pill.is-active .lib-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: inherit;
+}
+
+.btn-new-library {
+  border-style: dashed;
+  color: var(--text-muted);
+  background: transparent;
+}
+
+.btn-new-library:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* Barra de herramientas de la biblioteca activa */
+.active-library-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.active-lib-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.active-lib-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.active-lib-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.active-lib-count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.active-lib-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-danger-subtle {
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger-subtle:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
+.badge-library {
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Modales para Bibliotecas (Conflicto y Selección) */
+.library-conflict-dialog,
+.song-libraries-modal {
+  max-width: 520px;
+  width: 92%;
+  z-index: 1000;
+}
+
+.libraries-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 14px 0;
+  padding: 4px;
+}
+
+.lib-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.lib-checkbox-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.lib-checkbox-input {
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.lib-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.lib-checkbox-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: normal;
+  margin-left: auto;
+}
+
+.modal-inline-create-lib {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  align-items: center;
+}
+
+.modal-inline-create-lib .search-input {
+  padding: 7px 12px;
+  font-size: 0.85rem;
+}
+
+.empty-libs-msg {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-style: italic;
+  padding: 10px 0;
+}
+
 .menu-filter-bar {
   display: flex;
   justify-content: space-between;

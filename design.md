@@ -311,6 +311,9 @@ Se mantiene de manera idéntica la estructura de entidades relacionales diseñad
 * **`genres`**: `{ id: string | number, name: string }` (KeyPath: `id`, Index: `name`)
 * **`song_tags`**: `{ song_id: string | number, tag_id: string | number }` (Index: `song_id`, `tag_id`, KeyPath compuesto o autoincremental)
 * **`song_genres`**: `{ song_id: string | number, genre_id: string | number }` (Index: `song_id`, `genre_id`, KeyPath compuesto o autoincremental)
+* **`libraries`**: `{ id: number, name: string, description: string, created_at: string }` (KeyPath: `id`, Index: `name`, `created_at`)
+* **`song_libraries`**: `{ id: number, song_id: number, library_id: number, added_at: string }` (Index: `song_id`, `library_id`, Index compuesto `song_library: [song_id, library_id]`)
+* **`settings`**: `{ key: string, value: any }` (KeyPath: `key`)
 
 ### 3.2. Esquema Relacional Canónico de Referencia (SQL)
 Este esquema SQL define la fuente de verdad del modelo conceptual y servirá a futuro si se conecta con un catálogo Supabase en modo sólo lectura:
@@ -358,8 +361,8 @@ CREATE TABLE song_genres (
 );
 ```
 
-### 3.3. Capa de Servicios Locales: `src/services/db.js` y `src/services/songService.js`
-La aplicación utiliza un servicio de base de datos local basado en IndexedDB (`SarangaDB`, versión 2 con almacenes `songs`, `artists`, `tags`, `genres`, `song_tags`, `song_genres` y `settings`). En la primera visita del usuario, se inicializan automáticamente las canciones por defecto ("Still Alive" e "Idol" desde `still_alive.json` y `yoasobi_idol.json`), marcando el sembrado de forma dual en `localStorage` y en el almacén `settings`. Esta persistencia garantiza que si el usuario decide eliminar alguna de las canciones, el sistema respeta la acción y nunca vuelve a reinsertarlas automáticamente en visitas o recargas posteriores.
+### 3.3. Capa de Servicios Locales: `src/services/db.js`, `src/services/songService.js` y `src/services/libraryService.js`
+La aplicación utiliza un servicio de base de datos local basado en IndexedDB (`SarangaDB`, versión 3 con almacenes `songs`, `artists`, `tags`, `genres`, `song_tags`, `song_genres`, `libraries`, `song_libraries` y `settings`). En la primera visita del usuario, se inicializan automáticamente las canciones por defecto ("Still Alive" e "Idol" desde `still_alive.json` y `yoasobi_idol.json`), marcando el sembrado de forma dual en `localStorage` y en el almacén `settings`. Esta persistencia garantiza que si el usuario decide eliminar alguna de las canciones, el sistema respeta la acción y nunca vuelve a reinsertarlas automáticamente en visitas o recargas posteriores.
 
 La capa de repositorio expone funciones asíncronas limpias con resolución de relaciones (joins lógicos):
 
@@ -388,9 +391,23 @@ export async function fetchSongById(songId) {
 }
 ```
 
+#### 3.3.1. Servicio de Bibliotecas y Agrupaciones (`src/services/libraryService.js`)
+* **Modelo N:M Autónomo:** Las bibliotecas permiten a los usuarios organizar y categorizar sus canciones en múltiples grupos personalizados sin duplicar el almacenamiento físico del archivo ni los datos temporales.
+* **Operaciones Principales:**
+  * `createLibrary(name, description)`: Crea una nueva agrupación validando que el nombre no esté vacío.
+  * `listLibraries()`: Obtiene todas las bibliotecas calculando de forma reactiva el recuento de canciones en cada una (`songCount`).
+  * `renameLibrary(id, newName)`: Modifica el nombre o descripción de la biblioteca seleccionada.
+  * `deleteLibrary(id)`: Elimina la biblioteca y sus relaciones en `song_libraries` preservando intactas las canciones del catálogo general.
+  * `setSongLibraries(songId, libraryIds)` / `addSongToLibrary(songId, libraryId)` / `removeSongFromLibrary(songId, libraryId)`: Gestión de relaciones de pertenencia.
+  * `getNextUniqueLibraryName(baseName, existingNames)`: Algoritmo que calcula nombres únicos progresivos con sufijo `(2)`, `(3)`, etc., garantizando la no colisión durante la importación.
+
 ### 3.4. Motor de Exportación e Importación JSON (`src/services/shareService.js`)
 * **`exportSongPackage(songId)`**: Recupera la canción con su artista, tags y géneros, construye el paquete `song-package.json` con todas sus pistas lingüísticas y desencadena la descarga en el navegador con `Blob` y enlace dinámico.
 * **`importSongPackage(jsonFileOrString)`**: Parsea el archivo, valida su esquema, realiza *upsert* de artista, géneros y tags, inserta la canción y sus relaciones en IndexedDB y retorna el nuevo ID para su reproducción o edición inmediata.
+* **`exportLibraryPackage(libraryId)`**: Empaqueta una biblioteca específica con todas sus canciones asociadas en un archivo `saranga-library-package` (`biblioteca-<nombre>.json`), facilitando compartir colecciones temáticas completas sin transferir todo el catálogo.
+* **`importLibraryPackage(fileOrString, { onConflictChoice })`**: Importa una biblioteca compartida. Si la biblioteca no existe, la crea automáticamente. Si ya existe una con el mismo nombre, solicita resolución al usuario:
+  * **Combinar:** Añade las canciones del paquete a la biblioteca existente.
+  * **Crear nueva:** Crea una nueva biblioteca con sufijo secuencial `(2)`, `(3)`, etc., y le asigna las canciones importadas.
 * **`exportLibraryBackup()` / `importLibraryBackup()`**: Permite realizar un volcado completo de toda la base de datos local para respaldos o migración de navegador.
 
 ### 3.5. Servicio Adaptador para Estándar `lyricsfile` (`src/services/lyricsfileService.js`)

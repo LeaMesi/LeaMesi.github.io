@@ -1,5 +1,15 @@
 import { fetchSongById, saveSong, listSongs } from './songService.js'
 import { validateSongPackage } from './schemaValidator.js'
+import { getDB } from './db.js'
+import {
+  getLibraryById,
+  getLibraryByName,
+  listLibraries,
+  createLibrary,
+  getLibrarySongs,
+  addSongToLibrary,
+  getNextUniqueLibraryName
+} from './libraryService.js'
 
 function triggerDownload(content, filename, contentType = 'application/json') {
   const blob = new Blob([content], { type: contentType })
@@ -141,5 +151,151 @@ export async function importLibraryBackup(fileOrString) {
   }
 
   return importedIds
+}
+
+export async function exportLibraryPackage(libraryId) {
+  const library = await getLibraryById(libraryId)
+  if (!library) throw new Error('Biblioteca no encontrada para exportar.')
+
+  const songs = await getLibrarySongs(libraryId)
+  const pkg = {
+    version: '1.1.0',
+    type: 'saranga-library-package',
+    exportedAt: new Date().toISOString(),
+    library: {
+      name: library.name,
+      description: library.description || ''
+    },
+    songs: songs.map(song => ({
+      title: song.title,
+      artist: song.artist,
+      genres: song.genres || [],
+      tags: song.tags || [],
+      audio_path: song.audio_path || '',
+      videos: song.videos || song.lyrics_data?.videos || [],
+      lyrics_data: song.lyrics_data,
+      visuals_data: song.visuals_data
+    }))
+  }
+
+  const jsonStr = JSON.stringify(pkg, null, 2)
+  const filename = `biblioteca-${sanitizeFilename(library.name)}.json`
+  triggerDownload(jsonStr, filename)
+  return pkg
+}
+
+export async function importLibraryPackage(fileOrString, { onConflictChoice } = {}) {
+  let jsonString = ''
+  if (typeof fileOrString === 'string') {
+    jsonString = fileOrString
+  } else if (fileOrString instanceof Blob || fileOrString instanceof File) {
+    jsonString = await fileOrString.text()
+  } else if (typeof fileOrString === 'object') {
+    jsonString = JSON.stringify(fileOrString)
+  }
+
+  const rawData = JSON.parse(jsonString)
+  if (!Array.isArray(rawData.songs)) {
+    throw new Error('El archivo no contiene una biblioteca válida (falta la lista de canciones).')
+  }
+
+  const baseLibraryName = (rawData.library?.name || 'Biblioteca Importada').trim() || 'Biblioteca Importada'
+  const existingLibrary = await getLibraryByName(baseLibraryName)
+
+  let targetLibraryId = null
+  let targetLibraryName = baseLibraryName
+
+  if (existingLibrary) {
+    const allLibraries = await listLibraries()
+    const proposedNewName = getNextUniqueLibraryName(baseLibraryName, allLibraries.map(l => l.name))
+
+    let choice = 'combine'
+    if (typeof onConflictChoice === 'function') {
+      choice = await onConflictChoice({
+        existingName: existingLibrary.name,
+        proposedNewName
+      })
+    } else if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
+      const shouldCombine = window.confirm(
+        `Ya existe una biblioteca llamada "${existingLibrary.name}".\n\n` +
+        `¿Deseas combinar las canciones con la biblioteca existente?\n` +
+        `• Aceptar: Combinar en "${existingLibrary.name}".\n` +
+        `• Cancelar: Crear una nueva biblioteca "${proposedNewName}".`
+      )
+      choice = shouldCombine ? 'combine' : 'create_new'
+    }
+
+    if (choice === 'cancel') {
+      return null
+    }
+
+    if (choice === 'combine') {
+      targetLibraryId = existingLibrary.id
+      targetLibraryName = existingLibrary.name
+    } else {
+      const newLib = await createLibrary(proposedNewName, rawData.library?.description || '')
+      targetLibraryId = newLib.id
+      targetLibraryName = newLib.name
+    }
+  } else {
+    // Si no existe, se crea automáticamente
+    const newLib = await createLibrary(baseLibraryName, rawData.library?.description || '')
+    targetLibraryId = newLib.id
+    targetLibraryName = newLib.name
+  }
+
+  // Importar o asociar canciones
+  const db = await getDB()
+  const importedSongIds = []
+
+  for (const songItem of rawData.songs) {
+    let songId = null
+    const songTitle = (songItem.title || '').trim()
+
+    let existingSong = null
+    if (songTitle) {
+      existingSong = await db.getFromIndex('songs', 'title', songTitle)
+    }
+
+    if (existingSong) {
+      songId = existingSong.id
+    } else {
+      const pkg = {
+        metadata: {
+          title: songItem.title,
+          artist: songItem.artist,
+          genres: songItem.genres,
+          tags: songItem.tags,
+          audioPath: songItem.audio_path,
+          videos: songItem.videos || songItem.lyrics_data?.videos || []
+        },
+        basic: songItem.lyrics_data,
+        advanced: songItem.visuals_data
+      }
+      const validated = validateSongPackage(pkg)
+      songId = await saveSong({
+        title: validated.metadata.title,
+        artist: validated.metadata.artist,
+        genres: validated.metadata.genres,
+        tags: validated.metadata.tags,
+        audio_path: validated.metadata.audioPath,
+        videos: validated.metadata.videos,
+        lyrics_data: validated.basic,
+        visuals_data: validated.advanced
+      })
+    }
+
+    if (songId) {
+      await addSongToLibrary(songId, targetLibraryId)
+      importedSongIds.push(songId)
+    }
+  }
+
+  return {
+    libraryId: targetLibraryId,
+    libraryName: targetLibraryName,
+    songCount: importedSongIds.length,
+    songIds: importedSongIds
+  }
 }
 

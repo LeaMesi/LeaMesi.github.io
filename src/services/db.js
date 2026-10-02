@@ -3,7 +3,7 @@ import { defaultSongs } from '../data/defaultSongs.js'
 import { validateSongPackage } from './schemaValidator.js'
 
 const DB_NAME = 'SarangaDB'
-const DB_VERSION = 2
+const DB_VERSION = 3
 
 const SEED_VERSION_KEY = 'saranga_seed_version'
 const SEED_CURRENT_VERSION = '2'
@@ -52,6 +52,19 @@ export function getDB() {
 
         if (!db.objectStoreNames.contains('settings')) {
           db.createObjectStore('settings', { keyPath: 'key' })
+        }
+
+        if (!db.objectStoreNames.contains('libraries')) {
+          const libStore = db.createObjectStore('libraries', { keyPath: 'id', autoIncrement: true })
+          libStore.createIndex('name', 'name', { unique: false })
+          libStore.createIndex('created_at', 'created_at', { unique: false })
+        }
+
+        if (!db.objectStoreNames.contains('song_libraries')) {
+          const songLibStore = db.createObjectStore('song_libraries', { keyPath: 'id', autoIncrement: true })
+          songLibStore.createIndex('song_id', 'song_id', { unique: false })
+          songLibStore.createIndex('library_id', 'library_id', { unique: false })
+          songLibStore.createIndex('song_library', ['song_id', 'library_id'], { unique: true })
         }
       }
     }).then(async db => {
