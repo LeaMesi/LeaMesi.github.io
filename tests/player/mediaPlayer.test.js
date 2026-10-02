@@ -136,8 +136,12 @@ describe('player/mediaPlayer.js', () => {
 
       expect(player.getActiveVideoId()).toBe('v-yt')
       expect(player.getActiveOffset()).toBe(2)
-      // getCurrentTime reporta rawTime (15) - offset (2) = 13
-      expect(player.getCurrentTime()).toBe(13)
+      // getCurrentTime reporta el tiempo real completo del video (15s)
+      expect(player.getCurrentTime()).toBe(15)
+      // getDuration reporta la duración completa del video (120s) sin acortar la canción
+      expect(player.getDuration()).toBe(120)
+      // getLyricsTime reporta el tiempo ajustado para sincronizar las letras: 15 - 2 = 13s
+      expect(player.getLyricsTime()).toBe(13)
     })
   })
 })

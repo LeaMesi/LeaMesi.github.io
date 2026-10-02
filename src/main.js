@@ -113,16 +113,16 @@ async function initApp() {
   const basicViewer = createBasicViewer(lyricsViewportEl, {
     initialPreviewCount: initialPreviewLines,
     initialScriptDisplayMode: initialScriptMode,
-    onSeekLine: (seconds) => mediaPlayer.seek(seconds)
+    onSeekLine: (seconds) => mediaPlayer.seekLyricsTime(seconds)
   })
   const advancedViewer = createAdvancedViewer(advancedStageEl)
 
   // 4. Inicializar Reproductor Multimedia (Master Clock)
   const mediaPlayer = createMediaPlayer({
     containerId: 'youtube-player-container',
-    onTimeUpdate: (currentTime) => {
+    onTimeUpdate: (currentTime, lyricsTime) => {
       controlsView.setTime(currentTime)
-      basicViewer.updateTime(currentTime)
+      basicViewer.updateTime(lyricsTime !== undefined ? lyricsTime : mediaPlayer.getLyricsTime())
       songEditorView.updateClock(currentTime)
     },
     onStateChange: () => {

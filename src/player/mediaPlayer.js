@@ -119,7 +119,8 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     const loop = () => {
       if (!isPlaying) return
       const currentTime = getCurrentTime()
-      if (onTimeUpdate) onTimeUpdate(currentTime)
+      const lyricsTime = getLyricsTime()
+      if (onTimeUpdate) onTimeUpdate(currentTime, lyricsTime)
       rafId = requestAnimationFrame(loop)
     }
     rafId = requestAnimationFrame(loop)
@@ -181,7 +182,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
             } else if (state === PLAYER_STATE.PAUSED || state === PLAYER_STATE.ENDED) {
               isPlaying = false
               stopClock()
-              if (onTimeUpdate) onTimeUpdate(getCurrentTime())
+              if (onTimeUpdate) onTimeUpdate(getCurrentTime(), getLyricsTime())
             }
             if (onStateChange) onStateChange(state)
           }
@@ -239,11 +240,13 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     if (!target) return
     if (activeVideo && String(activeVideo.id) === String(target.id)) return
 
-    const curLyricsTime = getCurrentTime()
+    // Mantener la posición sincronizada de la letra entre diferentes pistas/videos
+    const curLyricsTime = getLyricsTime()
     activeVideo = target
     activeVideoId = target.id
     activeOffset = Number(target.offset) || 0
 
+    // En el nuevo video, el segundo correspondiente es su offset + el tiempo de la letra
     const targetVideoTime = Math.max(0, curLyricsTime + activeOffset)
     const ytVideoId = extractYouTubeVideoId(target.url)
 
@@ -309,51 +312,52 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     }
   }
 
-  function seek(targetLyricsSeconds) {
+  function seek(targetSeconds) {
     const dur = getDuration()
-    const target = Math.max(0, Math.min(targetLyricsSeconds, dur))
-    const targetVideoTime = Math.max(0, target + activeOffset)
+    const targetVideoTime = Math.max(0, Math.min(targetSeconds, dur))
 
     if (activeSource === 'youtube' && ytPlayer && ytPlayer.seekTo) {
       ytPlayer.seekTo(targetVideoTime, true)
     } else if (activeSource === 'audio' && audioElement) {
       audioElement.currentTime = targetVideoTime
     } else if (activeSource === 'virtual') {
-      fallbackTime = target
+      fallbackTime = targetVideoTime
     }
-    if (onTimeUpdate) onTimeUpdate(target)
+    if (onTimeUpdate) onTimeUpdate(targetVideoTime, getLyricsTime())
+  }
+
+  function seekLyricsTime(targetLyricsSeconds) {
+    const targetVideoTime = targetLyricsSeconds + activeOffset
+    seek(targetVideoTime)
   }
 
   function getCurrentTime() {
-    if (activeSource === 'youtube' && ytPlayer && ytPlayer.getCurrentTime) {
-      const rawVideoTime = ytPlayer.getCurrentTime() || 0
-      return rawVideoTime - activeOffset
-    }
-    if (activeSource === 'audio' && audioElement) {
-      return (audioElement.currentTime || 0) - activeOffset
-    }
-    return fallbackTime
-  }
-
-  function getRawVideoTime() {
     if (activeSource === 'youtube' && ytPlayer && ytPlayer.getCurrentTime) {
       return ytPlayer.getCurrentTime() || 0
     }
     if (activeSource === 'audio' && audioElement) {
       return audioElement.currentTime || 0
     }
-    return fallbackTime + activeOffset
+    return fallbackTime
+  }
+
+  function getLyricsTime() {
+    return getCurrentTime() - activeOffset
+  }
+
+  function getRawVideoTime() {
+    return getCurrentTime()
   }
 
   function getDuration() {
     if (activeSource === 'youtube' && ytPlayer && ytPlayer.getDuration) {
       const dur = ytPlayer.getDuration()
-      if (dur > 0) return Math.max(1, dur - activeOffset)
+      if (dur > 0) return dur
     }
     if (activeSource === 'audio' && audioElement && audioElement.duration) {
-      return Math.max(1, audioElement.duration - activeOffset)
+      return audioElement.duration
     }
-    return Math.max(1, (lastKnownDuration || 180) - activeOffset)
+    return lastKnownDuration || 180
   }
 
   function setTrackType(trackType) {
@@ -402,7 +406,9 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     pause,
     togglePlay,
     seek,
+    seekLyricsTime,
     getCurrentTime,
+    getLyricsTime,
     getRawVideoTime,
     getDuration,
     getVideos: () => currentVideos,
