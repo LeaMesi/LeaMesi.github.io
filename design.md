@@ -1,7 +1,7 @@
 # Diseño Técnico y Arquitectura: SarangaBaranga (`proy-letras`)
 
 > **Arquitectura del Sistema y Patrones de Software**  
-> **Versión:** 2.3.0  
+> **Versión:** 2.4.0  
 > **Plataforma:** SPA Estática (GitHub Pages / `usuario.github.io`) + Persistencia Local en Navegador (IndexedDB), Intercambio JSON & Compatibilidad con Estándar Abierto `lyricsfile` (.lyricsfile.yaml) (+ Catálogo Opcional Supabase Read-Only a futuro)
 
 ---
@@ -610,6 +610,38 @@ SarangaBaranga implementa una arquitectura de visualización adaptable que garan
 
 ### 9.6. Editor Móvil con Asistente Fijo Superior
 * El Asistente de Audio permanece compacto en la parte superior con reloj `mm:ss.mmm` y botones de captura accesibles, mientras la lista de frases se desplaza suavemente por debajo sin interferir con el teclado en pantalla.
+
+---
+
+## 10. Arquitectura de Texto Alternativo (Romaji / Pinyin / Fonética) y Modos de Visualización Dual de Escritura
+
+Para soportar de manera nativa canciones en idiomas con sistemas de escritura no latinos (japonés, ruso, coreano, chino, etc.), SarangaBaranga incorpora una arquitectura integral de **Texto Alternativo Fonético** (`altText` / `romaji`):
+
+### 10.1. Modelo de Datos y Normalización
+* Cada frase (`line`) puede almacenar una propiedad `altText` (con compatibilidad con `romaji`).
+* Cada sílaba (`syllable`) puede albergar su correspondiente fragmento fonético `altText` (con compatibilidad con `romaji`).
+* Los conversores de esquemas (`schemaValidator.js`), importadores/exportadores JSON (`shareService.js`), y el adaptador abierto Lyricsfile YAML (`lyricsfileService.js` mapeando `alt_text`) garantizan que el texto alternativo se preserve bidireccionalmente sin pérdida de datos.
+
+### 10.2. Visualización Simultánea en 3 Capas (Caracteres + Alternativo + Traducción)
+* El visor básico (`basicViewer.js`) admite el renderizado concurrente de las 3 capas tanto en la frase activa como en todas las frases siguientes (`upcoming-phrases`):
+  1. **Capa 1: Caracteres Originales (`.lyric-line-main`):** Texto en kanji/kana, cirílico, hangul, etc.
+  2. **Capa 2: Texto Alternativo (`.lyric-line-alt`):** Transliteración fonética (Romaji) situada inmediatamente debajo.
+  3. **Capa 3: Traducción (`.translation-line`):** Subtítulo en cursiva en el idioma de traducción seleccionado por el usuario.
+* **Seguimiento Sílaba a Sílaba Concurrente:** Cuando se reproducen canciones con marcas silábicas que incluyen `altText`, el sincronizador evalúa las marcas de tiempo y activa simultáneamente los atributos `is-active-syl`, `is-completed-syl` e `is-upcoming-syl` en los elementos de ambas líneas, iluminando tanto los caracteres originales como el Romaji al unísono.
+
+### 10.3. Selector de Modo de Escritura ("Siempre uno de los dos")
+En la barra de controles (`controlsView.js`), el usuario dispone de un selector dinámico (`#script-select`) que garantiza que al menos uno de los dos sistemas de texto esté siempre visible:
+1. **`both` (Caracteres + Alternativo):** Muestra simultáneamente los caracteres originales y la transcripción fonética.
+2. **`original` (Solo Caracteres):** Oculta el texto alternativo y muestra exclusivamente los caracteres originales (más la traducción si está activa).
+3. **`alt` (Solo Alternativo):** Oculta los caracteres originales y muestra exclusivamente la transliteración latina (Romaji) como línea principal de canto (con fallback a `line.text` si algún verso no cuenta con texto alternativo).
+* La preferencia se persiste en `localStorage` (`saranga_script_display`) y el selector se deshabilita automáticamente si la canción o pista lingüística activa no contiene texto alternativo.
+
+### 10.4. Personalización Visual de Texto Alternativo
+* **Variables CSS Dedicadas:** `--lyrics-alt-color`, `--lyrics-alt-scale`, `--lyrics-alt-size`, `--lyrics-alt-font-weight`, `--lyrics-alt-font-style`.
+* **Configuración en Modal de Temas:** Slider dedicado de 50% a 200%, selector cromático dual (picker + hex), y casillas para negrita y cursiva, con vista previa interactiva en vivo que muestra una canción en japonés con Romaji y español.
+
+### 10.5. Edición y Creación en el Editor
+* En `songEditorView.js`, cada tarjeta de frase dispone de un campo `.input-phrase-alt` para escribir la transliteración del verso completo, y cada chip de sílaba cuenta con un campo `.input-syl-alt` para la fonética silábica individual.
 
 
 

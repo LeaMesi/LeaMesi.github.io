@@ -106,9 +106,13 @@ async function initApp() {
     ? Math.max(0, Math.min(3, Number(savedPreviewLines)))
     : 2
 
+  const savedScriptMode = localStorage.getItem('saranga_script_display')
+  const initialScriptMode = (savedScriptMode === 'original' || savedScriptMode === 'alt') ? savedScriptMode : 'both'
+
   const languageManager = createLanguageManager([])
   const basicViewer = createBasicViewer(lyricsViewportEl, {
     initialPreviewCount: initialPreviewLines,
+    initialScriptDisplayMode: initialScriptMode,
     onSeekLine: (seconds) => mediaPlayer.seek(seconds)
   })
   const advancedViewer = createAdvancedViewer(advancedStageEl)
@@ -191,6 +195,7 @@ async function initApp() {
     containerElement: controlsDockEl,
     initialPreviewLines,
     initialVolume: mediaPlayer.getVolume(),
+    initialScriptDisplayMode: initialScriptMode,
     onPlayToggle: () => mediaPlayer.togglePlay(),
     onSeek: (seconds) => mediaPlayer.seek(seconds),
     onVolumeChange: (vol) => mediaPlayer.setVolume(vol),
@@ -208,6 +213,10 @@ async function initApp() {
       }
     },
     onTranslationChange: (langCode) => languageManager.setTranslationLanguage(langCode),
+    onScriptDisplayModeChange: (mode) => {
+      localStorage.setItem('saranga_script_display', mode)
+      basicViewer.setScriptDisplayMode(mode)
+    },
     onPreviewLinesChange: (count) => {
       basicViewer.setPreviewCount(count)
     },
@@ -247,13 +256,28 @@ async function initApp() {
     }
   })
 
+  function checkHasAltText(language) {
+    if (!language || !Array.isArray(language.lines)) return false
+    return language.lines.some(l => {
+      if (typeof l.altText === 'string' && l.altText.trim()) return true
+      if (typeof l.romaji === 'string' && l.romaji.trim()) return true
+      if (Array.isArray(l.syllables) && l.syllables.some(s => (s.altText && s.altText.trim()) || (s.romaji && s.romaji.trim()))) return true
+      return false
+    })
+  }
+
   // 9. Reaccionar a cambios en idiomas
   languageManager.subscribe(({ activeLanguage, translationLanguage, isBilingual, availableLanguages }) => {
+    const hasAlt = checkHasAltText(activeLanguage)
     controlsView.setLanguagesState({
       languages: availableLanguages,
       active: activeLanguage,
       translation: translationLanguage,
       bilingual: isBilingual
+    })
+    controlsView.setScriptState({
+      hasAltText: hasAlt,
+      mode: basicViewer.getScriptDisplayMode()
     })
 
     if (currentSong && activeLanguage) {

@@ -46,6 +46,7 @@ export function parseLyricsfile(yamlContent) {
       return {
         id: `syl-${lineIndex}-${wordIndex}`,
         text: word.text || '',
+        altText: word.alt_text || word.romaji || '',
         startTime: wStartMs / 1000,
         duration: Math.max(0.05, (wEndMs - wStartMs) / 1000)
       }
@@ -54,6 +55,7 @@ export function parseLyricsfile(yamlContent) {
     return {
       id: `line-${lineIndex}`,
       text: line.text || rawWords.map(w => w.text).join(''),
+      altText: line.alt_text || line.romaji || '',
       startTime,
       endTime,
       syllables
@@ -100,19 +102,27 @@ export function convertToLyricsfileYaml(song, languageCode = null) {
     const words = (line.syllables || []).map(syl => {
       const wStartMs = Math.round((syl.startTime || line.startTime) * 1000)
       const wEndMs = Math.round(((syl.startTime || line.startTime) + (syl.duration || 0.3)) * 1000)
-      return {
+      const wordObj = {
         text: syl.text || '',
         start_ms: wStartMs,
         end_ms: Math.max(wStartMs + 50, wEndMs)
       }
+      if (syl.altText || syl.romaji) {
+        wordObj.alt_text = syl.altText || syl.romaji
+      }
+      return wordObj
     })
 
-    return {
+    const lineObj = {
       text: line.text || '',
       start_ms: startMs,
       end_ms: endMs,
       words
     }
+    if (line.altText || line.romaji) {
+      lineObj.alt_text = line.altText || line.romaji
+    }
+    return lineObj
   })
 
   const plainText = targetLang.plain || lines.map(l => l.text).join('\n')

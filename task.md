@@ -374,6 +374,35 @@
   - Compilación verificada con `npm run build` sin errores.
   - 100% de los estilos y maquetación de PC ($\ge 1025\text{px}$) intactos y sin alteraciones.
 
+---
+
+## Fase 17: Soporte Integral de Texto Alternativo (Romaji / Fonetismo) y Modos Duales de Escritura
+
+- [x] **17.1. Modelo de Datos y Validación de Esquemas (`src/services/schemaValidator.js`):**
+  - Soporte y preservación de `altText` en versos (`line.altText`) y sílabas (`syl.altText`), con compatibilidad de retroceso para `romaji`.
+- [x] **17.2. Configuración Visual de Texto Alternativo en Temas (`src/services/themeService.js`, `src/views/themeSettingsModal.js`):**
+  - Nuevas propiedades `altColor` (`--lyrics-alt-color`), `altScale` (`--lyrics-alt-scale`, `--lyrics-alt-size`), `altBold`, `altItalic` en `DEFAULT_THEME` y en los 5 temas predefinidos.
+  - Añadido slider de escala (50% a 200%) y tarjeta de personalización de color y tipografía en el modal de temas con previsualización en vivo en japonés.
+  - Inclusión de parámetros en exportación e importación de paquetes de tema JSON (`saranga-theme-settings.json`).
+- [x] **17.3. Renderizado y Sincronización en Modo Letra (`src/views/basicViewer.js`):**
+  - Renderizado simultáneo en 3 capas: Caracteres Originales (`.lyric-line-main`), Texto Alternativo (`.lyric-line-alt`) y Traducción (`.translation-line`).
+  - Extensión a todas las frases siguientes en previsualización (`upcoming-phrase-item`).
+  - Sincronización sílaba a sílaba concurrente (`updateTime` iluminando simultáneamente kanji y romaji al mismo tiempo).
+  - Manejo de estados `both`, `original` y `alt` (con fallback seguro a `line.text`).
+- [x] **17.4. Selector de Escritura en Dock de Controles (`src/views/controlsView.js`, `src/main.js`):**
+  - Menú desplegable `#script-select` en `.center-controls` con opciones `both` (Caracteres + Alternativo), `original` (Solo Caracteres) y `alt` (Solo Alternativo Romaji), garantizando la regla de "siempre uno de los dos".
+  - Detección automática de presencia de texto alternativo (`hasAltText`) en la pista activa y persistencia de preferencia en `localStorage` (`saranga_script_display`).
+- [x] **17.5. Soporte en el Editor de Canciones (`src/views/songEditorView.js`):**
+  - Inputs `.input-phrase-alt` en cada tarjeta de verso para ingresar la transliteración completa.
+  - Inputs `.input-syl-alt` en cada chip de sílaba para sincronización fonética individual.
+- [x] **17.6. Interoperabilidad Lyricsfile YAML (`src/services/lyricsfileService.js`):**
+  - Importación y exportación de `alt_text` en especificación `.lyricsfile.yaml`.
+- [x] **17.7. Canción Demo en Japonés y Sembrado Automático (`src/data/mockSong.js`, `src/services/db.js`):**
+  - Incorporada canción demo `mockJapaneseSong` ('君が好きだと叫びたい') con kanji, romaji y traducción al español sembrada en IndexedDB.
+- [x] **17.8. Estilos CSS y Comportamiento Responsivo (`src/style.css`):**
+  - Estilos dedicados para `.lyric-line-alt`, `.is-primary-alt`, `.input-phrase-alt`, `.input-syl-alt` y reglas fluidas `clamp()` en móvil portrait y landscape.
+  - Verificación de compilación exitosa con `npm run build`.
+
 
 
 

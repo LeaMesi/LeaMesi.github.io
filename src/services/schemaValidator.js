@@ -138,6 +138,7 @@ function normalizeLines(lines) {
       ? line.syllables.map((syl, sylIndex) => ({
         id: syl.id || `syl-${lineIndex}-${sylIndex}`,
         text: syl.text || '',
+        altText: String(syl.altText ?? syl.romaji ?? '').trim(),
         startTime: Number(syl.startTime ?? syl.start ?? startTime),
         duration: Number(syl.duration ?? 0.3)
       }))
@@ -146,6 +147,7 @@ function normalizeLines(lines) {
     return {
       id: line.id || `line-${lineIndex}`,
       text: line.text || '',
+      altText: String(line.altText ?? line.romaji ?? '').trim(),
       startTime,
       endTime,
       syllables

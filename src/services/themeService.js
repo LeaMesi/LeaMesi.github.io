@@ -17,11 +17,15 @@ export const DEFAULT_THEME = {
 
   // 3. Modo Canción - Colores y Estilos de Letra
   originalColor: '#cbd5e1',
+  altColor: '#a5f3fc',
   translationColor: '#38bdf8',
   activeColor: '#fbbf24',
   completedColor: '#f59e0b',
   originalBold: true,
   originalItalic: false,
+  altBold: false,
+  altItalic: false,
+  altScale: 100,
   translationBold: false,
   translationItalic: true,
   activeBold: true,
@@ -43,11 +47,15 @@ export const THEME_PRESETS = [
       lyricsScale: 100,
       translationScale: 100,
       originalColor: '#cbd5e1',
+      altColor: '#a5f3fc',
       translationColor: '#38bdf8',
       activeColor: '#fbbf24',
       completedColor: '#f59e0b',
       originalBold: true,
       originalItalic: false,
+      altBold: false,
+      altItalic: false,
+      altScale: 100,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
@@ -68,11 +76,15 @@ export const THEME_PRESETS = [
       lyricsScale: 100,
       translationScale: 100,
       originalColor: '#c084fc',
+      altColor: '#67e8f9',
       translationColor: '#22d3ee',
       activeColor: '#facc15',
       completedColor: '#f472b6',
       originalBold: true,
       originalItalic: false,
+      altBold: false,
+      altItalic: false,
+      altScale: 100,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
@@ -93,11 +105,15 @@ export const THEME_PRESETS = [
       lyricsScale: 100,
       translationScale: 100,
       originalColor: '#a7f3d0',
+      altColor: '#6ee7b7',
       translationColor: '#38bdf8',
       activeColor: '#fde047',
       completedColor: '#34d399',
       originalBold: true,
       originalItalic: false,
+      altBold: false,
+      altItalic: false,
+      altScale: 100,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
@@ -118,11 +134,15 @@ export const THEME_PRESETS = [
       lyricsScale: 100,
       translationScale: 100,
       originalColor: '#fed7aa',
+      altColor: '#fed7aa',
       translationColor: '#fb7185',
       activeColor: '#fde047',
       completedColor: '#f97316',
       originalBold: true,
       originalItalic: false,
+      altBold: false,
+      altItalic: false,
+      altScale: 100,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
@@ -143,11 +163,15 @@ export const THEME_PRESETS = [
       lyricsScale: 100,
       translationScale: 100,
       originalColor: '#475569',
+      altColor: '#0284c7',
       translationColor: '#0284c7',
       activeColor: '#d97706',
       completedColor: '#b45309',
       originalBold: true,
       originalItalic: false,
+      altBold: false,
+      altItalic: false,
+      altScale: 100,
       translationBold: false,
       translationItalic: true,
       activeBold: true,
@@ -259,11 +283,15 @@ export function applyTheme(theme = getThemeSettings()) {
     lyricsScale = 100,
     translationScale = 100,
     originalColor,
+    altColor,
     translationColor,
     activeColor,
     completedColor,
     originalBold,
     originalItalic,
+    altBold,
+    altItalic,
+    altScale = 100,
     translationBold,
     translationItalic,
     activeBold,
@@ -293,14 +321,18 @@ export function applyTheme(theme = getThemeSettings()) {
   // 2. Sliders de tamaño de fuentes (50% a 200%)
   const clampedLyricScale = Math.max(50, Math.min(200, Number(lyricsScale) || 100)) / 100
   const clampedTransScale = Math.max(50, Math.min(200, Number(translationScale) || 100)) / 100
+  const clampedAltScale = Math.max(50, Math.min(200, Number(altScale) || 100)) / 100
 
   root.style.setProperty('--lyrics-scale', clampedLyricScale.toFixed(2))
   root.style.setProperty('--translation-scale', clampedTransScale.toFixed(2))
+  root.style.setProperty('--lyrics-alt-scale', clampedAltScale.toFixed(2))
   root.style.setProperty('--lyrics-original-size', `calc(2.3rem * var(--lyrics-scale))`)
   root.style.setProperty('--lyrics-translation-size', `calc(1.265rem * var(--translation-scale))`)
+  root.style.setProperty('--lyrics-alt-size', `calc(var(--lyrics-original-size) * 0.75 * var(--lyrics-alt-scale, 1))`)
 
   // 3. Colores de Letras y Seguimiento de Sílabas
   root.style.setProperty('--lyrics-original-color', originalColor || '#cbd5e1')
+  root.style.setProperty('--lyrics-alt-color', altColor || '#a5f3fc')
   root.style.setProperty('--translation-color', translationColor || '#38bdf8')
   root.style.setProperty('--lyrics-active-color', activeColor || '#fbbf24')
   root.style.setProperty('--text-active', activeColor || '#fbbf24')
@@ -310,6 +342,9 @@ export function applyTheme(theme = getThemeSettings()) {
   // 4. Estilos tipográficos y Efecto de Brillo (Glow)
   root.style.setProperty('--lyrics-original-font-weight', originalBold ? '700' : '400')
   root.style.setProperty('--lyrics-original-font-style', originalItalic ? 'italic' : 'normal')
+
+  root.style.setProperty('--lyrics-alt-font-weight', altBold ? '700' : '500')
+  root.style.setProperty('--lyrics-alt-font-style', altItalic ? 'italic' : 'normal')
 
   root.style.setProperty('--lyrics-translation-font-weight', translationBold ? '700' : '400')
   root.style.setProperty('--lyrics-translation-font-style', translationItalic ? 'italic' : 'normal')
@@ -410,9 +445,9 @@ export async function importThemePackage(fileOrString) {
 
   const validKeys = [
     'bgColor', 'panelBg', 'primaryColor', 'textMain',
-    'lyricsScale', 'translationScale',
-    'originalColor', 'translationColor', 'activeColor', 'completedColor',
-    'originalBold', 'originalItalic', 'translationBold', 'translationItalic',
+    'lyricsScale', 'translationScale', 'altScale',
+    'originalColor', 'altColor', 'translationColor', 'activeColor', 'completedColor',
+    'originalBold', 'originalItalic', 'altBold', 'altItalic', 'translationBold', 'translationItalic',
     'activeBold', 'activeItalic', 'activeGlow', 'completedBold', 'completedItalic'
   ]
 
@@ -433,6 +468,9 @@ export async function importThemePackage(fileOrString) {
   }
   if ('translationScale' in cleanSettings) {
     cleanSettings.translationScale = Math.max(50, Math.min(200, Number(cleanSettings.translationScale) || 100))
+  }
+  if ('altScale' in cleanSettings) {
+    cleanSettings.altScale = Math.max(50, Math.min(200, Number(cleanSettings.altScale) || 100))
   }
 
   const merged = saveThemeSettings(cleanSettings)

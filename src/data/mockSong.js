@@ -337,3 +337,249 @@ export const mockSong = {
     effects: []
   }
 }
+
+// Canción demo en japonés con caracteres originales (Kanji/Kana), texto alternativo (Romaji) y traducción al español
+export const mockJapaneseSong = {
+  version: '1.1.0',
+  metadata: {
+    title: '君が好きだと叫びたい (Kimi ga Suki da to Sakebitai)',
+    artist: 'BAAD',
+    genres: ['J-Rock', 'Anime', 'Rock'],
+    tags: ['japanese', 'romaji', 'slamdunk', 'karaoke'],
+    audioPath: '',
+    videos: [
+      {
+        id: 'vid-ja-1',
+        name: 'Slam Dunk OP1',
+        url: 'https://www.youtube.com/watch?v=iW4atnm_5h0',
+        offset: 0
+      }
+    ],
+    youtubeUrlFull: 'https://www.youtube.com/watch?v=iW4atnm_5h0',
+    youtubeUrlInstrumental: 'https://www.youtube.com/watch?v=iW4atnm_5h0'
+  },
+  basic: {
+    timing: {
+      bpm: 130,
+      timeSignature: [4, 4],
+      syncMode: 'timestamp',
+      globalOffset: 0
+    },
+    styles: {
+      textColor: '#94a3b8',
+      activeColor: '#fbbf24',
+      completedColor: '#f59e0b',
+      translationColor: '#38bdf8',
+      backgroundColor: '#0f172a',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      fontSize: '2.1rem'
+    },
+    videos: [
+      {
+        id: 'vid-ja-1',
+        name: 'Slam Dunk OP1',
+        url: 'https://www.youtube.com/watch?v=iW4atnm_5h0',
+        offset: 0
+      }
+    ],
+    languages: [
+      {
+        code: 'ja',
+        name: 'Japonés (Original)',
+        isMain: true,
+        plain: '眩しい陽差しを背に\n走り出す街の中\n君が好きだと叫びたい\n明日を変えてみよう\n通り抜ける風を抱きしめて',
+        lines: [
+          {
+            id: 'line-ja-1',
+            startTime: 2.0,
+            endTime: 5.2,
+            text: '眩しい陽差しを背に',
+            altText: 'Mabushii hizashi wo se ni',
+            syllables: [
+              { text: '眩', altText: 'Ma', startTime: 2.0, duration: 0.3 },
+              { text: 'し', altText: 'bu', startTime: 2.3, duration: 0.25 },
+              { text: 'い', altText: 'shii ', startTime: 2.55, duration: 0.35 },
+              { text: '陽', altText: 'hi', startTime: 2.9, duration: 0.25 },
+              { text: '差', altText: 'za', startTime: 3.15, duration: 0.25 },
+              { text: 'し', altText: 'shi ', startTime: 3.4, duration: 0.25 },
+              { text: 'を', altText: 'wo ', startTime: 3.65, duration: 0.25 },
+              { text: '背', altText: 'se ', startTime: 3.9, duration: 0.3 },
+              { text: 'に', altText: 'ni', startTime: 4.2, duration: 0.8 }
+            ]
+          },
+          {
+            id: 'line-ja-2',
+            startTime: 5.6,
+            endTime: 8.8,
+            text: '走り出す街の中',
+            altText: 'Hashiridasu machi no naka',
+            syllables: [
+              { text: '走', altText: 'Ha', startTime: 5.6, duration: 0.3 },
+              { text: 'り', altText: 'shi', startTime: 5.9, duration: 0.25 },
+              { text: '出', altText: 'ri', startTime: 6.15, duration: 0.25 },
+              { text: 'す', altText: 'dasu ', startTime: 6.4, duration: 0.3 },
+              { text: '街', altText: 'ma', startTime: 6.7, duration: 0.3 },
+              { text: 'の', altText: 'chi no ', startTime: 7.0, duration: 0.3 },
+              { text: '中', altText: 'naka', startTime: 7.3, duration: 0.9 }
+            ]
+          },
+          {
+            id: 'line-ja-3',
+            startTime: 9.5,
+            endTime: 13.5,
+            text: '君が好きだと叫びたい',
+            altText: 'Kimi ga suki da to sakebitai',
+            syllables: [
+              { text: '君', altText: 'Ki', startTime: 9.5, duration: 0.3 },
+              { text: 'が', altText: 'mi ga ', startTime: 9.8, duration: 0.3 },
+              { text: '好', altText: 'su', startTime: 10.1, duration: 0.3 },
+              { text: 'き', altText: 'ki ', startTime: 10.4, duration: 0.3 },
+              { text: 'だ', altText: 'da ', startTime: 10.7, duration: 0.25 },
+              { text: 'と', altText: 'to ', startTime: 10.95, duration: 0.25 },
+              { text: '叫', altText: 'sa', startTime: 11.2, duration: 0.3 },
+              { text: 'び', altText: 'ke', startTime: 11.5, duration: 0.25 },
+              { text: 'た', altText: 'bi', startTime: 11.75, duration: 0.25 },
+              { text: 'い', altText: 'tai', startTime: 12.0, duration: 0.9 }
+            ]
+          },
+          {
+            id: 'line-ja-4',
+            startTime: 14.0,
+            endTime: 17.5,
+            text: '明日を変えてみよう',
+            altText: 'Ashita wo kaete miyou',
+            syllables: [
+              { text: '明', altText: 'A', startTime: 14.0, duration: 0.25 },
+              { text: '日', altText: 'shi', startTime: 14.25, duration: 0.25 },
+              { text: 'を', altText: 'ta wo ', startTime: 14.5, duration: 0.3 },
+              { text: '変', altText: 'ka', startTime: 14.8, duration: 0.3 },
+              { text: 'え', altText: 'e', startTime: 15.1, duration: 0.25 },
+              { text: 'て', altText: 'te ', startTime: 15.35, duration: 0.3 },
+              { text: 'み', altText: 'mi', startTime: 15.65, duration: 0.3 },
+              { text: 'よ', altText: 'yo', startTime: 15.95, duration: 0.25 },
+              { text: 'う', altText: 'u', startTime: 16.2, duration: 0.8 }
+            ]
+          },
+          {
+            id: 'line-ja-5',
+            startTime: 18.0,
+            endTime: 22.0,
+            text: '通り抜ける風を抱きしめて',
+            altText: 'Toorinukeru kaze wo dakishimete',
+            syllables: [
+              { text: '通', altText: 'Too', startTime: 18.0, duration: 0.35 },
+              { text: 'り', altText: 'ri', startTime: 18.35, duration: 0.25 },
+              { text: '抜', altText: 'nu', startTime: 18.6, duration: 0.25 },
+              { text: 'け', altText: 'ke', startTime: 18.85, duration: 0.25 },
+              { text: 'る', altText: 'ru ', startTime: 19.1, duration: 0.3 },
+              { text: '風', altText: 'ka', startTime: 19.4, duration: 0.25 },
+              { text: 'を', altText: 'ze wo ', startTime: 19.65, duration: 0.3 },
+              { text: '抱', altText: 'da', startTime: 19.95, duration: 0.25 },
+              { text: 'き', altText: 'ki', startTime: 20.2, duration: 0.25 },
+              { text: 'し', altText: 'shi', startTime: 20.45, duration: 0.25 },
+              { text: 'め', altText: 'me', startTime: 20.7, duration: 0.25 },
+              { text: 'て', altText: 'te', startTime: 20.95, duration: 0.85 }
+            ]
+          }
+        ]
+      },
+      {
+        code: 'es',
+        name: 'Español (Traducción)',
+        isMain: false,
+        plain: 'Con la brillante luz del sol a mi espalda\nEmpiezo a correr en medio de la ciudad\nQuiero gritar que te amo\nIntentemos cambiar el mañana\nAbrazando el viento que pasa a través',
+        lines: [
+          {
+            id: 'line-es-ja-1',
+            startTime: 2.0,
+            endTime: 5.2,
+            text: 'Con la brillante luz del sol a mi espalda',
+            syllables: [
+              { text: 'Con ', startTime: 2.0, duration: 0.3 },
+              { text: 'la ', startTime: 2.3, duration: 0.25 },
+              { text: 'bri', startTime: 2.55, duration: 0.35 },
+              { text: 'llan', startTime: 2.9, duration: 0.35 },
+              { text: 'te ', startTime: 3.25, duration: 0.25 },
+              { text: 'luz ', startTime: 3.5, duration: 0.3 },
+              { text: 'del ', startTime: 3.8, duration: 0.25 },
+              { text: 'sol', startTime: 4.05, duration: 0.4 }
+            ]
+          },
+          {
+            id: 'line-es-ja-2',
+            startTime: 5.6,
+            endTime: 8.8,
+            text: 'Empiezo a correr en medio de la ciudad',
+            syllables: [
+              { text: 'Em', startTime: 5.6, duration: 0.3 },
+              { text: 'pie', startTime: 5.9, duration: 0.3 },
+              { text: 'zo a ', startTime: 6.2, duration: 0.3 },
+              { text: 'co', startTime: 6.5, duration: 0.3 },
+              { text: 'rrer ', startTime: 6.8, duration: 0.3 },
+              { text: 'en ', startTime: 7.1, duration: 0.25 },
+              { text: 'la ', startTime: 7.35, duration: 0.25 },
+              { text: 'ciu', startTime: 7.6, duration: 0.35 },
+              { text: 'dad', startTime: 7.95, duration: 0.5 }
+            ]
+          },
+          {
+            id: 'line-es-ja-3',
+            startTime: 9.5,
+            endTime: 13.5,
+            text: 'Quiero gritar que te amo',
+            syllables: [
+              { text: 'Quie', startTime: 9.5, duration: 0.4 },
+              { text: 'ro ', startTime: 9.9, duration: 0.35 },
+              { text: 'gri', startTime: 10.25, duration: 0.4 },
+              { text: 'tar ', startTime: 10.65, duration: 0.4 },
+              { text: 'que ', startTime: 11.05, duration: 0.35 },
+              { text: 'te a', startTime: 11.4, duration: 0.45 },
+              { text: 'mo', startTime: 11.85, duration: 0.8 }
+            ]
+          },
+          {
+            id: 'line-es-ja-4',
+            startTime: 14.0,
+            endTime: 17.5,
+            text: 'Intentemos cambiar el mañana',
+            syllables: [
+              { text: 'In', startTime: 14.0, duration: 0.35 },
+              { text: 'ten', startTime: 14.35, duration: 0.35 },
+              { text: 'te', startTime: 14.7, duration: 0.3 },
+              { text: 'mos ', startTime: 15.0, duration: 0.35 },
+              { text: 'cam', startTime: 15.35, duration: 0.35 },
+              { text: 'biar ', startTime: 15.7, duration: 0.4 },
+              { text: 'el ', startTime: 16.1, duration: 0.3 },
+              { text: 'ma', startTime: 16.4, duration: 0.3 },
+              { text: 'ña', startTime: 16.7, duration: 0.3 },
+              { text: 'na', startTime: 17.0, duration: 0.5 }
+            ]
+          },
+          {
+            id: 'line-es-ja-5',
+            startTime: 18.0,
+            endTime: 22.0,
+            text: 'Abrazando el viento que pasa a través',
+            syllables: [
+              { text: 'A', startTime: 18.0, duration: 0.3 },
+              { text: 'bra', startTime: 18.3, duration: 0.3 },
+              { text: 'zan', startTime: 18.6, duration: 0.35 },
+              { text: 'do el ', startTime: 18.95, duration: 0.35 },
+              { text: 'vien', startTime: 19.3, duration: 0.35 },
+              { text: 'to ', startTime: 19.65, duration: 0.3 },
+              { text: 'que ', startTime: 19.95, duration: 0.25 },
+              { text: 'pa', startTime: 20.2, duration: 0.3 },
+              { text: 'sa a ', startTime: 20.5, duration: 0.35 },
+              { text: 'tra', startTime: 20.85, duration: 0.35 },
+              { text: 'vés', startTime: 21.2, duration: 0.7 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  advanced: {
+    enabled: false,
+    effects: []
+  }
+}

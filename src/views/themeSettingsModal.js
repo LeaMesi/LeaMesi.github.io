@@ -101,12 +101,16 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     const {
       lyricsScale,
       translationScale,
+      altScale = 100,
       originalColor,
+      altColor = '#a5f3fc',
       translationColor,
       activeColor,
       completedColor = '#f59e0b',
       originalBold,
       originalItalic,
+      altBold,
+      altItalic,
       translationBold,
       translationItalic,
       activeBold,
@@ -118,6 +122,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
 
     const lScale = (Math.max(50, Math.min(200, Number(lyricsScale) || 100)) / 100)
     const tScale = (Math.max(50, Math.min(200, Number(translationScale) || 100)) / 100)
+    const aScale = (Math.max(50, Math.min(200, Number(altScale) || 100)) / 100)
 
     const glowStyle = activeGlow
       ? `text-shadow: 0 0 16px ${hexToRgba(activeColor, 0.8)}, 0 0 32px ${hexToRgba(activeColor, 0.45)};`
@@ -143,11 +148,20 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
       ${glowStyle}
     `
 
+    const altActiveStyle = `
+      font-size: calc(1.05rem * ${lScale} * ${aScale});
+      font-weight: ${altBold ? '700' : '500'};
+      font-style: ${altItalic ? 'italic' : 'normal'};
+      color: ${altColor || '#a5f3fc'};
+      margin-top: 3px;
+    `
+
     const transActiveStyle = `
       font-size: calc(0.9rem * ${tScale});
       font-weight: ${translationBold ? '700' : '400'};
       font-style: ${translationItalic ? 'italic' : 'normal'};
       color: ${translationColor};
+      margin-top: 2px;
     `
 
     const upcomingMainStyle = `
@@ -158,29 +172,45 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
       opacity: 0.7;
     `
 
+    const upcomingAltStyle = `
+      font-size: calc(1.05rem * 0.70 * ${lScale} * ${aScale});
+      font-weight: ${altBold ? '700' : '500'};
+      font-style: ${altItalic ? 'italic' : 'normal'};
+      color: ${altColor || '#a5f3fc'};
+      opacity: 0.65;
+      margin-top: 2px;
+    `
+
     const upcomingTransStyle = `
       font-size: calc(0.9rem * 0.76 * ${tScale});
       font-weight: ${translationBold ? '700' : '400'};
       font-style: ${translationItalic ? 'italic' : 'normal'};
       color: ${translationColor};
       opacity: 0.6;
+      margin-top: 2px;
     `
 
     previewContainer.innerHTML = `
       <div class="preview-phrase-active">
         <div class="preview-line-main" style="${mainActiveStyle}">
-          <span class="preview-syl-completed" style="${sylCompletedStyle}">Cami</span><span class="preview-syl-highlight" style="${sylActiveStyle}">nan</span><span>do por la ciudad</span>
+          <span class="preview-syl-completed" style="${sylCompletedStyle}">君が</span><span class="preview-syl-highlight" style="${sylActiveStyle}">好き</span><span>だと叫びたい</span>
+        </div>
+        <div class="preview-line-alt" style="${altActiveStyle}">
+          <span class="preview-syl-completed" style="${sylCompletedStyle}">Kimi ga </span><span class="preview-syl-highlight" style="${sylActiveStyle}">suki </span><span>da to sakebitai</span>
         </div>
         <div class="preview-line-trans" style="${transActiveStyle}">
-          Walking through the city
+          Quiero gritar que te amo
         </div>
       </div>
       <div class="preview-phrase-upcoming">
         <div class="preview-line-main" style="${upcomingMainStyle}">
-          Bajo la luz del sol
+          明日を変えてみよう
+        </div>
+        <div class="preview-line-alt" style="${upcomingAltStyle}">
+          Ashita wo kaete miyou
         </div>
         <div class="preview-line-trans" style="${upcomingTransStyle}">
-          Under the sunlight
+          Intentemos cambiar el mañana
         </div>
       </div>
     `
@@ -364,6 +394,27 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
                   <span class="slider-bound-label">200%</span>
                 </div>
               </div>
+
+              <!-- Slider Texto Alternativo -->
+              <div class="slider-control-card">
+                <div class="slider-header-row">
+                  <label for="slider-alt-scale" class="slider-label">Texto Alternativo (Romaji):</label>
+                  <span class="slider-value-badge" id="badge-alt-scale">${currentSettings.altScale || 100}%</span>
+                </div>
+                <div class="slider-input-wrapper">
+                  <span class="slider-bound-label">50%</span>
+                  <input
+                    type="range"
+                    id="slider-alt-scale"
+                    class="theme-range-slider"
+                    min="50"
+                    max="200"
+                    step="5"
+                    value="${currentSettings.altScale || 100}"
+                  />
+                  <span class="slider-bound-label">200%</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -397,7 +448,29 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
                 </div>
               </div>
 
-              <!-- Fila 2: Letra de Traducción -->
+              <!-- Fila 2: Texto Alternativo (Romaji/Fonetismo) -->
+              <div class="lyric-style-card">
+                <div class="lyric-style-title-col">
+                  <strong>Texto Alternativo (Romaji)</strong>
+                  <span class="lyric-style-desc">Transcripción fonética sincronizada</span>
+                </div>
+                <div class="lyric-style-color-col">
+                  <input type="color" class="color-swatch-input" id="picker-alt-color" value="${currentSettings.altColor || '#a5f3fc'}" />
+                  <input type="text" class="color-hex-input" id="hex-alt-color" value="${currentSettings.altColor || '#a5f3fc'}" maxlength="7" />
+                </div>
+                <div class="lyric-style-toggles-col">
+                  <label class="theme-toggle-chip">
+                    <input type="checkbox" id="check-alt-bold" ${currentSettings.altBold ? 'checked' : ''} />
+                    <span>Negrita</span>
+                  </label>
+                  <label class="theme-toggle-chip">
+                    <input type="checkbox" id="check-alt-italic" ${currentSettings.altItalic ? 'checked' : ''} />
+                    <span>Cursiva</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Fila 3: Letra de Traducción -->
               <div class="lyric-style-card">
                 <div class="lyric-style-title-col">
                   <strong>Traducción</strong>
@@ -631,8 +704,19 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
       })
     }
 
+    const altSlider = containerElement.querySelector('#slider-alt-scale')
+    const altBadge = containerElement.querySelector('#badge-alt-scale')
+    if (altSlider && altBadge) {
+      altSlider.addEventListener('input', (e) => {
+        const val = Number(e.target.value)
+        altBadge.textContent = `${val}%`
+        updateSetting('altScale', val)
+      })
+    }
+
     // Colores de Letras
     bindColorPair('#picker-orig-color', '#hex-orig-color', 'originalColor')
+    bindColorPair('#picker-alt-color', '#hex-alt-color', 'altColor')
     bindColorPair('#picker-trans-color', '#hex-trans-color', 'translationColor')
     bindColorPair('#picker-active-color', '#hex-active-color', 'activeColor')
     bindColorPair('#picker-completed-color', '#hex-completed-color', 'completedColor')
@@ -649,6 +733,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
 
     bindCheckbox('#check-orig-bold', 'originalBold')
     bindCheckbox('#check-orig-italic', 'originalItalic')
+    bindCheckbox('#check-alt-bold', 'altBold')
+    bindCheckbox('#check-alt-italic', 'altItalic')
     bindCheckbox('#check-trans-bold', 'translationBold')
     bindCheckbox('#check-trans-italic', 'translationItalic')
     bindCheckbox('#check-active-bold', 'activeBold')

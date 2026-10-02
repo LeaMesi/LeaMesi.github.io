@@ -2,7 +2,7 @@ import { findActiveLineIndex, evaluateSyllablesState, findMatchingTranslationLin
 import { applyTheme } from '../services/themeService.js'
 
 export function createBasicViewer(containerElement, options = {}) {
-  const { onSeekLine, initialPreviewCount = 2 } = options
+  const { onSeekLine, initialPreviewCount = 2, initialScriptDisplayMode = 'both' } = options
 
   let currentLines = []
   let translationLines = []
@@ -10,6 +10,9 @@ export function createBasicViewer(containerElement, options = {}) {
   let previewCount = (initialPreviewCount !== undefined && initialPreviewCount !== null && !isNaN(Number(initialPreviewCount)))
     ? Math.max(0, Math.min(3, Number(initialPreviewCount)))
     : 2
+  let scriptDisplayMode = (initialScriptDisplayMode === 'original' || initialScriptDisplayMode === 'alt')
+    ? initialScriptDisplayMode
+    : 'both'
   let activeLineIndex = -1
   let renderedActiveIndex = -999
 
@@ -25,6 +28,17 @@ export function createBasicViewer(containerElement, options = {}) {
     const num = isNaN(val) ? 2 : Math.max(0, Math.min(3, val))
     if (previewCount !== num) {
       previewCount = num
+      renderedActiveIndex = -999
+      if (currentLines.length > 0) {
+        renderStage(activeLineIndex >= 0 ? activeLineIndex : 0)
+      }
+    }
+  }
+
+  function setScriptDisplayMode(mode) {
+    if (mode !== 'both' && mode !== 'original' && mode !== 'alt') return
+    if (scriptDisplayMode !== mode) {
+      scriptDisplayMode = mode
       renderedActiveIndex = -999
       if (currentLines.length > 0) {
         renderStage(activeLineIndex >= 0 ? activeLineIndex : 0)
@@ -56,6 +70,19 @@ export function createBasicViewer(containerElement, options = {}) {
     `
   }
 
+  function getLineAltText(line) {
+    if (!line) return ''
+    if (typeof line.altText === 'string' && line.altText.trim()) return line.altText
+    if (typeof line.romaji === 'string' && line.romaji.trim()) return line.romaji
+    if (Array.isArray(line.syllables) && line.syllables.length > 0) {
+      const hasAnySylAlt = line.syllables.some(s => (s.altText && s.altText.trim()) || (s.romaji && s.romaji.trim()))
+      if (hasAnySylAlt) {
+        return line.syllables.map(s => s.altText || s.romaji || s.text || '').join('')
+      }
+    }
+    return ''
+  }
+
   function renderLineMainContent(line, isCurrent) {
     if (!line) return ''
     if (isCurrent) {
@@ -68,6 +95,22 @@ export function createBasicViewer(containerElement, options = {}) {
       return `<span class="plain-active-line">${escapeHtml(line.text || '')}</span>`
     }
     return escapeHtml(line.text || (Array.isArray(line.syllables) ? line.syllables.map(s => s.text).join('') : ''))
+  }
+
+  function renderLineAltContent(line, isCurrent) {
+    if (!line) return ''
+    const altText = getLineAltText(line)
+    if (!altText) return ''
+
+    if (isCurrent) {
+      if (Array.isArray(line.syllables) && line.syllables.length > 0 && line.syllables.some(s => s.altText || s.romaji)) {
+        return line.syllables
+          .map((syl, sIdx) => `<span class="syllable" data-syl="${sIdx}">${escapeHtml(syl.altText || syl.romaji || syl.text || '')}</span>`)
+          .join('')
+      }
+      return `<span class="plain-active-line">${escapeHtml(altText)}</span>`
+    }
+    return escapeHtml(altText)
   }
 
   function renderTranslationLine(mainLine, mainIndex, isCurrent) {
@@ -90,15 +133,50 @@ export function createBasicViewer(containerElement, options = {}) {
     const upcomingLines = previewCount > 0 ? currentLines.slice(safeIdx + 1, safeIdx + 1 + previewCount) : []
 
     const activeMainHtml = renderLineMainContent(activeLine, true)
+    const activeAltHtml = renderLineAltContent(activeLine, true)
     const activeTransHtml = renderTranslationLine(activeLine, safeIdx, true)
+
+    let activeLinesHtml = ''
+    if (scriptDisplayMode === 'both') {
+      activeLinesHtml = `
+        <div class="lyric-line-main" id="active-line-main">${activeMainHtml}</div>
+        ${activeAltHtml ? `<div class="lyric-line-alt" id="active-line-alt">${activeAltHtml}</div>` : ''}
+      `
+    } else if (scriptDisplayMode === 'original') {
+      activeLinesHtml = `
+        <div class="lyric-line-main" id="active-line-main">${activeMainHtml}</div>
+      `
+    } else if (scriptDisplayMode === 'alt') {
+      activeLinesHtml = `
+        <div class="lyric-line-main is-primary-alt" id="active-line-main">${activeAltHtml || activeMainHtml}</div>
+      `
+    }
 
     const upcomingItemsHtml = upcomingLines.map((uLine, offset) => {
       const uIdx = safeIdx + 1 + offset
       const uMainHtml = renderLineMainContent(uLine, false)
+      const uAltHtml = renderLineAltContent(uLine, false)
       const uTransHtml = renderTranslationLine(uLine, uIdx, false)
+
+      let uLinesHtml = ''
+      if (scriptDisplayMode === 'both') {
+        uLinesHtml = `
+          <div class="lyric-line-main">${uMainHtml}</div>
+          ${uAltHtml ? `<div class="lyric-line-alt">${uAltHtml}</div>` : ''}
+        `
+      } else if (scriptDisplayMode === 'original') {
+        uLinesHtml = `
+          <div class="lyric-line-main">${uMainHtml}</div>
+        `
+      } else if (scriptDisplayMode === 'alt') {
+        uLinesHtml = `
+          <div class="lyric-line-main is-primary-alt">${uAltHtml || uMainHtml}</div>
+        `
+      }
+
       return `
         <div class="upcoming-phrase-item upcoming-rank-${offset + 1}" data-index="${uIdx}" title="Saltar a esta frase (${uLine.startTime}s)">
-          <div class="lyric-line-main">${uMainHtml}</div>
+          ${uLinesHtml}
           ${uTransHtml}
         </div>
       `
@@ -118,7 +196,7 @@ export function createBasicViewer(containerElement, options = {}) {
         <!-- Frase Actual en el centro -->
         <div class="active-phrase-container animate-phrase-change" id="active-phrase-box" data-index="${safeIdx}">
           <div class="lyric-line-wrapper is-active">
-            <div class="lyric-line-main" id="active-line-main">${activeMainHtml}</div>
+            ${activeLinesHtml}
             ${activeTransHtml}
           </div>
         </div>
@@ -156,20 +234,21 @@ export function createBasicViewer(containerElement, options = {}) {
       renderStage(newIndex)
     }
 
-    // Actualizar resaltado de sílabas en tiempo real
+    // Actualizar resaltado de sílabas en tiempo real en todos los elementos del verso activo
     const activeLine = currentLines[renderedActiveIndex]
     if (activeLine && Array.isArray(activeLine.syllables) && activeLine.syllables.length > 0) {
       const states = evaluateSyllablesState(activeLine.syllables, currentTime)
-      const sylSpans = containerElement.querySelectorAll('#active-line-main .syllable')
-
-      states.forEach((sState, sIdx) => {
-        const span = sylSpans[sIdx]
-        if (span) {
-          span.classList.toggle('is-active-syl', sState.state === 'active')
-          span.classList.toggle('is-completed-syl', sState.state === 'completed')
-          span.classList.toggle('is-upcoming-syl', sState.state === 'upcoming')
-        }
-      })
+      const activeBox = containerElement.querySelector('#active-phrase-box')
+      if (activeBox) {
+        states.forEach((sState, sIdx) => {
+          const spans = activeBox.querySelectorAll(`[data-syl="${sIdx}"]`)
+          spans.forEach(span => {
+            span.classList.toggle('is-active-syl', sState.state === 'active')
+            span.classList.toggle('is-completed-syl', sState.state === 'completed')
+            span.classList.toggle('is-upcoming-syl', sState.state === 'upcoming')
+          })
+        })
+      }
     }
   }
 
@@ -187,6 +266,8 @@ export function createBasicViewer(containerElement, options = {}) {
     setLyrics,
     updateTime,
     setPreviewCount,
+    setScriptDisplayMode,
+    getScriptDisplayMode: () => scriptDisplayMode,
     applyStyles
   }
 }

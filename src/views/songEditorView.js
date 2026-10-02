@@ -190,7 +190,17 @@ export function createSongEditorView({
                   type="text"
                   class="input-syl-text"
                   value="${escapeHtml(syl.text)}"
+                  placeholder="Texto"
                   title="Texto de la sílaba o palabra (incluye espacio final si termina palabra)"
+                  data-line-idx="${lineIdx}"
+                  data-syl-idx="${sylIdx}"
+                />
+                <input
+                  type="text"
+                  class="input-syl-alt"
+                  value="${escapeHtml(syl.altText || syl.romaji || '')}"
+                  placeholder="Romaji"
+                  title="Texto alternativo fonético (Romaji / Pinyin) para esta sílaba"
                   data-line-idx="${lineIdx}"
                   data-syl-idx="${sylIdx}"
                 />
@@ -236,8 +246,16 @@ export function createSongEditorView({
                 <input
                   type="text"
                   class="input-phrase-text"
-                  placeholder="Escribí aquí el verso o frase..."
+                  placeholder="Verso / caracteres originales..."
                   value="${escapeHtml(line.text)}"
+                  data-line-idx="${lineIdx}"
+                />
+                <input
+                  type="text"
+                  class="input-phrase-alt"
+                  placeholder="Texto alternativo (Romaji / Fonética)..."
+                  value="${escapeHtml(line.altText || line.romaji || '')}"
+                  title="Texto alternativo en alfabeto latino (ej. Romaji para japonés o transliteración)"
                   data-line-idx="${lineIdx}"
                 />
               </div>
@@ -980,6 +998,7 @@ export function createSongEditorView({
       if (!line) return
 
       const textInput = card.querySelector('.input-phrase-text')
+      const altInput = card.querySelector('.input-phrase-alt')
       const startInput = card.querySelector('.input-phrase-start')
       const endInput = card.querySelector('.input-phrase-end')
       const captureStartBtn = card.querySelector('.btn-capture-line-start')
@@ -999,6 +1018,12 @@ export function createSongEditorView({
       if (textInput) {
         textInput.addEventListener('input', (e) => {
           line.text = e.target.value
+        })
+      }
+
+      if (altInput) {
+        altInput.addEventListener('input', (e) => {
+          line.altText = e.target.value
         })
       }
 
@@ -1159,6 +1184,7 @@ export function createSongEditorView({
         if (!syl) return
 
         const sTextInput = chip.querySelector('.input-syl-text')
+        const sAltInput = chip.querySelector('.input-syl-alt')
         const sStartInput = chip.querySelector('.input-syl-start')
         const sDurInput = chip.querySelector('.input-syl-dur')
         const sCaptureBtn = chip.querySelector('.btn-capture-syl-time')
@@ -1167,6 +1193,11 @@ export function createSongEditorView({
         if (sTextInput) {
           sTextInput.addEventListener('input', (e) => {
             syl.text = e.target.value
+          })
+        }
+        if (sAltInput) {
+          sAltInput.addEventListener('input', (e) => {
+            syl.altText = e.target.value
           })
         }
         if (sStartInput) {

@@ -17,6 +17,7 @@ export function createControlsView({
   containerElement,
   initialPreviewLines = 2,
   initialVolume = 80,
+  initialScriptDisplayMode = 'both',
   onPlayToggle,
   onSeek,
   onVolumeChange,
@@ -25,6 +26,7 @@ export function createControlsView({
   onTrackToggle,
   onLanguageChange,
   onTranslationChange,
+  onScriptDisplayModeChange,
   onBilingualToggle,
   onPreviewLinesChange,
   onOpenLibrary,
@@ -48,6 +50,10 @@ export function createControlsView({
   let previewLinesCount = (initialPreviewLines !== undefined && initialPreviewLines !== null && !isNaN(Number(initialPreviewLines)))
     ? Math.max(0, Math.min(3, Number(initialPreviewLines)))
     : 2
+  let scriptDisplayMode = (initialScriptDisplayMode === 'original' || initialScriptDisplayMode === 'alt')
+    ? initialScriptDisplayMode
+    : 'both'
+  let hasAltText = false
   let currentMode = 'basic' // 'basic' | 'advanced'
   let isDockCollapsed = false
 
@@ -138,6 +144,16 @@ export function createControlsView({
           </div>
 
           <div class="center-controls">
+            <!-- Selector de Escritura / Alternativo (Caracteres vs Romaji) -->
+            <div class="selector-group script-selector-group" title="Modo de visualización de texto original y alternativo (Romaji)">
+              <label for="script-select">Texto:</label>
+              <select id="script-select" class="select-input select-small" ${!hasAltText ? 'disabled' : ''}>
+                <option value="both" ${scriptDisplayMode === 'both' ? 'selected' : ''}>Caracteres + Alternativo</option>
+                <option value="original" ${scriptDisplayMode === 'original' ? 'selected' : ''}>Solo Caracteres</option>
+                <option value="alt" ${scriptDisplayMode === 'alt' ? 'selected' : ''}>Solo Alternativo (Romaji)</option>
+              </select>
+            </div>
+
             <!-- Selector de Traducción -->
             <div class="selector-group translation-group" title="Seleccionar subtítulo de traducción en cursiva">
               <label for="trans-select">Traducción:</label>
@@ -247,6 +263,17 @@ export function createControlsView({
     if (manageVideosBtn) {
       manageVideosBtn.addEventListener('click', () => {
         if (onManageVideos) onManageVideos()
+      })
+    }
+
+    const scriptSelect = containerElement.querySelector('#script-select')
+    if (scriptSelect) {
+      scriptSelect.addEventListener('change', (e) => {
+        const val = e.target.value
+        if (val === 'both' || val === 'original' || val === 'alt') {
+          scriptDisplayMode = val
+          if (onScriptDisplayModeChange) onScriptDisplayModeChange(val)
+        }
       })
     }
 
@@ -376,6 +403,22 @@ export function createControlsView({
     if (sel) sel.value = String(previewLinesCount)
   }
 
+  function setScriptState({ hasAltText: hasAlt, mode }) {
+    if (hasAlt !== undefined) hasAltText = Boolean(hasAlt)
+    if (mode === 'both' || mode === 'original' || mode === 'alt') {
+      scriptDisplayMode = mode
+    }
+    render()
+  }
+
+  function setScriptDisplayMode(mode) {
+    if (mode === 'both' || mode === 'original' || mode === 'alt') {
+      scriptDisplayMode = mode
+      const sel = containerElement?.querySelector('#script-select')
+      if (sel) sel.value = mode
+    }
+  }
+
   function setMode(mode) {
     currentMode = mode
     render()
@@ -405,6 +448,9 @@ export function createControlsView({
     setTrackType,
     setLanguagesState,
     setPreviewLinesCount,
+    setScriptState,
+    setScriptDisplayMode,
+    getScriptDisplayMode: () => scriptDisplayMode,
     setMode,
     setVolume,
     getIsDockCollapsed: () => isDockCollapsed,

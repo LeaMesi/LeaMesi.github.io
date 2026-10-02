@@ -1,5 +1,5 @@
 import { openDB } from 'idb'
-import { mockSong } from '../data/mockSong.js'
+import { mockSong, mockJapaneseSong } from '../data/mockSong.js'
 import { validateSongPackage } from './schemaValidator.js'
 
 const DB_NAME = 'SarangaDB'
@@ -54,15 +54,14 @@ export function getDB() {
   return dbPromise
 }
 
-async function seedDatabaseIfEmpty(db) {
-  const songCount = await db.count('songs')
-  if (songCount > 0) return
-
-  // Importar la canción demo inicial
-  const normalized = validateSongPackage(mockSong)
-  const tx = db.transaction(['artists', 'songs', 'tags', 'genres', 'song_tags', 'song_genres'], 'readwrite')
-
+async function seedSongIfMissing(db, songPackage) {
   try {
+    const normalized = validateSongPackage(songPackage)
+    const existingSong = await db.getFromIndex('songs', 'title', normalized.metadata.title)
+    if (existingSong) return
+
+    const tx = db.transaction(['artists', 'songs', 'tags', 'genres', 'song_tags', 'song_genres'], 'readwrite')
+
     // 1. Artista
     let artistId = null
     const artistIndex = tx.objectStore('artists').index('name')
@@ -103,6 +102,11 @@ async function seedDatabaseIfEmpty(db) {
 
     await tx.done
   } catch (err) {
-    console.error('Error al inicializar la base de datos con mockSong:', err)
+    console.error('Error al sembrar canción demo en la base de datos:', err)
   }
+}
+
+async function seedDatabaseIfEmpty(db) {
+  await seedSongIfMissing(db, mockSong)
+  await seedSongIfMissing(db, mockJapaneseSong)
 }
