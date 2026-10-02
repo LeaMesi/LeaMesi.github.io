@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { getDB } from '../../src/services/db.js'
+import { getDB, seedDefaultSongs } from '../../src/services/db.js'
 import {
   saveSong,
   fetchSongById,
@@ -15,13 +15,28 @@ describe('services/db.js & songService.js', () => {
     await getDB()
   })
 
-  it('inicializa la base de datos y siembra las canciones de demostración', async () => {
+  it('inicializa la base de datos y siembra las canciones de demostración (Still Alive e Idol)', async () => {
     const songs = await listSongs()
     expect(songs.length).toBeGreaterThanOrEqual(2)
 
     const titles = songs.map(s => s.title)
-    expect(titles).toContain('Caminando por la Ciudad')
-    expect(titles.some(t => t.includes('君が好きだと叫びたい'))).toBe(true)
+    expect(titles).toContain('Still Alive')
+    expect(titles.some(t => t.includes('Idol'))).toBe(true)
+  })
+
+  it('no vuelve a sembrar canciones eliminadas si el usuario las borra', async () => {
+    const songsBefore = await listSongs()
+    const stillAlive = songsBefore.find(s => s.title === 'Still Alive')
+    expect(stillAlive).toBeDefined()
+
+    await deleteSong(stillAlive.id)
+    const songsAfter = await listSongs()
+    expect(songsAfter.some(s => s.title === 'Still Alive')).toBe(false)
+
+    // Simular que el usuario recarga la app y se vuelve a evaluar el sembrado
+    await seedDefaultSongs()
+    const songsAfterReload = await listSongs()
+    expect(songsAfterReload.some(s => s.title === 'Still Alive')).toBe(false)
   })
 
   it('guarda una canción nueva con artista, tags y géneros', async () => {

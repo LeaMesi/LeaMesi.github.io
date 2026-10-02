@@ -1,0 +1,3190 @@
+{
+  "version": "1.1.0",
+  "metadata": {
+    "title": "Still Alive",
+    "artist": "Aperture Science Psychoacoustic Laboratories",
+    "genres": [
+      "Pop"
+    ],
+    "tags": [
+      "betterlyrics",
+      "richsync"
+    ],
+    "audioPath": "",
+    "videos": [
+      {
+        "id": "vid-1790723791437-0",
+        "name": "Video Oficial (YouTube / YT Music)",
+        "url": "https://music.youtube.com/watch?v=-JZLqTnZZlY",
+        "offset": 0
+      }
+    ],
+    "youtubeUrlFull": "https://music.youtube.com/watch?v=-JZLqTnZZlY",
+    "youtubeUrlInstrumental": ""
+  },
+  "basic": {
+    "timing": {
+      "bpm": 120,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "syncMode": "timestamp",
+      "globalOffset": 0
+    },
+    "styles": {
+      "textColor": "#94a3b8",
+      "activeColor": "#fbbf24",
+      "translationColor": "#38bdf8",
+      "backgroundColor": "#0f172a",
+      "fontFamily": "Inter, system-ui, -apple-system, sans-serif",
+      "fontSize": "2.1rem"
+    },
+    "languages": [
+      {
+        "code": "en",
+        "name": "English (Original)",
+        "isMain": true,
+        "plain": "This was a triumph\nI'm making a note here, huge success\nIt's hard to overstate my satisfaction\nAperture Science\nWe do what we must because we can\nFor the good of all of us\nExcept the ones who are dead\nBut there's no sense crying over every mistake\nYou just keep on trying 'til you run out of cake\nAnd the science gets done\nAnd you make a neat gun\nFor the people who are still alive\nI'm not even angry\nI'm being so sincere right now\nEven though you broke my heart and killed me\nAnd tore me to pieces\nAnd threw every piece into a fire\nAs they burned, it hurt because I was so happy for you\nNow these points of data make a beautiful line\nAnd we're out of beta, we're releasing on time\nSo I'm glad I got burned, think of all the things we learned\nFor the people who are still alive\nGo ahead and leave me\nI think I prefer to stay inside\nMaybe you'll find someone else to help you\nMaybe Black Mesa!\nThat was a joke, haha, fat chance\nAnyway, this cake is great\nIt's so delicious and moist\nLook at me still talking when there's science to do\nWhen I look up there, it makes me glad I'm not you\nI've experiments to run\nThere is research to be done\nOn the people who are still alive\nBelieve me, I am still alive\nI'm doing science, and I'm still alive\nI feel fantastic, and I'm still alive\nWhile you're dying, I'll be still alive\nAnd when you're dead I will be still alive\nStill alive, still alive",
+        "lines": [
+          {
+            "id": "line-1",
+            "text": "This was a triumph",
+            "altText": "",
+            "startTime": 0.414,
+            "endTime": 1.747,
+            "syllables": [
+              {
+                "id": "syl-0-0",
+                "text": "This ",
+                "altText": "",
+                "startTime": 0.414,
+                "duration": 0.163
+              },
+              {
+                "id": "syl-0-1",
+                "text": "was ",
+                "altText": "",
+                "startTime": 0.577,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-0-2",
+                "text": "a ",
+                "altText": "",
+                "startTime": 0.818,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-0-3",
+                "text": "tri",
+                "altText": "",
+                "startTime": 1.063,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-0-4",
+                "text": "umph",
+                "altText": "",
+                "startTime": 1.346,
+                "duration": 0.401
+              }
+            ]
+          },
+          {
+            "id": "line-2",
+            "text": "I'm making a note here, huge success",
+            "altText": "",
+            "startTime": 4.071,
+            "endTime": 7.652,
+            "syllables": [
+              {
+                "id": "syl-1-0",
+                "text": "I'm ",
+                "altText": "",
+                "startTime": 4.071,
+                "duration": 0.244
+              },
+              {
+                "id": "syl-1-1",
+                "text": "ma",
+                "altText": "",
+                "startTime": 4.315,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-1-2",
+                "text": "king ",
+                "altText": "",
+                "startTime": 4.557,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-1-3",
+                "text": "a ",
+                "altText": "",
+                "startTime": 4.798,
+                "duration": 0.325
+              },
+              {
+                "id": "syl-1-4",
+                "text": "note ",
+                "altText": "",
+                "startTime": 5.123,
+                "duration": 0.45
+              },
+              {
+                "id": "syl-1-5",
+                "text": "here, ",
+                "altText": "",
+                "startTime": 5.573,
+                "duration": 0.328
+              },
+              {
+                "id": "syl-1-6",
+                "text": "huge ",
+                "altText": "",
+                "startTime": 6.309,
+                "duration": 0.524
+              },
+              {
+                "id": "syl-1-7",
+                "text": "suc",
+                "altText": "",
+                "startTime": 6.833,
+                "duration": 0.289
+              },
+              {
+                "id": "syl-1-8",
+                "text": "cess",
+                "altText": "",
+                "startTime": 7.122,
+                "duration": 0.53
+              }
+            ]
+          },
+          {
+            "id": "line-3",
+            "text": "It's hard to overstate my satisfaction",
+            "altText": "",
+            "startTime": 9.068,
+            "endTime": 14.046,
+            "syllables": [
+              {
+                "id": "syl-2-0",
+                "text": "It's ",
+                "altText": "",
+                "startTime": 9.068,
+                "duration": 0.249
+              },
+              {
+                "id": "syl-2-1",
+                "text": "hard ",
+                "altText": "",
+                "startTime": 9.317,
+                "duration": 0.492
+              },
+              {
+                "id": "syl-2-2",
+                "text": "to ",
+                "altText": "",
+                "startTime": 9.809,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-2-3",
+                "text": "ov",
+                "altText": "",
+                "startTime": 10.051,
+                "duration": 0.725
+              },
+              {
+                "id": "syl-2-4",
+                "text": "er",
+                "altText": "",
+                "startTime": 10.776,
+                "duration": 0.321
+              },
+              {
+                "id": "syl-2-5",
+                "text": "state ",
+                "altText": "",
+                "startTime": 11.097,
+                "duration": 0.487
+              },
+              {
+                "id": "syl-2-6",
+                "text": "my ",
+                "altText": "",
+                "startTime": 11.584,
+                "duration": 0.645
+              },
+              {
+                "id": "syl-2-7",
+                "text": "sat",
+                "altText": "",
+                "startTime": 12.309,
+                "duration": 0.483
+              },
+              {
+                "id": "syl-2-8",
+                "text": "is",
+                "altText": "",
+                "startTime": 12.792,
+                "duration": 0.367
+              },
+              {
+                "id": "syl-2-9",
+                "text": "fac",
+                "altText": "",
+                "startTime": 13.159,
+                "duration": 0.445
+              },
+              {
+                "id": "syl-2-10",
+                "text": "tion",
+                "altText": "",
+                "startTime": 13.604,
+                "duration": 0.442
+              }
+            ]
+          },
+          {
+            "id": "line-4",
+            "text": "Aperture Science",
+            "altText": "",
+            "startTime": 16.361,
+            "endTime": 17.817,
+            "syllables": [
+              {
+                "id": "syl-3-0",
+                "text": "Ap",
+                "altText": "",
+                "startTime": 16.361,
+                "duration": 0.204
+              },
+              {
+                "id": "syl-3-1",
+                "text": "er",
+                "altText": "",
+                "startTime": 16.565,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-3-2",
+                "text": "ture ",
+                "altText": "",
+                "startTime": 16.85,
+                "duration": 0.24
+              },
+              {
+                "id": "syl-3-3",
+                "text": "Sci",
+                "altText": "",
+                "startTime": 17.09,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-3-4",
+                "text": "ence",
+                "altText": "",
+                "startTime": 17.331,
+                "duration": 0.486
+              }
+            ]
+          },
+          {
+            "id": "line-5",
+            "text": "We do what we must because we can",
+            "altText": "",
+            "startTime": 20.093,
+            "endTime": 23.582,
+            "syllables": [
+              {
+                "id": "syl-4-0",
+                "text": "We ",
+                "altText": "",
+                "startTime": 20.093,
+                "duration": 0.201
+              },
+              {
+                "id": "syl-4-1",
+                "text": "do ",
+                "altText": "",
+                "startTime": 20.294,
+                "duration": 0.363
+              },
+              {
+                "id": "syl-4-2",
+                "text": "what ",
+                "altText": "",
+                "startTime": 20.657,
+                "duration": 0.203
+              },
+              {
+                "id": "syl-4-3",
+                "text": "we ",
+                "altText": "",
+                "startTime": 20.86,
+                "duration": 0.202
+              },
+              {
+                "id": "syl-4-4",
+                "text": "must ",
+                "altText": "",
+                "startTime": 21.062,
+                "duration": 0.324
+              },
+              {
+                "id": "syl-4-5",
+                "text": "be",
+                "altText": "",
+                "startTime": 21.831,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-4-6",
+                "text": "cause ",
+                "altText": "",
+                "startTime": 22.112,
+                "duration": 0.249
+              },
+              {
+                "id": "syl-4-7",
+                "text": "we ",
+                "altText": "",
+                "startTime": 22.855,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-4-8",
+                "text": "can",
+                "altText": "",
+                "startTime": 23.096,
+                "duration": 0.486
+              }
+            ]
+          },
+          {
+            "id": "line-6",
+            "text": "For the good of all of us",
+            "altText": "",
+            "startTime": 25.37,
+            "endTime": 28.344,
+            "syllables": [
+              {
+                "id": "syl-5-0",
+                "text": "For ",
+                "altText": "",
+                "startTime": 25.37,
+                "duration": 0.491
+              },
+              {
+                "id": "syl-5-1",
+                "text": "the ",
+                "altText": "",
+                "startTime": 25.861,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-5-2",
+                "text": "good ",
+                "altText": "",
+                "startTime": 26.106,
+                "duration": 0.74
+              },
+              {
+                "id": "syl-5-3",
+                "text": "of ",
+                "altText": "",
+                "startTime": 26.846,
+                "duration": 0.282
+              },
+              {
+                "id": "syl-5-4",
+                "text": "all ",
+                "altText": "",
+                "startTime": 27.128,
+                "duration": 0.608
+              },
+              {
+                "id": "syl-5-5",
+                "text": "of ",
+                "altText": "",
+                "startTime": 27.736,
+                "duration": 0.201
+              },
+              {
+                "id": "syl-5-6",
+                "text": "us",
+                "altText": "",
+                "startTime": 27.937,
+                "duration": 0.407
+              }
+            ]
+          },
+          {
+            "id": "line-7",
+            "text": "Except the ones who are dead",
+            "altText": "",
+            "startTime": 28.591,
+            "endTime": 30.421,
+            "syllables": [
+              {
+                "id": "syl-6-0",
+                "text": "Ex",
+                "altText": "",
+                "startTime": 28.591,
+                "duration": 0.287
+              },
+              {
+                "id": "syl-6-1",
+                "text": "cept ",
+                "altText": "",
+                "startTime": 28.878,
+                "duration": 0.208
+              },
+              {
+                "id": "syl-6-2",
+                "text": "the ",
+                "altText": "",
+                "startTime": 29.086,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-6-3",
+                "text": "ones ",
+                "altText": "",
+                "startTime": 29.328,
+                "duration": 0.248
+              },
+              {
+                "id": "syl-6-4",
+                "text": "who ",
+                "altText": "",
+                "startTime": 29.576,
+                "duration": 0.239
+              },
+              {
+                "id": "syl-6-5",
+                "text": "are ",
+                "altText": "",
+                "startTime": 29.815,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-6-6",
+                "text": "dead",
+                "altText": "",
+                "startTime": 30.056,
+                "duration": 0.365
+              }
+            ]
+          },
+          {
+            "id": "line-8",
+            "text": "But there's no sense crying over every mistake",
+            "altText": "",
+            "startTime": 30.871,
+            "endTime": 34.611,
+            "syllables": [
+              {
+                "id": "syl-7-0",
+                "text": "But ",
+                "altText": "",
+                "startTime": 30.871,
+                "duration": 0.21
+              },
+              {
+                "id": "syl-7-1",
+                "text": "there's ",
+                "altText": "",
+                "startTime": 31.081,
+                "duration": 0.251
+              },
+              {
+                "id": "syl-7-2",
+                "text": "no ",
+                "altText": "",
+                "startTime": 31.332,
+                "duration": 0.447
+              },
+              {
+                "id": "syl-7-3",
+                "text": "sense ",
+                "altText": "",
+                "startTime": 31.779,
+                "duration": 0.535
+              },
+              {
+                "id": "syl-7-4",
+                "text": "cry",
+                "altText": "",
+                "startTime": 32.314,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-7-5",
+                "text": "ing ",
+                "altText": "",
+                "startTime": 32.556,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-7-6",
+                "text": "ov",
+                "altText": "",
+                "startTime": 32.837,
+                "duration": 0.204
+              },
+              {
+                "id": "syl-7-7",
+                "text": "er ",
+                "altText": "",
+                "startTime": 33.041,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-7-8",
+                "text": "e",
+                "altText": "",
+                "startTime": 33.282,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-7-9",
+                "text": "very ",
+                "altText": "",
+                "startTime": 33.524,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-7-10",
+                "text": "mis",
+                "altText": "",
+                "startTime": 33.805,
+                "duration": 0.484
+              },
+              {
+                "id": "syl-7-11",
+                "text": "take",
+                "altText": "",
+                "startTime": 34.289,
+                "duration": 0.322
+              }
+            ]
+          },
+          {
+            "id": "line-9",
+            "text": "You just keep on trying 'til you run out of cake",
+            "altText": "",
+            "startTime": 34.815,
+            "endTime": 38.583,
+            "syllables": [
+              {
+                "id": "syl-8-0",
+                "text": "You ",
+                "altText": "",
+                "startTime": 34.815,
+                "duration": 0.28
+              },
+              {
+                "id": "syl-8-1",
+                "text": "just ",
+                "altText": "",
+                "startTime": 35.095,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-8-2",
+                "text": "keep ",
+                "altText": "",
+                "startTime": 35.337,
+                "duration": 0.449
+              },
+              {
+                "id": "syl-8-3",
+                "text": "on ",
+                "altText": "",
+                "startTime": 35.786,
+                "duration": 0.567
+              },
+              {
+                "id": "syl-8-4",
+                "text": "try",
+                "altText": "",
+                "startTime": 36.353,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-8-5",
+                "text": "ing ",
+                "altText": "",
+                "startTime": 36.598,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-8-6",
+                "text": "'til ",
+                "altText": "",
+                "startTime": 36.84,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-8-7",
+                "text": "you ",
+                "altText": "",
+                "startTime": 37.082,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-8-8",
+                "text": "run ",
+                "altText": "",
+                "startTime": 37.327,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-8-9",
+                "text": "out ",
+                "altText": "",
+                "startTime": 37.572,
+                "duration": 0.201
+              },
+              {
+                "id": "syl-8-10",
+                "text": "of ",
+                "altText": "",
+                "startTime": 37.773,
+                "duration": 0.524
+              },
+              {
+                "id": "syl-8-11",
+                "text": "cake",
+                "altText": "",
+                "startTime": 38.297,
+                "duration": 0.286
+              }
+            ]
+          },
+          {
+            "id": "line-10",
+            "text": "And the science gets done",
+            "altText": "",
+            "startTime": 38.826,
+            "endTime": 40.817,
+            "syllables": [
+              {
+                "id": "syl-9-0",
+                "text": "And ",
+                "altText": "",
+                "startTime": 38.826,
+                "duration": 0.286
+              },
+              {
+                "id": "syl-9-1",
+                "text": "the ",
+                "altText": "",
+                "startTime": 39.112,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-9-2",
+                "text": "sci",
+                "altText": "",
+                "startTime": 39.353,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-9-3",
+                "text": "ence ",
+                "altText": "",
+                "startTime": 39.596,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-9-4",
+                "text": "gets ",
+                "altText": "",
+                "startTime": 39.877,
+                "duration": 0.492
+              },
+              {
+                "id": "syl-9-5",
+                "text": "done",
+                "altText": "",
+                "startTime": 40.369,
+                "duration": 0.448
+              }
+            ]
+          },
+          {
+            "id": "line-11",
+            "text": "And you make a neat gun",
+            "altText": "",
+            "startTime": 40.817,
+            "endTime": 42.779,
+            "syllables": [
+              {
+                "id": "syl-10-0",
+                "text": "And ",
+                "altText": "",
+                "startTime": 40.817,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-10-1",
+                "text": "you ",
+                "altText": "",
+                "startTime": 41.059,
+                "duration": 0.249
+              },
+              {
+                "id": "syl-10-2",
+                "text": "make ",
+                "altText": "",
+                "startTime": 41.308,
+                "duration": 0.249
+              },
+              {
+                "id": "syl-10-3",
+                "text": "a ",
+                "altText": "",
+                "startTime": 41.557,
+                "duration": 0.287
+              },
+              {
+                "id": "syl-10-4",
+                "text": "neat ",
+                "altText": "",
+                "startTime": 41.844,
+                "duration": 0.453
+              },
+              {
+                "id": "syl-10-5",
+                "text": "gun",
+                "altText": "",
+                "startTime": 42.297,
+                "duration": 0.482
+              }
+            ]
+          },
+          {
+            "id": "line-12",
+            "text": "For the people who are still alive",
+            "altText": "",
+            "startTime": 42.779,
+            "endTime": 45.941,
+            "syllables": [
+              {
+                "id": "syl-11-0",
+                "text": "For ",
+                "altText": "",
+                "startTime": 42.779,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-11-1",
+                "text": "the ",
+                "altText": "",
+                "startTime": 43.06,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-11-2",
+                "text": "peop",
+                "altText": "",
+                "startTime": 43.301,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-11-3",
+                "text": "le ",
+                "altText": "",
+                "startTime": 43.542,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-11-4",
+                "text": "who ",
+                "altText": "",
+                "startTime": 43.784,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-11-5",
+                "text": "are ",
+                "altText": "",
+                "startTime": 44.069,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-11-6",
+                "text": "still ",
+                "altText": "",
+                "startTime": 44.561,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-11-7",
+                "text": "al",
+                "altText": "",
+                "startTime": 44.803,
+                "duration": 0.246
+              },
+              {
+                "id": "syl-11-8",
+                "text": "ive",
+                "altText": "",
+                "startTime": 45.049,
+                "duration": 0.892
+              }
+            ]
+          },
+          {
+            "id": "line-13",
+            "text": "I'm not even angry",
+            "altText": "",
+            "startTime": 52.081,
+            "endTime": 53.732,
+            "syllables": [
+              {
+                "id": "syl-12-0",
+                "text": "I'm ",
+                "altText": "",
+                "startTime": 52.081,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-12-1",
+                "text": "not ",
+                "altText": "",
+                "startTime": 52.322,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-12-2",
+                "text": "e",
+                "altText": "",
+                "startTime": 52.564,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-12-3",
+                "text": "ven ",
+                "altText": "",
+                "startTime": 52.805,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-12-4",
+                "text": "an",
+                "altText": "",
+                "startTime": 53.09,
+                "duration": 0.44
+              },
+              {
+                "id": "syl-12-5",
+                "text": "gry",
+                "altText": "",
+                "startTime": 53.53,
+                "duration": 0.202
+              }
+            ]
+          },
+          {
+            "id": "line-14",
+            "text": "I'm being so sincere right now",
+            "altText": "",
+            "startTime": 56.334,
+            "endTime": 59.678,
+            "syllables": [
+              {
+                "id": "syl-13-0",
+                "text": "I'm ",
+                "altText": "",
+                "startTime": 56.334,
+                "duration": 0.248
+              },
+              {
+                "id": "syl-13-1",
+                "text": "be",
+                "altText": "",
+                "startTime": 56.582,
+                "duration": 0.204
+              },
+              {
+                "id": "syl-13-2",
+                "text": "ing ",
+                "altText": "",
+                "startTime": 56.786,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-13-3",
+                "text": "so ",
+                "altText": "",
+                "startTime": 57.069,
+                "duration": 0.739
+              },
+              {
+                "id": "syl-13-4",
+                "text": "sin",
+                "altText": "",
+                "startTime": 57.808,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-13-5",
+                "text": "cere ",
+                "altText": "",
+                "startTime": 58.091,
+                "duration": 0.522
+              },
+              {
+                "id": "syl-13-6",
+                "text": "right ",
+                "altText": "",
+                "startTime": 58.613,
+                "duration": 0.415
+              },
+              {
+                "id": "syl-13-7",
+                "text": "now",
+                "altText": "",
+                "startTime": 59.028,
+                "duration": 0.65
+              }
+            ]
+          },
+          {
+            "id": "line-15",
+            "text": "Even though you broke my heart and killed me",
+            "altText": "",
+            "startTime": 61.291,
+            "endTime": 66.21,
+            "syllables": [
+              {
+                "id": "syl-14-0",
+                "text": "E",
+                "altText": "",
+                "startTime": 61.291,
+                "duration": 0.527
+              },
+              {
+                "id": "syl-14-1",
+                "text": "ven ",
+                "altText": "",
+                "startTime": 61.818,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-14-2",
+                "text": "though ",
+                "altText": "",
+                "startTime": 62.063,
+                "duration": 0.773
+              },
+              {
+                "id": "syl-14-3",
+                "text": "you ",
+                "altText": "",
+                "startTime": 62.836,
+                "duration": 0.448
+              },
+              {
+                "id": "syl-14-4",
+                "text": "broke ",
+                "altText": "",
+                "startTime": 63.284,
+                "duration": 0.531
+              },
+              {
+                "id": "syl-14-5",
+                "text": "my ",
+                "altText": "",
+                "startTime": 63.815,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-14-6",
+                "text": "heart ",
+                "altText": "",
+                "startTime": 64.057,
+                "duration": 0.773
+              },
+              {
+                "id": "syl-14-7",
+                "text": "and ",
+                "altText": "",
+                "startTime": 64.83,
+                "duration": 0.33
+              },
+              {
+                "id": "syl-14-8",
+                "text": "killed ",
+                "altText": "",
+                "startTime": 65.16,
+                "duration": 0.486
+              },
+              {
+                "id": "syl-14-9",
+                "text": "me",
+                "altText": "",
+                "startTime": 65.646,
+                "duration": 0.564
+              }
+            ]
+          },
+          {
+            "id": "line-16",
+            "text": "And tore me to pieces",
+            "altText": "",
+            "startTime": 68.264,
+            "endTime": 69.77,
+            "syllables": [
+              {
+                "id": "syl-15-0",
+                "text": "And ",
+                "altText": "",
+                "startTime": 68.264,
+                "duration": 0.12
+              },
+              {
+                "id": "syl-15-1",
+                "text": "tore ",
+                "altText": "",
+                "startTime": 68.384,
+                "duration": 0.21
+              },
+              {
+                "id": "syl-15-2",
+                "text": "me ",
+                "altText": "",
+                "startTime": 68.594,
+                "duration": 0.288
+              },
+              {
+                "id": "syl-15-3",
+                "text": "to ",
+                "altText": "",
+                "startTime": 68.882,
+                "duration": 0.2
+              },
+              {
+                "id": "syl-15-4",
+                "text": "piec",
+                "altText": "",
+                "startTime": 69.082,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-15-5",
+                "text": "es",
+                "altText": "",
+                "startTime": 69.323,
+                "duration": 0.447
+              }
+            ]
+          },
+          {
+            "id": "line-17",
+            "text": "And threw every piece into a fire",
+            "altText": "",
+            "startTime": 72.075,
+            "endTime": 75.633,
+            "syllables": [
+              {
+                "id": "syl-16-0",
+                "text": "And ",
+                "altText": "",
+                "startTime": 72.075,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-16-1",
+                "text": "threw ",
+                "altText": "",
+                "startTime": 72.359,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-16-2",
+                "text": "e",
+                "altText": "",
+                "startTime": 72.601,
+                "duration": 0.246
+              },
+              {
+                "id": "syl-16-3",
+                "text": "very ",
+                "altText": "",
+                "startTime": 72.847,
+                "duration": 0.244
+              },
+              {
+                "id": "syl-16-4",
+                "text": "piece ",
+                "altText": "",
+                "startTime": 73.091,
+                "duration": 0.362
+              },
+              {
+                "id": "syl-16-5",
+                "text": "in",
+                "altText": "",
+                "startTime": 73.817,
+                "duration": 0.28
+              },
+              {
+                "id": "syl-16-6",
+                "text": "to ",
+                "altText": "",
+                "startTime": 74.097,
+                "duration": 0.325
+              },
+              {
+                "id": "syl-16-7",
+                "text": "a ",
+                "altText": "",
+                "startTime": 74.825,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-16-8",
+                "text": "fi",
+                "altText": "",
+                "startTime": 75.066,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-16-9",
+                "text": "re",
+                "altText": "",
+                "startTime": 75.35,
+                "duration": 0.283
+              }
+            ]
+          },
+          {
+            "id": "line-18",
+            "text": "As they burned, it hurt because I was so happy for you",
+            "altText": "",
+            "startTime": 77.384,
+            "endTime": 82.327,
+            "syllables": [
+              {
+                "id": "syl-17-0",
+                "text": "As ",
+                "altText": "",
+                "startTime": 77.384,
+                "duration": 0.402
+              },
+              {
+                "id": "syl-17-1",
+                "text": "they ",
+                "altText": "",
+                "startTime": 77.786,
+                "duration": 0.246
+              },
+              {
+                "id": "syl-17-2",
+                "text": "burned, ",
+                "altText": "",
+                "startTime": 78.032,
+                "duration": 0.767
+              },
+              {
+                "id": "syl-17-3",
+                "text": "it ",
+                "altText": "",
+                "startTime": 78.799,
+                "duration": 0.528
+              },
+              {
+                "id": "syl-17-4",
+                "text": "hurt ",
+                "altText": "",
+                "startTime": 79.327,
+                "duration": 0.407
+              },
+              {
+                "id": "syl-17-5",
+                "text": "be",
+                "altText": "",
+                "startTime": 79.734,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-17-6",
+                "text": "cause ",
+                "altText": "",
+                "startTime": 80.019,
+                "duration": 0.324
+              },
+              {
+                "id": "syl-17-7",
+                "text": "I ",
+                "altText": "",
+                "startTime": 80.588,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-17-8",
+                "text": "was ",
+                "altText": "",
+                "startTime": 80.871,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-17-9",
+                "text": "so ",
+                "altText": "",
+                "startTime": 81.114,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-17-10",
+                "text": "hap",
+                "altText": "",
+                "startTime": 81.355,
+                "duration": 0.248
+              },
+              {
+                "id": "syl-17-11",
+                "text": "py ",
+                "altText": "",
+                "startTime": 81.603,
+                "duration": 0.202
+              },
+              {
+                "id": "syl-17-12",
+                "text": "for ",
+                "altText": "",
+                "startTime": 81.805,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-17-13",
+                "text": "you",
+                "altText": "",
+                "startTime": 82.086,
+                "duration": 0.241
+              }
+            ]
+          },
+          {
+            "id": "line-19",
+            "text": "Now these points of data make a beautiful line",
+            "altText": "",
+            "startTime": 82.847,
+            "endTime": 86.794,
+            "syllables": [
+              {
+                "id": "syl-18-0",
+                "text": "Now ",
+                "altText": "",
+                "startTime": 82.847,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-18-1",
+                "text": "these ",
+                "altText": "",
+                "startTime": 83.088,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-18-2",
+                "text": "points ",
+                "altText": "",
+                "startTime": 83.329,
+                "duration": 0.529
+              },
+              {
+                "id": "syl-18-3",
+                "text": "of ",
+                "altText": "",
+                "startTime": 83.858,
+                "duration": 0.487
+              },
+              {
+                "id": "syl-18-4",
+                "text": "da",
+                "altText": "",
+                "startTime": 84.345,
+                "duration": 0.246
+              },
+              {
+                "id": "syl-18-5",
+                "text": "ta ",
+                "altText": "",
+                "startTime": 84.591,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-18-6",
+                "text": "make ",
+                "altText": "",
+                "startTime": 84.836,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-18-7",
+                "text": "a ",
+                "altText": "",
+                "startTime": 85.117,
+                "duration": 0.24
+              },
+              {
+                "id": "syl-18-8",
+                "text": "beau",
+                "altText": "",
+                "startTime": 85.357,
+                "duration": 0.207
+              },
+              {
+                "id": "syl-18-9",
+                "text": "ti",
+                "altText": "",
+                "startTime": 85.564,
+                "duration": 0.287
+              },
+              {
+                "id": "syl-18-10",
+                "text": "ful ",
+                "altText": "",
+                "startTime": 85.851,
+                "duration": 0.45
+              },
+              {
+                "id": "syl-18-11",
+                "text": "line",
+                "altText": "",
+                "startTime": 86.301,
+                "duration": 0.493
+              }
+            ]
+          },
+          {
+            "id": "line-20",
+            "text": "And we're out of beta, we're releasing on time",
+            "altText": "",
+            "startTime": 86.794,
+            "endTime": 90.809,
+            "syllables": [
+              {
+                "id": "syl-19-0",
+                "text": "And ",
+                "altText": "",
+                "startTime": 86.794,
+                "duration": 0.239
+              },
+              {
+                "id": "syl-19-1",
+                "text": "we're ",
+                "altText": "",
+                "startTime": 87.033,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-19-2",
+                "text": "out ",
+                "altText": "",
+                "startTime": 87.316,
+                "duration": 0.451
+              },
+              {
+                "id": "syl-19-3",
+                "text": "of ",
+                "altText": "",
+                "startTime": 87.767,
+                "duration": 0.529
+              },
+              {
+                "id": "syl-19-4",
+                "text": "be",
+                "altText": "",
+                "startTime": 88.296,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-19-5",
+                "text": "ta, ",
+                "altText": "",
+                "startTime": 88.581,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-19-6",
+                "text": "we're ",
+                "altText": "",
+                "startTime": 88.824,
+                "duration": 0.244
+              },
+              {
+                "id": "syl-19-7",
+                "text": "re",
+                "altText": "",
+                "startTime": 89.068,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-19-8",
+                "text": "leas",
+                "altText": "",
+                "startTime": 89.31,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-19-9",
+                "text": "ing ",
+                "altText": "",
+                "startTime": 89.593,
+                "duration": 0.203
+              },
+              {
+                "id": "syl-19-10",
+                "text": "on ",
+                "altText": "",
+                "startTime": 89.796,
+                "duration": 0.487
+              },
+              {
+                "id": "syl-19-11",
+                "text": "time",
+                "altText": "",
+                "startTime": 90.283,
+                "duration": 0.526
+              }
+            ]
+          },
+          {
+            "id": "line-21",
+            "text": "So I'm GLaD I got burned, think of all the things we learned",
+            "altText": "",
+            "startTime": 90.809,
+            "endTime": 94.823,
+            "syllables": [
+              {
+                "id": "syl-20-0",
+                "text": "So ",
+                "altText": "",
+                "startTime": 90.809,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-20-1",
+                "text": "I'm ",
+                "altText": "",
+                "startTime": 91.05,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-20-2",
+                "text": "GLaD ",
+                "altText": "",
+                "startTime": 91.291,
+                "duration": 0.24
+              },
+              {
+                "id": "syl-20-3",
+                "text": "I ",
+                "altText": "",
+                "startTime": 91.531,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-20-4",
+                "text": "got ",
+                "altText": "",
+                "startTime": 91.812,
+                "duration": 0.486
+              },
+              {
+                "id": "syl-20-5",
+                "text": "burned, ",
+                "altText": "",
+                "startTime": 92.298,
+                "duration": 0.482
+              },
+              {
+                "id": "syl-20-6",
+                "text": "think ",
+                "altText": "",
+                "startTime": 92.78,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-20-7",
+                "text": "of ",
+                "altText": "",
+                "startTime": 93.063,
+                "duration": 0.244
+              },
+              {
+                "id": "syl-20-8",
+                "text": "all ",
+                "altText": "",
+                "startTime": 93.307,
+                "duration": 0.246
+              },
+              {
+                "id": "syl-20-9",
+                "text": "the ",
+                "altText": "",
+                "startTime": 93.553,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-20-10",
+                "text": "things ",
+                "altText": "",
+                "startTime": 93.794,
+                "duration": 0.293
+              },
+              {
+                "id": "syl-20-11",
+                "text": "we ",
+                "altText": "",
+                "startTime": 94.087,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-20-12",
+                "text": "learned",
+                "altText": "",
+                "startTime": 94.332,
+                "duration": 0.491
+              }
+            ]
+          },
+          {
+            "id": "line-22",
+            "text": "For the people who are still alive",
+            "altText": "",
+            "startTime": 94.823,
+            "endTime": 98.103,
+            "syllables": [
+              {
+                "id": "syl-21-0",
+                "text": "For ",
+                "altText": "",
+                "startTime": 94.823,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-21-1",
+                "text": "the ",
+                "altText": "",
+                "startTime": 95.066,
+                "duration": 0.25
+              },
+              {
+                "id": "syl-21-2",
+                "text": "peop",
+                "altText": "",
+                "startTime": 95.316,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-21-3",
+                "text": "le ",
+                "altText": "",
+                "startTime": 95.601,
+                "duration": 0.24
+              },
+              {
+                "id": "syl-21-4",
+                "text": "who ",
+                "altText": "",
+                "startTime": 95.841,
+                "duration": 0.28
+              },
+              {
+                "id": "syl-21-5",
+                "text": "are ",
+                "altText": "",
+                "startTime": 96.121,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-21-6",
+                "text": "still ",
+                "altText": "",
+                "startTime": 96.603,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-21-7",
+                "text": "al",
+                "altText": "",
+                "startTime": 96.845,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-21-8",
+                "text": "ive",
+                "altText": "",
+                "startTime": 97.088,
+                "duration": 1.015
+              }
+            ]
+          },
+          {
+            "id": "line-23",
+            "text": "Go ahead and leave me",
+            "altText": "",
+            "startTime": 104.318,
+            "endTime": 106.109,
+            "syllables": [
+              {
+                "id": "syl-22-0",
+                "text": "Go ",
+                "altText": "",
+                "startTime": 104.318,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-22-1",
+                "text": "ahead ",
+                "altText": "",
+                "startTime": 104.602,
+                "duration": 0.244
+              },
+              {
+                "id": "syl-22-2",
+                "text": "and ",
+                "altText": "",
+                "startTime": 104.846,
+                "duration": 0.282
+              },
+              {
+                "id": "syl-22-3",
+                "text": "leave ",
+                "altText": "",
+                "startTime": 105.128,
+                "duration": 0.491
+              },
+              {
+                "id": "syl-22-4",
+                "text": "me",
+                "altText": "",
+                "startTime": 105.619,
+                "duration": 0.49
+              }
+            ]
+          },
+          {
+            "id": "line-24",
+            "text": "I think I prefer to stay inside",
+            "altText": "",
+            "startTime": 108.088,
+            "endTime": 111.697,
+            "syllables": [
+              {
+                "id": "syl-23-0",
+                "text": "I ",
+                "altText": "",
+                "startTime": 108.088,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-23-1",
+                "text": "think ",
+                "altText": "",
+                "startTime": 108.329,
+                "duration": 0.205
+              },
+              {
+                "id": "syl-23-2",
+                "text": "I ",
+                "altText": "",
+                "startTime": 108.534,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-23-3",
+                "text": "pre",
+                "altText": "",
+                "startTime": 108.779,
+                "duration": 0.286
+              },
+              {
+                "id": "syl-23-4",
+                "text": "fer ",
+                "altText": "",
+                "startTime": 109.065,
+                "duration": 0.448
+              },
+              {
+                "id": "syl-23-5",
+                "text": "to ",
+                "altText": "",
+                "startTime": 109.797,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-23-6",
+                "text": "stay ",
+                "altText": "",
+                "startTime": 110.078,
+                "duration": 0.366
+              },
+              {
+                "id": "syl-23-7",
+                "text": "in",
+                "altText": "",
+                "startTime": 110.848,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-23-8",
+                "text": "side",
+                "altText": "",
+                "startTime": 111.129,
+                "duration": 0.568
+              }
+            ]
+          },
+          {
+            "id": "line-25",
+            "text": "Maybe you'll find someone else to help you",
+            "altText": "",
+            "startTime": 113.553,
+            "endTime": 117.963,
+            "syllables": [
+              {
+                "id": "syl-24-0",
+                "text": "May",
+                "altText": "",
+                "startTime": 113.553,
+                "duration": 0.328
+              },
+              {
+                "id": "syl-24-1",
+                "text": "be ",
+                "altText": "",
+                "startTime": 113.881,
+                "duration": 0.207
+              },
+              {
+                "id": "syl-24-2",
+                "text": "you'll ",
+                "altText": "",
+                "startTime": 114.088,
+                "duration": 0.733
+              },
+              {
+                "id": "syl-24-3",
+                "text": "find ",
+                "altText": "",
+                "startTime": 114.821,
+                "duration": 0.49
+              },
+              {
+                "id": "syl-24-4",
+                "text": "some",
+                "altText": "",
+                "startTime": 115.311,
+                "duration": 0.492
+              },
+              {
+                "id": "syl-24-5",
+                "text": "one ",
+                "altText": "",
+                "startTime": 115.803,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-24-6",
+                "text": "else ",
+                "altText": "",
+                "startTime": 116.046,
+                "duration": 0.527
+              },
+              {
+                "id": "syl-24-7",
+                "text": "to ",
+                "altText": "",
+                "startTime": 116.86,
+                "duration": 0.251
+              },
+              {
+                "id": "syl-24-8",
+                "text": "help ",
+                "altText": "",
+                "startTime": 117.111,
+                "duration": 0.325
+              },
+              {
+                "id": "syl-24-9",
+                "text": "you",
+                "altText": "",
+                "startTime": 117.637,
+                "duration": 0.326
+              }
+            ]
+          },
+          {
+            "id": "line-26",
+            "text": "Maybe Black Mesa!",
+            "altText": "",
+            "startTime": 120.314,
+            "endTime": 122.054,
+            "syllables": [
+              {
+                "id": "syl-25-0",
+                "text": "May",
+                "altText": "",
+                "startTime": 120.314,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-25-1",
+                "text": "be ",
+                "altText": "",
+                "startTime": 120.597,
+                "duration": 0.286
+              },
+              {
+                "id": "syl-25-2",
+                "text": "Black ",
+                "altText": "",
+                "startTime": 120.883,
+                "duration": 0.327
+              },
+              {
+                "id": "syl-25-3",
+                "text": "Mes",
+                "altText": "",
+                "startTime": 121.21,
+                "duration": 0.441
+              },
+              {
+                "id": "syl-25-4",
+                "text": "a!",
+                "altText": "",
+                "startTime": 121.651,
+                "duration": 0.403
+              }
+            ]
+          },
+          {
+            "id": "line-27",
+            "text": "That was a joke [HAHA] (fat chance)",
+            "altText": "",
+            "startTime": 124.357,
+            "endTime": 127.759,
+            "syllables": [
+              {
+                "id": "syl-26-0",
+                "text": "That ",
+                "altText": "",
+                "startTime": 124.357,
+                "duration": 0.201
+              },
+              {
+                "id": "syl-26-1",
+                "text": "was ",
+                "altText": "",
+                "startTime": 124.558,
+                "duration": 0.323
+              },
+              {
+                "id": "syl-26-2",
+                "text": "a ",
+                "altText": "",
+                "startTime": 124.881,
+                "duration": 0.248
+              },
+              {
+                "id": "syl-26-3",
+                "text": "joke, ",
+                "altText": "",
+                "startTime": 125.129,
+                "duration": 0.326
+              },
+              {
+                "id": "syl-26-4",
+                "text": "[HAHA] ",
+                "altText": "",
+                "startTime": 125.86,
+                "duration": 0.566
+              },
+              {
+                "id": "syl-26-5",
+                "text": "(fat ",
+                "altText": "",
+                "startTime": 126.867,
+                "duration": 0.275
+              },
+              {
+                "id": "syl-26-6",
+                "text": "chance)",
+                "altText": "",
+                "startTime": 127.142,
+                "duration": 0.617
+              }
+            ]
+          },
+          {
+            "id": "line-28",
+            "text": "Anyway, this cake is great",
+            "altText": "",
+            "startTime": 129.358,
+            "endTime": 132.371,
+            "syllables": [
+              {
+                "id": "syl-27-0",
+                "text": "An",
+                "altText": "",
+                "startTime": 129.358,
+                "duration": 0.501
+              },
+              {
+                "id": "syl-27-1",
+                "text": "ywa",
+                "altText": "",
+                "startTime": 129.859,
+                "duration": 0.4
+              },
+              {
+                "id": "syl-27-2",
+                "text": "y, ",
+                "altText": "",
+                "startTime": 130.259,
+                "duration": 0.526
+              },
+              {
+                "id": "syl-27-3",
+                "text": "this ",
+                "altText": "",
+                "startTime": 130.785,
+                "duration": 0.532
+              },
+              {
+                "id": "syl-27-4",
+                "text": "cake ",
+                "altText": "",
+                "startTime": 131.317,
+                "duration": 0.444
+              },
+              {
+                "id": "syl-27-5",
+                "text": "is ",
+                "altText": "",
+                "startTime": 131.761,
+                "duration": 0.325
+              },
+              {
+                "id": "syl-27-6",
+                "text": "great",
+                "altText": "",
+                "startTime": 132.086,
+                "duration": 0.285
+              }
+            ]
+          },
+          {
+            "id": "line-29",
+            "text": "It's so delicious and moist",
+            "altText": "",
+            "startTime": 132.574,
+            "endTime": 134.362,
+            "syllables": [
+              {
+                "id": "syl-28-0",
+                "text": "It's ",
+                "altText": "",
+                "startTime": 132.574,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-28-1",
+                "text": "so ",
+                "altText": "",
+                "startTime": 132.857,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-28-2",
+                "text": "de",
+                "altText": "",
+                "startTime": 133.1,
+                "duration": 0.2
+              },
+              {
+                "id": "syl-28-3",
+                "text": "li",
+                "altText": "",
+                "startTime": 133.3,
+                "duration": 0.246
+              },
+              {
+                "id": "syl-28-4",
+                "text": "cious ",
+                "altText": "",
+                "startTime": 133.546,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-28-5",
+                "text": "and ",
+                "altText": "",
+                "startTime": 133.791,
+                "duration": 0.286
+              },
+              {
+                "id": "syl-28-6",
+                "text": "moist",
+                "altText": "",
+                "startTime": 134.077,
+                "duration": 0.285
+              }
+            ]
+          },
+          {
+            "id": "line-30",
+            "text": "Look at me still talking when there's science to do",
+            "altText": "",
+            "startTime": 134.85,
+            "endTime": 138.846,
+            "syllables": [
+              {
+                "id": "syl-29-0",
+                "text": "Look ",
+                "altText": "",
+                "startTime": 134.85,
+                "duration": 0.202
+              },
+              {
+                "id": "syl-29-1",
+                "text": "at ",
+                "altText": "",
+                "startTime": 135.052,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-29-2",
+                "text": "me ",
+                "altText": "",
+                "startTime": 135.297,
+                "duration": 0.567
+              },
+              {
+                "id": "syl-29-3",
+                "text": "still ",
+                "altText": "",
+                "startTime": 135.864,
+                "duration": 0.486
+              },
+              {
+                "id": "syl-29-4",
+                "text": "tal",
+                "altText": "",
+                "startTime": 136.35,
+                "duration": 0.246
+              },
+              {
+                "id": "syl-29-5",
+                "text": "king ",
+                "altText": "",
+                "startTime": 136.596,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-29-6",
+                "text": "when ",
+                "altText": "",
+                "startTime": 136.879,
+                "duration": 0.202
+              },
+              {
+                "id": "syl-29-7",
+                "text": "there's ",
+                "altText": "",
+                "startTime": 137.081,
+                "duration": 0.306
+              },
+              {
+                "id": "syl-29-8",
+                "text": "sci",
+                "altText": "",
+                "startTime": 137.387,
+                "duration": 0.286
+              },
+              {
+                "id": "syl-29-9",
+                "text": "ence ",
+                "altText": "",
+                "startTime": 137.673,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-29-10",
+                "text": "to ",
+                "altText": "",
+                "startTime": 137.914,
+                "duration": 0.442
+              },
+              {
+                "id": "syl-29-11",
+                "text": "do",
+                "altText": "",
+                "startTime": 138.356,
+                "duration": 0.49
+              }
+            ]
+          },
+          {
+            "id": "line-31",
+            "text": "When I look up there, it makes me GLaD I'm not you",
+            "altText": "",
+            "startTime": 138.846,
+            "endTime": 142.884,
+            "syllables": [
+              {
+                "id": "syl-30-0",
+                "text": "When ",
+                "altText": "",
+                "startTime": 138.846,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-30-1",
+                "text": "I ",
+                "altText": "",
+                "startTime": 139.127,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-30-2",
+                "text": "look ",
+                "altText": "",
+                "startTime": 139.372,
+                "duration": 0.501
+              },
+              {
+                "id": "syl-30-3",
+                "text": "up ",
+                "altText": "",
+                "startTime": 139.873,
+                "duration": 0.485
+              },
+              {
+                "id": "syl-30-4",
+                "text": "there, ",
+                "altText": "",
+                "startTime": 140.358,
+                "duration": 0.282
+              },
+              {
+                "id": "syl-30-5",
+                "text": "it ",
+                "altText": "",
+                "startTime": 140.64,
+                "duration": 0.239
+              },
+              {
+                "id": "syl-30-6",
+                "text": "makes ",
+                "altText": "",
+                "startTime": 140.879,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-30-7",
+                "text": "me ",
+                "altText": "",
+                "startTime": 141.163,
+                "duration": 0.245
+              },
+              {
+                "id": "syl-30-8",
+                "text": "GLaD ",
+                "altText": "",
+                "startTime": 141.408,
+                "duration": 0.252
+              },
+              {
+                "id": "syl-30-9",
+                "text": "I'm ",
+                "altText": "",
+                "startTime": 141.66,
+                "duration": 0.204
+              },
+              {
+                "id": "syl-30-10",
+                "text": "not ",
+                "altText": "",
+                "startTime": 141.864,
+                "duration": 0.487
+              },
+              {
+                "id": "syl-30-11",
+                "text": "you",
+                "altText": "",
+                "startTime": 142.351,
+                "duration": 0.533
+              }
+            ]
+          },
+          {
+            "id": "line-32",
+            "text": "I've experiments to run",
+            "altText": "",
+            "startTime": 142.884,
+            "endTime": 144.876,
+            "syllables": [
+              {
+                "id": "syl-31-0",
+                "text": "I've ",
+                "altText": "",
+                "startTime": 142.884,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-31-1",
+                "text": "ex",
+                "altText": "",
+                "startTime": 143.126,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-31-2",
+                "text": "per",
+                "altText": "",
+                "startTime": 143.411,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-31-3",
+                "text": "i",
+                "altText": "",
+                "startTime": 143.654,
+                "duration": 0.204
+              },
+              {
+                "id": "syl-31-4",
+                "text": "ments ",
+                "altText": "",
+                "startTime": 143.858,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-31-5",
+                "text": "to ",
+                "altText": "",
+                "startTime": 144.1,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-31-6",
+                "text": "run",
+                "altText": "",
+                "startTime": 144.384,
+                "duration": 0.492
+              }
+            ]
+          },
+          {
+            "id": "line-33",
+            "text": "There is research to be done",
+            "altText": "",
+            "startTime": 144.876,
+            "endTime": 146.854,
+            "syllables": [
+              {
+                "id": "syl-32-0",
+                "text": "There ",
+                "altText": "",
+                "startTime": 144.876,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-32-1",
+                "text": "is ",
+                "altText": "",
+                "startTime": 145.118,
+                "duration": 0.24
+              },
+              {
+                "id": "syl-32-2",
+                "text": "re",
+                "altText": "",
+                "startTime": 145.358,
+                "duration": 0.25
+              },
+              {
+                "id": "syl-32-3",
+                "text": "search ",
+                "altText": "",
+                "startTime": 145.608,
+                "duration": 0.24
+              },
+              {
+                "id": "syl-32-4",
+                "text": "to ",
+                "altText": "",
+                "startTime": 145.848,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-32-5",
+                "text": "be ",
+                "altText": "",
+                "startTime": 146.089,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-32-6",
+                "text": "done",
+                "altText": "",
+                "startTime": 146.372,
+                "duration": 0.482
+              }
+            ]
+          },
+          {
+            "id": "line-34",
+            "text": "On the people who are still alive",
+            "altText": "",
+            "startTime": 146.854,
+            "endTime": 149.877,
+            "syllables": [
+              {
+                "id": "syl-33-0",
+                "text": "On ",
+                "altText": "",
+                "startTime": 146.854,
+                "duration": 0.283
+              },
+              {
+                "id": "syl-33-1",
+                "text": "the ",
+                "altText": "",
+                "startTime": 147.137,
+                "duration": 0.201
+              },
+              {
+                "id": "syl-33-2",
+                "text": "peop",
+                "altText": "",
+                "startTime": 147.338,
+                "duration": 0.326
+              },
+              {
+                "id": "syl-33-3",
+                "text": "le ",
+                "altText": "",
+                "startTime": 147.664,
+                "duration": 0.161
+              },
+              {
+                "id": "syl-33-4",
+                "text": "who ",
+                "altText": "",
+                "startTime": 147.825,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-33-5",
+                "text": "are ",
+                "altText": "",
+                "startTime": 148.106,
+                "duration": 0.282
+              },
+              {
+                "id": "syl-33-6",
+                "text": "still ",
+                "altText": "",
+                "startTime": 148.628,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-33-7",
+                "text": "al",
+                "altText": "",
+                "startTime": 148.869,
+                "duration": 0.205
+              },
+              {
+                "id": "syl-33-8",
+                "text": "ive",
+                "altText": "",
+                "startTime": 149.074,
+                "duration": 0.803
+              }
+            ]
+          },
+          {
+            "id": "line-35",
+            "text": "Believe me, I am still alive",
+            "altText": "",
+            "startTime": 150.89,
+            "endTime": 153.7,
+            "syllables": [
+              {
+                "id": "syl-34-0",
+                "text": "Be",
+                "altText": "",
+                "startTime": 150.89,
+                "duration": 0.202
+              },
+              {
+                "id": "syl-34-1",
+                "text": "lieve ",
+                "altText": "",
+                "startTime": 151.092,
+                "duration": 0.492
+              },
+              {
+                "id": "syl-34-2",
+                "text": "me, ",
+                "altText": "",
+                "startTime": 151.584,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-34-3",
+                "text": "I ",
+                "altText": "",
+                "startTime": 151.865,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-34-4",
+                "text": "am ",
+                "altText": "",
+                "startTime": 152.106,
+                "duration": 0.288
+              },
+              {
+                "id": "syl-34-5",
+                "text": "still ",
+                "altText": "",
+                "startTime": 152.595,
+                "duration": 0.244
+              },
+              {
+                "id": "syl-34-6",
+                "text": "al",
+                "altText": "",
+                "startTime": 152.839,
+                "duration": 0.248
+              },
+              {
+                "id": "syl-34-7",
+                "text": "ive",
+                "altText": "",
+                "startTime": 153.087,
+                "duration": 0.613
+              }
+            ]
+          },
+          {
+            "id": "line-36",
+            "text": "I'm doing science, and I'm still alive",
+            "altText": "",
+            "startTime": 154.597,
+            "endTime": 157.623,
+            "syllables": [
+              {
+                "id": "syl-35-0",
+                "text": "I'm ",
+                "altText": "",
+                "startTime": 154.597,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-35-1",
+                "text": "do",
+                "altText": "",
+                "startTime": 154.838,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-35-2",
+                "text": "ing ",
+                "altText": "",
+                "startTime": 155.08,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-35-3",
+                "text": "sci",
+                "altText": "",
+                "startTime": 155.364,
+                "duration": 0.287
+              },
+              {
+                "id": "syl-35-4",
+                "text": "ence, ",
+                "altText": "",
+                "startTime": 155.651,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-35-5",
+                "text": "and ",
+                "altText": "",
+                "startTime": 155.892,
+                "duration": 0.213
+              },
+              {
+                "id": "syl-35-6",
+                "text": "I'm ",
+                "altText": "",
+                "startTime": 156.105,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-35-7",
+                "text": "still ",
+                "altText": "",
+                "startTime": 156.598,
+                "duration": 0.287
+              },
+              {
+                "id": "syl-35-8",
+                "text": "al",
+                "altText": "",
+                "startTime": 156.885,
+                "duration": 0.249
+              },
+              {
+                "id": "syl-35-9",
+                "text": "ive",
+                "altText": "",
+                "startTime": 157.134,
+                "duration": 0.489
+              }
+            ]
+          },
+          {
+            "id": "line-37",
+            "text": "I feel fantastic, and I'm still alive",
+            "altText": "",
+            "startTime": 158.569,
+            "endTime": 161.583,
+            "syllables": [
+              {
+                "id": "syl-36-0",
+                "text": "I ",
+                "altText": "",
+                "startTime": 158.569,
+                "duration": 0.318
+              },
+              {
+                "id": "syl-36-1",
+                "text": "feel ",
+                "altText": "",
+                "startTime": 158.887,
+                "duration": 0.203
+              },
+              {
+                "id": "syl-36-2",
+                "text": "fan",
+                "altText": "",
+                "startTime": 159.09,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-36-3",
+                "text": "tas",
+                "altText": "",
+                "startTime": 159.332,
+                "duration": 0.212
+              },
+              {
+                "id": "syl-36-4",
+                "text": "tic, ",
+                "altText": "",
+                "startTime": 159.544,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-36-5",
+                "text": "and ",
+                "altText": "",
+                "startTime": 159.829,
+                "duration": 0.282
+              },
+              {
+                "id": "syl-36-6",
+                "text": "I'm ",
+                "altText": "",
+                "startTime": 160.111,
+                "duration": 0.249
+              },
+              {
+                "id": "syl-36-7",
+                "text": "still ",
+                "altText": "",
+                "startTime": 160.563,
+                "duration": 0.288
+              },
+              {
+                "id": "syl-36-8",
+                "text": "al",
+                "altText": "",
+                "startTime": 160.851,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-36-9",
+                "text": "ive",
+                "altText": "",
+                "startTime": 161.094,
+                "duration": 0.489
+              }
+            ]
+          },
+          {
+            "id": "line-38",
+            "text": "While you're dying, I'll be still alive",
+            "altText": "",
+            "startTime": 162.883,
+            "endTime": 165.614,
+            "syllables": [
+              {
+                "id": "syl-37-0",
+                "text": "While ",
+                "altText": "",
+                "startTime": 162.883,
+                "duration": 0.203
+              },
+              {
+                "id": "syl-37-1",
+                "text": "you're ",
+                "altText": "",
+                "startTime": 163.086,
+                "duration": 0.281
+              },
+              {
+                "id": "syl-37-2",
+                "text": "dy",
+                "altText": "",
+                "startTime": 163.367,
+                "duration": 0.204
+              },
+              {
+                "id": "syl-37-3",
+                "text": "ing, ",
+                "altText": "",
+                "startTime": 163.571,
+                "duration": 0.289
+              },
+              {
+                "id": "syl-37-4",
+                "text": "I'll ",
+                "altText": "",
+                "startTime": 163.86,
+                "duration": 0.247
+              },
+              {
+                "id": "syl-37-5",
+                "text": "be ",
+                "altText": "",
+                "startTime": 164.107,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-37-6",
+                "text": "still ",
+                "altText": "",
+                "startTime": 164.595,
+                "duration": 0.249
+              },
+              {
+                "id": "syl-37-7",
+                "text": "al",
+                "altText": "",
+                "startTime": 164.844,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-37-8",
+                "text": "ive",
+                "altText": "",
+                "startTime": 165.085,
+                "duration": 0.529
+              }
+            ]
+          },
+          {
+            "id": "line-39",
+            "text": "And when you're dead I will be still alive",
+            "altText": "",
+            "startTime": 166.601,
+            "endTime": 169.55,
+            "syllables": [
+              {
+                "id": "syl-38-0",
+                "text": "And ",
+                "altText": "",
+                "startTime": 166.601,
+                "duration": 0.25
+              },
+              {
+                "id": "syl-38-1",
+                "text": "when ",
+                "altText": "",
+                "startTime": 166.851,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-38-2",
+                "text": "you're ",
+                "altText": "",
+                "startTime": 167.135,
+                "duration": 0.25
+              },
+              {
+                "id": "syl-38-3",
+                "text": "dead ",
+                "altText": "",
+                "startTime": 167.385,
+                "duration": 0.248
+              },
+              {
+                "id": "syl-38-4",
+                "text": "I ",
+                "altText": "",
+                "startTime": 167.633,
+                "duration": 0.204
+              },
+              {
+                "id": "syl-38-5",
+                "text": "will ",
+                "altText": "",
+                "startTime": 167.837,
+                "duration": 0.243
+              },
+              {
+                "id": "syl-38-6",
+                "text": "be ",
+                "altText": "",
+                "startTime": 168.08,
+                "duration": 0.289
+              },
+              {
+                "id": "syl-38-7",
+                "text": "still ",
+                "altText": "",
+                "startTime": 168.615,
+                "duration": 0.242
+              },
+              {
+                "id": "syl-38-8",
+                "text": "al",
+                "altText": "",
+                "startTime": 168.857,
+                "duration": 0.203
+              },
+              {
+                "id": "syl-38-9",
+                "text": "ive",
+                "altText": "",
+                "startTime": 169.06,
+                "duration": 0.49
+              }
+            ]
+          },
+          {
+            "id": "line-40",
+            "text": "Still alive, still alive",
+            "altText": "",
+            "startTime": 170.525,
+            "endTime": 173.551,
+            "syllables": [
+              {
+                "id": "syl-39-0",
+                "text": "Still ",
+                "altText": "",
+                "startTime": 170.525,
+                "duration": 0.282
+              },
+              {
+                "id": "syl-39-1",
+                "text": "al",
+                "altText": "",
+                "startTime": 170.807,
+                "duration": 0.241
+              },
+              {
+                "id": "syl-39-2",
+                "text": "ive, ",
+                "altText": "",
+                "startTime": 171.048,
+                "duration": 0.441
+              },
+              {
+                "id": "syl-39-3",
+                "text": "still ",
+                "altText": "",
+                "startTime": 172.538,
+                "duration": 0.284
+              },
+              {
+                "id": "syl-39-4",
+                "text": "al",
+                "altText": "",
+                "startTime": 172.822,
+                "duration": 0.282
+              },
+              {
+                "id": "syl-39-5",
+                "text": "ive",
+                "altText": "",
+                "startTime": 173.104,
+                "duration": 0.447
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "es",
+        "name": "Español (Traducción)",
+        "isMain": false,
+        "plain": "Este fue un triunfo\nEstoy tomando nota aquí, gran éxito.\nEs difícil exagerar mi satisfacción.\nCiencia de la apertura\nHacemos lo que debemos porque podemos.\nPor el bien de todos nosotros\nExcepto los que están muertos.\nPero no tiene sentido llorar por cada error\nSigue intentándolo hasta que te quedes sin pastel\nY la ciencia se hace\nY haces un arma genial\nPara las personas que todavía están vivas\nni siquiera estoy enojado\nEstoy siendo tan sincero ahora mismo.\nAunque rompiste mi corazón y me mataste\nY me hizo pedazos\nY arrojó cada pieza al fuego\nMientras ardían me dolió porque estaba tan feliz por ti.\nAhora estos puntos de datos forman una hermosa línea.\nY estamos fuera de la versión beta, estamos lanzando a tiempo\nAsí que me alegro de haberme quemado, piensa en todas las cosas que aprendimos\nPara las personas que todavía están vivas\nAdelante y déjame\nCreo que prefiero quedarme dentro.\nTal vez encuentres a alguien más que te ayude.\n¡Quizás Mesa Negra!\nEso fue una broma, jaja, hay muchas posibilidades.\nDe todos modos, esta tarta es genial.\nEs tan delicioso y humedo.\nMírame todavía hablando cuando hay ciencia que hacer\nCuando miro hacia arriba, me alegra no ser tú.\nTengo experimentos que ejecutar\nHay investigaciones por hacer\nSobre las personas que aún están vivas\nCréeme, todavía estoy vivo\nEstoy haciendo ciencia y todavía estoy vivo.\nMe siento fantástico y sigo vivo.\nMientras tu mueras, yo seguiré vivo\nY cuando estés muerto yo seguiré vivo\nTodavía vivo, todavía vivo",
+        "lines": [
+          {
+            "id": "line-trans-1",
+            "text": "Este fue un triunfo",
+            "altText": "",
+            "startTime": 0.414,
+            "endTime": 1.747,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-2",
+            "text": "Estoy tomando nota, un gran éxito",
+            "altText": "",
+            "startTime": 4.071,
+            "endTime": 7.652,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-3",
+            "text": "Es difícil exagerar mi satisfacción",
+            "altText": "",
+            "startTime": 9.068,
+            "endTime": 14.046,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-4",
+            "text": "Aperture Science",
+            "altText": "",
+            "startTime": 16.361,
+            "endTime": 17.817,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-5",
+            "text": "Hacemos lo que debemos porque podemos",
+            "altText": "",
+            "startTime": 20.093,
+            "endTime": 23.582,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-6",
+            "text": "Por el bien de todos nosotros",
+            "altText": "",
+            "startTime": 25.37,
+            "endTime": 28.344,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-7",
+            "text": "Excepto los que ya se murieron",
+            "altText": "",
+            "startTime": 28.591,
+            "endTime": 30.421,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-8",
+            "text": "Pero no tiene sentido llorar por cada error",
+            "altText": "",
+            "startTime": 30.871,
+            "endTime": 34.611,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-9",
+            "text": "Seguí intentando hasta que te quedes sin pastel",
+            "altText": "",
+            "startTime": 34.815,
+            "endTime": 38.583,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-10",
+            "text": "Y la ciencia se hace",
+            "altText": "",
+            "startTime": 38.826,
+            "endTime": 40.817,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-11",
+            "text": "Y creas un arma genial",
+            "altText": "",
+            "startTime": 40.817,
+            "endTime": 42.779,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-12",
+            "text": "Para las personas que todavía viven",
+            "altText": "",
+            "startTime": 42.779,
+            "endTime": 45.941,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-13",
+            "text": "Ni siquiera estoy enojada",
+            "altText": "",
+            "startTime": 52.081,
+            "endTime": 53.732,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-14",
+            "text": "Estoy siendo muy sincera ahora mismo",
+            "altText": "",
+            "startTime": 56.334,
+            "endTime": 59.678,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-15",
+            "text": "Aunque rompiste mi corazón y me mataste",
+            "altText": "",
+            "startTime": 61.291,
+            "endTime": 66.21,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-16",
+            "text": "Y me hiciste pedazos",
+            "altText": "",
+            "startTime": 68.264,
+            "endTime": 69.77,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-17",
+            "text": "Y tiraste cada pieza a un fuego",
+            "altText": "",
+            "startTime": 72.075,
+            "endTime": 75.633,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-18",
+            "text": "Mientras se quemaban me dolía porque estaba muy feliz por ti",
+            "altText": "",
+            "startTime": 77.384,
+            "endTime": 82.327,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-19",
+            "text": "Ahora estos puntos de datos forman una hermosa línea",
+            "altText": "",
+            "startTime": 82.847,
+            "endTime": 86.794,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-20",
+            "text": "Y terminamos la beta, estamos publicando a tiempo",
+            "altText": "",
+            "startTime": 86.794,
+            "endTime": 90.809,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-21",
+            "text": "Así que me alegro de haberme quemado, piensa en todas las cosas que aprendimos",
+            "altText": "",
+            "startTime": 90.809,
+            "endTime": 94.823,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-22",
+            "text": "Para las personas que todavía están vivas",
+            "altText": "",
+            "startTime": 94.823,
+            "endTime": 98.103,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-23",
+            "text": "Vamos, dejame",
+            "altText": "",
+            "startTime": 104.318,
+            "endTime": 106.109,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-24",
+            "text": "Creo que prefiero quedarme dentro.",
+            "altText": "",
+            "startTime": 108.088,
+            "endTime": 111.697,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-25",
+            "text": "Tal vez encuentres a alguien más que te ayude",
+            "altText": "",
+            "startTime": 113.553,
+            "endTime": 117.963,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-26",
+            "text": "¡Quizás Black Mesa!",
+            "altText": "",
+            "startTime": 120.314,
+            "endTime": 122.054,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-27",
+            "text": "Eso fue una broma [JAJA] (muy probablemente)",
+            "altText": "",
+            "startTime": 124.357,
+            "endTime": 127.759,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-28",
+            "text": "De todos modos, esta tarta es genial",
+            "altText": "",
+            "startTime": 129.358,
+            "endTime": 132.371,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-29",
+            "text": "¡Es tan deliciosa y jugosa!",
+            "altText": "",
+            "startTime": 132.574,
+            "endTime": 134.362,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-30",
+            "text": "Mírame, todavía estoy hablando cuando hay ciencia que hacer",
+            "altText": "",
+            "startTime": 134.85,
+            "endTime": 138.846,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-31",
+            "text": "Cuando miro hacia arriba, me alegra no ser tú",
+            "altText": "",
+            "startTime": 138.846,
+            "endTime": 142.884,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-32",
+            "text": "Tengo experimentos que ejecutar",
+            "altText": "",
+            "startTime": 142.884,
+            "endTime": 144.876,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-33",
+            "text": "Hay investigaciones por hacer",
+            "altText": "",
+            "startTime": 144.876,
+            "endTime": 146.854,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-34",
+            "text": "Sobre las personas que aún viven",
+            "altText": "",
+            "startTime": 146.854,
+            "endTime": 149.877,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-35",
+            "text": "Créeme, todavía estoy viva",
+            "altText": "",
+            "startTime": 150.89,
+            "endTime": 153.7,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-36",
+            "text": "Estoy haciendo ciencia y todavía estoy viva",
+            "altText": "",
+            "startTime": 154.597,
+            "endTime": 157.623,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-37",
+            "text": "Me siento fantástica y sigo viva",
+            "altText": "",
+            "startTime": 158.569,
+            "endTime": 161.583,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-38",
+            "text": "Mientras te mueras, yo seguiré viva",
+            "altText": "",
+            "startTime": 162.883,
+            "endTime": 165.614,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-39",
+            "text": "Y cuando te mueras yo seguiré viva",
+            "altText": "",
+            "startTime": 166.601,
+            "endTime": 169.55,
+            "syllables": []
+          },
+          {
+            "id": "line-trans-40",
+            "text": "Todavía viva, todavía viva",
+            "altText": "",
+            "startTime": 170.525,
+            "endTime": 173.551,
+            "syllables": []
+          }
+        ]
+      }
+    ],
+    "videos": [
+      {
+        "id": "vid-1790723791437-0",
+        "name": "Video Oficial (YouTube / YT Music)",
+        "url": "https://music.youtube.com/watch?v=-JZLqTnZZlY",
+        "offset": 0
+      }
+    ]
+  },
+  "advanced": {
+    "enabled": false,
+    "effects": []
+  }
+}

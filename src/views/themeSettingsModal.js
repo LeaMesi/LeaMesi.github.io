@@ -193,24 +193,24 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     previewContainer.innerHTML = `
       <div class="preview-phrase-active">
         <div class="preview-line-main" style="${mainActiveStyle}">
-          <span class="preview-syl-completed" style="${sylCompletedStyle}">君が</span><span class="preview-syl-highlight" style="${sylActiveStyle}">好き</span><span>だと叫びたい</span>
+          <span class="preview-syl-completed" style="${sylCompletedStyle}">無敵の</span><span class="preview-syl-highlight" style="${sylActiveStyle}">笑顔で</span><span>荒らすメディア</span>
         </div>
         <div class="preview-line-alt" style="${altActiveStyle}">
-          <span class="preview-syl-completed" style="${sylCompletedStyle}">Kimi ga </span><span class="preview-syl-highlight" style="${sylActiveStyle}">suki </span><span>da to sakebitai</span>
+          <span class="preview-syl-completed" style="${sylCompletedStyle}">Muteki no </span><span class="preview-syl-highlight" style="${sylActiveStyle}">egao de </span><span>arasu media</span>
         </div>
         <div class="preview-line-trans" style="${transActiveStyle}">
-          Quiero gritar que te amo
+          Con una sonrisa invencible arrasando en los medios
         </div>
       </div>
       <div class="preview-phrase-upcoming">
         <div class="preview-line-main" style="${upcomingMainStyle}">
-          明日を変えてみよう
+          知りたいその秘密ミステリアス
         </div>
         <div class="preview-line-alt" style="${upcomingAltStyle}">
-          Ashita wo kaete miyou
+          Shiritai sono himitsu misuteriasu
         </div>
         <div class="preview-line-trans" style="${upcomingTransStyle}">
-          Intentemos cambiar el mañana
+          Quiero conocer ese misterioso secreto
         </div>
       </div>
     `

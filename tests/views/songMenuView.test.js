@@ -19,7 +19,7 @@ describe('views/songMenuView.js', () => {
 
     const cards = container.querySelectorAll('.song-menu-card')
     expect(cards.length).toBeGreaterThanOrEqual(2)
-    expect(container.textContent).toContain('Caminando por la Ciudad')
+    expect(container.textContent).toContain('Still Alive')
   })
 
   it('permite alternar entre modo cuadrícula y modo lista persistiendo en localStorage', async () => {
@@ -40,12 +40,12 @@ describe('views/songMenuView.js', () => {
     await menu.refresh()
 
     const searchInput = container.querySelector('#song-search-input')
-    searchInput.value = 'Caminando'
+    searchInput.value = 'Still Alive'
     searchInput.dispatchEvent(new Event('input'))
 
     const visibleCards = container.querySelectorAll('.song-menu-card')
     expect(visibleCards.length).toBe(1)
-    expect(container.textContent).toContain('Caminando por la Ciudad')
+    expect(container.textContent).toContain('Still Alive')
   })
 
   it('dispara onEnterLyricsMode al pulsar en Entrar a Modo Letra', async () => {

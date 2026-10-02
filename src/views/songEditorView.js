@@ -674,7 +674,7 @@ export function createSongEditorView({
                   id="textarea-quick-lyrics"
                   class="quick-lyrics-textarea"
                   rows="10"
-                  placeholder="Caminando por la ciudad&#10;Bajo la luz del sol brillante&#10;Cada paso es libertad..."
+                  placeholder="This was a triumph&#10;I'm making a note here, huge success&#10;It's hard to overstate my satisfaction..."
                 ></textarea>
               </div>
 

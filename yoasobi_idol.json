@@ -1,0 +1,3229 @@
+{
+  "version": "1.1.0",
+  "metadata": {
+    "title": "アイドル (Idol)",
+    "artist": "YOASOBI",
+    "genres": [
+      "Pop"
+    ],
+    "tags": [
+      "betterlyrics",
+      "richsync"
+    ],
+    "audioPath": "",
+    "videos": [
+      {
+        "id": "vid-1790956068599-0",
+        "name": "Video Oficial (YouTube / YT Music)",
+        "url": "https://music.youtube.com/watch?v=m9SMT5ipbxk",
+        "offset": 0
+      }
+    ],
+    "youtubeUrlFull": "https://music.youtube.com/watch?v=m9SMT5ipbxk",
+    "youtubeUrlInstrumental": "https://music.youtube.com/watch?v=m9SMT5ipbxk"
+  },
+  "basic": {
+    "timing": {
+      "bpm": 120,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "syncMode": "timestamp",
+      "globalOffset": 0
+    },
+    "styles": {
+      "textColor": "#94a3b8",
+      "activeColor": "#fbbf24",
+      "completedColor": "#f59e0b",
+      "translationColor": "#38bdf8",
+      "backgroundColor": "#0f172a",
+      "fontFamily": "Inter, system-ui, -apple-system, sans-serif",
+      "fontSize": "2.1rem"
+    },
+    "videos": [
+      {
+        "id": "vid-1790956068599-0",
+        "name": "Video Oficial (YouTube / YT Music)",
+        "url": "https://music.youtube.com/watch?v=m9SMT5ipbxk",
+        "offset": 0
+      }
+    ],
+    "youtube": {
+      "full": "https://music.youtube.com/watch?v=m9SMT5ipbxk",
+      "instrumental": "https://music.youtube.com/watch?v=m9SMT5ipbxk"
+    },
+    "languages": [
+      {
+        "code": "ja",
+        "name": "日本語",
+        "isMain": true,
+        "plain": "無敵の笑顔で荒らすメディア\n知りたいその秘密ミステリアス\n抜けてるとこさえ彼女のエリア\n完璧で嘘つきな君は\n天才的なアイドル様\n今日何食べた？\n好きな本は？\n遊びに行くならどこに行くの？\n何も食べてない\nそれは内緒\n何を聞かれても\nのらりくらり\nそう淡々と\nだけど燦々と\n見えそうで見えない秘密は蜜の味\nあれもないないない\nこれもないないない\n好きなタイプは？\n相手は？\nさあ答えて\n「誰かを好きになることなんて私分からなくてさ」\n嘘か本当か知り得ない\nそんな言葉にまた一人堕ちる\nまた好きにさせる\n誰もが目を奪われていく\n君は完璧で究極のアイドル\n金輪際現れない\n一番星の生まれ変わり\nその笑顔で愛してるで\n誰も彼も虜にしていく\nその瞳がその言葉が\n嘘でもそれは完全なアイ\nはいはいあの子は特別です\n我々はハナからおまけです\nお星様の引き立て役Bです\n全てがあの子のお陰なわけない\n洒落臭い\n妬み嫉妬なんてないわけがない\nこれはネタじゃない\nからこそ許せない\n完璧じゃない君じゃ許せない\n自分を許せない\n誰よりも強い君以外は認めない\n誰もが信じ崇めてる\nまさに最強で無敵のアイドル\n弱点なんて見当たらない\n一番星を宿している\n弱いとこなんて見せちゃダメダメ\n知りたくないとこは見せずに\n唯一無二じゃなくちゃイヤイヤ\nそれこそ本物のアイ\n得意の笑顔で沸かすメディア\n隠しきるこの秘密だけは\n愛してるって嘘で積むキャリア\nこれこそ私なりの愛だ\n流れる汗も綺麗なアクア\nルビーを隠したこの瞼\n歌い踊り舞う私はマリア\nそう嘘はとびきりの愛だ\n誰かに愛されたことも\n誰かのこと愛したこともない\nそんな私の嘘がいつか本当になること\n信じてる\nいつかきっと全部手に入れる\n私はそう欲張りなアイドル\n等身大でみんなのこと\nちゃんと愛したいから\n今日も嘘をつくの\nこの言葉がいつか本当になる日を願って\nそれでもまだ\n君と君にだけは言えずにいたけど\nやっと言えた\nこれは絶対嘘じゃない\n愛してる",
+        "lines": [
+          {
+            "id": "line-1",
+            "text": "無敵の笑顔で荒らすメディア",
+            "altText": "muteki no egao de arasu media",
+            "startTime": 0.589,
+            "endTime": 3.197,
+            "syllables": [
+              {
+                "id": "syl-0-0",
+                "text": "無敵の",
+                "altText": "muteki no",
+                "startTime": 0.589,
+                "duration": 0.806
+              },
+              {
+                "id": "syl-0-1",
+                "text": "笑顔",
+                "altText": "egao",
+                "startTime": 1.395,
+                "duration": 0.471
+              },
+              {
+                "id": "syl-0-2",
+                "text": "で",
+                "altText": "de",
+                "startTime": 1.866,
+                "duration": 0.178
+              },
+              {
+                "id": "syl-0-3",
+                "text": "荒らす",
+                "altText": "arasu",
+                "startTime": 2.044,
+                "duration": 0.302
+              },
+              {
+                "id": "syl-0-4",
+                "text": "メディ",
+                "altText": "medi",
+                "startTime": 2.346,
+                "duration": 0.452
+              },
+              {
+                "id": "syl-0-5",
+                "text": "ア",
+                "altText": "a",
+                "startTime": 2.798,
+                "duration": 0.399
+              }
+            ]
+          },
+          {
+            "id": "line-2",
+            "text": "知りたいその秘密ミステリアス",
+            "altText": "shiritai sono himitsu misuteriasu",
+            "startTime": 3.491,
+            "endTime": 6.075,
+            "syllables": [
+              {
+                "id": "syl-1-0",
+                "text": "知りたい",
+                "altText": "shiritai",
+                "startTime": 3.491,
+                "duration": 0.598
+              },
+              {
+                "id": "syl-1-1",
+                "text": "その",
+                "altText": "sono",
+                "startTime": 4.089,
+                "duration": 0.382
+              },
+              {
+                "id": "syl-1-2",
+                "text": "秘密",
+                "altText": "himitsu",
+                "startTime": 4.471,
+                "duration": 0.444
+              },
+              {
+                "id": "syl-1-3",
+                "text": "ミス",
+                "altText": "misu",
+                "startTime": 4.915,
+                "duration": 0.394
+              },
+              {
+                "id": "syl-1-4",
+                "text": "テリ",
+                "altText": "teri",
+                "startTime": 5.309,
+                "duration": 0.412
+              },
+              {
+                "id": "syl-1-5",
+                "text": "アス",
+                "altText": "asu",
+                "startTime": 5.721,
+                "duration": 0.354
+              }
+            ]
+          },
+          {
+            "id": "line-3",
+            "text": "抜けてるとこさえ彼女のエリア",
+            "altText": "nuketeru tokosae kanojo no eria",
+            "startTime": 6.075,
+            "endTime": 8.872,
+            "syllables": [
+              {
+                "id": "syl-2-0",
+                "text": "抜けてる",
+                "altText": "nuketeru",
+                "startTime": 6.075,
+                "duration": 0.665
+              },
+              {
+                "id": "syl-2-1",
+                "text": "とこさえ",
+                "altText": "tokosae",
+                "startTime": 6.74,
+                "duration": 0.761
+              },
+              {
+                "id": "syl-2-2",
+                "text": "彼女の",
+                "altText": "kanojo no",
+                "startTime": 7.501,
+                "duration": 0.601
+              },
+              {
+                "id": "syl-2-3",
+                "text": "エリ",
+                "altText": "eri",
+                "startTime": 8.102,
+                "duration": 0.468
+              },
+              {
+                "id": "syl-2-4",
+                "text": "ア",
+                "altText": "a",
+                "startTime": 8.57,
+                "duration": 0.302
+              }
+            ]
+          },
+          {
+            "id": "line-4",
+            "text": "完璧で嘘つきな君は",
+            "altText": "kanpeki de uso tsukina kimi wa",
+            "startTime": 9.291,
+            "endTime": 11.74,
+            "syllables": [
+              {
+                "id": "syl-3-0",
+                "text": "完璧",
+                "altText": "kanpeki",
+                "startTime": 9.291,
+                "duration": 0.709
+              },
+              {
+                "id": "syl-3-1",
+                "text": "で",
+                "altText": "de",
+                "startTime": 10,
+                "duration": 0.259
+              },
+              {
+                "id": "syl-3-2",
+                "text": "嘘",
+                "altText": "uso",
+                "startTime": 10.259,
+                "duration": 0.365
+              },
+              {
+                "id": "syl-3-3",
+                "text": "つきな",
+                "altText": "tsukina",
+                "startTime": 10.624,
+                "duration": 0.488
+              },
+              {
+                "id": "syl-3-4",
+                "text": "君",
+                "altText": "kimi",
+                "startTime": 11.112,
+                "duration": 0.289
+              },
+              {
+                "id": "syl-3-5",
+                "text": "は",
+                "altText": "wa",
+                "startTime": 11.401,
+                "duration": 0.339
+              }
+            ]
+          },
+          {
+            "id": "line-5",
+            "text": "天才的なアイドル様",
+            "altText": "tensai teki na aidoru sama",
+            "startTime": 11.891,
+            "endTime": 14.557,
+            "syllables": [
+              {
+                "id": "syl-4-0",
+                "text": "天才",
+                "altText": "tensai",
+                "startTime": 11.891,
+                "duration": 0.662
+              },
+              {
+                "id": "syl-4-1",
+                "text": "的な",
+                "altText": "teki na",
+                "startTime": 12.553,
+                "duration": 0.616
+              },
+              {
+                "id": "syl-4-2",
+                "text": "アイドル",
+                "altText": "aidoru",
+                "startTime": 13.169,
+                "duration": 0.68
+              },
+              {
+                "id": "syl-4-3",
+                "text": "様",
+                "altText": "sama",
+                "startTime": 13.849,
+                "duration": 0.708
+              }
+            ]
+          },
+          {
+            "id": "line-6",
+            "text": "今日何食べた？",
+            "altText": "kyou nani tabe ta?",
+            "startTime": 17.237,
+            "endTime": 18.602,
+            "syllables": [
+              {
+                "id": "syl-5-0",
+                "text": "今日",
+                "altText": "kyou",
+                "startTime": 17.237,
+                "duration": 0.391
+              },
+              {
+                "id": "syl-5-1",
+                "text": "何",
+                "altText": "nani",
+                "startTime": 17.628,
+                "duration": 0.329
+              },
+              {
+                "id": "syl-5-2",
+                "text": "食べ",
+                "altText": "tabe",
+                "startTime": 17.957,
+                "duration": 0.343
+              },
+              {
+                "id": "syl-5-3",
+                "text": "た？",
+                "altText": "ta?",
+                "startTime": 18.3,
+                "duration": 0.302
+              }
+            ]
+          },
+          {
+            "id": "line-7",
+            "text": "好きな本は？",
+            "altText": "suki na hon wa?",
+            "startTime": 18.873,
+            "endTime": 20.021,
+            "syllables": [
+              {
+                "id": "syl-6-0",
+                "text": "好きな",
+                "altText": "suki na",
+                "startTime": 18.873,
+                "duration": 0.529
+              },
+              {
+                "id": "syl-6-1",
+                "text": "本",
+                "altText": "hon",
+                "startTime": 19.402,
+                "duration": 0.308
+              },
+              {
+                "id": "syl-6-2",
+                "text": "は？",
+                "altText": "wa?",
+                "startTime": 19.71,
+                "duration": 0.311
+              }
+            ]
+          },
+          {
+            "id": "line-8",
+            "text": "遊びに行くならどこに行くの？",
+            "altText": "asobi ni iku nara doko ni iku no?",
+            "startTime": 20.338,
+            "endTime": 22.996,
+            "syllables": [
+              {
+                "id": "syl-7-0",
+                "text": "遊びに",
+                "altText": "asobi ni",
+                "startTime": 20.338,
+                "duration": 0.73
+              },
+              {
+                "id": "syl-7-1",
+                "text": "行くなら",
+                "altText": "iku nara",
+                "startTime": 21.068,
+                "duration": 0.697
+              },
+              {
+                "id": "syl-7-2",
+                "text": "どこに行く",
+                "altText": "doko ni iku",
+                "startTime": 21.765,
+                "duration": 0.846
+              },
+              {
+                "id": "syl-7-3",
+                "text": "の？",
+                "altText": "no?",
+                "startTime": 22.611,
+                "duration": 0.385
+              }
+            ]
+          },
+          {
+            "id": "line-9",
+            "text": "何も食べてない",
+            "altText": "nannimo tabete nai",
+            "startTime": 23.192,
+            "endTime": 24.443,
+            "syllables": [
+              {
+                "id": "syl-8-0",
+                "text": "何も",
+                "altText": "nannimo",
+                "startTime": 23.192,
+                "duration": 0.41
+              },
+              {
+                "id": "syl-8-1",
+                "text": "食べて",
+                "altText": "tabete",
+                "startTime": 23.602,
+                "duration": 0.576
+              },
+              {
+                "id": "syl-8-2",
+                "text": "ない",
+                "altText": "nai",
+                "startTime": 24.178,
+                "duration": 0.265
+              }
+            ]
+          },
+          {
+            "id": "line-10",
+            "text": "それは内緒",
+            "altText": "soreha naisho",
+            "startTime": 24.676,
+            "endTime": 25.826,
+            "syllables": [
+              {
+                "id": "syl-9-0",
+                "text": "それは",
+                "altText": "soreha",
+                "startTime": 24.676,
+                "duration": 0.61
+              },
+              {
+                "id": "syl-9-1",
+                "text": "内緒",
+                "altText": "naisho",
+                "startTime": 25.286,
+                "duration": 0.54
+              }
+            ]
+          },
+          {
+            "id": "line-11",
+            "text": "何を聞かれても",
+            "altText": "nani o kikarete mo",
+            "startTime": 26.092,
+            "endTime": 27.524,
+            "syllables": [
+              {
+                "id": "syl-10-0",
+                "text": "何を",
+                "altText": "nani o",
+                "startTime": 26.092,
+                "duration": 0.542
+              },
+              {
+                "id": "syl-10-1",
+                "text": "聞かれて",
+                "altText": "kikarete",
+                "startTime": 26.634,
+                "duration": 0.78
+              },
+              {
+                "id": "syl-10-2",
+                "text": "も",
+                "altText": "mo",
+                "startTime": 27.414,
+                "duration": 0.11
+              }
+            ]
+          },
+          {
+            "id": "line-12",
+            "text": "のらりくらり",
+            "altText": "norari kurari",
+            "startTime": 27.55,
+            "endTime": 28.754,
+            "syllables": [
+              {
+                "id": "syl-11-0",
+                "text": "のらり",
+                "altText": "norari",
+                "startTime": 27.55,
+                "duration": 0.61
+              },
+              {
+                "id": "syl-11-1",
+                "text": "くらり",
+                "altText": "kurari",
+                "startTime": 28.16,
+                "duration": 0.594
+              }
+            ]
+          },
+          {
+            "id": "line-13",
+            "text": "そう淡々と",
+            "altText": "sou tantan to",
+            "startTime": 28.757,
+            "endTime": 29.942,
+            "syllables": [
+              {
+                "id": "syl-12-0",
+                "text": "そう",
+                "altText": "sou",
+                "startTime": 28.757,
+                "duration": 0.52
+              },
+              {
+                "id": "syl-12-1",
+                "text": "淡々と",
+                "altText": "tantan to",
+                "startTime": 29.277,
+                "duration": 0.665
+              }
+            ]
+          },
+          {
+            "id": "line-14",
+            "text": "だけど燦々と",
+            "altText": "dakedo sansan to",
+            "startTime": 30.073,
+            "endTime": 31.408,
+            "syllables": [
+              {
+                "id": "syl-13-0",
+                "text": "だけど",
+                "altText": "dakedo",
+                "startTime": 30.073,
+                "duration": 0.605
+              },
+              {
+                "id": "syl-13-1",
+                "text": "燦々と",
+                "altText": "sansan to",
+                "startTime": 30.678,
+                "duration": 0.73
+              }
+            ]
+          },
+          {
+            "id": "line-15",
+            "text": "見えそうで見えない秘密は蜜の味",
+            "altText": "miesou de mienai himitsu wa mitsu no aji",
+            "startTime": 31.49,
+            "endTime": 34.459,
+            "syllables": [
+              {
+                "id": "syl-14-0",
+                "text": "見えそうで",
+                "altText": "miesou de",
+                "startTime": 31.49,
+                "duration": 0.601
+              },
+              {
+                "id": "syl-14-1",
+                "text": "見えない",
+                "altText": "mienai",
+                "startTime": 32.091,
+                "duration": 0.746
+              },
+              {
+                "id": "syl-14-2",
+                "text": "秘密",
+                "altText": "himitsu",
+                "startTime": 32.837,
+                "duration": 0.297
+              },
+              {
+                "id": "syl-14-3",
+                "text": "は",
+                "altText": "wa",
+                "startTime": 33.134,
+                "duration": 0.433
+              },
+              {
+                "id": "syl-14-4",
+                "text": "蜜",
+                "altText": "mitsu",
+                "startTime": 33.567,
+                "duration": 0.338
+              },
+              {
+                "id": "syl-14-5",
+                "text": "の",
+                "altText": "no",
+                "startTime": 33.905,
+                "duration": 0.185
+              },
+              {
+                "id": "syl-14-6",
+                "text": "味",
+                "altText": "aji",
+                "startTime": 34.09,
+                "duration": 0.369
+              }
+            ]
+          },
+          {
+            "id": "line-16",
+            "text": "あれもないないない",
+            "altText": "aremo nainainai",
+            "startTime": 34.487,
+            "endTime": 35.71,
+            "syllables": [
+              {
+                "id": "syl-15-0",
+                "text": "あれも",
+                "altText": "aremo",
+                "startTime": 34.487,
+                "duration": 0.479
+              },
+              {
+                "id": "syl-15-1",
+                "text": "ないないない",
+                "altText": "nainainai",
+                "startTime": 34.966,
+                "duration": 0.744
+              }
+            ]
+          },
+          {
+            "id": "line-17",
+            "text": "これもないないない",
+            "altText": "koremo nainainai",
+            "startTime": 35.808,
+            "endTime": 37.195,
+            "syllables": [
+              {
+                "id": "syl-16-0",
+                "text": "これも",
+                "altText": "koremo",
+                "startTime": 35.808,
+                "duration": 0.661
+              },
+              {
+                "id": "syl-16-1",
+                "text": "ないないない",
+                "altText": "nainainai",
+                "startTime": 36.469,
+                "duration": 0.726
+              }
+            ]
+          },
+          {
+            "id": "line-18",
+            "text": "好きなタイプは？",
+            "altText": "suki nataipu wa?",
+            "startTime": 37.325,
+            "endTime": 38.409,
+            "syllables": [
+              {
+                "id": "syl-17-0",
+                "text": "好きなタイプ",
+                "altText": "suki nataipu",
+                "startTime": 37.325,
+                "duration": 0.855
+              },
+              {
+                "id": "syl-17-1",
+                "text": "は？",
+                "altText": "wa?",
+                "startTime": 38.18,
+                "duration": 0.229
+              }
+            ]
+          },
+          {
+            "id": "line-19",
+            "text": "相手は？",
+            "altText": "aite wa?",
+            "startTime": 38.46,
+            "endTime": 39.095,
+            "syllables": [
+              {
+                "id": "syl-18-0",
+                "text": "相手",
+                "altText": "aite",
+                "startTime": 38.46,
+                "duration": 0.531
+              },
+              {
+                "id": "syl-18-1",
+                "text": "は？",
+                "altText": "wa?",
+                "startTime": 38.991,
+                "duration": 0.104
+              }
+            ]
+          },
+          {
+            "id": "line-20",
+            "text": "さあ答えて",
+            "altText": "saa kotae te",
+            "startTime": 39.122,
+            "endTime": 40.396,
+            "syllables": [
+              {
+                "id": "syl-19-0",
+                "text": "さあ",
+                "altText": "saa",
+                "startTime": 39.122,
+                "duration": 0.348
+              },
+              {
+                "id": "syl-19-1",
+                "text": "答え",
+                "altText": "kotae",
+                "startTime": 39.527,
+                "duration": 0.543
+              },
+              {
+                "id": "syl-19-2",
+                "text": "て",
+                "altText": "te",
+                "startTime": 40.07,
+                "duration": 0.326
+              }
+            ]
+          },
+          {
+            "id": "line-21",
+            "text": "「誰かを好きになることなんて私分からなくてさ」",
+            "altText": "「dare ka o suki ni naru koto nante watashi wakaranakute sa\"",
+            "startTime": 40.345,
+            "endTime": 46.106,
+            "syllables": [
+              {
+                "id": "syl-20-0",
+                "text": "「",
+                "altText": "「",
+                "startTime": 40.345,
+                "duration": 0.1
+              },
+              {
+                "id": "syl-20-1",
+                "text": "誰",
+                "altText": "dare",
+                "startTime": 40.445,
+                "duration": 0.426
+              },
+              {
+                "id": "syl-20-2",
+                "text": "か",
+                "altText": "ka",
+                "startTime": 40.871,
+                "duration": 0.177
+              },
+              {
+                "id": "syl-20-3",
+                "text": "を",
+                "altText": "o",
+                "startTime": 41.048,
+                "duration": 0.253
+              },
+              {
+                "id": "syl-20-4",
+                "text": "好き",
+                "altText": "suki",
+                "startTime": 41.301,
+                "duration": 0.722
+              },
+              {
+                "id": "syl-20-5",
+                "text": "に",
+                "altText": "ni",
+                "startTime": 42.023,
+                "duration": 0.315
+              },
+              {
+                "id": "syl-20-6",
+                "text": "なる",
+                "altText": "naru",
+                "startTime": 42.338,
+                "duration": 0.414
+              },
+              {
+                "id": "syl-20-7",
+                "text": "こと",
+                "altText": "koto",
+                "startTime": 42.752,
+                "duration": 0.348
+              },
+              {
+                "id": "syl-20-8",
+                "text": "なんて",
+                "altText": "nante",
+                "startTime": 43.298,
+                "duration": 0.573
+              },
+              {
+                "id": "syl-20-9",
+                "text": "私",
+                "altText": "watashi",
+                "startTime": 44.069,
+                "duration": 0.537
+              },
+              {
+                "id": "syl-20-10",
+                "text": "分からなくて",
+                "altText": "wakaranakute",
+                "startTime": 44.731,
+                "duration": 1.131
+              },
+              {
+                "id": "syl-20-11",
+                "text": "さ」",
+                "altText": "sa\"",
+                "startTime": 45.862,
+                "duration": 0.244
+              }
+            ]
+          },
+          {
+            "id": "line-22",
+            "text": "嘘か本当か知り得ない",
+            "altText": "uso ka hon a ka shiri e na i",
+            "startTime": 46.204,
+            "endTime": 48.923,
+            "syllables": [
+              {
+                "id": "syl-21-0",
+                "text": "嘘",
+                "altText": "uso",
+                "startTime": 46.204,
+                "duration": 0.374
+              },
+              {
+                "id": "syl-21-1",
+                "text": "か",
+                "altText": "ka",
+                "startTime": 46.578,
+                "duration": 0.23
+              },
+              {
+                "id": "syl-21-2",
+                "text": "本",
+                "altText": "hon",
+                "startTime": 46.898,
+                "duration": 0.492
+              },
+              {
+                "id": "syl-21-3",
+                "text": "当",
+                "altText": "a",
+                "startTime": 47.39,
+                "duration": 0.336
+              },
+              {
+                "id": "syl-21-4",
+                "text": "か",
+                "altText": "ka",
+                "startTime": 47.726,
+                "duration": 0.328
+              },
+              {
+                "id": "syl-21-5",
+                "text": "知り得な",
+                "altText": "shiri e na",
+                "startTime": 48.122,
+                "duration": 0.624
+              },
+              {
+                "id": "syl-21-6",
+                "text": "い",
+                "altText": "i",
+                "startTime": 48.746,
+                "duration": 0.177
+              }
+            ]
+          },
+          {
+            "id": "line-23",
+            "text": "そんな言葉にまた一人堕ちる",
+            "altText": "sonna kotoba ni mata hitori ochi ru",
+            "startTime": 49,
+            "endTime": 52.618,
+            "syllables": [
+              {
+                "id": "syl-22-0",
+                "text": "そんな",
+                "altText": "sonna",
+                "startTime": 49,
+                "duration": 0.655
+              },
+              {
+                "id": "syl-22-1",
+                "text": "言葉",
+                "altText": "kotoba",
+                "startTime": 49.655,
+                "duration": 1.043
+              },
+              {
+                "id": "syl-22-2",
+                "text": "に",
+                "altText": "ni",
+                "startTime": 50.698,
+                "duration": 0.246
+              },
+              {
+                "id": "syl-22-3",
+                "text": "また一人",
+                "altText": "mata hitori",
+                "startTime": 51.093,
+                "duration": 0.788
+              },
+              {
+                "id": "syl-22-4",
+                "text": "堕ち",
+                "altText": "ochi",
+                "startTime": 51.881,
+                "duration": 0.517
+              },
+              {
+                "id": "syl-22-5",
+                "text": "る",
+                "altText": "ru",
+                "startTime": 52.398,
+                "duration": 0.22
+              }
+            ]
+          },
+          {
+            "id": "line-24",
+            "text": "また好きにさせる",
+            "altText": "mata suki ni sase ru",
+            "startTime": 52.801,
+            "endTime": 54.844,
+            "syllables": [
+              {
+                "id": "syl-23-0",
+                "text": "また",
+                "altText": "mata",
+                "startTime": 52.801,
+                "duration": 0.412
+              },
+              {
+                "id": "syl-23-1",
+                "text": "好き",
+                "altText": "suki",
+                "startTime": 53.362,
+                "duration": 0.455
+              },
+              {
+                "id": "syl-23-2",
+                "text": "に",
+                "altText": "ni",
+                "startTime": 53.875,
+                "duration": 0.203
+              },
+              {
+                "id": "syl-23-3",
+                "text": "させ",
+                "altText": "sase",
+                "startTime": 54.078,
+                "duration": 0.422
+              },
+              {
+                "id": "syl-23-4",
+                "text": "る",
+                "altText": "ru",
+                "startTime": 54.5,
+                "duration": 0.344
+              }
+            ]
+          },
+          {
+            "id": "line-25",
+            "text": "誰もが目を奪われていく",
+            "altText": "dare mo ga me o uba waretei ku",
+            "startTime": 54.871,
+            "endTime": 57.661,
+            "syllables": [
+              {
+                "id": "syl-24-0",
+                "text": "誰",
+                "altText": "dare",
+                "startTime": 54.871,
+                "duration": 0.339
+              },
+              {
+                "id": "syl-24-1",
+                "text": "も",
+                "altText": "mo",
+                "startTime": 55.21,
+                "duration": 0.327
+              },
+              {
+                "id": "syl-24-2",
+                "text": "が",
+                "altText": "ga",
+                "startTime": 55.607,
+                "duration": 0.311
+              },
+              {
+                "id": "syl-24-3",
+                "text": "目を",
+                "altText": "me o",
+                "startTime": 55.97,
+                "duration": 0.377
+              },
+              {
+                "id": "syl-24-4",
+                "text": "奪",
+                "altText": "uba",
+                "startTime": 56.347,
+                "duration": 0.321
+              },
+              {
+                "id": "syl-24-5",
+                "text": "われてい",
+                "altText": "waretei",
+                "startTime": 56.668,
+                "duration": 0.67
+              },
+              {
+                "id": "syl-24-6",
+                "text": "く",
+                "altText": "ku",
+                "startTime": 57.338,
+                "duration": 0.323
+              }
+            ]
+          },
+          {
+            "id": "line-26",
+            "text": "君は完璧で究極のアイドル",
+            "altText": "kimi wa kan tama de kyuukyoku no aidoru",
+            "startTime": 57.747,
+            "endTime": 60.945,
+            "syllables": [
+              {
+                "id": "syl-25-0",
+                "text": "君",
+                "altText": "kimi",
+                "startTime": 57.747,
+                "duration": 0.488
+              },
+              {
+                "id": "syl-25-1",
+                "text": "は",
+                "altText": "wa",
+                "startTime": 58.235,
+                "duration": 0.322
+              },
+              {
+                "id": "syl-25-2",
+                "text": "完",
+                "altText": "kan",
+                "startTime": 58.557,
+                "duration": 0.312
+              },
+              {
+                "id": "syl-25-3",
+                "text": "璧",
+                "altText": "tama",
+                "startTime": 58.869,
+                "duration": 0.259
+              },
+              {
+                "id": "syl-25-4",
+                "text": "で",
+                "altText": "de",
+                "startTime": 59.128,
+                "duration": 0.198
+              },
+              {
+                "id": "syl-25-5",
+                "text": "究極の",
+                "altText": "kyuukyoku no",
+                "startTime": 59.396,
+                "duration": 0.863
+              },
+              {
+                "id": "syl-25-6",
+                "text": "アイドル",
+                "altText": "aidoru",
+                "startTime": 60.259,
+                "duration": 0.686
+              }
+            ]
+          },
+          {
+            "id": "line-27",
+            "text": "金輪際現れない",
+            "altText": "kane rin kiwa arawa rena i",
+            "startTime": 61.018,
+            "endTime": 63.395,
+            "syllables": [
+              {
+                "id": "syl-26-0",
+                "text": "金輪際",
+                "altText": "kane rin kiwa",
+                "startTime": 61.018,
+                "duration": 0.988
+              },
+              {
+                "id": "syl-26-1",
+                "text": "現",
+                "altText": "arawa",
+                "startTime": 62.006,
+                "duration": 0.813
+              },
+              {
+                "id": "syl-26-2",
+                "text": "れな",
+                "altText": "rena",
+                "startTime": 62.819,
+                "duration": 0.333
+              },
+              {
+                "id": "syl-26-3",
+                "text": "い",
+                "altText": "i",
+                "startTime": 63.152,
+                "duration": 0.243
+              }
+            ]
+          },
+          {
+            "id": "line-28",
+            "text": "一番星の生まれ変わり",
+            "altText": "ichi ban hoshi no umare hen wari",
+            "startTime": 63.505,
+            "endTime": 66.265,
+            "syllables": [
+              {
+                "id": "syl-27-0",
+                "text": "一",
+                "altText": "ichi",
+                "startTime": 63.505,
+                "duration": 0.406
+              },
+              {
+                "id": "syl-27-1",
+                "text": "番",
+                "altText": "ban",
+                "startTime": 63.911,
+                "duration": 0.248
+              },
+              {
+                "id": "syl-27-2",
+                "text": "星",
+                "altText": "hoshi",
+                "startTime": 64.159,
+                "duration": 0.496
+              },
+              {
+                "id": "syl-27-3",
+                "text": "の",
+                "altText": "no",
+                "startTime": 64.655,
+                "duration": 0.23
+              },
+              {
+                "id": "syl-27-4",
+                "text": "生まれ",
+                "altText": "umare",
+                "startTime": 64.885,
+                "duration": 0.527
+              },
+              {
+                "id": "syl-27-5",
+                "text": "変",
+                "altText": "hen",
+                "startTime": 65.412,
+                "duration": 0.313
+              },
+              {
+                "id": "syl-27-6",
+                "text": "わり",
+                "altText": "wari",
+                "startTime": 65.725,
+                "duration": 0.54
+              }
+            ]
+          },
+          {
+            "id": "line-29",
+            "text": "その笑顔で愛してるで",
+            "altText": "sono egao de ai shiteru de",
+            "startTime": 67.31,
+            "endTime": 70.015,
+            "syllables": [
+              {
+                "id": "syl-28-0",
+                "text": "その",
+                "altText": "sono",
+                "startTime": 67.31,
+                "duration": 0.411
+              },
+              {
+                "id": "syl-28-1",
+                "text": "笑顔",
+                "altText": "egao",
+                "startTime": 67.721,
+                "duration": 0.494
+              },
+              {
+                "id": "syl-28-2",
+                "text": "で",
+                "altText": "de",
+                "startTime": 68.215,
+                "duration": 0.275
+              },
+              {
+                "id": "syl-28-3",
+                "text": "愛",
+                "altText": "ai",
+                "startTime": 68.724,
+                "duration": 0.397
+              },
+              {
+                "id": "syl-28-4",
+                "text": "してる",
+                "altText": "shiteru",
+                "startTime": 69.121,
+                "duration": 0.573
+              },
+              {
+                "id": "syl-28-5",
+                "text": "で",
+                "altText": "de",
+                "startTime": 69.694,
+                "duration": 0.321
+              }
+            ]
+          },
+          {
+            "id": "line-30",
+            "text": "誰も彼も虜にしていく",
+            "altText": "daremo kare mo toriko nishitei ku",
+            "startTime": 70.028,
+            "endTime": 72.912,
+            "syllables": [
+              {
+                "id": "syl-29-0",
+                "text": "誰も彼も",
+                "altText": "daremo kare mo",
+                "startTime": 70.028,
+                "duration": 1.235
+              },
+              {
+                "id": "syl-29-1",
+                "text": "虜",
+                "altText": "toriko",
+                "startTime": 71.263,
+                "duration": 0.566
+              },
+              {
+                "id": "syl-29-2",
+                "text": "にしてい",
+                "altText": "nishitei",
+                "startTime": 71.829,
+                "duration": 0.663
+              },
+              {
+                "id": "syl-29-3",
+                "text": "く",
+                "altText": "ku",
+                "startTime": 72.492,
+                "duration": 0.42
+              }
+            ]
+          },
+          {
+            "id": "line-31",
+            "text": "その瞳がその言葉が",
+            "altText": "sono hitomi ga sono kotoba ga",
+            "startTime": 73.013,
+            "endTime": 75.445,
+            "syllables": [
+              {
+                "id": "syl-30-0",
+                "text": "その",
+                "altText": "sono",
+                "startTime": 73.013,
+                "duration": 0.437
+              },
+              {
+                "id": "syl-30-1",
+                "text": "瞳",
+                "altText": "hitomi",
+                "startTime": 73.45,
+                "duration": 0.548
+              },
+              {
+                "id": "syl-30-2",
+                "text": "が",
+                "altText": "ga",
+                "startTime": 73.998,
+                "duration": 0.327
+              },
+              {
+                "id": "syl-30-3",
+                "text": "その言葉",
+                "altText": "sono kotoba",
+                "startTime": 74.585,
+                "duration": 0.669
+              },
+              {
+                "id": "syl-30-4",
+                "text": "が",
+                "altText": "ga",
+                "startTime": 75.254,
+                "duration": 0.191
+              }
+            ]
+          },
+          {
+            "id": "line-32",
+            "text": "嘘でもそれは完全なアイ",
+            "altText": "uso demosoreha kanzen na ai",
+            "startTime": 75.462,
+            "endTime": 78.265,
+            "syllables": [
+              {
+                "id": "syl-31-0",
+                "text": "嘘",
+                "altText": "uso",
+                "startTime": 75.462,
+                "duration": 0.458
+              },
+              {
+                "id": "syl-31-1",
+                "text": "でもそれは",
+                "altText": "demosoreha",
+                "startTime": 75.92,
+                "duration": 0.9
+              },
+              {
+                "id": "syl-31-2",
+                "text": "完全な",
+                "altText": "kanzen na",
+                "startTime": 76.82,
+                "duration": 0.746
+              },
+              {
+                "id": "syl-31-3",
+                "text": "アイ",
+                "altText": "ai",
+                "startTime": 77.566,
+                "duration": 0.699
+              }
+            ]
+          },
+          {
+            "id": "line-33",
+            "text": "はいはいあの子は特別です",
+            "altText": "haihai ano ko wa tokubetsu desu",
+            "startTime": 78.799,
+            "endTime": 81.198,
+            "syllables": [
+              {
+                "id": "syl-32-0",
+                "text": "はいはい",
+                "altText": "haihai",
+                "startTime": 78.799,
+                "duration": 0.6
+              },
+              {
+                "id": "syl-32-1",
+                "text": "あの子は",
+                "altText": "ano ko wa",
+                "startTime": 79.399,
+                "duration": 0.706
+              },
+              {
+                "id": "syl-32-2",
+                "text": "特別",
+                "altText": "tokubetsu",
+                "startTime": 80.105,
+                "duration": 0.649
+              },
+              {
+                "id": "syl-32-3",
+                "text": "です",
+                "altText": "desu",
+                "startTime": 80.754,
+                "duration": 0.444
+              }
+            ]
+          },
+          {
+            "id": "line-34",
+            "text": "我々はハナからおまけです",
+            "altText": "wareware wa hanakara omake desu",
+            "startTime": 81.632,
+            "endTime": 84.049,
+            "syllables": [
+              {
+                "id": "syl-33-0",
+                "text": "我々は",
+                "altText": "wareware wa",
+                "startTime": 81.632,
+                "duration": 0.842
+              },
+              {
+                "id": "syl-33-1",
+                "text": "ハナから",
+                "altText": "hanakara",
+                "startTime": 82.474,
+                "duration": 0.679
+              },
+              {
+                "id": "syl-33-2",
+                "text": "おまけ",
+                "altText": "omake",
+                "startTime": 83.153,
+                "duration": 0.606
+              },
+              {
+                "id": "syl-33-3",
+                "text": "です",
+                "altText": "desu",
+                "startTime": 83.759,
+                "duration": 0.29
+              }
+            ]
+          },
+          {
+            "id": "line-35",
+            "text": "お星様の引き立て役Bです",
+            "altText": "o hoshi sama no hi ki ta te eki Bdesu",
+            "startTime": 84.146,
+            "endTime": 86.878,
+            "syllables": [
+              {
+                "id": "syl-34-0",
+                "text": "お星",
+                "altText": "o hoshi",
+                "startTime": 84.146,
+                "duration": 0.533
+              },
+              {
+                "id": "syl-34-1",
+                "text": "様の",
+                "altText": "sama no",
+                "startTime": 84.679,
+                "duration": 0.533
+              },
+              {
+                "id": "syl-34-2",
+                "text": "引き立て役",
+                "altText": "hi ki ta te eki",
+                "startTime": 85.212,
+                "duration": 0.997
+              },
+              {
+                "id": "syl-34-3",
+                "text": "B",
+                "altText": "B",
+                "startTime": 86.209,
+                "duration": 0.366
+              },
+              {
+                "id": "syl-34-4",
+                "text": "です",
+                "altText": "desu",
+                "startTime": 86.575,
+                "duration": 0.303
+              }
+            ]
+          },
+          {
+            "id": "line-36",
+            "text": "全てがあの子のお陰なわけない",
+            "altText": "zen tega ano ko no o kage na wakenai",
+            "startTime": 87.373,
+            "endTime": 90.224,
+            "syllables": [
+              {
+                "id": "syl-35-0",
+                "text": "全",
+                "altText": "zen",
+                "startTime": 87.373,
+                "duration": 0.393
+              },
+              {
+                "id": "syl-35-1",
+                "text": "てが",
+                "altText": "tega",
+                "startTime": 87.766,
+                "duration": 0.393
+              },
+              {
+                "id": "syl-35-2",
+                "text": "あの子の",
+                "altText": "ano ko no",
+                "startTime": 88.159,
+                "duration": 0.631
+              },
+              {
+                "id": "syl-35-3",
+                "text": "お陰な",
+                "altText": "o kage na",
+                "startTime": 88.79,
+                "duration": 0.711
+              },
+              {
+                "id": "syl-35-4",
+                "text": "わけない",
+                "altText": "wakenai",
+                "startTime": 89.501,
+                "duration": 0.723
+              }
+            ]
+          },
+          {
+            "id": "line-37",
+            "text": "洒落臭い",
+            "altText": "sharaku kusai",
+            "startTime": 90.242,
+            "endTime": 90.974,
+            "syllables": [
+              {
+                "id": "syl-36-0",
+                "text": "洒落",
+                "altText": "sharaku",
+                "startTime": 90.242,
+                "duration": 0.366
+              },
+              {
+                "id": "syl-36-1",
+                "text": "臭い",
+                "altText": "kusai",
+                "startTime": 90.608,
+                "duration": 0.366
+              }
+            ]
+          },
+          {
+            "id": "line-38",
+            "text": "妬み嫉妬なんてないわけがない",
+            "altText": "neta mi shitto nante naiwakeganai",
+            "startTime": 90.978,
+            "endTime": 93.141,
+            "syllables": [
+              {
+                "id": "syl-37-0",
+                "text": "妬み嫉妬なんて",
+                "altText": "neta mi shitto nante",
+                "startTime": 90.978,
+                "duration": 1.083
+              },
+              {
+                "id": "syl-37-1",
+                "text": "ないわけがない",
+                "altText": "naiwakeganai",
+                "startTime": 92.061,
+                "duration": 1.08
+              }
+            ]
+          },
+          {
+            "id": "line-39",
+            "text": "これはネタじゃない",
+            "altText": "korehaneta janai",
+            "startTime": 93.224,
+            "endTime": 94.12,
+            "syllables": [
+              {
+                "id": "syl-38-0",
+                "text": "これはネタ",
+                "altText": "korehaneta",
+                "startTime": 93.224,
+                "duration": 0.536
+              },
+              {
+                "id": "syl-38-1",
+                "text": "じゃない",
+                "altText": "janai",
+                "startTime": 93.76,
+                "duration": 0.36
+              }
+            ]
+          },
+          {
+            "id": "line-40",
+            "text": "からこそ許せない",
+            "altText": "karakoso yuru senai",
+            "startTime": 94.174,
+            "endTime": 95.275,
+            "syllables": [
+              {
+                "id": "syl-39-0",
+                "text": "からこそ",
+                "altText": "karakoso",
+                "startTime": 94.174,
+                "duration": 0.53
+              },
+              {
+                "id": "syl-39-1",
+                "text": "許せない",
+                "altText": "yuru senai",
+                "startTime": 94.704,
+                "duration": 0.571
+              }
+            ]
+          },
+          {
+            "id": "line-41",
+            "text": "完璧じゃない君じゃ許せない",
+            "altText": "kanpeki janai kimi ja yuru senai",
+            "startTime": 95.358,
+            "endTime": 97.388,
+            "syllables": [
+              {
+                "id": "syl-40-0",
+                "text": "完璧じゃない",
+                "altText": "kanpeki janai",
+                "startTime": 95.358,
+                "duration": 1.051
+              },
+              {
+                "id": "syl-40-1",
+                "text": "君じゃ許せない",
+                "altText": "kimi ja yuru senai",
+                "startTime": 96.409,
+                "duration": 0.979
+              }
+            ]
+          },
+          {
+            "id": "line-42",
+            "text": "自分を許せない",
+            "altText": "jibun o yuru senai",
+            "startTime": 97.406,
+            "endTime": 98.474,
+            "syllables": [
+              {
+                "id": "syl-41-0",
+                "text": "自分を",
+                "altText": "jibun o",
+                "startTime": 97.406,
+                "duration": 0.521
+              },
+              {
+                "id": "syl-41-1",
+                "text": "許せない",
+                "altText": "yuru senai",
+                "startTime": 97.927,
+                "duration": 0.547
+              }
+            ]
+          },
+          {
+            "id": "line-43",
+            "text": "誰よりも強い君以外は認めない",
+            "altText": "dare yorimo tsuyoi kimi igai wa mito menai",
+            "startTime": 98.593,
+            "endTime": 101.106,
+            "syllables": [
+              {
+                "id": "syl-42-0",
+                "text": "誰よりも強い",
+                "altText": "dare yorimo tsuyoi",
+                "startTime": 98.593,
+                "duration": 1.209
+              },
+              {
+                "id": "syl-42-1",
+                "text": "君以外は",
+                "altText": "kimi igai wa",
+                "startTime": 99.802,
+                "duration": 0.639
+              },
+              {
+                "id": "syl-42-2",
+                "text": "認めない",
+                "altText": "mito menai",
+                "startTime": 100.441,
+                "duration": 0.665
+              }
+            ]
+          },
+          {
+            "id": "line-44",
+            "text": "誰もが信じ崇めてる",
+            "altText": "dare mo ga shinji aga mete ru",
+            "startTime": 101.129,
+            "endTime": 103.95,
+            "syllables": [
+              {
+                "id": "syl-43-0",
+                "text": "誰",
+                "altText": "dare",
+                "startTime": 101.129,
+                "duration": 0.348
+              },
+              {
+                "id": "syl-43-1",
+                "text": "も",
+                "altText": "mo",
+                "startTime": 101.477,
+                "duration": 0.247
+              },
+              {
+                "id": "syl-43-2",
+                "text": "が",
+                "altText": "ga",
+                "startTime": 101.843,
+                "duration": 0.288
+              },
+              {
+                "id": "syl-43-3",
+                "text": "信じ",
+                "altText": "shinji",
+                "startTime": 102.159,
+                "duration": 0.621
+              },
+              {
+                "id": "syl-43-4",
+                "text": "崇",
+                "altText": "aga",
+                "startTime": 102.78,
+                "duration": 0.527
+              },
+              {
+                "id": "syl-43-5",
+                "text": "めて",
+                "altText": "mete",
+                "startTime": 103.307,
+                "duration": 0.352
+              },
+              {
+                "id": "syl-43-6",
+                "text": "る",
+                "altText": "ru",
+                "startTime": 103.659,
+                "duration": 0.291
+              }
+            ]
+          },
+          {
+            "id": "line-45",
+            "text": "まさに最強で無敵のアイドル",
+            "altText": "masani motto tsuyo de bu kataki no aidoru",
+            "startTime": 104.046,
+            "endTime": 107.224,
+            "syllables": [
+              {
+                "id": "syl-44-0",
+                "text": "まさに",
+                "altText": "masani",
+                "startTime": 104.046,
+                "duration": 0.538
+              },
+              {
+                "id": "syl-44-1",
+                "text": "最",
+                "altText": "motto",
+                "startTime": 104.644,
+                "duration": 0.487
+              },
+              {
+                "id": "syl-44-2",
+                "text": "強",
+                "altText": "tsuyo",
+                "startTime": 105.131,
+                "duration": 0.397
+              },
+              {
+                "id": "syl-44-3",
+                "text": "で",
+                "altText": "de",
+                "startTime": 105.528,
+                "duration": 0.134
+              },
+              {
+                "id": "syl-44-4",
+                "text": "無",
+                "altText": "bu",
+                "startTime": 105.662,
+                "duration": 0.342
+              },
+              {
+                "id": "syl-44-5",
+                "text": "敵の",
+                "altText": "kataki no",
+                "startTime": 106.004,
+                "duration": 0.539
+              },
+              {
+                "id": "syl-44-6",
+                "text": "アイドル",
+                "altText": "aidoru",
+                "startTime": 106.543,
+                "duration": 0.681
+              }
+            ]
+          },
+          {
+            "id": "line-46",
+            "text": "弱点なんて見当たらない",
+            "altText": "jakuten nante mi a tara nai",
+            "startTime": 107.278,
+            "endTime": 109.722,
+            "syllables": [
+              {
+                "id": "syl-45-0",
+                "text": "弱点",
+                "altText": "jakuten",
+                "startTime": 107.278,
+                "duration": 0.639
+              },
+              {
+                "id": "syl-45-1",
+                "text": "なんて",
+                "altText": "nante",
+                "startTime": 107.917,
+                "duration": 0.62
+              },
+              {
+                "id": "syl-45-2",
+                "text": "見",
+                "altText": "mi",
+                "startTime": 108.537,
+                "duration": 0.226
+              },
+              {
+                "id": "syl-45-3",
+                "text": "当たら",
+                "altText": "a tara",
+                "startTime": 108.905,
+                "duration": 0.504
+              },
+              {
+                "id": "syl-45-4",
+                "text": "ない",
+                "altText": "nai",
+                "startTime": 109.409,
+                "duration": 0.313
+              }
+            ]
+          },
+          {
+            "id": "line-47",
+            "text": "一番星を宿している",
+            "altText": "ichiban hoshi o yado shitei ru",
+            "startTime": 109.796,
+            "endTime": 112.7,
+            "syllables": [
+              {
+                "id": "syl-46-0",
+                "text": "一番",
+                "altText": "ichiban",
+                "startTime": 109.796,
+                "duration": 0.738
+              },
+              {
+                "id": "syl-46-1",
+                "text": "星を",
+                "altText": "hoshi o",
+                "startTime": 110.534,
+                "duration": 0.603
+              },
+              {
+                "id": "syl-46-2",
+                "text": "宿",
+                "altText": "yado",
+                "startTime": 111.137,
+                "duration": 0.635
+              },
+              {
+                "id": "syl-46-3",
+                "text": "してい",
+                "altText": "shitei",
+                "startTime": 111.772,
+                "duration": 0.592
+              },
+              {
+                "id": "syl-46-4",
+                "text": "る",
+                "altText": "ru",
+                "startTime": 112.364,
+                "duration": 0.336
+              }
+            ]
+          },
+          {
+            "id": "line-48",
+            "text": "弱いとこなんて見せちゃダメダメ",
+            "altText": "yowai to ko nan te mi secha damedame",
+            "startTime": 112.885,
+            "endTime": 115.89,
+            "syllables": [
+              {
+                "id": "syl-47-0",
+                "text": "弱い",
+                "altText": "yowai",
+                "startTime": 112.885,
+                "duration": 0.455
+              },
+              {
+                "id": "syl-47-1",
+                "text": "と",
+                "altText": "to",
+                "startTime": 113.423,
+                "duration": 0.263
+              },
+              {
+                "id": "syl-47-2",
+                "text": "こ",
+                "altText": "ko",
+                "startTime": 113.769,
+                "duration": 0.337
+              },
+              {
+                "id": "syl-47-3",
+                "text": "なん",
+                "altText": "nan",
+                "startTime": 114.106,
+                "duration": 0.258
+              },
+              {
+                "id": "syl-47-4",
+                "text": "て",
+                "altText": "te",
+                "startTime": 114.364,
+                "duration": 0.229
+              },
+              {
+                "id": "syl-47-5",
+                "text": "見せちゃ",
+                "altText": "mi secha",
+                "startTime": 114.649,
+                "duration": 0.578
+              },
+              {
+                "id": "syl-47-6",
+                "text": "ダメダメ",
+                "altText": "damedame",
+                "startTime": 115.227,
+                "duration": 0.663
+              }
+            ]
+          },
+          {
+            "id": "line-49",
+            "text": "知りたくないとこは見せずに",
+            "altText": "shiri taku nai tokoha mi sezuni",
+            "startTime": 115.957,
+            "endTime": 118.89,
+            "syllables": [
+              {
+                "id": "syl-48-0",
+                "text": "知り",
+                "altText": "shiri",
+                "startTime": 115.957,
+                "duration": 0.624
+              },
+              {
+                "id": "syl-48-1",
+                "text": "たく",
+                "altText": "taku",
+                "startTime": 116.581,
+                "duration": 0.589
+              },
+              {
+                "id": "syl-48-2",
+                "text": "ない",
+                "altText": "nai",
+                "startTime": 117.17,
+                "duration": 0.322
+              },
+              {
+                "id": "syl-48-3",
+                "text": "とこは",
+                "altText": "tokoha",
+                "startTime": 117.492,
+                "duration": 0.629
+              },
+              {
+                "id": "syl-48-4",
+                "text": "見せずに",
+                "altText": "mi sezuni",
+                "startTime": 118.121,
+                "duration": 0.769
+              }
+            ]
+          },
+          {
+            "id": "line-50",
+            "text": "唯一無二じゃなくちゃイヤイヤ",
+            "altText": "yuiitsu bu ni ja nakucha iyaiya",
+            "startTime": 118.909,
+            "endTime": 121.771,
+            "syllables": [
+              {
+                "id": "syl-49-0",
+                "text": "唯一",
+                "altText": "yuiitsu",
+                "startTime": 118.909,
+                "duration": 0.643
+              },
+              {
+                "id": "syl-49-1",
+                "text": "無二",
+                "altText": "bu ni",
+                "startTime": 119.552,
+                "duration": 0.532
+              },
+              {
+                "id": "syl-49-2",
+                "text": "じゃ",
+                "altText": "ja",
+                "startTime": 120.084,
+                "duration": 0.287
+              },
+              {
+                "id": "syl-49-3",
+                "text": "なくちゃ",
+                "altText": "nakucha",
+                "startTime": 120.462,
+                "duration": 0.545
+              },
+              {
+                "id": "syl-49-4",
+                "text": "イヤイ",
+                "altText": "iyai",
+                "startTime": 121.007,
+                "duration": 0.562
+              },
+              {
+                "id": "syl-49-5",
+                "text": "ヤ",
+                "altText": "ya",
+                "startTime": 121.569,
+                "duration": 0.202
+              }
+            ]
+          },
+          {
+            "id": "line-51",
+            "text": "それこそ本物のアイ",
+            "altText": "so re koso honmono no ai",
+            "startTime": 121.777,
+            "endTime": 124.277,
+            "syllables": [
+              {
+                "id": "syl-50-0",
+                "text": "そ",
+                "altText": "so",
+                "startTime": 121.777,
+                "duration": 0.307
+              },
+              {
+                "id": "syl-50-1",
+                "text": "れ",
+                "altText": "re",
+                "startTime": 122.084,
+                "duration": 0.349
+              },
+              {
+                "id": "syl-50-2",
+                "text": "こそ",
+                "altText": "koso",
+                "startTime": 122.433,
+                "duration": 0.506
+              },
+              {
+                "id": "syl-50-3",
+                "text": "本物の",
+                "altText": "honmono no",
+                "startTime": 122.939,
+                "duration": 0.902
+              },
+              {
+                "id": "syl-50-4",
+                "text": "アイ",
+                "altText": "ai",
+                "startTime": 123.841,
+                "duration": 0.436
+              }
+            ]
+          },
+          {
+            "id": "line-52",
+            "text": "得意の笑顔で沸かすメディア",
+            "altText": "tokui no wara kao de wakasu media",
+            "startTime": 125.12,
+            "endTime": 127.947,
+            "syllables": [
+              {
+                "id": "syl-51-0",
+                "text": "得意の",
+                "altText": "tokui no",
+                "startTime": 125.12,
+                "duration": 0.753
+              },
+              {
+                "id": "syl-51-1",
+                "text": "笑",
+                "altText": "wara",
+                "startTime": 125.873,
+                "duration": 0.236
+              },
+              {
+                "id": "syl-51-2",
+                "text": "顔",
+                "altText": "kao",
+                "startTime": 126.109,
+                "duration": 0.415
+              },
+              {
+                "id": "syl-51-3",
+                "text": "で",
+                "altText": "de",
+                "startTime": 126.524,
+                "duration": 0.099
+              },
+              {
+                "id": "syl-51-4",
+                "text": "沸かす",
+                "altText": "wakasu",
+                "startTime": 126.623,
+                "duration": 0.459
+              },
+              {
+                "id": "syl-51-5",
+                "text": "メディ",
+                "altText": "medi",
+                "startTime": 127.082,
+                "duration": 0.374
+              },
+              {
+                "id": "syl-51-6",
+                "text": "ア",
+                "altText": "a",
+                "startTime": 127.456,
+                "duration": 0.491
+              }
+            ]
+          },
+          {
+            "id": "line-53",
+            "text": "隠しきるこの秘密だけは",
+            "altText": "kaku shikiru kono himitsu dake wa",
+            "startTime": 128.27,
+            "endTime": 130.92,
+            "syllables": [
+              {
+                "id": "syl-52-0",
+                "text": "隠",
+                "altText": "kaku",
+                "startTime": 128.27,
+                "duration": 0.352
+              },
+              {
+                "id": "syl-52-1",
+                "text": "しきる",
+                "altText": "shikiru",
+                "startTime": 128.622,
+                "duration": 0.647
+              },
+              {
+                "id": "syl-52-2",
+                "text": "この",
+                "altText": "kono",
+                "startTime": 129.269,
+                "duration": 0.347
+              },
+              {
+                "id": "syl-52-3",
+                "text": "秘密",
+                "altText": "himitsu",
+                "startTime": 129.616,
+                "duration": 0.575
+              },
+              {
+                "id": "syl-52-4",
+                "text": "だけ",
+                "altText": "dake",
+                "startTime": 130.191,
+                "duration": 0.495
+              },
+              {
+                "id": "syl-52-5",
+                "text": "は",
+                "altText": "wa",
+                "startTime": 130.686,
+                "duration": 0.234
+              }
+            ]
+          },
+          {
+            "id": "line-54",
+            "text": "愛してるって嘘で積むキャリア",
+            "altText": "aishiteruっ teuso detsumukyaria",
+            "startTime": 131.141,
+            "endTime": 134.375,
+            "syllables": [
+              {
+                "id": "syl-53-0",
+                "text": "愛して",
+                "altText": "aishite",
+                "startTime": 131.141,
+                "duration": 0.768
+              },
+              {
+                "id": "syl-53-1",
+                "text": "るっ",
+                "altText": "ruっ",
+                "startTime": 131.909,
+                "duration": 0.308
+              },
+              {
+                "id": "syl-53-2",
+                "text": "て",
+                "altText": "te",
+                "startTime": 132.217,
+                "duration": 0.197
+              },
+              {
+                "id": "syl-53-3",
+                "text": "嘘で",
+                "altText": "uso de",
+                "startTime": 132.414,
+                "duration": 0.577
+              },
+              {
+                "id": "syl-53-4",
+                "text": "積む",
+                "altText": "tsumu",
+                "startTime": 132.991,
+                "duration": 0.435
+              },
+              {
+                "id": "syl-53-5",
+                "text": "キャリ",
+                "altText": "kyari",
+                "startTime": 133.426,
+                "duration": 0.421
+              },
+              {
+                "id": "syl-53-6",
+                "text": "ア",
+                "altText": "a",
+                "startTime": 133.847,
+                "duration": 0.528
+              }
+            ]
+          },
+          {
+            "id": "line-55",
+            "text": "これこそ私なりの愛だ",
+            "altText": "korekoso watashi narino ai da",
+            "startTime": 134.733,
+            "endTime": 137.668,
+            "syllables": [
+              {
+                "id": "syl-54-0",
+                "text": "これこそ",
+                "altText": "korekoso",
+                "startTime": 134.733,
+                "duration": 0.65
+              },
+              {
+                "id": "syl-54-1",
+                "text": "私",
+                "altText": "watashi",
+                "startTime": 135.383,
+                "duration": 0.656
+              },
+              {
+                "id": "syl-54-2",
+                "text": "なりの",
+                "altText": "narino",
+                "startTime": 136.039,
+                "duration": 0.535
+              },
+              {
+                "id": "syl-54-3",
+                "text": "愛",
+                "altText": "ai",
+                "startTime": 136.574,
+                "duration": 0.5
+              },
+              {
+                "id": "syl-54-4",
+                "text": "だ",
+                "altText": "da",
+                "startTime": 137.074,
+                "duration": 0.594
+              }
+            ]
+          },
+          {
+            "id": "line-56",
+            "text": "流れる汗も綺麗なアクア",
+            "altText": "nagareruase mo綺 uruwa na akua",
+            "startTime": 137.937,
+            "endTime": 140.764,
+            "syllables": [
+              {
+                "id": "syl-55-0",
+                "text": "流れる",
+                "altText": "nagareru",
+                "startTime": 137.937,
+                "duration": 0.724
+              },
+              {
+                "id": "syl-55-1",
+                "text": "汗も",
+                "altText": "ase mo",
+                "startTime": 138.661,
+                "duration": 0.722
+              },
+              {
+                "id": "syl-55-2",
+                "text": "綺麗な",
+                "altText": "綺 uruwa na",
+                "startTime": 139.383,
+                "duration": 0.431
+              },
+              {
+                "id": "syl-55-3",
+                "text": "アク",
+                "altText": "aku",
+                "startTime": 139.814,
+                "duration": 0.397
+              },
+              {
+                "id": "syl-55-4",
+                "text": "ア",
+                "altText": "a",
+                "startTime": 140.211,
+                "duration": 0.553
+              }
+            ]
+          },
+          {
+            "id": "line-57",
+            "text": "ルビーを隠したこの瞼",
+            "altText": "rubiiokakushitakono瞼",
+            "startTime": 141.103,
+            "endTime": 143.823,
+            "syllables": [
+              {
+                "id": "syl-56-0",
+                "text": "ルビーを",
+                "altText": "rubiio",
+                "startTime": 141.103,
+                "duration": 0.728
+              },
+              {
+                "id": "syl-56-1",
+                "text": "隠",
+                "altText": "kaku",
+                "startTime": 141.831,
+                "duration": 0.44
+              },
+              {
+                "id": "syl-56-2",
+                "text": "した",
+                "altText": "shita",
+                "startTime": 142.271,
+                "duration": 0.404
+              },
+              {
+                "id": "syl-56-3",
+                "text": "この",
+                "altText": "kono",
+                "startTime": 142.675,
+                "duration": 0.339
+              },
+              {
+                "id": "syl-56-4",
+                "text": "瞼",
+                "altText": "瞼",
+                "startTime": 143.014,
+                "duration": 0.809
+              }
+            ]
+          },
+          {
+            "id": "line-58",
+            "text": "歌い踊り舞う私はマリア",
+            "altText": "uta i odori mau watashi wa maria",
+            "startTime": 143.965,
+            "endTime": 147.248,
+            "syllables": [
+              {
+                "id": "syl-57-0",
+                "text": "歌い",
+                "altText": "uta i",
+                "startTime": 143.965,
+                "duration": 0.615
+              },
+              {
+                "id": "syl-57-1",
+                "text": "踊り舞う",
+                "altText": "odori mau",
+                "startTime": 144.58,
+                "duration": 0.941
+              },
+              {
+                "id": "syl-57-2",
+                "text": "私は",
+                "altText": "watashi wa",
+                "startTime": 145.521,
+                "duration": 0.724
+              },
+              {
+                "id": "syl-57-3",
+                "text": "マリ",
+                "altText": "mari",
+                "startTime": 146.245,
+                "duration": 0.43
+              },
+              {
+                "id": "syl-57-4",
+                "text": "ア",
+                "altText": "a",
+                "startTime": 146.675,
+                "duration": 0.573
+              }
+            ]
+          },
+          {
+            "id": "line-59",
+            "text": "そう嘘はとびきりの愛だ",
+            "altText": "sou uso hatobikirino ai da",
+            "startTime": 147.515,
+            "endTime": 150.356,
+            "syllables": [
+              {
+                "id": "syl-58-0",
+                "text": "そう",
+                "altText": "sou",
+                "startTime": 147.515,
+                "duration": 0.404
+              },
+              {
+                "id": "syl-58-1",
+                "text": "嘘",
+                "altText": "uso",
+                "startTime": 147.919,
+                "duration": 0.308
+              },
+              {
+                "id": "syl-58-2",
+                "text": "はとびきりの",
+                "altText": "hatobikirino",
+                "startTime": 148.227,
+                "duration": 1.235
+              },
+              {
+                "id": "syl-58-3",
+                "text": "愛",
+                "altText": "ai",
+                "startTime": 149.462,
+                "duration": 0.363
+              },
+              {
+                "id": "syl-58-4",
+                "text": "だ",
+                "altText": "da",
+                "startTime": 149.825,
+                "duration": 0.531
+              }
+            ]
+          },
+          {
+            "id": "line-60",
+            "text": "誰かに愛されたことも",
+            "altText": "dare kani ai sa reta koto mo",
+            "startTime": 151.484,
+            "endTime": 154.481,
+            "syllables": [
+              {
+                "id": "syl-59-0",
+                "text": "誰",
+                "altText": "dare",
+                "startTime": 151.484,
+                "duration": 0.321
+              },
+              {
+                "id": "syl-59-1",
+                "text": "かに",
+                "altText": "kani",
+                "startTime": 151.805,
+                "duration": 0.609
+              },
+              {
+                "id": "syl-59-2",
+                "text": "愛",
+                "altText": "ai",
+                "startTime": 152.414,
+                "duration": 0.334
+              },
+              {
+                "id": "syl-59-3",
+                "text": "さ",
+                "altText": "sa",
+                "startTime": 152.748,
+                "duration": 0.295
+              },
+              {
+                "id": "syl-59-4",
+                "text": "れた",
+                "altText": "reta",
+                "startTime": 153.162,
+                "duration": 0.543
+              },
+              {
+                "id": "syl-59-5",
+                "text": "こと",
+                "altText": "koto",
+                "startTime": 153.705,
+                "duration": 0.4
+              },
+              {
+                "id": "syl-59-6",
+                "text": "も",
+                "altText": "mo",
+                "startTime": 154.105,
+                "duration": 0.376
+              }
+            ]
+          },
+          {
+            "id": "line-61",
+            "text": "誰かのこと愛したこともない",
+            "altText": "dare ka noko to ai shitakoto mo nai",
+            "startTime": 154.473,
+            "endTime": 157.878,
+            "syllables": [
+              {
+                "id": "syl-60-0",
+                "text": "誰",
+                "altText": "dare",
+                "startTime": 154.473,
+                "duration": 0.393
+              },
+              {
+                "id": "syl-60-1",
+                "text": "か",
+                "altText": "ka",
+                "startTime": 154.866,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-60-2",
+                "text": "のこ",
+                "altText": "noko",
+                "startTime": 155.264,
+                "duration": 0.375
+              },
+              {
+                "id": "syl-60-3",
+                "text": "と",
+                "altText": "to",
+                "startTime": 155.639,
+                "duration": 0.348
+              },
+              {
+                "id": "syl-60-4",
+                "text": "愛",
+                "altText": "ai",
+                "startTime": 156.05,
+                "duration": 0.302
+              },
+              {
+                "id": "syl-60-5",
+                "text": "したこと",
+                "altText": "shitakoto",
+                "startTime": 156.352,
+                "duration": 0.793
+              },
+              {
+                "id": "syl-60-6",
+                "text": "も",
+                "altText": "mo",
+                "startTime": 157.145,
+                "duration": 0.3
+              },
+              {
+                "id": "syl-60-7",
+                "text": "ない",
+                "altText": "nai",
+                "startTime": 157.501,
+                "duration": 0.377
+              }
+            ]
+          },
+          {
+            "id": "line-62",
+            "text": "そんな私の嘘がいつか本当になること",
+            "altText": "sonna watashi no uso ga itsu ka hon a ninaruko to",
+            "startTime": 157.883,
+            "endTime": 163.598,
+            "syllables": [
+              {
+                "id": "syl-61-0",
+                "text": "そんな",
+                "altText": "sonna",
+                "startTime": 157.883,
+                "duration": 0.6
+              },
+              {
+                "id": "syl-61-1",
+                "text": "私",
+                "altText": "watashi",
+                "startTime": 158.538,
+                "duration": 0.936
+              },
+              {
+                "id": "syl-61-2",
+                "text": "の",
+                "altText": "no",
+                "startTime": 159.474,
+                "duration": 0.354
+              },
+              {
+                "id": "syl-61-3",
+                "text": "嘘",
+                "altText": "uso",
+                "startTime": 159.828,
+                "duration": 0.316
+              },
+              {
+                "id": "syl-61-4",
+                "text": "が",
+                "altText": "ga",
+                "startTime": 160.144,
+                "duration": 0.315
+              },
+              {
+                "id": "syl-61-5",
+                "text": "いつ",
+                "altText": "itsu",
+                "startTime": 160.483,
+                "duration": 0.436
+              },
+              {
+                "id": "syl-61-6",
+                "text": "か",
+                "altText": "ka",
+                "startTime": 160.919,
+                "duration": 0.232
+              },
+              {
+                "id": "syl-61-7",
+                "text": "本",
+                "altText": "hon",
+                "startTime": 161.287,
+                "duration": 0.365
+              },
+              {
+                "id": "syl-61-8",
+                "text": "当",
+                "altText": "a",
+                "startTime": 161.652,
+                "duration": 0.434
+              },
+              {
+                "id": "syl-61-9",
+                "text": "になるこ",
+                "altText": "ninaruko",
+                "startTime": 162.086,
+                "duration": 1.094
+              },
+              {
+                "id": "syl-61-10",
+                "text": "と",
+                "altText": "to",
+                "startTime": 163.18,
+                "duration": 0.418
+              }
+            ]
+          },
+          {
+            "id": "line-63",
+            "text": "信じてる",
+            "altText": "shin jiteru",
+            "startTime": 163.766,
+            "endTime": 164.831,
+            "syllables": [
+              {
+                "id": "syl-62-0",
+                "text": "信",
+                "altText": "shin",
+                "startTime": 163.766,
+                "duration": 0.534
+              },
+              {
+                "id": "syl-62-1",
+                "text": "じてる",
+                "altText": "jiteru",
+                "startTime": 164.3,
+                "duration": 0.531
+              }
+            ]
+          },
+          {
+            "id": "line-64",
+            "text": "いつかきっと全部手に入れる",
+            "altText": "itsuka kitto zenbu te ni i re ru",
+            "startTime": 164.947,
+            "endTime": 167.913,
+            "syllables": [
+              {
+                "id": "syl-63-0",
+                "text": "いつか",
+                "altText": "itsuka",
+                "startTime": 164.947,
+                "duration": 0.525
+              },
+              {
+                "id": "syl-63-1",
+                "text": "きっと",
+                "altText": "kitto",
+                "startTime": 165.472,
+                "duration": 0.697
+              },
+              {
+                "id": "syl-63-2",
+                "text": "全部",
+                "altText": "zenbu",
+                "startTime": 166.169,
+                "duration": 0.53
+              },
+              {
+                "id": "syl-63-3",
+                "text": "手に",
+                "altText": "te ni",
+                "startTime": 166.699,
+                "duration": 0.558
+              },
+              {
+                "id": "syl-63-4",
+                "text": "入れ",
+                "altText": "i re",
+                "startTime": 167.257,
+                "duration": 0.357
+              },
+              {
+                "id": "syl-63-5",
+                "text": "る",
+                "altText": "ru",
+                "startTime": 167.614,
+                "duration": 0.299
+              }
+            ]
+          },
+          {
+            "id": "line-65",
+            "text": "私はそう欲張りなアイドル",
+            "altText": "watashi hasou yokubari na aidoru",
+            "startTime": 167.997,
+            "endTime": 171.198,
+            "syllables": [
+              {
+                "id": "syl-64-0",
+                "text": "私",
+                "altText": "watashi",
+                "startTime": 167.997,
+                "duration": 0.688
+              },
+              {
+                "id": "syl-64-1",
+                "text": "はそう",
+                "altText": "hasou",
+                "startTime": 168.685,
+                "duration": 0.724
+              },
+              {
+                "id": "syl-64-2",
+                "text": "欲張りな",
+                "altText": "yokubari na",
+                "startTime": 169.409,
+                "duration": 0.951
+              },
+              {
+                "id": "syl-64-3",
+                "text": "アイ",
+                "altText": "ai",
+                "startTime": 170.36,
+                "duration": 0.587
+              },
+              {
+                "id": "syl-64-4",
+                "text": "ドル",
+                "altText": "doru",
+                "startTime": 170.947,
+                "duration": 0.251
+              }
+            ]
+          },
+          {
+            "id": "line-66",
+            "text": "等身大でみんなのこと",
+            "altText": "tou mi dai de minnano koto",
+            "startTime": 171.217,
+            "endTime": 173.664,
+            "syllables": [
+              {
+                "id": "syl-65-0",
+                "text": "等身",
+                "altText": "tou mi",
+                "startTime": 171.217,
+                "duration": 0.68
+              },
+              {
+                "id": "syl-65-1",
+                "text": "大",
+                "altText": "dai",
+                "startTime": 171.897,
+                "duration": 0.404
+              },
+              {
+                "id": "syl-65-2",
+                "text": "で",
+                "altText": "de",
+                "startTime": 172.301,
+                "duration": 0.148
+              },
+              {
+                "id": "syl-65-3",
+                "text": "みんなの",
+                "altText": "minnano",
+                "startTime": 172.449,
+                "duration": 0.617
+              },
+              {
+                "id": "syl-65-4",
+                "text": "こと",
+                "altText": "koto",
+                "startTime": 173.066,
+                "duration": 0.598
+              }
+            ]
+          },
+          {
+            "id": "line-67",
+            "text": "ちゃんと愛したいから",
+            "altText": "chan to ai shi ta i ka ra",
+            "startTime": 173.763,
+            "endTime": 176.641,
+            "syllables": [
+              {
+                "id": "syl-66-0",
+                "text": "ちゃん",
+                "altText": "chan",
+                "startTime": 173.763,
+                "duration": 0.374
+              },
+              {
+                "id": "syl-66-1",
+                "text": "と",
+                "altText": "to",
+                "startTime": 174.137,
+                "duration": 0.211
+              },
+              {
+                "id": "syl-66-2",
+                "text": "愛",
+                "altText": "ai",
+                "startTime": 174.481,
+                "duration": 0.617
+              },
+              {
+                "id": "syl-66-3",
+                "text": "し",
+                "altText": "shi",
+                "startTime": 175.144,
+                "duration": 0.209
+              },
+              {
+                "id": "syl-66-4",
+                "text": "た",
+                "altText": "ta",
+                "startTime": 175.353,
+                "duration": 0.261
+              },
+              {
+                "id": "syl-66-5",
+                "text": "い",
+                "altText": "i",
+                "startTime": 175.724,
+                "duration": 0.215
+              },
+              {
+                "id": "syl-66-6",
+                "text": "か",
+                "altText": "ka",
+                "startTime": 176.104,
+                "duration": 0.201
+              },
+              {
+                "id": "syl-66-7",
+                "text": "ら",
+                "altText": "ra",
+                "startTime": 176.305,
+                "duration": 0.336
+              }
+            ]
+          },
+          {
+            "id": "line-68",
+            "text": "今日も嘘をつくの",
+            "altText": "kyou mo uso otsuku no",
+            "startTime": 176.681,
+            "endTime": 178.846,
+            "syllables": [
+              {
+                "id": "syl-67-0",
+                "text": "今日",
+                "altText": "kyou",
+                "startTime": 176.681,
+                "duration": 0.363
+              },
+              {
+                "id": "syl-67-1",
+                "text": "も",
+                "altText": "mo",
+                "startTime": 177.044,
+                "duration": 0.285
+              },
+              {
+                "id": "syl-67-2",
+                "text": "嘘をつく",
+                "altText": "uso otsuku",
+                "startTime": 177.623,
+                "duration": 0.825
+              },
+              {
+                "id": "syl-67-3",
+                "text": "の",
+                "altText": "no",
+                "startTime": 178.448,
+                "duration": 0.398
+              }
+            ]
+          },
+          {
+            "id": "line-69",
+            "text": "この言葉がいつか本当になる日を願って",
+            "altText": "konokotobagaitsukahontouninaru nichi onega っ te",
+            "startTime": 178.948,
+            "endTime": 183.229,
+            "syllables": [
+              {
+                "id": "syl-68-0",
+                "text": "この",
+                "altText": "kono",
+                "startTime": 178.948,
+                "duration": 0.561
+              },
+              {
+                "id": "syl-68-1",
+                "text": "言葉",
+                "altText": "kotoba",
+                "startTime": 179.509,
+                "duration": 0.563
+              },
+              {
+                "id": "syl-68-2",
+                "text": "がいつか",
+                "altText": "gaitsuka",
+                "startTime": 180.072,
+                "duration": 0.716
+              },
+              {
+                "id": "syl-68-3",
+                "text": "本当",
+                "altText": "hontou",
+                "startTime": 180.788,
+                "duration": 0.593
+              },
+              {
+                "id": "syl-68-4",
+                "text": "になる日を",
+                "altText": "ninaru nichi o",
+                "startTime": 181.381,
+                "duration": 0.847
+              },
+              {
+                "id": "syl-68-5",
+                "text": "願っ",
+                "altText": "nega っ",
+                "startTime": 182.228,
+                "duration": 0.399
+              },
+              {
+                "id": "syl-68-6",
+                "text": "て",
+                "altText": "te",
+                "startTime": 182.627,
+                "duration": 0.602
+              }
+            ]
+          },
+          {
+            "id": "line-70",
+            "text": "それでもまだ",
+            "altText": "sore demo ma da",
+            "startTime": 183.313,
+            "endTime": 184.556,
+            "syllables": [
+              {
+                "id": "syl-69-0",
+                "text": "それ",
+                "altText": "sore",
+                "startTime": 183.313,
+                "duration": 0.364
+              },
+              {
+                "id": "syl-69-1",
+                "text": "でも",
+                "altText": "demo",
+                "startTime": 183.677,
+                "duration": 0.365
+              },
+              {
+                "id": "syl-69-2",
+                "text": "ま",
+                "altText": "ma",
+                "startTime": 184.042,
+                "duration": 0.205
+              },
+              {
+                "id": "syl-69-3",
+                "text": "だ",
+                "altText": "da",
+                "startTime": 184.247,
+                "duration": 0.309
+              }
+            ]
+          },
+          {
+            "id": "line-71",
+            "text": "君と君にだけは言えずにいたけど",
+            "altText": "kimi to kimi nidakeha i ezuni i ta ke do",
+            "startTime": 184.782,
+            "endTime": 188.43,
+            "syllables": [
+              {
+                "id": "syl-70-0",
+                "text": "君",
+                "altText": "kimi",
+                "startTime": 184.782,
+                "duration": 0.208
+              },
+              {
+                "id": "syl-70-1",
+                "text": "と",
+                "altText": "to",
+                "startTime": 184.99,
+                "duration": 0.147
+              },
+              {
+                "id": "syl-70-2",
+                "text": "君",
+                "altText": "kimi",
+                "startTime": 185.203,
+                "duration": 0.351
+              },
+              {
+                "id": "syl-70-3",
+                "text": "にだけは",
+                "altText": "nidakeha",
+                "startTime": 185.554,
+                "duration": 0.833
+              },
+              {
+                "id": "syl-70-4",
+                "text": "言えずに",
+                "altText": "i ezuni",
+                "startTime": 186.387,
+                "duration": 0.591
+              },
+              {
+                "id": "syl-70-5",
+                "text": "い",
+                "altText": "i",
+                "startTime": 186.978,
+                "duration": 0.211
+              },
+              {
+                "id": "syl-70-6",
+                "text": "た",
+                "altText": "ta",
+                "startTime": 187.318,
+                "duration": 0.251
+              },
+              {
+                "id": "syl-70-7",
+                "text": "け",
+                "altText": "ke",
+                "startTime": 187.688,
+                "duration": 0.152
+              },
+              {
+                "id": "syl-70-8",
+                "text": "ど",
+                "altText": "do",
+                "startTime": 187.84,
+                "duration": 0.59
+              }
+            ]
+          },
+          {
+            "id": "line-72",
+            "text": "やっと言えた",
+            "altText": "yaっ toi eta",
+            "startTime": 189.2,
+            "endTime": 190.475,
+            "syllables": [
+              {
+                "id": "syl-71-0",
+                "text": "やっ",
+                "altText": "yaっ",
+                "startTime": 189.2,
+                "duration": 0.249
+              },
+              {
+                "id": "syl-71-1",
+                "text": "と",
+                "altText": "to",
+                "startTime": 189.449,
+                "duration": 0.214
+              },
+              {
+                "id": "syl-71-2",
+                "text": "言え",
+                "altText": "i e",
+                "startTime": 189.663,
+                "duration": 0.345
+              },
+              {
+                "id": "syl-71-3",
+                "text": "た",
+                "altText": "ta",
+                "startTime": 190.008,
+                "duration": 0.467
+              }
+            ]
+          },
+          {
+            "id": "line-73",
+            "text": "これは絶対嘘じゃない",
+            "altText": "koreha ta tai uso janai",
+            "startTime": 190.55,
+            "endTime": 192.713,
+            "syllables": [
+              {
+                "id": "syl-72-0",
+                "text": "これは絶",
+                "altText": "koreha ta",
+                "startTime": 190.55,
+                "duration": 0.899
+              },
+              {
+                "id": "syl-72-1",
+                "text": "対",
+                "altText": "tai",
+                "startTime": 191.449,
+                "duration": 0.305
+              },
+              {
+                "id": "syl-72-2",
+                "text": "嘘",
+                "altText": "uso",
+                "startTime": 191.754,
+                "duration": 0.476
+              },
+              {
+                "id": "syl-72-3",
+                "text": "じゃない",
+                "altText": "janai",
+                "startTime": 192.23,
+                "duration": 0.483
+              }
+            ]
+          },
+          {
+            "id": "line-74",
+            "text": "愛してる",
+            "altText": "ai shite ru",
+            "startTime": 192.733,
+            "endTime": 193.997,
+            "syllables": [
+              {
+                "id": "syl-73-0",
+                "text": "愛",
+                "altText": "ai",
+                "startTime": 192.733,
+                "duration": 0.625
+              },
+              {
+                "id": "syl-73-1",
+                "text": "して",
+                "altText": "shite",
+                "startTime": 193.358,
+                "duration": 0.324
+              },
+              {
+                "id": "syl-73-2",
+                "text": "る",
+                "altText": "ru",
+                "startTime": 193.682,
+                "duration": 0.315
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "advanced": {
+    "enabled": false,
+    "effects": []
+  }
+}

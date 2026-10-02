@@ -28,16 +28,19 @@
 - [x] **1.3. Especificación de Compatibilidad con Estándar `lyricsfile`:**
   - Esquema y validador de interoperabilidad con la especificación YAML 1.0 en `src/services/lyricsfileService.js`.
   - Mapeo bidireccional de metadatos, marcas temporales (milisegundos <-> segundos) y palabras sincronizadas (`words` <-> `syllables`).
-- [x] **1.4. Canción de Demostración Local Multilingüe:**
-  - Creado `src/data/mockSong.js` con idioma original (Español) y traducción sincronizada (Inglés) para sembrar la base de datos local en la primera carga.
+- [x] **1.4. Canciones por Defecto del Sistema Multilingües ("Still Alive" e "Idol"):**
+  - Módulos `src/data/defaultSongs.js` y `src/data/mockSong.js` integrando los paquetes completos desde `still_alive.json` (Portal / Aperture Science, inglés + traducción español) y `yoasobi_idol.json` (YOASOBI, japonés con transliteración y videos con offsets).
+  - Eliminación de canciones de demostración previas ("Caminando por la ciudad" y "Kimi ga Suki da to Sakebitai").
 
 ---
 
 ## Fase 2: Capa de Persistencia Local (IndexedDB) y Compartición (Import/Export)
 
 - [x] **2.1. Adaptador de Base de Datos Local (`src/services/db.js`):**
-  - Implementada inicialización de IndexedDB (`SarangaDB`) con Object Stores (`songs`, `artists`, `tags`, `genres`, `song_tags`, `song_genres`) e índices correspondientes.
-  - Función de sembrado inicial (seed) con la canción demo mock si la base de datos está vacía.
+  - Inicialización de IndexedDB (`SarangaDB` v2) con Object Stores (`songs`, `artists`, `tags`, `genres`, `song_tags`, `song_genres`, `settings`).
+  - Sembrado inicial único en la primera apertura desde `defaultSongs` con metadatos completos, letras, videos de YouTube y offsets.
+  - Registro de inicialización dual en `localStorage` (`saranga_seed_version`, `saranga_default_songs_seeded`) y store `settings` en IndexedDB para asegurar que las canciones eliminadas por el usuario no reaparezcan de forma automática.
+  - Limpieza automática de canciones demo heredadas.
 - [x] **2.2. Repositorio de Canciones (`src/services/songService.js`):**
   - Implementados métodos CRUD locales con resolución lógica de relaciones (joins):
     - `fetchSongById(id)` (une canción con artista, tags y géneros).

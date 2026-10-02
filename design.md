@@ -359,7 +359,9 @@ CREATE TABLE song_genres (
 ```
 
 ### 3.3. Capa de Servicios Locales: `src/services/db.js` y `src/services/songService.js`
-La aplicación utiliza un servicio de repositorio local que oculta la complejidad de IndexedDB y expone funciones asíncronas limpias con resolución de relaciones (joins lógicos):
+La aplicación utiliza un servicio de base de datos local basado en IndexedDB (`SarangaDB`, versión 2 con almacenes `songs`, `artists`, `tags`, `genres`, `song_tags`, `song_genres` y `settings`). En la primera visita del usuario, se inicializan automáticamente las canciones por defecto ("Still Alive" e "Idol" desde `still_alive.json` y `yoasobi_idol.json`), marcando el sembrado de forma dual en `localStorage` y en el almacén `settings`. Esta persistencia garantiza que si el usuario decide eliminar alguna de las canciones, el sistema respeta la acción y nunca vuelve a reinsertarlas automáticamente en visitas o recargas posteriores.
+
+La capa de repositorio expone funciones asíncronas limpias con resolución de relaciones (joins lógicos):
 
 ```javascript
 // src/services/songService.js
