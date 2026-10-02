@@ -160,11 +160,10 @@ async function initApp() {
         if (playlistService.hasNext()) {
           const nextSong = playlistService.next()
           if (nextSong) {
-            await loadSongIntoApp(nextSong.id)
+            await loadSongIntoApp(nextSong.id, { autoplay: true })
             if (currentScreen === 'lyrics') {
               showLyricsScreen()
             }
-            mediaPlayer.play()
           }
         }
       }
@@ -214,9 +213,8 @@ async function initApp() {
     containerElement: playlistModalEl,
     playlistService,
     onPlaySong: async (song) => {
-      await loadSongIntoApp(song.id)
+      await loadSongIntoApp(song.id, { autoplay: true })
       showLyricsScreen()
-      mediaPlayer.play()
     },
     onLibraryCreated: () => {
       songMenuView.refresh()
@@ -254,7 +252,7 @@ async function initApp() {
     },
     onGoToMenu: () => showMenuScreen(),
     onEnterLyricsMode: async (savedId) => {
-      await loadSongIntoApp(savedId)
+      await loadSongIntoApp(savedId, { autoplay: true })
       showLyricsScreen()
     }
   })
@@ -303,19 +301,25 @@ async function initApp() {
       themeSettingsModal.open()
     },
     onPrevSong: async () => {
-      const prev = playlistService.prev()
-      if (prev) {
-        await loadSongIntoApp(prev.id)
-        showLyricsScreen()
+      if (mediaPlayer.getCurrentTime() > 3) {
+        mediaPlayer.seek(0)
+        mediaPlayer.play()
+      } else if (playlistService.hasPrev()) {
+        const prev = playlistService.prev()
+        if (prev) {
+          await loadSongIntoApp(prev.id, { autoplay: true })
+          showLyricsScreen()
+        }
+      } else {
+        mediaPlayer.seek(0)
         mediaPlayer.play()
       }
     },
     onNextSong: async () => {
       const next = playlistService.next()
       if (next) {
-        await loadSongIntoApp(next.id)
+        await loadSongIntoApp(next.id, { autoplay: true })
         showLyricsScreen()
-        mediaPlayer.play()
       }
     },
     onOpenPlaylist: () => {
@@ -335,25 +339,26 @@ async function initApp() {
     },
     onRestartSong: () => {
       mediaPlayer.seek(0)
+      mediaPlayer.play()
     },
     onPrevSong: async () => {
       if (mediaPlayer.getCurrentTime() > 3) {
         mediaPlayer.seek(0)
+        mediaPlayer.play()
       } else if (playlistService.hasPrev()) {
         const prev = playlistService.prev()
         if (prev) {
-          await loadSongIntoApp(prev.id)
-          mediaPlayer.play()
+          await loadSongIntoApp(prev.id, { autoplay: true })
         }
       } else {
         mediaPlayer.seek(0)
+        mediaPlayer.play()
       }
     },
     onNextSong: async () => {
       const next = playlistService.next()
       if (next) {
-        await loadSongIntoApp(next.id)
-        mediaPlayer.play()
+        await loadSongIntoApp(next.id, { autoplay: true })
       }
     },
     onOpenLyrics: () => {
@@ -365,7 +370,7 @@ async function initApp() {
   const songMenuView = createSongMenuView({
     containerElement: menuScreenEl,
     onEnterLyricsMode: async (songId) => {
-      await loadSongIntoApp(songId)
+      await loadSongIntoApp(songId, { autoplay: true })
       showLyricsScreen()
     },
     onManageVideos: (song) => {
@@ -577,7 +582,7 @@ async function initApp() {
   }
 
   // 12. Cargar canción activa en el reproductor y visor
-  async function loadSongIntoApp(songId) {
+  async function loadSongIntoApp(songId, { autoplay = false } = {}) {
     const song = await fetchSongById(songId)
     if (!song) return
 
@@ -589,21 +594,25 @@ async function initApp() {
     const languages = Array.isArray(lyricsData.languages) ? lyricsData.languages : []
     languageManager.setLanguages(languages)
 
-    await mediaPlayer.loadSong(song)
+    await mediaPlayer.loadSong(song, null, { autoplay })
     controlsView.setVideosState({
       videos: mediaPlayer.getVideos(),
       activeId: mediaPlayer.getActiveVideoId()
     })
     controlsView.setTime(0)
-    controlsView.setPlayingState(false)
+    controlsView.setPlayingState(autoplay)
     controlsView.setDuration(mediaPlayer.getDuration())
 
     floatingPlayerView.setSong(currentSong)
     floatingPlayerView.setDuration(mediaPlayer.getDuration())
     floatingPlayerView.setTime(0)
-    floatingPlayerView.setPlayingState(false)
+    floatingPlayerView.setPlayingState(autoplay)
     if (currentScreen === 'menu') {
       floatingPlayerView.setVisible(true)
+    }
+
+    if (autoplay) {
+      mediaPlayer.play()
     }
   }
 
