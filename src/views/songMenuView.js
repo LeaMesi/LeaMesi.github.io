@@ -222,7 +222,7 @@ export function createSongMenuView({
 
               <div class="list-col-actions">
                 <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
-                  ${iconFolder} Bibliotecas
+                  ${iconFolder}
                 </button>
                 ${activeLibrary ? `
                   <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
@@ -230,10 +230,10 @@ export function createSongMenuView({
                   </button>
                 ` : ''}
                 <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
-                  ${iconListPlus} + Playlist
+                  ${iconListPlus} +
                 </button>
                 <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
-                  ${iconEdit} Editar
+                  ${iconEdit}
                 </button>
                 <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
                   ${iconTrash}
