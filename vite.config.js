@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/LeaMesi.github.io/',
+  base: '/',
   test: {
     environment: 'happy-dom',
     globals: true,
