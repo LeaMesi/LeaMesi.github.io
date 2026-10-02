@@ -623,6 +623,31 @@
   - Actualizadas `tests/views/icons.test.js`, `tests/views/controlsView.test.js` y `tests/views/songMenuView.test.js` (total 23 suites y 204 pruebas pasando al 100%).
   - Compilación de producción con `npm run build` verificada sin errores.
 
+---
+
+## Fase 27: Reproductor Flotante Mini en Catálogo de Canciones
+
+- [x] **27.1. Componente de Vista del Reproductor Flotante ([`src/views/floatingPlayerView.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/floatingPlayerView.js)):**
+  - Módulo desacoplado para renderizar un widget compacto fijado en la esquina inferior derecha (`bottom: 24px; right: 24px; z-index: 90`).
+  - Muestra título y artista con truncado seguro (`ellipsis`) y botón táctil `${iconMic} Letra` para regresar a Modo Letra.
+  - Ocultamiento completo cuando no hay canción activa o la pantalla no es el menú.
+- [x] **27.2. Controles de Reproducción, Posición (Seek) y Volumen:**
+  - Control de tiempo con barra deslizante interactiva, bloqueo por interacción `isUserSeeking` para prevenir saltos de audio y marcas numéricas `mm:ss` (transcurrido y duración total).
+  - Deslizador de volumen (0-100) y botón de silenciado toggle (`iconVolume` / `iconVolumeMute`) sincronizado con `mediaPlayer` y `controlsView`.
+  - Botón dedicado `${iconRotateCcw}` para volver a empezar desde `0:00`.
+  - Botón `${iconSkipBack}` para ir a la pista anterior de la playlist con fallback a reinicio.
+  - Botón principal circular `${iconPlay}` / `${iconPause}` para alternar reproducción y pausa.
+  - Botón `${iconSkipForward}` para avanzar a la siguiente pista de la cola.
+- [x] **27.3. Integración en el Orquestador y Reglas de Visibilidad ([`src/main.js`](file:///home/hezztia/Documents/SarangaBaranga/src/main.js), [`src/style.css`](file:///home/hezztia/Documents/SarangaBaranga/src/style.css)):**
+  - Contenedor `#floating-player-container` montado en `#app`.
+  - Regla defensiva CSS `#app:not([data-screen="menu"]) .floating-player-container { display: none !important; }` asegurando que solo esté visible en el catálogo de canciones.
+  - Sincronización continua de tiempo (`setTime`), duración (`setDuration`), estado de reproducción (`setPlayingState`), volumen (`setVolume`) y cola (`setPlaylistState`).
+  - Estilos de diseño glassmorphism (`backdrop-filter: blur(16px)`), sombras profundas y adaptación responsive móvil con safe areas.
+- [x] **27.4. Suite de Pruebas Automatizadas y Verificación de Compilación:**
+  - Creada suite unitaria [`tests/views/floatingPlayerView.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/views/floatingPlayerView.test.js) con 8 pruebas automáticas cubriendo renderizado, visibilidad, play/pause, restart, prev/next, volumen, mute y seek slider.
+  - Total de 24 suites de prueba y 212 pruebas ejecutadas y pasando exitosamente al 100%.
+  - Compilación de producción con `npm run build` verificada sin errores.
+
 
 
 

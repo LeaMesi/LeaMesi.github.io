@@ -726,6 +726,7 @@ graph TD
         SongMenuViewTest["songMenuView.test.js (Catálogo, vista cuadrícula/lista, bibliotecas, buscador)"]
         SongEditorTest["songEditorView.test.js (Plantilla nueva, precarga, añadir frases, metadatos)"]
         PlaylistModalTest["playlistModal.test.js (Gestión de cola, reordenamiento, persistencia sin pausa)"]
+        FloatingPlayerTest["floatingPlayerView.test.js (Widget flotante mini, seek, volumen, restart/prev/next)"]
         VideoModalTest["videoManagerModal.test.js (Offsets, añadir/quitar videos, persistencia)"]
         ThemeModalTest["themeSettingsModal.test.js (Presets, sliders reactivos, live preview)"]
     end
@@ -849,6 +850,22 @@ graph TD
 * **Cargar Biblioteca a la Playlist (`loadLibraryIntoPlaylist`):** Desde el modal de playlist o directamente desde la barra de herramientas de cualquier biblioteca en el Menú de Canciones, es posible cargar todas las canciones de dicha biblioteca en la playlist:
   * **En Orden:** Carga la secuencia original de la biblioteca.
   * **Aleatorio (Shuffle):** Carga y baraja inmediatamente las canciones para iniciar una sesión de escucha dinámica.
+
+### 14.5. Reproductor Flotante Mini en Catálogo de Canciones (`src/views/floatingPlayerView.js`)
+* **Ubicación y Contención:** Widget flotante fijado en la esquina inferior derecha del viewport (`fixed; bottom: 24px; right: 24px; z-index: 90`), con bordes redondeados, desenfoque de fondo glassmorphism (`backdrop-filter: blur(16px)`) y tamaño compacto.
+* **Ámbito de Visibilidad Estricto:**
+  * Se muestra **exclusivamente en la lista / catálogo de canciones** (`#app[data-screen="menu"]`) cuando una canción se encuentra cargada o en reproducción (`currentSong !== null`).
+  * Se oculta automáticamente al navegar hacia Modo Letra (`showLyricsScreen()`) o al Editor (`showEditorScreen()`), y mediante reglas defensivas CSS (`#app:not([data-screen="menu"]) .floating-player-container { display: none !important; }`).
+* **Conjunto de Controles Integrados:**
+  * **Información y Acceso Rápido:** Título y artista con truncado seguro (`ellipsis`), más botón directo `${iconMic} Letra` y atajo táctil para regresar inmediatamente al visor de letras completo.
+  * **Control de Tiempo y Posición (Seek):** Barra deslizante interactiva con bloqueo por interacción (`isUserSeeking`) y etiquetas numéricas de tiempo transcurrido y duración total en formato tabular `mm:ss`.
+  * **Control de Volumen:** Deslizador de volumen (0-100) y botón de silenciado/activación (`iconVolume` / `iconVolumeMute`), sincronizados bidireccionalmente con `mediaPlayer` y `controlsView`.
+  * **Transporte Completo:**
+    * **Volver a Empezar:** Botón dedicado `${iconRotateCcw}` para reiniciar la canción al inicio (`0:00`).
+    * **Canción Anterior:** Botón `${iconSkipBack}` para retroceder en la cola con fallback al inicio.
+    * **Pausar / Reproducir:** Botón destacado circular `${iconPlay}` / `${iconPause}`.
+    * **Siguiente Canción:** Botón `${iconSkipForward}` para avanzar a la siguiente pista de la playlist.
+* **Diseño Responsivo Móvil:** Adaptación para dispositivos móviles con `max-width: calc(100vw - 32px)`, anclaje a safe areas (`env(safe-area-inset-bottom)`) y botones táctiles optimizados.
 
 
 

@@ -14,6 +14,7 @@ import { createThemeSettingsModal } from './views/themeSettingsModal.js'
 import { createSongEditorView } from './views/songEditorView.js'
 import { createPlaylistService, loadLibraryIntoPlaylist } from './services/playlistService.js'
 import { createPlaylistModal } from './views/playlistModal.js'
+import { createFloatingPlayerView } from './views/floatingPlayerView.js'
 import { iconArrowLeft, iconPalette, iconListMusic, iconMic } from './views/icons.js'
 
 async function initApp() {
@@ -89,6 +90,9 @@ async function initApp() {
 
     <!-- Modal de Lista de Reproducción (Playlist) -->
     <div class="modal-container" id="playlist-modal"></div>
+
+    <!-- Reproductor Flotante Mini (Solo en Menú de Canciones si hay canción cargada) -->
+    <div id="floating-player-container" class="floating-player-container" style="display: none;"></div>
   `
 
   // 2. Elementos del DOM
@@ -109,6 +113,7 @@ async function initApp() {
   const betterlyricsModalEl = document.querySelector('#betterlyrics-modal')
   const themeModalEl = document.querySelector('#theme-modal')
   const playlistModalEl = document.querySelector('#playlist-modal')
+  const floatingPlayerContainerEl = document.querySelector('#floating-player-container')
   const advancedStageEl = document.querySelector('#advanced-stage-container')
 
   // 3. Estado de la aplicación
@@ -139,13 +144,16 @@ async function initApp() {
   const mediaPlayer = createMediaPlayer({
     containerId: 'youtube-player-container',
     onTimeUpdate: (currentTime, lyricsTime) => {
-      controlsView.setTime(currentTime)
+      controlsView?.setTime(currentTime)
+      floatingPlayerView?.setTime(currentTime)
       basicViewer.updateTime(lyricsTime !== undefined ? lyricsTime : mediaPlayer.getLyricsTime())
       songEditorView.updateClock(currentTime)
     },
     onStateChange: async (state) => {
-      controlsView.setPlayingState(mediaPlayer.getIsPlaying())
-      songEditorView.setPlayingState(mediaPlayer.getIsPlaying())
+      const isPlaying = mediaPlayer.getIsPlaying()
+      controlsView?.setPlayingState(isPlaying)
+      floatingPlayerView?.setPlayingState(isPlaying)
+      songEditorView.setPlayingState(isPlaying)
 
       // Auto-avance de canción en la playlist al terminar
       if (state === PLAYER_STATE.ENDED) {
@@ -164,7 +172,8 @@ async function initApp() {
       updateHeaderPlaybackState()
     },
     onDurationChange: (duration) => {
-      controlsView.setDuration(duration)
+      controlsView?.setDuration(duration)
+      floatingPlayerView?.setDuration(duration)
     }
   })
 
@@ -258,7 +267,10 @@ async function initApp() {
     initialScriptDisplayMode: initialScriptMode,
     onPlayToggle: () => mediaPlayer.togglePlay(),
     onSeek: (seconds) => mediaPlayer.seek(seconds),
-    onVolumeChange: (vol) => mediaPlayer.setVolume(vol),
+    onVolumeChange: (vol) => {
+      mediaPlayer.setVolume(vol)
+      floatingPlayerView?.setVolume(vol)
+    },
     onVideoChange: (videoId) => {
       mediaPlayer.setVideo(videoId)
       controlsView.setVideosState({
@@ -311,6 +323,44 @@ async function initApp() {
     }
   })
 
+  // 7b. Inicializar Reproductor Flotante Mini (Solo para Menú de Canciones)
+  const floatingPlayerView = createFloatingPlayerView({
+    containerElement: floatingPlayerContainerEl,
+    initialVolume: mediaPlayer.getVolume(),
+    onPlayToggle: () => mediaPlayer.togglePlay(),
+    onSeek: (seconds) => mediaPlayer.seek(seconds),
+    onVolumeChange: (vol) => {
+      mediaPlayer.setVolume(vol)
+      controlsView.setVolume(vol)
+    },
+    onRestartSong: () => {
+      mediaPlayer.seek(0)
+    },
+    onPrevSong: async () => {
+      if (mediaPlayer.getCurrentTime() > 3) {
+        mediaPlayer.seek(0)
+      } else if (playlistService.hasPrev()) {
+        const prev = playlistService.prev()
+        if (prev) {
+          await loadSongIntoApp(prev.id)
+          mediaPlayer.play()
+        }
+      } else {
+        mediaPlayer.seek(0)
+      }
+    },
+    onNextSong: async () => {
+      const next = playlistService.next()
+      if (next) {
+        await loadSongIntoApp(next.id)
+        mediaPlayer.play()
+      }
+    },
+    onOpenLyrics: () => {
+      showLyricsScreen()
+    }
+  })
+
   // 8. Inicializar Menú de Selección de Canciones
   const songMenuView = createSongMenuView({
     containerElement: menuScreenEl,
@@ -349,6 +399,10 @@ async function initApp() {
   playlistService.subscribe((plState) => {
     controlsView.setPlaylistState({
       count: plState.count,
+      hasNext: plState.hasNext,
+      hasPrev: plState.hasPrev
+    })
+    floatingPlayerView.setPlaylistState({
       hasNext: plState.hasNext,
       hasPrev: plState.hasPrev
     })
@@ -442,12 +496,23 @@ async function initApp() {
 
     updateHeaderPlaybackState()
 
+    if (currentSong) {
+      floatingPlayerView.setSong(currentSong)
+      floatingPlayerView.setPlayingState(mediaPlayer.getIsPlaying())
+      floatingPlayerView.setDuration(mediaPlayer.getDuration())
+      floatingPlayerView.setTime(mediaPlayer.getCurrentTime())
+      floatingPlayerView.setVisible(true)
+    } else {
+      floatingPlayerView.setVisible(false)
+    }
+
     songMenuView.refresh()
   }
 
   function showLyricsScreen() {
     currentScreen = 'lyrics'
     if (appContainer) appContainer.dataset.screen = 'lyrics'
+    floatingPlayerView.setVisible(false)
 
     if (menuScreenEl) menuScreenEl.style.display = 'none'
     if (lyricsScreenEl) lyricsScreenEl.style.display = 'flex'
@@ -465,6 +530,7 @@ async function initApp() {
   function showEditorScreen(songToEdit = null) {
     currentScreen = 'editor'
     if (appContainer) appContainer.dataset.screen = 'editor'
+    floatingPlayerView.setVisible(false)
     mediaPlayer.pause()
 
     if (menuScreenEl) menuScreenEl.style.display = 'none'
@@ -531,6 +597,14 @@ async function initApp() {
     controlsView.setTime(0)
     controlsView.setPlayingState(false)
     controlsView.setDuration(mediaPlayer.getDuration())
+
+    floatingPlayerView.setSong(currentSong)
+    floatingPlayerView.setDuration(mediaPlayer.getDuration())
+    floatingPlayerView.setTime(0)
+    floatingPlayerView.setPlayingState(false)
+    if (currentScreen === 'menu') {
+      floatingPlayerView.setVisible(true)
+    }
   }
 
   // 13. Inicializar Base de Datos y cargar menú inicial
