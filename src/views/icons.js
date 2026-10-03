@@ -162,6 +162,11 @@ export const iconListPlus = createSvg(
   '<path d="M11 12H3"></path><path d="M16 6H3"></path><path d="M11 18H3"></path><path d="M18 9v6"></path><path d="M15 12h6"></path>'
 )
 
+export const iconEye = createSvg(
+  '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>',
+  { size: 14 }
+)
+
 
 
 

@@ -587,7 +587,7 @@ async function initApp() {
     if (!song) return
 
     currentSong = song
-    playlistService.setCurrentSongById(song.id)
+    playlistService.setCurrentSong(song)
     updateHeaderPlaybackState()
 
     const lyricsData = song.lyrics_data || {}

@@ -5,6 +5,7 @@
 import { splitPhraseIntoSyllables, autoDistributeSyllables } from '../lyrics/syllablesHelper.js'
 import { extractYouTubeVideoId } from '../player/mediaPlayer.js'
 import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
+import { translateLines } from './translationService.js'
 
 const UNISON_BASE_URL = 'https://unison.boidu.dev'
 const BETTER_LYRICS_BASE_URL = 'https://api.betterlyrics.org'
@@ -364,33 +365,23 @@ export async function fetchBetterLyricsDetails(id, videoId = null, song = null, 
 }
 
 /**
- * Traduce un conjunto de líneas de texto usando el endpoint de Unison
+ * Traduce un conjunto de líneas de texto delegando en translationService
  */
 export async function translateLyricsLines(linesArray, targetLang = 'es') {
   if (!linesArray || linesArray.length === 0) return { lines: [], detectedLang: '' }
 
   try {
-    const response = await fetch(`${UNISON_BASE_URL}/translate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        lines: linesArray,
-        to: targetLang
-      })
-    })
-
-    if (!response.ok) {
-      console.warn('Error en traducción de Unison:', response.status)
-      return { lines: [], detectedLang: '' }
-    }
-
-    const data = await response.json()
+    const result = await translateLines(linesArray, targetLang, 'auto')
     return {
-      lines: data.lines || [],
-      detectedLang: data.detectedLang || ''
+      lines: (result.translatedLines || []).map(translation => ({
+        translation,
+        romanization: null,
+        needsTranslation: true
+      })),
+      detectedLang: result.detectedLang || ''
     }
   } catch (err) {
-    console.warn('Fallo de red al traducir con Unison:', err)
+    console.warn('Fallo al traducir líneas:', err)
     return { lines: [], detectedLang: '' }
   }
 }

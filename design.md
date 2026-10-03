@@ -15,6 +15,7 @@ La persistencia de datos y el catálogo de canciones se gestiona primariamente *
 Para permitir compartir creaciones e interoperar con fuentes externas sin requerir login ni backend de validación de subidas:
 1. **Exportación / Importación JSON:** Los usuarios pueden exportar sus canciones a archivos JSON portables (`song-package.json`) y compartirlos. Al importar un archivo, el sistema lo valida y lo almacena localmente en IndexedDB.
 2. **Compatibilidad con Estándar `lyricsfile` (YAML):** Soporte nativo para importar y exportar archivos en formato abierto `.lyricsfile.yaml` ([especificación 1.0](https://github.com/tranxuanthang/lyricsfile/blob/main/SPECIFICATION.md)), permitiendo cargar canciones o traducciones desde repositorios comunitarios de letras.
+3. **Especificaciones y Tareas Modulares (`specs/NNNN-*`):** Toda especificación funcional, desglose de tareas y planes futuros se encuentran modularizados en carpetas individuales bajo [`specs/`](file:///home/hezztia/Documents/SarangaBaranga/specs/).
 
 El audio se reproduce principalmente a través de la **YouTube IFrame Player API** (video oficial y solo pista) o mediante elementos de audio HTML5 para archivos locales/remotos.
 
@@ -456,6 +457,10 @@ Para ampliar radicalmente la disponibilidad de canciones sin depender de un úni
    * Al conmutar a **Genius**, se habilita la barra de configuración de token y los campos duales de Artista y Título.
    * Al conmutar a **LRCLIB**, se ofrecen búsquedas generales o por Artista y Canción.
    * Badges distintivos por color de proveedor (`.badge-source-betterlyrics`, `.badge-source-lrcred`, `.badge-source-genius`, `.badge-source-lrclib`), miniaturas de carátula (`.result-card-artwork`) y traducción automática en vivo mediante Unison.
+   * **Arquitectura de Layout Adaptativo de Búsqueda (`layout-scroll-controls` vs `layout-fixed-controls`):**
+     * En pantallas de escritorio estándar (PC con espacio vertical amplio $\ge 260\text{px}$ para resultados), los controles de búsqueda y pestañas permanecen fijos (*quietos*) en la parte superior (`.layout-fixed-controls`), scrolleando únicamente la lista interna de resultados.
+     * En teléfonos móviles ($\le 768\text{px}$) o cuando la ventana de resultados es reducida ($< 260\text{px}$ de altura útil por ventanas pequeñas en PC o apaisado móvil), el modal activa automáticamente `.layout-scroll-controls`. Todo el cuerpo del modal scrollea al unísono, permitiendo que los botones y campos de búsqueda sigan el desplazamiento hacia arriba y cedan el 100% de la altura de la pantalla a los resultados.
+     * **Botón Flotante de Retorno a la Búsqueda ("Subir" / `#btn-online-scroll-top`):** Al descender en la lista de resultados ($> 70\text{px}$ de scroll), se visualiza un botón flotante con icono `iconChevronUp` que permite con un solo toque volver suavemente a la parte superior (`modalBody.scrollTo({ top: 0, behavior: 'smooth' })`) y enfocar el campo de búsqueda activo.
    * Al seleccionar una canción, se genera el paquete normalizado y se entrega al editor (`songEditorView.open(songPackage)`) con todos los versos, sílabas y metadatos preconfigurados.
 
 ---
@@ -482,6 +487,13 @@ La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj M
 ### 4.2. Barra de Progreso y Búsqueda Continua (Seek Slider Interaction Model)
 * **Gestión de Interacción sin Congelamiento:** Para evitar que el thumb de la barra de progreso quede estático tras hacer clic o arrastrar en la línea de tiempo (problema causado por la retención persistente de foco en navegadores sobre elementos `<input type="range">`), `controlsView.js` gestiona la barra con la bandera de interacción activa `isUserSeeking`.
 * **Ciclo de Eventos:** Eventos `pointerdown`, `mousedown`, `touchstart` e `input` activan `isUserSeeking = true`. Al soltar el control (`change`, `pointerup`, `mouseup`, `touchend`), se apaga la bandera y se desenfoca el elemento (`seekSlider.blur()`), permitiendo que el Master Clock continúe actualizando `seekSlider.value` en cada fotograma (`requestAnimationFrame`) de forma ininterrumpida sin necesidad de pausar.
+
+### 3.8. Servicio de Traducción Automática Gratuita (Zero-Backend): Unison & MyMemory (`src/services/translationService.js`)
+Para posibilitar la traducción instantánea de canciones completas y versos individuales sin costos operativos ni servidores intermediarios, SarangaBaranga implementa una arquitectura de traducción en cascada:
+1. **Traducción por Lotes con Unison API (`POST https://unison.boidu.dev/translate`):** Envía las líneas con contenido en una única solicitud HTTP JSON (`{ lines: string[], to: targetLang }`), traduciendo decenas de versos de forma instantánea y detectando el idioma de origen automáticamente.
+2. **Fallback Neuronal con MyMemory API (`https://api.mymemory.translated.net/get`):** Si Unison responde con error (ej. HTTP 502) o se traducen idiomas como japonés (`ja`), el servicio recurre de forma transparente a la API neuronal de MyMemory, procesando las frases en paralelo controlado (bloques de 4 líneas) con clave de cortesía para una cuota de hasta 50,000 palabras diarias gratuitas.
+3. **Preservación Estricta de Pausas Instrumentales:** Las líneas en blanco o instrumentales no se envían a las APIs de traducción (evitando errores 502 y consumo innecesario de cuota) y se reinsertan vacías en sus posiciones originales exactas, blindando la sincronización de compases.
+4. **Decodificación de Entidades HTML:** Saneamiento universal (`decodeHtmlEntities`) para eliminar caracteres codificados devueltos por traductores automáticos (`&#39;`, `&quot;`, `&amp;`, etc.).
 
 En ambos orígenes de audio, el **Sincronizador de Letras** consume un único valor normalizado: `currentTime` en segundos.
 
@@ -510,9 +522,15 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
    * **Gestión Multilingüe:** Sistema de pestañas para crear idiomas ilimitados, editar interactivamente el nombre y código ISO al hacer clic sobre el idioma actual o su botón de edición, designar el idioma principal (`isMain: true`), alternar traducciones y copiar estructuras de tiempo entre idiomas.
    * **Escritura por Frases y Tiempos:** Edición individual de versos (`startTime`, `endTime`, reordenamiento, preescucha puntual de fragmentos de audio).
    * **Campos Numéricos Limpios:** Los inputs de tiempo (`type="number"`) eliminan las flechas nativas y fondos blancos rígidos del navegador (`appearance: textfield; -webkit-appearance: none`), ofreciendo un aspecto oscuro, limpio y espacioso, manteniendo el ajuste por teclado (flechas arriba/abajo) y rueda del ratón.
-   * **Tiempos por Sílabas:** Sub-editor con motor fonético de silabeo (`syllablesHelper.js`), división por palabras, ajuste fino de duración e inicio por sílaba y distribución equitativa automática.
+   * **Tiempos por Sílabas con Ponderación Fonética:** Sub-editor con motor fonético de silabeo (`syllablesHelper.js`), división por palabras, ajuste fino de duración e inicio por sílaba y algoritmo de ponderación fonética musical inteligente (`calculateSyllableWeight` y `autoDistributeSyllables`), que ajusta proporcionalmente las duraciones según vocales, diptongos, acentos tónicos y alargamiento de final de verso (*phrase-final lengthening*).
    * **Herramientas de Borrado de Sílabas:** Controles dedicados para vaciar las sílabas de un verso individual (disponible en el encabezado de la tarjeta y en la barra de acciones rápidas de sílabas) y borrado masivo para todas las frases del idioma activo con confirmación obligatoria previa (`window.confirm`), informando el número total de versos y sílabas afectadas antes de ejecutar la acción destructiva.
    * **Importador Rápido:** Modal para pegar letras completas de corrido y calcular automáticamente versos, pausas y sílabas en segundos.
+   * **Guía de Referencia de Frase Original para Traducción:** Al editar pistas secundarias (traducciones), cada tarjeta de frase presenta un banner contextual superior con la frase correspondiente del idioma principal (`mainLang.lines[lineIdx]`), mostrando texto original y alternativo/fonético (Romaji), aviso explícito de pausas instrumentales (`⏸ [Pausa / Verso en blanco]`), botón de copia rápida al verso traducido y selector en la barra de herramientas para alternar entre Ambos, Solo original, Solo alternativo o Desactivado con persistencia en `localStorage`.
+   * **Traducción Automática y Gratuita (Zero-Backend):** Motor integrado mediante `src/services/translationService.js` (cascada Unison API + MyMemory API) que permite:
+     - Traducir versos individuales con un clic en la tarjeta de frase (`Traducir`), conservando las marcas de tiempo y dejando la frase lista para canto o silabeo manual sin fragmentación silábica forzada.
+     - Traducir la canción completa (`Traducir Toda la Canción`) desde la barra de herramientas del editor o desde el estado inicial vacío de una traducción, preservando fielmente pausas instrumentales (versos en blanco) para evitar desfasajes.
+     - **Overlay Bloqueante de Progreso:** Durante traducciones completas o creación de idiomas traducidos, se activa un backdrop oscurecido y desenfocado con un cuadro de diálogo centrado (`translation-loading-dialog`) que previene manipulaciones erróneas del usuario mientras se procesa la solicitud.
+     - Opción de traducción automática al dar de alta un nuevo idioma ("Traducir automáticamente todas las frases desde el original") en el modal de idiomas.
 
 
 
@@ -560,7 +578,7 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
      3. Instala dependencias limpias con `npm ci`.
      4. Ejecuta la suite de pruebas automatizadas con `npm test` para asegurar que nada roto sea desplegado.
      5. Compila los artefactos de producción con `npm run build`.
-     6. Publica y actualiza la rama `gh-pages` mediante `peaceiris/actions-gh-pages@v4` utilizando `${{ secrets.GITHUB_TOKEN }}`.
+     6. Sube los artefactos mediante `actions/upload-pages-artifact@v3` y realiza el despliegue nativo a GitHub Pages con `actions/deploy-pages@v4` sin requerir push a ramas protegidas.
 4. **Cero Dependencia de Servidores en Producción:** Todo el almacenamiento opera de forma local e independiente en el navegador del usuario (IndexedDB), garantizando una aplicación 100% estática, offline-first y sin riesgo de filtración de claves.
 
 ---

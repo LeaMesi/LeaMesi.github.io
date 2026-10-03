@@ -229,4 +229,84 @@ describe('services/playlistService.js', () => {
     expect(playlist.getState().count).toBe(3)
     expect(playlist.getSongs()[0].id).toBe(1)
   })
+
+  it('añade automáticamente una canción que no está en la playlist al llamar a setCurrentSong', () => {
+    const playlist = createPlaylistService({ storageKey: 'test_auto_add_1' })
+    const listener = vi.fn()
+    playlist.subscribe(listener)
+    listener.mockClear()
+
+    // 1. Playlist vacía: se añade la primera canción
+    const song1 = { id: 101, title: 'Canción Inicial', artist: 'Artista 1' }
+    const res1 = playlist.setCurrentSong(song1)
+
+    expect(res1).not.toBeNull()
+    expect(res1.id).toBe(101)
+    expect(playlist.getState().count).toBe(1)
+    expect(playlist.getCurrentIndex()).toBe(0)
+    expect(playlist.getCurrentSong().id).toBe(101)
+    expect(playlist.hasPrev()).toBe(false)
+    expect(playlist.hasNext()).toBe(false)
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(listener).toHaveBeenLastCalledWith(expect.objectContaining({
+      count: 1,
+      currentIndex: 0,
+      hasPrev: false,
+      hasNext: false
+    }))
+
+    // 2. Entrar en una segunda canción que no estaba en la playlist: se auto-añade al final y se activa
+    listener.mockClear()
+    const song2 = { id: 102, title: 'Segunda Canción', artist: 'Artista 2' }
+    const res2 = playlist.setCurrentSong(song2)
+
+    expect(res2.id).toBe(102)
+    expect(playlist.getState().count).toBe(2)
+    expect(playlist.getCurrentIndex()).toBe(1)
+    expect(playlist.getCurrentSong().id).toBe(102)
+    expect(playlist.hasPrev()).toBe(true) // La primera ahora es anterior
+    expect(playlist.hasNext()).toBe(false)
+    expect(listener).toHaveBeenLastCalledWith(expect.objectContaining({
+      count: 2,
+      currentIndex: 1,
+      hasPrev: true,
+      hasNext: false
+    }))
+
+    // 3. Volver a entrar en la primera canción (ya existe en la lista): no se duplica, actualiza currentIndex
+    listener.mockClear()
+    const resAgain = playlist.setCurrentSong(song1)
+
+    expect(resAgain.id).toBe(101)
+    expect(playlist.getState().count).toBe(2) // No se duplica
+    expect(playlist.getCurrentIndex()).toBe(0) // Apunta a su posición original
+    expect(playlist.getCurrentSong().id).toBe(101)
+    expect(playlist.hasPrev()).toBe(false)
+    expect(playlist.hasNext()).toBe(true) // La segunda es siguiente
+    expect(listener).toHaveBeenLastCalledWith(expect.objectContaining({
+      count: 2,
+      currentIndex: 0,
+      hasPrev: false,
+      hasNext: true
+    }))
+  })
+
+  it('soporta setCurrentSongById añadiendo automáticamente la canción si no existe y se provee el objeto song', () => {
+    const playlist = createPlaylistService({ storageKey: 'test_auto_add_by_id' })
+    const song = { id: 50, title: 'Tema 50', artist: 'Artista 50' }
+
+    // Sin objeto song, retorna false si no existe
+    expect(playlist.setCurrentSongById(50)).toBe(false)
+    expect(playlist.getState().count).toBe(0)
+
+    // Con objeto song, auto-añade y activa
+    expect(playlist.setCurrentSongById(50, song)).toBe(true)
+    expect(playlist.getState().count).toBe(1)
+    expect(playlist.getCurrentIndex()).toBe(0)
+    expect(playlist.getCurrentSong().id).toBe(50)
+
+    // Si ya existe, setCurrentSongById funciona sólo con el ID
+    expect(playlist.setCurrentSongById(50)).toBe(true)
+  })
 })
+

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { margin: 0; background: #111; color: white; font-family: sans-serif; }
+.dialog { width: 360px; height: 600px; display: flex; flex-direction: column; background: #222; }
+.body { display: flex; flex-direction: column; overflow-y: auto; height: 500px; padding: 10px; gap: 10px; }
+.providers { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 6px; }
+.tab { flex-shrink: 0; padding: 6px 12px; height: 32px; background: blue; border: 1px solid white; box-sizing: border-box; }
+.inputs { background: green; padding: 10px; }
+.results { height: 1500px; background: #333; }
+</style>
+</head>
+<body>
+<div class='dialog'>
+  <div class='body'>
+    <div class='providers' id='prov'>
+      <div class='tab'>Tab 1</div>
+      <div class='tab'>Tab 2</div>
+      <div class='tab'>Tab 3</div>
+      <div class='tab'>Tab 4</div>
+    </div>
+    <div class='inputs' id='inp'>Search Bar</div>
+    <div class='results' id='res'>Results</div>
+  </div>
+</div>
+</body>
+</html>

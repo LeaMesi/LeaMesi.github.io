@@ -1,0 +1,47 @@
+# Tareas: Editor de Canciones y Herramientas de Tiempo
+**Spec asociada:** [`spec.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/0004-song-editor-timing-tools/spec.md)
+
+---
+
+## Tareas Completadas
+
+- [x] **7.1. Vista y Controlador del Editor (`src/views/songEditorView.js`):**
+  - Creación y edición con guardado directo en IndexedDB y botón "Probar en Modo Letra".
+- [x] **7.2. Escritura por Frases y Tiempos:**
+  - Agregar, reordenar, preescucha puntual e importación rápida de letra completa.
+- [x] **7.3. Tiempos por Sílabas y Silabeo Automático:**
+  - Separación fonética, chips de sílabas y distribución proporcional.
+- [x] **7.4. Gestión Multilingüe en el Editor:**
+  - Pestañas con designación de principal/traducción, clonación de tiempos y edición de metadatos de idioma.
+- [x] **7.6. Normalización de Inputs Numéricos de Tiempo:**
+  - Eliminación de flechas nativas y fondos blancos con `appearance: textfield`.
+- [x] **7.7. Reloj Maestro en Vivo con Milisegundos:**
+  - Actualización reactiva de reloj `mm:ss.mmm` con números tabulares sin desfases.
+- [x] **10.1. Borrado de Sílabas por Frase Individual:**
+  - Botón de vaciado de sílabas preservando texto y marcas de inicio/fin.
+- [x] **10.2. Borrado Masivo de Sílabas con Confirmación Previa:**
+  - Botón con confirmación obligatoria mediante `window.confirm` y contador dinámico.
+- [x] **20.1. Reubicación de Botones de Exportación:**
+  - Botones de exportar JSON y YAML trasladados al encabezado del editor para mayor coherencia.
+- [x] **7.9. Ponderación Fonética Inteligente en Tiempos de Sílabas (`src/lyrics/syllablesHelper.js`):**
+  - Algoritmo `calculateSyllableWeight` que pondera diptongos/triptongos, acentuación tónica, apertura vocálica, codas consonánticas, cesuras y alargamiento de final de verso (phrase-final lengthening).
+  - Actualización de `autoDistributeSyllables` con ponderación fonética por defecto y preservación de modo equitativo (`{ mode: 'equal' }`).
+  - Integración en `src/views/songEditorView.js` (tooltips claros, mensajes de estado reactivos y distribución automática en silabeo y palabras).
+- [x] **7.10. Guía de Referencia de Frase Original al Traducir (`src/views/songEditorView.js` y `src/style.css`):**
+  - Visualización contextual de la frase original (texto original y texto alternativo/Romaji) en cada tarjeta de verso al editar idiomas de traducción.
+  - Identificación explícita de versos vacíos como `⏸ [Pausa / Verso en blanco]` para evitar desfasajes y confusiones al traducir canciones con pausas instrumentales.
+  - Selector general de visualización en la barra de herramientas con 4 modos: Ambos (Original y Alternativo), Solo texto original, Solo alternativo o Desactivado, con persistencia en `localStorage`.
+  - Botón de copia directa (`Copiar`) para transferir el texto original al verso traducido en un clic.
+- [x] **7.11. Traducción Automática y Gratuita de Canciones y Versos (`src/services/translationService.js`, `src/views/songEditorView.js` y `src/style.css`):**
+  - Motor de traducción en cascada sin costo ni backend propio (Zero-Backend) combinando Unison API (por lote) y fallback neuronal a MyMemory API.
+  - Decodificación automática de entidades HTML y preservación estricta de pausas instrumentales (versos en blanco).
+  - Overlay de bloqueo visual centralizado con fondo oscurecido y desenfocado (`translation-loading-backdrop` y `translation-loading-dialog`) durante la traducción completa para prevenir acciones no deseadas del usuario.
+  - Botón individual "Traducir" con indicador local "Traduciendo..." en la guía de referencia de cada verso.
+  - Desactivación del silabeo automático en la traducción para preservar el texto traducido intacto con tiempos sin fragmentación silábica forzada.
+  - Botón "Traducir Toda la Canción" en la barra de herramientas y estado vacío que procesa el tema completo respetando marcas de inicio/fin y pausas.
+  - Opción de traducción automática al crear un nuevo idioma o pista de traducción en el modal del editor.
+
+---
+
+## Tareas Pendientes / Por Hacer
+- [ ] **7.8. Zoom en la línea de tiempo de frases:** Permitir ampliar o contraer la vista de versos para mayor comodidad en pantallas táctiles o teclados reducidos.

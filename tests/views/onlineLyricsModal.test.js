@@ -104,4 +104,112 @@ describe('views/onlineLyricsModal.js', () => {
       expect(btn.textContent).toContain('Cargar en Editor')
     })
   })
+
+  it('renderiza el botón flotante para volver arriba y reacciona al scroll y click', () => {
+    const modal = createOnlineLyricsModal({ containerElement: container })
+    modal.open()
+
+    const scrollTopBtn = container.querySelector('#btn-online-scroll-top')
+    expect(scrollTopBtn).not.toBeNull()
+    expect(scrollTopBtn.textContent).toContain('Subir')
+    expect(scrollTopBtn.classList.contains('is-visible')).toBe(false)
+
+    const modalBody = container.querySelector('.online-modal-body')
+    expect(modalBody).not.toBeNull()
+
+    // Simular scroll hacia abajo
+    modalBody.scrollTop = 120
+    modalBody.dispatchEvent(new Event('scroll'))
+
+    expect(scrollTopBtn.classList.contains('is-visible')).toBe(true)
+
+    // Simular click en el botón de subir
+    let scrolledTop = false
+    modalBody.scrollTo = vi.fn((opts) => {
+      if (opts?.top === 0) scrolledTop = true
+    })
+    scrollTopBtn.click()
+
+    expect(scrolledTop).toBe(true)
+  })
+
+  it('aplica el modo layout-scroll-controls en pantalla móvil o cuando el espacio de resultados es reducido', () => {
+    // Simular viewport móvil
+    window.innerWidth = 390
+    window.innerHeight = 800
+
+    const modal = createOnlineLyricsModal({ containerElement: container })
+    modal.open()
+
+    const dialog = container.querySelector('.online-lyrics-modal-dialog')
+    expect(dialog).not.toBeNull()
+    expect(dialog.classList.contains('layout-scroll-controls')).toBe(true)
+    expect(dialog.classList.contains('layout-fixed-controls')).toBe(false)
+  })
+
+  it('aplica el modo layout-fixed-controls en pantalla de escritorio con espacio amplio para resultados', () => {
+    // Simular viewport escritorio amplio
+    window.innerWidth = 1280
+    window.innerHeight = 900
+
+    const modal = createOnlineLyricsModal({ containerElement: container })
+    modal.open()
+
+    const dialog = container.querySelector('.online-lyrics-modal-dialog')
+    const modalBody = container.querySelector('.online-modal-body')
+    expect(dialog).not.toBeNull()
+    expect(modalBody).not.toBeNull()
+
+    // Mock clientHeight para simular escritorio amplio (modalBody 650px, controles 200px -> disponible 450px >= 260px)
+    Object.defineProperty(modalBody, 'clientHeight', { value: 650, configurable: true })
+    const inputsContainer = container.querySelector('.online-inputs-container')
+    if (inputsContainer) {
+      Object.defineProperty(inputsContainer, 'offsetHeight', { value: 120, configurable: true })
+    }
+
+    // Disparar resize
+    window.dispatchEvent(new Event('resize'))
+
+    expect(dialog.classList.contains('layout-fixed-controls')).toBe(true)
+    expect(dialog.classList.contains('layout-scroll-controls')).toBe(false)
+  })
+
+  it('mantiene la integridad de la barra de proveedores y de búsqueda al desplegar resultados en móvil', async () => {
+    window.innerWidth = 390
+    window.innerHeight = 844
+
+    const mockResults = [
+      { id: 'res-1', song: 'Bohemian Rhapsody', artist: 'Queen', source: 'betterlyrics', syncType: 'richsync' },
+      { id: 'res-2', song: 'Don\'t Stop Me Now', artist: 'Queen', source: 'lrcred', syncType: 'linesync' },
+      { id: 'res-3', song: 'Radio Ga Ga', artist: 'Queen', source: 'genius', syncType: 'plain' }
+    ]
+    vi.spyOn(onlineLyricsService, 'searchOnlineLyrics').mockResolvedValue(mockResults)
+
+    const modal = createOnlineLyricsModal({ containerElement: container })
+    modal.open()
+
+    const input = container.querySelector('#online-input-all')
+    input.value = 'Queen'
+    const searchBtn = container.querySelector('#btn-do-online-search')
+    searchBtn.click()
+
+    await vi.waitFor(() => {
+      expect(container.querySelectorAll('.btn-select-bl-song').length).toBe(3)
+    })
+
+    const providersBar = container.querySelector('.online-providers-bar')
+    const inputsContainer = container.querySelector('.online-inputs-container')
+    const resultsContainer = container.querySelector('.online-results-container')
+
+    expect(providersBar).not.toBeNull()
+    expect(inputsContainer).not.toBeNull()
+    expect(resultsContainer).not.toBeNull()
+
+    // Comprobar que todos los botones de cada fuente están presentes
+    const providerTabs = providersBar.querySelectorAll('.online-provider-tab')
+    expect(providerTabs.length).toBe(5)
+
+    // Verificar orden contiguo en el DOM para evitar solapamientos
+    expect(providersBar.nextElementSibling).toBe(inputsContainer)
+  })
 })

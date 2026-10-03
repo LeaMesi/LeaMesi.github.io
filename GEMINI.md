@@ -12,8 +12,9 @@ Este documento constituye el conjunto maestro de instrucciones, reglas de seguri
 
 No comiences ninguna implementación sin haber contrastado previamente:
 1. El estado actual de avance en [`progress.md`](file:///home/hezztia/Documents/SarangaBaranga/progress.md).
-2. Los patrones arquitectónicos y directrices técnicas en [`design.md`](file:///home/hezztia/Documents/SarangaBaranga/design.md).
-3. Las tareas pendientes y su orden prioritario en [`task.md`](file:///home/hezztia/Documents/SarangaBaranga/task.md).
+2. Los patrones arquitectónicos y directrices técnicas en [`design.md`](file:///home/hezztia/Documents/SarangaBaranga/design.md) y [`specs.md`](file:///home/hezztia/Documents/SarangaBaranga/specs.md).
+3. La especificación funcional correspondiente en [`specs/NNNN-*/spec.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/).
+4. Las tareas pendientes y su orden prioritario en [`task.md`](file:///home/hezztia/Documents/SarangaBaranga/task.md) y en [`specs/NNNN-*/tasks.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/).
 
 ---
 
@@ -80,5 +81,5 @@ El código del proyecto debe ser homogéneo y seguir las siguientes directrices 
 
 Al concluir cualquier intervención técnica significativa:
 1. **Actualizar [`progress.md`](file:///home/hezztia/Documents/SarangaBaranga/progress.md):** Registrar qué funcionalidades pasaron de "Pendiente" a "Operativo", reportar nuevos bugs detectados y actualizar el estado de las pruebas.
-2. **Actualizar [`task.md`](file:///home/hezztia/Documents/SarangaBaranga/task.md):** Marcar con `[x]` las subtareas completadas y desglosar nuevas tareas identificadas.
-3. **Actualizar [`design.md`](file:///home/hezztia/Documents/SarangaBaranga/design.md):** Reflejar cualquier cambio arquitectónico o nuevo esquema incorporado.
+2. **Actualizar [`task.md`](file:///home/hezztia/Documents/SarangaBaranga/task.md) y [`specs/NNNN-*/tasks.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/):** Marcar con `[x]` las subtareas completadas y desglosar nuevas tareas identificadas en el módulo correspondiente.
+3. **Actualizar [`design.md`](file:///home/hezztia/Documents/SarangaBaranga/design.md) y [`specs/NNNN-*/spec.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/):** Reflejar cualquier cambio arquitectónico o nuevo esquema incorporado.

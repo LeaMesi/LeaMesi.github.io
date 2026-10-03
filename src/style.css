@@ -1946,6 +1946,7 @@ input[type="number"] {
 .bl-modal-dialog {
   max-width: 860px;
   height: 88vh;
+  position: relative;
 }
 
 .online-modal-body,
@@ -1958,6 +1959,92 @@ input[type="number"] {
   flex: 1;
 }
 
+/* Modos de Layout para Modal de Búsqueda Online:
+   - layout-fixed-controls: en PC con espacio suficiente, los controles se quedan fijos y los resultados scrollean dentro de su contenedor.
+   - layout-scroll-controls: en teléfonos o cuando el espacio de resultados es reducido (< 260px), todo el modal-body scrollea junto para que los controles sigan el scroll y den todo el espacio a los resultados.
+*/
+.online-lyrics-modal-dialog.layout-fixed-controls .online-modal-body {
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.online-lyrics-modal-dialog.layout-fixed-controls .online-providers-bar,
+.online-lyrics-modal-dialog.layout-fixed-controls .online-inputs-container,
+.online-lyrics-modal-dialog.layout-fixed-controls .online-options-bar,
+.online-lyrics-modal-dialog.layout-fixed-controls .status-alert {
+  flex-shrink: 0 !important;
+}
+
+.online-lyrics-modal-dialog.layout-fixed-controls .online-results-container {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+}
+
+.online-lyrics-modal-dialog.layout-scroll-controls .online-modal-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.online-lyrics-modal-dialog.layout-scroll-controls .online-providers-bar,
+.online-lyrics-modal-dialog.layout-scroll-controls .online-inputs-container,
+.online-lyrics-modal-dialog.layout-scroll-controls .online-options-bar,
+.online-lyrics-modal-dialog.layout-scroll-controls .status-alert {
+  flex-shrink: 0 !important;
+}
+
+.online-lyrics-modal-dialog.layout-scroll-controls .online-results-container {
+  overflow-y: visible !important;
+  flex: none !important;
+  height: auto !important;
+  min-height: auto !important;
+}
+
+/* Botón flotante para volver arriba */
+.btn-online-scroll-top {
+  position: absolute;
+  bottom: 72px;
+  right: 22px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  background: var(--primary-color, #6366f1);
+  color: var(--primary-contrast, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(99, 102, 241, 0.35);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.btn-online-scroll-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.btn-online-scroll-top:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 16px rgba(99, 102, 241, 0.5);
+}
+
+.btn-online-scroll-top:active {
+  transform: translateY(0);
+}
+
 /* Selector de Proveedores Online (Pestañas Superiores) */
 .online-providers-bar {
   display: flex;
@@ -1965,6 +2052,10 @@ input[type="number"] {
   flex-wrap: wrap;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 10px;
+  flex-shrink: 0;
+  min-height: min-content;
+  position: relative;
+  z-index: 2;
 }
 
 .online-provider-tab {
@@ -1981,6 +2072,7 @@ input[type="number"] {
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .online-provider-tab:hover {
@@ -2034,6 +2126,9 @@ input[type="number"] {
   padding: 14px 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--panel-border);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .online-options-bar {
@@ -2043,6 +2138,7 @@ input[type="number"] {
   flex-wrap: wrap;
   gap: 10px;
   padding: 4px 2px;
+  flex-shrink: 0;
 }
 
 .online-options-bar .option-field {
@@ -2209,20 +2305,27 @@ input[type="number"] {
 
 .bl-search-input-wrap,
 .search-input-group {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.input-wrapper {
+	position: relative;
+	flex: 1 1 auto;
+	min-width: 250px; 
 }
 
 .bl-search-icon,
 .search-input-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--text-muted);
-  pointer-events: none;
-  display: flex;
+    position: absolute;
+	left: 14px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--text-muted);
+	pointer-events: none;
+	display: flex;
+	align-items: center;
 }
 
 .bl-search-input,
@@ -2641,6 +2744,8 @@ input[type="number"] {
   flex-direction: column;
   overflow: hidden;
   background: var(--bg-color);
+  position: relative;
+  z-index: 20;
 }
 
 .song-editor-view-container {
@@ -3147,6 +3252,249 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: 5px;
+}
+
+/* Selector de guía original en la barra de herramientas de frases */
+.ref-mode-selector-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  transition: border-color 0.2s;
+}
+
+.ref-mode-selector-wrapper:hover {
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+.ref-mode-selector-wrapper .ref-mode-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #818cf8;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ref-mode-selector-wrapper .ref-mode-label .icon-svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ref-mode-select {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  padding: 3px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ref-mode-select:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 6px rgba(99, 102, 241, 0.3);
+}
+
+/* Fila de guía de referencia original en la tarjeta de frase */
+.phrase-ref-guide {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--text-main);
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.phrase-ref-guide .phrase-ref-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #818cf8;
+  flex-shrink: 0;
+}
+
+.phrase-ref-guide .phrase-ref-label .icon-svg {
+  width: 12px;
+  height: 12px;
+}
+
+.phrase-ref-guide .phrase-ref-text {
+  font-weight: 600;
+  color: #f1f5f9;
+  word-break: break-word;
+}
+
+.phrase-ref-guide .phrase-ref-text.is-blank-pause {
+  color: #f59e0b;
+  font-style: italic;
+  font-weight: 500;
+  background: rgba(245, 158, 11, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px dashed rgba(245, 158, 11, 0.35);
+}
+
+.phrase-ref-guide .phrase-ref-sep {
+  color: var(--text-muted);
+  opacity: 0.5;
+  user-select: none;
+}
+
+.phrase-ref-guide .phrase-ref-alt {
+  color: var(--lyrics-alt-color, #a5f3fc);
+  font-style: italic;
+  word-break: break-word;
+}
+
+.phrase-ref-guide .phrase-ref-alt.is-blank-alt {
+  color: var(--text-muted);
+  opacity: 0.65;
+  font-style: italic;
+}
+
+.phrase-ref-guide .phrase-ref-text.is-missing {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.phrase-ref-guide .phrase-ref-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.phrase-ref-guide .btn-copy-ref-line,
+.phrase-ref-guide .btn-translate-ref-line {
+  font-size: 0.72rem;
+  padding: 1px 7px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.phrase-ref-guide .btn-copy-ref-line:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.phrase-ref-guide .btn-translate-ref-line {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #c7d2fe;
+}
+
+.phrase-ref-guide .btn-translate-ref-line:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.35);
+  border-color: rgba(99, 102, 241, 0.7);
+  color: #fff;
+}
+
+.phrase-ref-guide .btn-translate-ref-line:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-auto-translate-all {
+  color: #c7d2fe;
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.btn-auto-translate-all:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.7);
+  color: #fff;
+}
+
+/* Overlay de traducción completa en curso */
+.translation-loading-backdrop {
+  z-index: 1200;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+}
+
+.translation-loading-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1201;
+  background: var(--panel-bg, #1e1e2e);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.2);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 90vw;
+  width: 440px;
+  text-align: left;
+  user-select: none;
+}
+
+.translation-loading-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3.5px solid rgba(99, 102, 241, 0.25);
+  border-top-color: #818cf8;
+  border-radius: 50%;
+  animation: bl-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.translation-loading-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.translation-loading-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main, #ffffff);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.translation-loading-title .icon-svg {
+  width: 18px;
+  height: 18px;
+  color: #818cf8;
+}
+
+.translation-loading-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.4;
 }
 
 .input-phrase-text {
@@ -3967,12 +4315,15 @@ input[type="number"] {
     flex-wrap: nowrap;
     padding-bottom: 8px;
     -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+    min-height: 42px;
   }
 
   .online-provider-tab {
     white-space: nowrap;
     font-size: 0.78rem;
     padding: 6px 11px;
+    flex-shrink: 0;
   }
 
   .genius-token-bar {
@@ -4057,6 +4408,99 @@ input[type="number"] {
     width: 95vw !important;
     max-width: 95vw !important;
     max-height: 90dvh !important;
+  }
+
+  /* Modal de Búsqueda Online en Móvil: controles que siguen el scroll y dan espacio a los resultados */
+  .online-lyrics-modal-dialog {
+    height: 90dvh !important;
+  }
+
+  .online-lyrics-modal-dialog .modal-header {
+    padding: 10px 14px;
+  }
+
+  .online-lyrics-modal-dialog .modal-title {
+    font-size: 1.05rem;
+  }
+
+  .online-lyrics-modal-dialog .modal-header .subtitle {
+    display: none;
+  }
+
+  .online-lyrics-modal-dialog .online-modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .online-lyrics-modal-dialog .online-results-container {
+    overflow-y: visible !important;
+    flex: none !important;
+    height: auto !important;
+  }
+
+  .online-providers-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 2px 8px 2px;
+    gap: 6px;
+    scrollbar-width: none;
+    flex-shrink: 0 !important;
+    min-height: 44px !important;
+    position: relative;
+    z-index: 2;
+  }
+
+  .online-providers-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .online-provider-tab {
+    flex-shrink: 0 !important;
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .online-inputs-container {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-shrink: 0 !important;
+    position: relative;
+    z-index: 1;
+  }
+
+  .search-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .search-input-group .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .search-hint-text {
+    font-size: 0.74rem;
+    margin: 2px 0 0;
+  }
+
+  .online-options-bar {
+    gap: 6px;
+    padding: 2px 0;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-online-scroll-top {
+    bottom: 64px;
+    right: 14px;
+    padding: 7px 12px;
+    font-size: 0.76rem;
   }
 }
 
@@ -4378,6 +4822,66 @@ input[type="number"] {
     width: 96vw !important;
     max-width: 96vw !important;
     max-height: 94dvh !important;
+  }
+
+  .online-lyrics-modal-dialog {
+    height: 94dvh !important;
+  }
+
+  .online-lyrics-modal-dialog .modal-header {
+    padding: 6px 12px !important;
+  }
+
+  .online-lyrics-modal-dialog .modal-title {
+    font-size: 0.95rem !important;
+  }
+
+  .online-lyrics-modal-dialog .modal-header .subtitle {
+    display: none !important;
+  }
+
+  .online-lyrics-modal-dialog .online-modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+
+  .online-lyrics-modal-dialog .online-results-container {
+    overflow-y: visible !important;
+    flex: none !important;
+    height: auto !important;
+  }
+
+  .online-lyrics-modal-dialog .online-providers-bar {
+    padding: 2px 2px 6px 2px !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+    min-height: 34px !important;
+    position: relative;
+    z-index: 2;
+  }
+
+  .online-lyrics-modal-dialog .online-provider-tab {
+    padding: 4px 8px !important;
+    font-size: 0.74rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .online-lyrics-modal-dialog .online-inputs-container {
+    padding: 8px 10px !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+    position: relative;
+    z-index: 1;
+  }
+
+  .online-lyrics-modal-dialog .btn-online-scroll-top {
+    bottom: 54px !important;
+    right: 12px !important;
+    padding: 5px 10px !important;
+    font-size: 0.74rem !important;
   }
 
   .modal-footer {
