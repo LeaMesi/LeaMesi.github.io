@@ -39,7 +39,8 @@ describe('views/icons.js', () => {
       'iconSkipForward',
       'iconShuffle',
       'iconListMusic',
-      'iconListPlus'
+      'iconListPlus',
+      'iconEye'
     ]
 
     requiredIcons.forEach(iconName => {

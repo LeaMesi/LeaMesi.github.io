@@ -119,4 +119,140 @@ describe('views/songEditorView.js', () => {
     expect(jsonIdx).toBeLessThan(yamlIdx)
     expect(yamlIdx).toBeLessThan(saveIdx)
   })
+
+  describe('Guía de referencia de frase original al traducir', () => {
+    const bilingualSong = {
+      id: 10,
+      title: 'Canción Bilingüe',
+      artist: 'Artista Bilingüe',
+      lyrics_data: {
+        languages: [
+          {
+            code: 'ja',
+            name: 'Japonés (Original)',
+            isMain: true,
+            lines: [
+              {
+                id: 'l1',
+                startTime: 1.0,
+                endTime: 4.0,
+                text: '夜に駆ける',
+                altText: 'Yoru ni kakeru'
+              },
+              {
+                id: 'l2',
+                startTime: 5.0,
+                endTime: 7.0,
+                text: '', // Pausa instrumental
+                altText: ''
+              }
+            ]
+          },
+          {
+            code: 'es',
+            name: 'Español (Traducción)',
+            isMain: false,
+            lines: [
+              {
+                id: 'l-es-1',
+                startTime: 1.0,
+                endTime: 4.0,
+                text: 'Correr en la noche'
+              },
+              {
+                id: 'l-es-2',
+                startTime: 5.0,
+                endTime: 7.0,
+                text: ''
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+    it('no muestra guía de referencia cuando se está en el idioma principal', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(bilingualSong)
+
+      // Por defecto pestaña 0 (Japonés, isMain: true)
+      const refGuides = container.querySelectorAll('.phrase-ref-guide')
+      expect(refGuides.length).toBe(0)
+
+      const refSelector = container.querySelector('#select-translation-ref-mode')
+      expect(refSelector).toBeNull()
+    })
+
+    it('muestra la guía con texto original y alternativo en pestaña de traducción', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(bilingualSong)
+
+      // Cambiar a pestaña 1 (Español, traducción)
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      expect(tabs.length).toBe(2)
+      tabs[1].click()
+
+      // Selector de modo de referencia debe estar presente
+      const refSelector = container.querySelector('#select-translation-ref-mode')
+      expect(refSelector).not.toBeNull()
+      expect(refSelector.value).toBe('both')
+
+      const refGuides = container.querySelectorAll('.phrase-ref-guide')
+      expect(refGuides.length).toBe(2)
+
+      // Verso 1: muestra texto original y romaji
+      expect(refGuides[0].textContent).toContain('夜に駆ける')
+      expect(refGuides[0].textContent).toContain('Yoru ni kakeru')
+
+      // Verso 2: texto original en blanco se identifica explícitamente como pausa
+      expect(refGuides[1].textContent).toContain('Pausa / Verso en blanco')
+    })
+
+    it('permite cambiar el modo a "text", "alt" o "none"', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(bilingualSong)
+
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      const refSelector = container.querySelector('#select-translation-ref-mode')
+
+      // 1. Modo solo texto
+      refSelector.value = 'text'
+      refSelector.dispatchEvent(new Event('change'))
+
+      let guide1 = container.querySelector('.phrase-ref-guide')
+      expect(guide1.textContent).toContain('夜に駆ける')
+      expect(guide1.textContent).not.toContain('Yoru ni kakeru')
+
+      // 2. Modo solo alternativo
+      refSelector.value = 'alt'
+      refSelector.dispatchEvent(new Event('change'))
+
+      guide1 = container.querySelector('.phrase-ref-guide')
+      expect(guide1.textContent).not.toContain('夜に駆ける')
+      expect(guide1.textContent).toContain('Yoru ni kakeru')
+
+      // 3. Modo desactivado (none)
+      refSelector.value = 'none'
+      refSelector.dispatchEvent(new Event('change'))
+
+      expect(container.querySelectorAll('.phrase-ref-guide').length).toBe(0)
+    })
+
+    it('permite copiar el texto original del verso a la traducción con el botón Copiar', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(bilingualSong)
+
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      const copyBtn = container.querySelector('.btn-copy-ref-line')
+      expect(copyBtn).not.toBeNull()
+      copyBtn.click()
+
+      const phraseInput = container.querySelector('.input-phrase-text')
+      expect(phraseInput.value).toBe('夜に駆ける')
+    })
+  })
 })

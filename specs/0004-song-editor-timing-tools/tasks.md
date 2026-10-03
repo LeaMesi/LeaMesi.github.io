@@ -27,6 +27,11 @@
   - Algoritmo `calculateSyllableWeight` que pondera diptongos/triptongos, acentuación tónica, apertura vocálica, codas consonánticas, cesuras y alargamiento de final de verso (phrase-final lengthening).
   - Actualización de `autoDistributeSyllables` con ponderación fonética por defecto y preservación de modo equitativo (`{ mode: 'equal' }`).
   - Integración en `src/views/songEditorView.js` (tooltips claros, mensajes de estado reactivos y distribución automática en silabeo y palabras).
+- [x] **7.10. Guía de Referencia de Frase Original al Traducir (`src/views/songEditorView.js` y `src/style.css`):**
+  - Visualización contextual de la frase original (texto original y texto alternativo/Romaji) en cada tarjeta de verso al editar idiomas de traducción.
+  - Identificación explícita de versos vacíos como `⏸ [Pausa / Verso en blanco]` para evitar desfasajes y confusiones al traducir canciones con pausas instrumentales.
+  - Selector general de visualización en la barra de herramientas con 4 modos: Ambos (Original y Alternativo), Solo texto original, Solo alternativo o Desactivado, con persistencia en `localStorage`.
+  - Botón de copia directa (`Copiar`) para transferir el texto original al verso traducido en un clic.
 
 ---
 

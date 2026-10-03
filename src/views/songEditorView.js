@@ -18,7 +18,9 @@ import {
   iconChevronDown,
   iconMic,
   iconDownload,
-  iconSparkles
+  iconSparkles,
+  iconGlobe,
+  iconEye
 } from './icons.js'
 import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 
@@ -29,6 +31,7 @@ export function createSongEditorView({
   onGoToMenu,
   onEnterLyricsMode
 }) {
+  const STORAGE_KEY_REF_MODE = 'saranga_editor_translation_ref_mode'
   let currentSong = null
   let activeLangIndex = 0
   let expandedLineIndices = new Set()
@@ -39,6 +42,14 @@ export function createSongEditorView({
   let isAddLanguageModalOpen = false
   let isEditLanguageModalOpen = false
   let previewTimer = null
+  let translationRefMode = 'both' // 'both' | 'text' | 'alt' | 'none'
+
+  try {
+    const savedRefMode = localStorage.getItem(STORAGE_KEY_REF_MODE)
+    if (['both', 'text', 'alt', 'none'].includes(savedRefMode)) {
+      translationRefMode = savedRefMode
+    }
+  } catch (_) {}
 
   function getBlankSongTemplate() {
     return {
@@ -173,6 +184,8 @@ export function createSongEditorView({
 
     const activeLang = getActiveLanguage()
     const languages = currentSong.lyrics_data.languages || []
+    const mainLang = languages.find(l => l.isMain) || languages[0]
+    const isTranslation = Boolean(activeLang && mainLang && activeLang !== mainLang)
     const lines = activeLang?.lines || []
     const videos = currentSong.videos || []
     const isNew = !currentSong.id
@@ -211,6 +224,57 @@ export function createSongEditorView({
         const isExpanded = expandedLineIndices.has(lineIdx)
         const sylCount = line.syllables?.length || 0
         const duration = Math.max(0, (line.endTime || 0) - (line.startTime || 0))
+
+        // Generar guía de referencia de la frase original si se está traduciendo
+        let refGuideHtml = ''
+        if (isTranslation && translationRefMode !== 'none') {
+          const refLine = mainLang?.lines?.[lineIdx]
+          if (refLine) {
+            const refText = (refLine.text || '').trim()
+            const refAltText = (refLine.altText || refLine.romaji || '').trim()
+            const showText = translationRefMode === 'text' || translationRefMode === 'both'
+            const showAlt = translationRefMode === 'alt' || translationRefMode === 'both'
+
+            refGuideHtml = `
+              <div class="phrase-ref-guide" data-line-idx="${lineIdx}" title="Referencia del idioma original (${escapeHtml(mainLang.name || 'Original')}) para el verso #${lineIdx + 1}">
+                <span class="phrase-ref-label">
+                  ${iconGlobe} ${escapeHtml(mainLang.name || 'Original')} #${lineIdx + 1}:
+                </span>
+
+                ${showText ? `
+                  <span class="phrase-ref-text ${!refText ? 'is-blank-pause' : ''}" title="${!refText ? 'En el original este verso está en blanco (pausa instrumental)' : 'Texto original'}">
+                    ${refText ? escapeHtml(refText) : '⏸ [Pausa / Verso en blanco]'}
+                  </span>
+                ` : ''}
+
+                ${showText && showAlt && refAltText && refText ? `
+                  <span class="phrase-ref-sep">•</span>
+                ` : ''}
+
+                ${showAlt ? `
+                  ${refAltText ? `
+                    <span class="phrase-ref-alt" title="Texto alternativo fonético">${escapeHtml(refAltText)}</span>
+                  ` : (translationRefMode === 'alt' ? `
+                    <span class="phrase-ref-alt is-blank-alt" title="Sin texto alternativo">(Sin texto alternativo)</span>
+                  ` : '')}
+                ` : ''}
+
+                <button type="button" class="btn-copy-ref-line" data-line-idx="${lineIdx}" title="Copiar texto del verso original a este campo">
+                  Copiar
+                </button>
+              </div>
+            `
+          } else {
+            refGuideHtml = `
+              <div class="phrase-ref-guide is-missing" data-line-idx="${lineIdx}" title="No hay un verso correspondiente en ${escapeHtml(mainLang?.name || 'Original')}">
+                <span class="phrase-ref-label">
+                  ${iconGlobe} ${escapeHtml(mainLang?.name || 'Original')} #${lineIdx + 1}:
+                </span>
+                <span class="phrase-ref-text is-missing">(Sin verso correspondiente en original)</span>
+              </div>
+            `
+          }
+        }
 
         const syllablesListHtml = (line.syllables || []).map((syl, sylIdx) => {
           return `
@@ -274,17 +338,18 @@ export function createSongEditorView({
               <div class="phrase-index-badge">#${lineIdx + 1}</div>
               
               <div class="phrase-main-input-group">
+                ${refGuideHtml}
                 <input
                   type="text"
                   class="input-phrase-text"
-                  placeholder="Verso / caracteres originales..."
+                  placeholder="${isTranslation ? `Traducción del verso #${lineIdx + 1}...` : 'Verso / caracteres originales...'}"
                   value="${escapeHtml(line.text)}"
                   data-line-idx="${lineIdx}"
                 />
                 <input
                   type="text"
                   class="input-phrase-alt"
-                  placeholder="Texto alternativo (Romaji / Fonética)..."
+                  placeholder="${isTranslation ? 'Texto alternativo / notas (opcional)...' : 'Texto alternativo (Romaji / Fonética)...'}"
                   value="${escapeHtml(line.altText || line.romaji || '')}"
                   title="Texto alternativo en alfabeto latino (ej. Romaji para japonés o transliteración)"
                   data-line-idx="${lineIdx}"
@@ -610,6 +675,19 @@ export function createSongEditorView({
               <div class="phrases-count">
                 <span>Versos en <strong>${escapeHtml(activeLang?.name || 'Idioma')}</strong> (${lines.length})</span>
                 ${totalSylCount > 0 ? `<span class="phrases-syl-count">• <strong>${totalSylCount}</strong> sílaba(s)</span>` : ''}
+                ${isTranslation ? `
+                  <div class="ref-mode-selector-wrapper" title="Configurar visualización de la frase original de referencia">
+                    <label for="select-translation-ref-mode" class="ref-mode-label">
+                      ${iconEye} Guía original:
+                    </label>
+                    <select id="select-translation-ref-mode" class="ref-mode-select" title="Seleccionar qué mostrar como referencia mientras traduces">
+                      <option value="both" ${translationRefMode === 'both' ? 'selected' : ''}>Ambos (Original + Alternativo)</option>
+                      <option value="text" ${translationRefMode === 'text' ? 'selected' : ''}>Solo texto original</option>
+                      <option value="alt" ${translationRefMode === 'alt' ? 'selected' : ''}>Solo texto alternativo</option>
+                      <option value="none" ${translationRefMode === 'none' ? 'selected' : ''}>Desactivado</option>
+                    </select>
+                  </div>
+                ` : ''}
               </div>
 
               <div class="phrases-tools">
@@ -1006,6 +1084,8 @@ export function createSongEditorView({
 
     // 6. Frases / Versos
     const activeLang = getActiveLanguage()
+    const languages = currentSong.lyrics_data.languages || []
+    const mainLang = languages.find(l => l.isMain) || languages[0]
     const lines = activeLang?.lines || []
 
     const addPhraseTopBtn = containerElement.querySelector('#btn-add-phrase-top')
@@ -1033,6 +1113,18 @@ export function createSongEditorView({
     if (addPhraseBottomBtn) addPhraseBottomBtn.addEventListener('click', addLineHandler)
     if (addFirstLineBtn) addFirstLineBtn.addEventListener('click', addLineHandler)
 
+    // Selector de modo de referencia de traducción
+    const refModeSelect = containerElement.querySelector('#select-translation-ref-mode')
+    if (refModeSelect) {
+      refModeSelect.addEventListener('change', (e) => {
+        translationRefMode = e.target.value
+        try {
+          localStorage.setItem(STORAGE_KEY_REF_MODE, translationRefMode)
+        } catch (_) {}
+        render()
+      })
+    }
+
     const phraseCards = containerElement.querySelectorAll('.phrase-editor-card')
     phraseCards.forEach(card => {
       const lIdx = Number(card.dataset.lineIdx)
@@ -1050,6 +1142,21 @@ export function createSongEditorView({
       const moveUpBtn = card.querySelector('.btn-move-line-up')
       const moveDownBtn = card.querySelector('.btn-move-line-down')
       const deleteLineBtn = card.querySelector('.btn-delete-line')
+      const copyRefBtn = card.querySelector('.btn-copy-ref-line')
+
+      if (copyRefBtn) {
+        copyRefBtn.addEventListener('click', () => {
+          const refLine = mainLang?.lines?.[lIdx]
+          if (refLine) {
+            line.text = refLine.text || ''
+            if (refLine.altText) {
+              line.altText = refLine.altText
+            }
+            render()
+            showStatus(`Texto original copiado al verso #${lIdx + 1}.`, 'info')
+          }
+        })
+      }
 
       // Auto-división y distribución
       const autoSyllablesBtn = card.querySelector('.btn-auto-syllables')

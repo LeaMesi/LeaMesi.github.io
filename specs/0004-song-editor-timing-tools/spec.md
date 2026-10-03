@@ -28,3 +28,8 @@ El Editor de Canciones (`src/views/songEditorView.js`) proporciona un entorno de
 7. **Pestañas Multilingües:**
    - Creación ilimitada de idiomas con opción de clonar las marcas temporales del idioma original para acelerar traducciones.
    - Edición interactiva de nombre y código ISO al pulsar sobre la pestaña activa.
+8. **Guía de Referencia de Frase Original para Traducción:**
+   - Visualización contextual del verso original (texto original y texto alternativo/Romaji) al editar pistas de traducción.
+   - Identificación explícita de versos vacíos como `⏸ [Pausa / Verso en blanco]` para mantener correspondencia precisa en pausas instrumentales.
+   - Selector general de referencia en la barra de herramientas de versos con 4 modos: Ambos (Original + Alternativo), Solo texto original, Solo texto alternativo o Desactivado, con persistencia en `localStorage`.
+   - Botón de copia rápida para transferir el texto original al verso traducido con un solo toque.
