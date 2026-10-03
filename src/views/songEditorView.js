@@ -350,13 +350,13 @@ export function createSongEditorView({
                   </div>
 
                   <div class="syllables-quick-actions">
-                    <button class="btn btn-xs btn-outline btn-auto-syllables" data-line-idx="${lineIdx}" title="Dividir frase automáticamente en sílabas en español con tiempos distribuidos">
+                    <button class="btn btn-xs btn-outline btn-auto-syllables" data-line-idx="${lineIdx}" title="Dividir frase automáticamente en sílabas con ponderación fonética inteligente">
                       Silabear Automático
                     </button>
                     <button class="btn btn-xs btn-outline btn-auto-words" data-line-idx="${lineIdx}" title="Dividir frase por palabras">
                       Dividir en Palabras
                     </button>
-                    <button class="btn btn-xs btn-outline btn-distribute-times" data-line-idx="${lineIdx}" title="Distribuir equitativamente los tiempos entre las sílabas existentes">
+                    <button class="btn btn-xs btn-outline btn-distribute-times" data-line-idx="${lineIdx}" title="Distribuir tiempos entre las sílabas con ponderación fonética inteligente">
                       ${iconClock} Distribuir Tiempos
                     </button>
                     <button class="btn btn-xs btn-primary btn-add-syllable" data-line-idx="${lineIdx}">
@@ -1164,7 +1164,7 @@ export function createSongEditorView({
           }
           const rawSyllables = splitPhraseIntoSyllables(line.text)
           line.syllables = autoDistributeSyllables(rawSyllables, line.startTime, line.endTime)
-          showStatus(`Frase #${lIdx + 1} dividida en ${line.syllables.length} sílaba(s).`, 'success')
+          showStatus(`Frase #${lIdx + 1} dividida en ${line.syllables.length} sílaba(s) con ponderación fonética.`, 'success')
         })
       }
 
@@ -1176,7 +1176,7 @@ export function createSongEditorView({
           }
           const rawWords = splitPhraseIntoWords(line.text)
           line.syllables = autoDistributeSyllables(rawWords, line.startTime, line.endTime)
-          showStatus(`Frase #${lIdx + 1} dividida en ${line.syllables.length} palabra(s).`, 'success')
+          showStatus(`Frase #${lIdx + 1} dividida en ${line.syllables.length} palabra(s) con ponderación fonética.`, 'success')
         })
       }
 
@@ -1187,7 +1187,7 @@ export function createSongEditorView({
             return
           }
           line.syllables = autoDistributeSyllables(line.syllables, line.startTime, line.endTime)
-          showStatus(`Tiempos distribuidos equitativamente para el verso #${lIdx + 1}.`, 'success')
+          showStatus(`Tiempos calculados con ponderación fonética para el verso #${lIdx + 1}.`, 'success')
         })
       }
 

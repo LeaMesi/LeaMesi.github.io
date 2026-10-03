@@ -18,10 +18,10 @@ El Editor de Canciones (`src/views/songEditorView.js`) proporciona un entorno de
    - Adición, reordenamiento y eliminación de versos.
    - Configuración de `startTime` y `endTime` con botón de preescucha puntual del intervalo de audio.
    - Modal de importación rápida ("Pegar Letra Completa") para generar automáticamente versos a partir de texto plano.
-5. **Edición Silábica y Distribución Proporcional:**
+5. **Edición Silábica y Distribución Proporcional con Ponderación Fonética Inteligente:**
    - Separación silábica fonética automática vía `syllablesHelper.js`.
    - Ajuste fino individual de inicio y duración por sílaba.
-   - Algoritmo de auto-distribución proporcional en el intervalo de la frase.
+   - Algoritmo de auto-distribución proporcional basado en ponderación fonética musical (`calculateSyllableWeight`), asignando mayor duración relativa a diptongos, vocales abiertas, acentos tónicos y alargamiento de final de verso (*phrase-final lengthening*), con soporte alternativo de modo equitativo (`mode: 'equal'`).
 6. **Herramientas de Borrado de Sílabas:**
    - Borrado por frase individual en el encabezado de la tarjeta y en la barra rápida.
    - Borrado masivo para todas las frases del idioma activo con confirmación obligatoria previa (`window.confirm`), informando el número total de versos y sílabas afectadas.

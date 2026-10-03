@@ -3,6 +3,7 @@ import {
   syllabifyWord,
   splitPhraseIntoSyllables,
   splitPhraseIntoWords,
+  calculateSyllableWeight,
   autoDistributeSyllables
 } from '../../src/lyrics/syllablesHelper.js'
 
@@ -94,15 +95,50 @@ describe('lyrics/syllablesHelper.js', () => {
     })
   })
 
+  describe('calculateSyllableWeight', () => {
+    it('retorna peso por defecto para textos vacíos o nulos', () => {
+      expect(calculateSyllableWeight('')).toBe(1.0)
+      expect(calculateSyllableWeight('   ')).toBe(1.0)
+      expect(calculateSyllableWeight(null)).toBe(1.0)
+    })
+
+    it('asigna mayor peso a diptongos y triptongos que a vocales simples', () => {
+      const singleVowel = calculateSyllableWeight('de', 0, 3)
+      const diphthong = calculateSyllableWeight('ciel', 0, 3)
+      const triphthong = calculateSyllableWeight('buey', 0, 3)
+
+      expect(diphthong).toBeGreaterThan(singleVowel)
+      expect(triphthong).toBeGreaterThan(diphthong)
+    })
+
+    it('asigna mayor peso a sílabas con acento ortográfico tónico', () => {
+      const unaccented = calculateSyllableWeight('co', 0, 3)
+      const accented = calculateSyllableWeight('cá', 0, 3)
+      expect(accented).toBeGreaterThan(unaccented)
+    })
+
+    it('aplica alargamiento de final de frase (phrase-final lengthening)', () => {
+      const internalSyl = calculateSyllableWeight('mar', 0, 3)
+      const finalSyl = calculateSyllableWeight('mar', 2, 3)
+      expect(finalSyl).toBeGreaterThan(internalSyl)
+    })
+
+    it('asigna peso adicional por signos de puntuación o cesura', () => {
+      const withoutComma = calculateSyllableWeight('sol', 0, 3)
+      const withComma = calculateSyllableWeight('sol,', 0, 3)
+      expect(withComma).toBeGreaterThan(withoutComma)
+    })
+  })
+
   describe('autoDistributeSyllables', () => {
     it('retorna array vacío si la lista de sílabas no es válida', () => {
       expect(autoDistributeSyllables([], 0, 5)).toEqual([])
       expect(autoDistributeSyllables(null, 0, 5)).toEqual([])
     })
 
-    it('distribuye proporcionalmente los tiempos dentro del rango [startTime, endTime]', () => {
+    it('distribuye con modo equitativo cuando se especifica mode: "equal"', () => {
       const rawSyls = ['Ca', 'mi', 'nar']
-      const distributed = autoDistributeSyllables(rawSyls, 10, 13)
+      const distributed = autoDistributeSyllables(rawSyls, 10, 13, { mode: 'equal' })
 
       expect(distributed.length).toBe(3)
       // Duración total = 3 segundos, 3 sílabas => step = 1.0s
@@ -118,13 +154,36 @@ describe('lyrics/syllablesHelper.js', () => {
       expect(distributed[0].id).toBeDefined()
     })
 
+    it('distribuye inteligentemente con ponderación fonética por defecto', () => {
+      const rawSyls = ['Ca', 'mi', 'nar']
+      const distributed = autoDistributeSyllables(rawSyls, 10, 13)
+
+      expect(distributed.length).toBe(3)
+      // Comienza en startTime exacto
+      expect(distributed[0].startTime).toBe(10)
+      // Orden secuencial estricto
+      expect(distributed[0].startTime).toBeLessThan(distributed[1].startTime)
+      expect(distributed[1].startTime).toBeLessThan(distributed[2].startTime)
+
+      // La sílaba final 'nar' tiene mayor peso por alargamiento final y consonantes que 'mi'
+      expect(distributed[2].duration).toBeGreaterThan(distributed[1].duration)
+
+      // Margen de duración y textos preservados
+      expect(distributed[0].text).toBe('Ca')
+      expect(distributed[1].text).toBe('mi')
+      expect(distributed[2].text).toBe('nar')
+      expect(distributed[0].id).toBeDefined()
+    })
+
     it('soporta elementos que ya sean objetos con text', () => {
       const objSyls = [{ text: 'Hola ' }, { text: 'mundo' }]
       const distributed = autoDistributeSyllables(objSyls, 0, 2)
       expect(distributed[0].text).toBe('Hola ')
       expect(distributed[1].text).toBe('mundo')
       expect(distributed[0].startTime).toBe(0)
-      expect(distributed[1].startTime).toBe(1)
+      expect(distributed[1].startTime).toBeGreaterThan(0)
+      expect(distributed[0].startTime).toBeLessThan(distributed[1].startTime)
+      expect(distributed[1].startTime + distributed[1].duration).toBeLessThanOrEqual(2.05)
     })
   })
 })

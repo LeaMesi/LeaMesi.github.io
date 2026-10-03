@@ -23,6 +23,10 @@
   - Botón con confirmación obligatoria mediante `window.confirm` y contador dinámico.
 - [x] **20.1. Reubicación de Botones de Exportación:**
   - Botones de exportar JSON y YAML trasladados al encabezado del editor para mayor coherencia.
+- [x] **7.9. Ponderación Fonética Inteligente en Tiempos de Sílabas (`src/lyrics/syllablesHelper.js`):**
+  - Algoritmo `calculateSyllableWeight` que pondera diptongos/triptongos, acentuación tónica, apertura vocálica, codas consonánticas, cesuras y alargamiento de final de verso (phrase-final lengthening).
+  - Actualización de `autoDistributeSyllables` con ponderación fonética por defecto y preservación de modo equitativo (`{ mode: 'equal' }`).
+  - Integración en `src/views/songEditorView.js` (tooltips claros, mensajes de estado reactivos y distribución automática en silabeo y palabras).
 
 ---
 
