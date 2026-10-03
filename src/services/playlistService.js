@@ -318,12 +318,41 @@ export function createPlaylistService({ initialSongs = [], storageKey = 'saranga
     },
 
     /**
+     * Sincroniza o activa una canción en la playlist.
+     * Si ya existe en la lista, actualiza sus metadatos y su posición activa como actual.
+     * Si no existe en la lista, se añade automáticamente al final y se selecciona como actual.
+     *
+     * @param {object} song
+     * @returns {object|null} La canción normalizada activa
+     */
+    setCurrentSong(song) {
+      const normalized = normalizePlaylistSong(song)
+      if (!normalized) return null
+
+      const idx = songs.findIndex(s => Number(s.id) === Number(normalized.id))
+      if (idx !== -1) {
+        songs[idx] = normalized
+        currentIndex = idx
+        notify()
+        return songs[currentIndex]
+      }
+
+      // No está en la playlist: añadir automáticamente al final y activar como actual
+      songs.push(normalized)
+      currentIndex = songs.length - 1
+      notify()
+      return normalized
+    },
+
+    /**
      * Sincroniza la posición activa si una canción comenzó a sonar desde fuera.
+     * Si no se encuentra y se proporciona el objeto `song`, se añade automáticamente.
      *
      * @param {number|string} songId
+     * @param {object} [song]
      * @returns {boolean}
      */
-    setCurrentSongById(songId) {
+    setCurrentSongById(songId, song = null) {
       const idx = songs.findIndex(s => Number(s.id) === Number(songId))
       if (idx !== -1) {
         if (currentIndex !== idx) {
@@ -331,6 +360,10 @@ export function createPlaylistService({ initialSongs = [], storageKey = 'saranga
           notify()
         }
         return true
+      }
+      if (song) {
+        const res = this.setCurrentSong(song)
+        return Boolean(res)
       }
       return false
     },

@@ -197,4 +197,31 @@ describe('views/floatingPlayerView.js', () => {
     expect(durTimeEl?.textContent).toBe('03:00')
     expect(floatingPlayer.getIsVisible()).toBe(true)
   })
+
+  it('actualiza adecuadamente los botones anterior y siguiente del minireproductor ante cambios de playlist por auto-adición', () => {
+    const floatingPlayer = createFloatingPlayerView({ containerElement: container })
+    floatingPlayer.setSong({ id: 1, title: 'Still Alive', artist: 'GLaDOS' })
+    floatingPlayer.setVisible(true)
+
+    const btnPrev = container.querySelector('#btn-floating-prev')
+    const btnNext = container.querySelector('#btn-floating-next')
+
+    // Con solo 1 canción añadida: ambos deshabilitados
+    floatingPlayer.setPlaylistState({ hasNext: false, hasPrev: false })
+    expect(container.querySelector('#btn-floating-prev')?.disabled).toBe(true)
+    expect(container.querySelector('#btn-floating-next')?.disabled).toBe(true)
+
+    // Entrar en una segunda canción (auto-añadida al final): anterior habilitado, siguiente deshabilitado
+    floatingPlayer.setPlaylistState({ hasNext: false, hasPrev: true })
+    floatingPlayer.setSong({ id: 2, title: 'Idol', artist: 'YOASOBI' })
+    expect(container.querySelector('#btn-floating-prev')?.disabled).toBe(false)
+    expect(container.querySelector('#btn-floating-next')?.disabled).toBe(true)
+
+    // Al regresar a la primera canción: anterior deshabilitado, siguiente habilitado
+    floatingPlayer.setPlaylistState({ hasNext: true, hasPrev: false })
+    floatingPlayer.setSong({ id: 1, title: 'Still Alive', artist: 'GLaDOS' })
+    expect(container.querySelector('#btn-floating-prev')?.disabled).toBe(true)
+    expect(container.querySelector('#btn-floating-next')?.disabled).toBe(false)
+  })
 })
+

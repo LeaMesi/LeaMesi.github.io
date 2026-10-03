@@ -212,5 +212,32 @@ describe('views/controlsView.js', () => {
     plBtn.click()
     expect(onOpenPlaylist).toHaveBeenCalled()
   })
+
+  it('actualiza correctamente los botones de controlsView cuando una canción se añade automáticamente mediante playlistService', () => {
+    const controls = createControlsView({ containerElement: container })
+    controls.render()
+
+    const prevBtn = container.querySelector('#btn-prev-song')
+    const nextBtn = container.querySelector('#btn-next-song')
+    const countBadge = container.querySelector('.playlist-badge-count')
+
+    // 1. Simular primera canción añadida a playlist
+    controls.setPlaylistState({ count: 1, hasNext: false, hasPrev: false })
+    expect(prevBtn.disabled).toBe(true)
+    expect(nextBtn.disabled).toBe(true)
+    expect(countBadge.textContent).toBe('1')
+
+    // 2. Simular segunda canción que no estaba y se añade automáticamente al final
+    controls.setPlaylistState({ count: 2, hasNext: false, hasPrev: true })
+    expect(prevBtn.disabled).toBe(false) // La primera es anterior
+    expect(nextBtn.disabled).toBe(true)
+    expect(countBadge.textContent).toBe('2')
+
+    // 3. Volver a la primera canción: la segunda pasa a ser siguiente
+    controls.setPlaylistState({ count: 2, hasNext: true, hasPrev: false })
+    expect(prevBtn.disabled).toBe(true)
+    expect(nextBtn.disabled).toBe(false)
+    expect(countBadge.textContent).toBe('2')
+  })
 })
 
