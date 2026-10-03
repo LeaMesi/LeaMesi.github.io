@@ -73,7 +73,6 @@ El código del proyecto debe ser homogéneo y seguir las siguientes directrices 
 * **Almacenamiento Local Autónomo:** La persistencia se gestiona en el cliente mediante **IndexedDB** a través de un servicio desacoplado (`src/services/db.js` y `src/services/songService.js`), eliminando la necesidad de login o verificación en backend.
 * **Intercambio Comunitario (Export / Import):** Proveer capacidades nativas de exportación e importación de canciones en formato JSON (`src/services/shareService.js`) para compartir creaciones entre usuarios sin requerir un servidor central.
 * **Compatibilidad con Estándar Lyricsfile (YAML 1.0):** Soporte bidireccional para importar y exportar archivos `.lyricsfile.yaml` ([especificación `tranxuanthang/lyricsfile`](https://github.com/tranxuanthang/lyricsfile/blob/main/SPECIFICATION.md)) mediante `src/services/lyricsfileService.js`, permitiendo importar canciones nuevas o integrar traducciones a temas ya existentes.
-* **Supabase como Catálogo Futuro Read-Only:** Cualquier conexión con Supabase a futuro será exclusivamente en modo **Solo Lectura** para consultar un catálogo oficial curado manualmente por el administrador, manteniendo la soberanía de escritura y edición en el entorno local del usuario.
 
 ---
 

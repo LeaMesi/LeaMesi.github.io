@@ -11,7 +11,6 @@
   - Configurar [`vite.config.js`](file:///home/hezztia/Documents/SarangaBaranga/vite.config.js) con `base: '/'` adecuado para el repositorio y dominio de usuario raíz `LeaMesi.github.io`.
 - [x] **0.2. Entorno y Repositorio Git:**
   - Configurar `.gitignore` para dependencias y builds (.env, .env.local).
-  - Creado `.env.example` reservado para futuro catálogo remoto Supabase.
 
 ---
 
@@ -57,8 +56,6 @@
   - Conversor de formato: `start_ms`/`end_ms` a segundos decimales y reconstrucción de `syllables` preservando espaciado de `words`.
   - Serializador inverso para exportar cualquier idioma a `.lyricsfile.yaml`.
   - Flujo de importación como nueva canción (`isMain: true`) o incorporación como traducción a canción existente (`isMain: false`).
-- [ ] **2.5. (Futuro / Pospuesto) Conector Supabase Read-Only (`src/services/supabaseCatalog.js`):**
-  - Conexión opcional de sólo lectura para consultar catálogo oficial administrado por el creador y clonar canciones a la base de datos local.
 
 ---
 
@@ -645,10 +642,13 @@
   - Soporte de parámetro `autoplay` en `mediaPlayer.loadSong(song, null, { autoplay })` y `loadSongIntoApp(songId, { autoplay })` resolviendo la pausa inadvertida de YouTube al avanzar o retroceder canciones.
   - Estilos de diseño glassmorphism (`backdrop-filter: blur(16px)`), sombras profundas y adaptación responsive móvil con safe areas.
 - [x] **27.4. Suite de Pruebas Automatizadas y Verificación de Compilación:**
-  - Creada suite unitaria [`tests/views/floatingPlayerView.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/views/floatingPlayerView.test.js) con 8 pruebas automáticas cubriendo renderizado, visibilidad, play/pause, restart, prev/next, volumen, mute y seek slider.
+  - Creada suite unitaria [`tests/views/floatingPlayerView.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/views/floatingPlayerView.test.js) con 9 pruebas automáticas cubriendo renderizado, visibilidad, play/pause, restart, prev/next, volumen, mute, seek slider y pre-carga en pausa.
   - Actualizada [`tests/player/mediaPlayer.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/player/mediaPlayer.test.js) con prueba de verificación de `autoplay: true`.
-  - Total de 24 suites de prueba y 213 pruebas ejecutadas y pasando exitosamente al 100%.
+  - Total de 24 suites de prueba y 214 pruebas ejecutadas y pasando exitosamente al 100%.
   - Compilación de producción con `npm run build` verificada sin errores.
+- [x] **27.5. Pre-carga Automática en Pausa de Canción Activa de la Playlist al Recargar ([`src/main.js`](file:///home/hezztia/Documents/SarangaBaranga/src/main.js)):**
+  - En la inicialización de la aplicación (`initApp`), se verifica si la playlist persistida en `localStorage` tiene una canción activa (`playlistService.getCurrentSong()`).
+  - Si existe, se precarga automáticamente en el sistema mediante `loadSongIntoApp(initialSong.id, { autoplay: false })`, haciendo que el reproductor flotante mini aparezca inmediatamente visible en la esquina inferior derecha con los datos del tema, duración, barra en `0:00` y botón en estado "Reproducir" sin iniciar reproducción de audio automática.
 
 
 
