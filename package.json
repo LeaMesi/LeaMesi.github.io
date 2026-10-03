@@ -20,7 +20,6 @@
     "vitest": "^5.0.3"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.117.2",
     "gsap": "^3.15.0",
     "idb": "^8.0.3",
     "js-yaml": "^5.4.2",

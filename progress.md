@@ -2,7 +2,7 @@
 
 > **Estado Global:** Arquitectura reorientada a **Persistencia Local en Navegador (IndexedDB)** y compartición mediante **Exportación/Importación JSON**. Enfoque activo en **Modo Sencillo / Básico**.  
 > **Última actualización:** 2026-10-02  
-> **Plataforma:** SPA Estática (GitHub Pages) + IndexedDB Local & Export/Import JSON (+ Catálogo Opcional Supabase Read-Only a futuro)
+> **Plataforma:** SPA Estática (GitHub Pages) + IndexedDB Local & Export/Import JSON
 
 ---
 
@@ -25,8 +25,6 @@
 * **Interoperabilidad con Estándar Abierto `lyricsfile` (YAML 1.0):**
   * Compatibilidad con la especificación de [tranxuanthang/lyricsfile](https://github.com/tranxuanthang/lyricsfile/blob/main/SPECIFICATION.md).
   * Permite importar archivos `.lyricsfile.yaml` (como canciones nuevas o como pistas de traducción adicionales) y exportar cualquier idioma a este formato abierto.
-* **Integración Futura con Supabase (Catálogo Solo Lectura):**
-  * Supabase se pospone para una etapa posterior y se utilizará exclusivamente en modo **Read-Only** para distribuir un catálogo curado por el autor, sin escritura abierta en el cliente.
 * **Mecanismo de Reproducción y Reloj Maestro:**
   * Soporte para **YouTube IFrame API** (alternancia oficial / instrumental conservando `currentTime`) y audio nativo HTML5 (archivos locales o URLs).
 * **Despliegue Estático y Pipeline CI/CD (GitHub Pages):**
@@ -79,7 +77,6 @@
 | **Sistema de Playlist y Cola de Reproducción Dinámica** | 🟢 Operativo | `src/services/playlistService.js`, `src/views/playlistModal.js`, dock de controles (`#btn-prev-song`, `#btn-next-song`), encabezado reactivo con canción en curso y catálogo: cola de reproducción interactiva persistida en `localStorage`, adición/remoción/reordenamiento de canciones con botones arriba/abajo, modo aleatorio (shuffle con preservación de índice), reproducción ininterrumpida de audio de fondo al navegar o editar la cola, auto-avance al finalizar pista (`PLAYER_STATE.ENDED`), guardado de playlist como nueva biblioteca e importación de bibliotecas completas a la playlist en orden original o aleatorio. |
 | **Reproductor Flotante Mini (Modo Menú)** | 🟢 Operativo | `src/views/floatingPlayerView.js` fijado abajo a la derecha exclusivamente en la pantalla de catálogo/menú cuando hay una canción sonando o cargada: pre-carga automática en pausa al recargar la página según la canción activa en la playlist persistida, pausar/reproducir, volver a empezar (`0:00`), retroceder al anterior, pasar al siguiente (con reproducción automática fluida mediante `loadVideoById` / `autoplay: true`), control de volumen y botón silenciar (mute), barra interactiva de control de tiempo (seek slider) y acceso rápido a Modo Letra. |
 | **Suite de Pruebas Automatizadas (Vitest)** | 🟢 Operativo | 24 suites de pruebas unitarias y de integración (214 pruebas automatizadas al 100%) con Vitest, Happy-DOM y Fake-IndexedDB: cobertura integral de tiempos, silabeo fonético, transliteración fonética japonesa a Romaji con preservación de espacios, gestor multilingüe, motor de sincronización de letras, reproductor multimedia híbrido con offsets y opción de autoplay inmediato, persistencia relacional local (IndexedDB v3 con bibliotecas y canciones), servicio y modal de playlist, reproductor flotante mini con precarga en pausa, exportación/importación JSON y Lyricsfile YAML, paquetes de biblioteca con resolución de conflictos, configuración de temas, integración multi-motor online y todas las vistas interactivas (`basicViewer`, `controlsView`, `songMenuView`, `songEditorView`, `playlistModal`, `floatingPlayerView`, modales). |
-| **Catálogo Supabase (Read-Only)** | ⚪ Pospuesto | Reservado para fase futura como catálogo público de solo lectura administrado por el creador. |
 
 ---
 

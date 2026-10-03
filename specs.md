@@ -14,8 +14,6 @@ La aplicación está diseñada para operar como una SPA estática alojada en Git
 
 Para facilitar la colaboración y el intercambio entre la comunidad sin requerir un servidor centralizado que verifique contenido, el sistema incorpora capacidades de **Exportación e Importación de canciones en formato JSON**. De este modo, los usuarios pueden crear sus canciones localmente, exportarlas en un archivo y compartirlas fácilmente con otras personas para que las importen en sus propios navegadores.
 
-A futuro, se contempla la posibilidad de integrar **Supabase** de manera opcional y exclusivamente en modo **Solo Lectura (Read-Only)**, actuando como un catálogo público de canciones oficiales administradas directamente por el creador del proyecto (donde la escritura y curación la realiza únicamente el administrador).
-
 El reproductor musical admite enlaces a **videos de YouTube y canciones de YouTube Music (`music.youtube.com`)** (permitiendo asociar múltiples videos y pistas con offsets de sincronización individuales) así como archivos de audio locales o remotos, con control maestro de volumen y silenciado. Además, la aplicación se conecta con la API abierta de **BetterLyrics y Unison** para permitir la búsqueda instantánea de canciones sincronizadas con sílabas y traducciones automáticas desde la pantalla de inicio, precargándolas de forma inmediata en el editor de canciones.
 
 
@@ -85,7 +83,6 @@ Para garantizar la separación de responsabilidades, permitir exportar/importar 
   * **Importación:** Carga de archivos `.lyricsfile.yaml` creados en herramientas o repositorios externos, convirtiendo automáticamente marcas de milisegundos (`start_ms`, `end_ms`), texto plano (`plain`) y sincronización palabra por palabra (`words`). Permite crear una nueva canción o añadir el archivo como una traducción adicional a una canción existente.
   * **Exportación:** Posibilidad de exportar la pista lírica principal o cualquiera de las traducciones al formato estándar `.lyricsfile.yaml`.
 * **Importación Simple Drag & Drop:** Cualquier usuario puede arrastrar o seleccionar archivos JSON propios o archivos `.lyricsfile.yaml` externos; la aplicación valida la estructura y la almacena en el IndexedDB local de su navegador al instante.
-* **Futuro Catálogo Supabase (Solo Lectura):** Si a futuro se incorpora Supabase, será exclusivamente en modo de lectura para consultar un catálogo oficial mantenido por el administrador, permitiendo al usuario descargar canciones del catálogo a su almacenamiento local.
 
 ---
 
@@ -111,5 +108,4 @@ Para garantizar la separación de responsabilidades, permitir exportar/importar 
 * **Soporte Multimedia Universal:** Soporte integral para videos y canciones de **YouTube y YouTube Music (`music.youtube.com`)** mediante la **YouTube IFrame Player API**, con soporte multi-video, cálculo dinámico de offsets, control maestro de volumen (0-100), botón de silenciado y reproducción de archivos de audio nativos (`<audio>` HTML5 / Blob).
 * **Integración con API de Letras Comunitarias:** Búsqueda en vivo y obtención de letras en formato TTML/LRC y traducciones automáticas mediante la API abierta de **BetterLyrics & Unison**, con precarga completa en el editor de canciones.
 * **Sincronización:** Margen de error inferior a 50 milisegundos entre el tiempo de reproducción reportado y la actualización visual de la letra.
-* **Preparación para Catálogo Remoto Opcional:** Arquitectura de repositorio desacoplada para admitir en el futuro una fuente de canciones en Supabase configurada en modo **Read-Only**.
 

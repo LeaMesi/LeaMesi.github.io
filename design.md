@@ -2,7 +2,7 @@
 
 > **Arquitectura del Sistema y Patrones de Software**  
 > **Versión:** 2.8.0  
-> **Plataforma:** SPA Estática (GitHub Pages / `usuario.github.io`) + Persistencia Local en Navegador (IndexedDB), Sistema de Bibliotecas y Playlists, Intercambio JSON & Compatibilidad con Estándar Abierto `lyricsfile` (.lyricsfile.yaml) (+ Catálogo Opcional Supabase Read-Only a futuro)
+> **Plataforma:** SPA Estática (GitHub Pages / `usuario.github.io`) + Persistencia Local en Navegador (IndexedDB), Sistema de Bibliotecas y Playlists, Intercambio JSON & Compatibilidad con Estándar Abierto `lyricsfile` (.lyricsfile.yaml)
 
 ---
 
@@ -15,7 +15,6 @@ La persistencia de datos y el catálogo de canciones se gestiona primariamente *
 Para permitir compartir creaciones e interoperar con fuentes externas sin requerir login ni backend de validación de subidas:
 1. **Exportación / Importación JSON:** Los usuarios pueden exportar sus canciones a archivos JSON portables (`song-package.json`) y compartirlos. Al importar un archivo, el sistema lo valida y lo almacena localmente en IndexedDB.
 2. **Compatibilidad con Estándar `lyricsfile` (YAML):** Soporte nativo para importar y exportar archivos en formato abierto `.lyricsfile.yaml` ([especificación 1.0](https://github.com/tranxuanthang/lyricsfile/blob/main/SPECIFICATION.md)), permitiendo cargar canciones o traducciones desde repositorios comunitarios de letras.
-3. **Catálogo Remoto Opcional (Futuro / Read-Only):** A futuro, la aplicación podrá consultar opcionalmente una instancia de Supabase en modo estrictamente de **Solo Lectura** como catálogo curado por el autor, manteniendo todas las operaciones de escritura y creación en el ámbito local o manual del administrador.
 
 El audio se reproduce principalmente a través de la **YouTube IFrame Player API** (video oficial y solo pista) o mediante elementos de audio HTML5 para archivos locales/remotos.
 
@@ -55,19 +54,12 @@ graph TD
         end
     end
 
-    subgraph FutureRemote ["Catálogo Remoto Opcional (Futuro / Read-Only)"]
-        SupaReadClient["Supabase Client (Solo Lectura)"]
-        SupaCatalog[("Supabase DB (Catálogo Oficial Administrado)")]
-    end
-
     HTML --> AppController
     AppController --> SongRepo
     SongRepo --> LocalDB
     SongRepo --> JSONExport
     SongRepo --> JSONImport
     SongRepo --> LyricsfileAdapter
-    SongRepo -.->|Lectura opcional futura| SupaReadClient
-    SupaReadClient -.-> SupaCatalog
 
     AppController --> YTPlayer
     AppController --> AudioElement
@@ -316,7 +308,7 @@ Se mantiene de manera idéntica la estructura de entidades relacionales diseñad
 * **`settings`**: `{ key: string, value: any }` (KeyPath: `key`)
 
 ### 3.2. Esquema Relacional Canónico de Referencia (SQL)
-Este esquema SQL define la fuente de verdad del modelo conceptual y servirá a futuro si se conecta con un catálogo Supabase en modo sólo lectura:
+Este esquema SQL define la fuente de verdad conceptual del modelo de datos:
 
 ```sql
 -- 1. Tabla de artistas
@@ -417,13 +409,7 @@ Servicio especializado en la interoperabilidad con la especificación abierta YA
 * **`importLyricsfileAsTranslation(songId, yamlString)`**: Agrega el archivo parseado como una nueva traducción (`isMain: false`) en el arreglo `languages` de una canción existente.
 * **`importLyricsfileAsNewSong(yamlString)`**: Crea una nueva canción en la base de datos local usando la metadata del archivo y estableciendo su letra como el idioma principal (`isMain: true`).
 
-### 3.6. Integración Futura con Supabase (Catálogo Remoto Solo Lectura)
-A futuro, se podrá añadir un conector opcional a Supabase con las siguientes premisas:
-* **Modo Estricto Read-Only:** El cliente frontend no dispone de permisos de escritura ni requiere autenticación de usuarios en Supabase.
-* **Curaduría Manual del Creador:** Las canciones oficiales son añadidas a Supabase exclusivamente por el autor desde el backend/dashboard de Supabase.
-* **Descarga a Biblioteca Local:** El usuario puede navegar el catálogo público en línea e "importar a mi biblioteca", clonando la canción en su IndexedDB local para usarla offline y personalizarla.
-
-### 3.7. Integración con la API de Letras y Traducciones: BetterLyrics & Unison (`src/services/betterLyricsService.js`)
+### 3.6. Integración con la API de Letras y Traducciones: BetterLyrics & Unison (`src/services/betterLyricsService.js`)
 Para acelerar la creación de canciones y facilitar el acceso a miles de letras sincronizadas con traducciones, SarangaBaranga se integra con el ecosistema abierto de **BetterLyrics** y **Unison** (`unison.boidu.dev` / `api.betterlyrics.org`):
 * **Búsqueda Abierta en Tiempo Real:** Consulta sin requerimiento de API key a `GET https://unison.boidu.dev/lyrics/search?q={query}`, retornando resultados clasificados con título, artista, duración, `videoId` de YouTube y tipo de sincronización (`richsync` por sílabas vs `linesync` por versos).
 * **Carga de Letras en Formato TTML (Timed Text Markup Language):**
@@ -442,7 +428,7 @@ Para acelerar la creación de canciones y facilitar el acceso a miles de letras 
   * **Filtros de Sincronización:** Posibilidad de discriminar entre canciones con sincronización sílaba a sílaba (`richsync` / TTML) o por versos completos (`linesync` / LRC).
 * **Flujo Precargado Hacia el Editor (`songEditorView`):** Al seleccionar un tema en el modal de búsqueda, se ensambla un objeto de canción completo y se transfiere a `songEditorView.open(preconfiguredSong)`, abriendo el editor con metadatos, video de YouTube, versos, sílabas y traducción ya colocados, listos para ajuste fino y guardado local en IndexedDB.
 
-### 3.8. Arquitectura de Búsqueda Online Multi-Motor: BetterLyrics, LRC.red, Genius.com y LRCLIB (`src/services/onlineLyricsService.js`)
+### 3.7. Arquitectura de Búsqueda Online Multi-Motor: BetterLyrics, LRC.red, Genius.com y LRCLIB (`src/services/onlineLyricsService.js`)
 Para ampliar radicalmente la disponibilidad de canciones sin depender de un único proveedor, SarangaBaranga implementa una arquitectura desacoplada y extensible de búsqueda multi-motor:
 1. **Pestaña "Todas las Fuentes" (Búsqueda Simultánea Unificada con Límite de 6 por Fuente):**
    * Una única barra de búsqueda consulta en paralelo (`Promise.allSettled`) a BetterLyrics, LRC.red, LRCLIB y Genius.com.

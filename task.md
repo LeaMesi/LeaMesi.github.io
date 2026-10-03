@@ -11,7 +11,6 @@
   - Configurar [`vite.config.js`](file:///home/hezztia/Documents/SarangaBaranga/vite.config.js) con `base: '/'` adecuado para el repositorio y dominio de usuario raíz `LeaMesi.github.io`.
 - [x] **0.2. Entorno y Repositorio Git:**
   - Configurar `.gitignore` para dependencias y builds (.env, .env.local).
-  - Creado `.env.example` reservado para futuro catálogo remoto Supabase.
 
 ---
 
@@ -57,8 +56,6 @@
   - Conversor de formato: `start_ms`/`end_ms` a segundos decimales y reconstrucción de `syllables` preservando espaciado de `words`.
   - Serializador inverso para exportar cualquier idioma a `.lyricsfile.yaml`.
   - Flujo de importación como nueva canción (`isMain: true`) o incorporación como traducción a canción existente (`isMain: false`).
-- [ ] **2.5. (Futuro / Pospuesto) Conector Supabase Read-Only (`src/services/supabaseCatalog.js`):**
-  - Conexión opcional de sólo lectura para consultar catálogo oficial administrado por el creador y clonar canciones a la base de datos local.
 
 ---
 
