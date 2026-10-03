@@ -1946,6 +1946,7 @@ input[type="number"] {
 .bl-modal-dialog {
   max-width: 860px;
   height: 88vh;
+  position: relative;
 }
 
 .online-modal-body,
@@ -1956,6 +1957,76 @@ input[type="number"] {
   overflow: hidden;
   padding: 16px 20px;
   flex: 1;
+}
+
+/* Modos de Layout para Modal de Búsqueda Online:
+   - layout-fixed-controls: en PC con espacio suficiente, los controles se quedan fijos y los resultados scrollean dentro de su contenedor.
+   - layout-scroll-controls: en teléfonos o cuando el espacio de resultados es reducido (< 260px), todo el modal-body scrollea junto para que los controles sigan el scroll y den todo el espacio a los resultados.
+*/
+.online-lyrics-modal-dialog.layout-fixed-controls .online-modal-body {
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.online-lyrics-modal-dialog.layout-fixed-controls .online-results-container {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+}
+
+.online-lyrics-modal-dialog.layout-scroll-controls .online-modal-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.online-lyrics-modal-dialog.layout-scroll-controls .online-results-container {
+  overflow-y: visible !important;
+  flex: none !important;
+  height: auto !important;
+  min-height: auto !important;
+}
+
+/* Botón flotante para volver arriba */
+.btn-online-scroll-top {
+  position: absolute;
+  bottom: 72px;
+  right: 22px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  background: var(--primary-color, #6366f1);
+  color: var(--primary-contrast, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(99, 102, 241, 0.35);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.btn-online-scroll-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.btn-online-scroll-top:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 16px rgba(99, 102, 241, 0.5);
+}
+
+.btn-online-scroll-top:active {
+  transform: translateY(0);
 }
 
 /* Selector de Proveedores Online (Pestañas Superiores) */
@@ -4058,6 +4129,79 @@ input[type="number"] {
     max-width: 95vw !important;
     max-height: 90dvh !important;
   }
+
+  /* Modal de Búsqueda Online en Móvil: controles que siguen el scroll y dan espacio a los resultados */
+  .online-lyrics-modal-dialog {
+    height: 90dvh !important;
+  }
+
+  .online-lyrics-modal-dialog .modal-header {
+    padding: 10px 14px;
+  }
+
+  .online-lyrics-modal-dialog .modal-title {
+    font-size: 1.05rem;
+  }
+
+  .online-lyrics-modal-dialog .modal-header .subtitle {
+    display: none;
+  }
+
+  .online-lyrics-modal-dialog .online-modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .online-lyrics-modal-dialog .online-results-container {
+    overflow-y: visible !important;
+    flex: none !important;
+    height: auto !important;
+  }
+
+  .online-providers-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    gap: 6px;
+    scrollbar-width: none;
+  }
+
+  .online-providers-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .online-provider-tab {
+    flex-shrink: 0;
+    padding: 6px 11px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .online-inputs-container {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .search-hint-text {
+    font-size: 0.74rem;
+    margin: 2px 0 0;
+  }
+
+  .online-options-bar {
+    gap: 6px;
+    padding: 2px 0;
+  }
+
+  .btn-online-scroll-top {
+    bottom: 64px;
+    right: 14px;
+    padding: 7px 12px;
+    font-size: 0.76rem;
+  }
 }
 
 /* 4. Móvil Horizontal / Landscape (max-height: 520px and orientation: landscape) */
@@ -4378,6 +4522,58 @@ input[type="number"] {
     width: 96vw !important;
     max-width: 96vw !important;
     max-height: 94dvh !important;
+  }
+
+  .online-lyrics-modal-dialog {
+    height: 94dvh !important;
+  }
+
+  .online-lyrics-modal-dialog .modal-header {
+    padding: 6px 12px !important;
+  }
+
+  .online-lyrics-modal-dialog .modal-title {
+    font-size: 0.95rem !important;
+  }
+
+  .online-lyrics-modal-dialog .modal-header .subtitle {
+    display: none !important;
+  }
+
+  .online-lyrics-modal-dialog .online-modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+
+  .online-lyrics-modal-dialog .online-results-container {
+    overflow-y: visible !important;
+    flex: none !important;
+    height: auto !important;
+  }
+
+  .online-lyrics-modal-dialog .online-providers-bar {
+    padding-bottom: 4px !important;
+    gap: 4px !important;
+  }
+
+  .online-lyrics-modal-dialog .online-provider-tab {
+    padding: 4px 8px !important;
+    font-size: 0.74rem !important;
+  }
+
+  .online-lyrics-modal-dialog .online-inputs-container {
+    padding: 8px 10px !important;
+    gap: 6px !important;
+  }
+
+  .online-lyrics-modal-dialog .btn-online-scroll-top {
+    bottom: 54px !important;
+    right: 12px !important;
+    padding: 5px 10px !important;
+    font-size: 0.74rem !important;
   }
 
   .modal-footer {

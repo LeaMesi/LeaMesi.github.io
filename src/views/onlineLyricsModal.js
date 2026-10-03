@@ -25,7 +25,8 @@ import {
   iconFileText,
   iconPlus,
   iconCheck,
-  iconMic
+  iconMic,
+  iconChevronUp
 } from './icons.js'
 
 function escapeHtml(str) {
@@ -68,6 +69,44 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
   let statusType = 'info' // 'info' | 'success' | 'error'
   let activeLoadingItemId = null
   let lastSearchSummary = ''
+  let resizeObserver = null
+
+  function handleWindowResize() {
+    if (isOpen) {
+      updateLayoutMode()
+    }
+  }
+
+  function updateLayoutMode() {
+    if (!containerElement || !isOpen) return
+    const dialogEl = containerElement.querySelector('.online-lyrics-modal-dialog')
+    const modalBody = containerElement.querySelector('.online-modal-body')
+    if (!dialogEl || !modalBody) return
+
+    const isMobile = window.innerWidth <= 768
+
+    // Medición de controles que anteceden a la lista de resultados
+    const providersBar = containerElement.querySelector('.online-providers-bar')
+    const inputsContainer = containerElement.querySelector('.online-inputs-container')
+    const optionsBar = containerElement.querySelector('.online-options-bar')
+    const statusAlert = containerElement.querySelector('.status-alert')
+
+    const controlsHeight = (providersBar ? providersBar.offsetHeight : 0) +
+      (inputsContainer ? inputsContainer.offsetHeight : 0) +
+      (optionsBar ? optionsBar.offsetHeight : 0) +
+      (statusAlert ? statusAlert.offsetHeight : 0) + 36
+
+    const availableHeightForResults = modalBody.clientHeight - controlsHeight
+    const isResultsWindowTooSmall = availableHeightForResults < 260
+
+    if (isMobile || isResultsWindowTooSmall) {
+      dialogEl.classList.add('layout-scroll-controls')
+      dialogEl.classList.remove('layout-fixed-controls')
+    } else {
+      dialogEl.classList.add('layout-fixed-controls')
+      dialogEl.classList.remove('layout-scroll-controls')
+    }
+  }
 
   function open() {
     isOpen = true
@@ -76,6 +115,7 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
     isSearching = false
     statusMessage = ''
     geniusTokenInputVal = getGeniusToken()
+    window.addEventListener('resize', handleWindowResize)
     render()
     focusActiveInput()
   }
@@ -85,6 +125,11 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
     isImporting = false
     activeLoadingItemId = null
     statusMessage = ''
+    window.removeEventListener('resize', handleWindowResize)
+    if (resizeObserver) {
+      resizeObserver.disconnect()
+      resizeObserver = null
+    }
     render()
   }
 
@@ -807,6 +852,17 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
           </div>
         </div>
 
+        <!-- Botón flotante para volver arriba -->
+        <button
+          type="button"
+          class="btn-online-scroll-top"
+          id="btn-online-scroll-top"
+          title="Volver arriba a la búsqueda"
+          aria-label="Volver arriba a la búsqueda"
+        >
+          ${iconChevronUp} <span>Subir</span>
+        </button>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" id="btn-cancel-online-modal">Cerrar</button>
         </div>
@@ -814,6 +870,18 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
     `
 
     bindEvents()
+    updateLayoutMode()
+
+    if (typeof ResizeObserver !== 'undefined') {
+      if (resizeObserver) resizeObserver.disconnect()
+      const dialogEl = containerElement.querySelector('.online-lyrics-modal-dialog')
+      if (dialogEl) {
+        resizeObserver = new ResizeObserver(() => {
+          updateLayoutMode()
+        })
+        resizeObserver.observe(dialogEl)
+      }
+    }
   }
 
   function bindEvents() {
@@ -935,6 +1003,45 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
         }
       })
     })
+
+    // Control de desplazamiento y botón para volver arriba
+    const scrollTopBtn = containerElement.querySelector('#btn-online-scroll-top')
+    const modalBody = containerElement.querySelector('.online-modal-body')
+    const resultsContainer = containerElement.querySelector('.online-results-container')
+    const dialogEl = containerElement.querySelector('.online-lyrics-modal-dialog')
+
+    function checkScrollTop() {
+      if (!scrollTopBtn) return
+      const isScrollLayout = dialogEl && dialogEl.classList.contains('layout-scroll-controls')
+      const currentScroll = isScrollLayout ? (modalBody ? modalBody.scrollTop : 0) : (resultsContainer ? resultsContainer.scrollTop : 0)
+      if (currentScroll > 70) {
+        scrollTopBtn.classList.add('is-visible')
+      } else {
+        scrollTopBtn.classList.remove('is-visible')
+      }
+    }
+
+    if (modalBody) {
+      modalBody.addEventListener('scroll', checkScrollTop, { passive: true })
+    }
+    if (resultsContainer) {
+      resultsContainer.addEventListener('scroll', checkScrollTop, { passive: true })
+    }
+
+    if (scrollTopBtn) {
+      scrollTopBtn.addEventListener('click', () => {
+        const isScrollLayout = dialogEl && dialogEl.classList.contains('layout-scroll-controls')
+        const targetScrollEl = isScrollLayout ? modalBody : resultsContainer
+        if (targetScrollEl) {
+          if (typeof targetScrollEl.scrollTo === 'function') {
+            targetScrollEl.scrollTo({ top: 0, behavior: 'smooth' })
+          } else {
+            targetScrollEl.scrollTop = 0
+          }
+        }
+        focusActiveInput()
+      })
+    }
   }
 
   return {

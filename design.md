@@ -456,6 +456,10 @@ Para ampliar radicalmente la disponibilidad de canciones sin depender de un úni
    * Al conmutar a **Genius**, se habilita la barra de configuración de token y los campos duales de Artista y Título.
    * Al conmutar a **LRCLIB**, se ofrecen búsquedas generales o por Artista y Canción.
    * Badges distintivos por color de proveedor (`.badge-source-betterlyrics`, `.badge-source-lrcred`, `.badge-source-genius`, `.badge-source-lrclib`), miniaturas de carátula (`.result-card-artwork`) y traducción automática en vivo mediante Unison.
+   * **Arquitectura de Layout Adaptativo de Búsqueda (`layout-scroll-controls` vs `layout-fixed-controls`):**
+     * En pantallas de escritorio estándar (PC con espacio vertical amplio $\ge 260\text{px}$ para resultados), los controles de búsqueda y pestañas permanecen fijos (*quietos*) en la parte superior (`.layout-fixed-controls`), scrolleando únicamente la lista interna de resultados.
+     * En teléfonos móviles ($\le 768\text{px}$) o cuando la ventana de resultados es reducida ($< 260\text{px}$ de altura útil por ventanas pequeñas en PC o apaisado móvil), el modal activa automáticamente `.layout-scroll-controls`. Todo el cuerpo del modal scrollea al unísono, permitiendo que los botones y campos de búsqueda sigan el desplazamiento hacia arriba y cedan el 100% de la altura de la pantalla a los resultados.
+     * **Botón Flotante de Retorno a la Búsqueda ("Subir" / `#btn-online-scroll-top`):** Al descender en la lista de resultados ($> 70\text{px}$ de scroll), se visualiza un botón flotante con icono `iconChevronUp` que permite con un solo toque volver suavemente a la parte superior (`modalBody.scrollTo({ top: 0, behavior: 'smooth' })`) y enfocar el campo de búsqueda activo.
    * Al seleccionar una canción, se genera el paquete normalizado y se entrega al editor (`songEditorView.open(songPackage)`) con todos los versos, sílabas y metadatos preconfigurados.
 
 ---

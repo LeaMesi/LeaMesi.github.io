@@ -646,9 +646,28 @@
   - Actualizada [`tests/player/mediaPlayer.test.js`](file:///home/hezztia/Documents/SarangaBaranga/tests/player/mediaPlayer.test.js) con prueba de verificación de `autoplay: true`.
   - Total de 24 suites de prueba y 214 pruebas ejecutadas y pasando exitosamente al 100%.
   - Compilación de producción con `npm run build` verificada sin errores.
-- [x] **27.5. Pre-carga Automática en Pausa de Canción Activa de la Playlist al Recargar ([`src/main.js`](file:///home/hezztia/Documents/SarangaBaranga/src/main.js)):**
-  - En la inicialización de la aplicación (`initApp`), se verifica si la playlist persistida en `localStorage` tiene una canción activa (`playlistService.getCurrentSong()`).
-  - Si existe, se precarga automáticamente en el sistema mediante `loadSongIntoApp(initialSong.id, { autoplay: false })`, haciendo que el reproductor flotante mini aparezca inmediatamente visible en la esquina inferior derecha con los datos del tema, duración, barra en `0:00` y botón en estado "Reproducir" sin iniciar reproducción de audio automática.
+---
+
+## Fase 28: Layout Adaptativo y Ergonomía de Búsqueda Online en Móvil y PC
+
+- [x] **28.1. Arquitectura de Layout Adaptativo (`src/views/onlineLyricsModal.js`):**
+  - Implementada función reactiva `updateLayoutMode()` que calcula el espacio disponible para los resultados (`modalBody.clientHeight - controlsHeight`).
+  - Detección automática de dispositivo y dimensiones de ventana:
+    - En teléfonos móviles ($\le 768\text{px}$) o cuando el espacio útil de resultados es reducido ($< 260\text{px}$ en PC): activa `.layout-scroll-controls`. Todo el cuerpo del modal scrollea unificado, haciendo que los formularios y botones sigan el scroll y cedan el 100% de la altura útil de la pantalla a los resultados.
+    - En PC con altura suficiente ($\ge 260\text{px}$): activa `.layout-fixed-controls`, manteniendo los botones y selectores quietos en la parte superior y scrolleando únicamente la lista interna de resultados.
+  - Integración de `ResizeObserver` en el modal y escucha de evento `window.resize` para adaptación en tiempo real ante cambios de orientación o tamaño de ventana.
+- [x] **28.2. Botón Flotante de Retorno a la Búsqueda ("Subir" / `#btn-online-scroll-top`):**
+  - Incorporado botón animado `${iconChevronUp} Subir` posicionado flotando de forma fija sobre el pie del diálogo (`bottom: 72px; right: 22px`).
+  - Conexión dual de eventos `scroll` tanto en `.online-modal-body` (modo scroll) como en `.online-results-container` (modo fijo): se hace visible suavemente al desplazarse $> 70\text{px}$ hacia abajo y se oculta al volver arriba.
+  - Clic interactivo que ejecuta desplazamiento suave (`scrollTo({ top: 0, behavior: 'smooth' })`) y enfoca automáticamente el campo de búsqueda activo para modificar la consulta rápidamente.
+- [x] **28.3. Refinamientos de UI y Espaciado Responsivo (`src/style.css`):**
+  - En móviles verticales ($\le 768\text{px}$): altura `90dvh`, ocultamiento de subtítulo largo redundantemente informativo en cabecera, barra de proveedores swipeable horizontalmente (`overflow-x: auto`) sin envolver en 3 filas, paddings compactos y botón subir adaptado.
+  - En móviles landscape ($\le 520\text{px}$ de altura): altura `94dvh`, cabecera ultra-delgada y scroll fluido que evita que la lista de resultados quede aplastada.
+- [x] **28.4. Pruebas Automatizadas y Validación de Compilación:**
+  - Añadidas 3 pruebas unitarias adicionales en `tests/views/onlineLyricsModal.test.js` verificando el renderizado del botón flotante, su respuesta al evento de scroll y clic, y la asignación dinámica de `layout-scroll-controls` vs `layout-fixed-controls` en móvil y PC.
+  - 24 suites de prueba y 217 pruebas automatizadas ejecutadas y aprobadas al 100%.
+  - Compilación de producción con `npm run build` verificada sin errores.
+
 
 
 
