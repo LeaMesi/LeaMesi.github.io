@@ -32,7 +32,7 @@
 * **Despliegue Estático y Pipeline CI/CD (GitHub Pages):**
   * Configuración para GitHub Pages en sitio de usuario raíz (`LeaMesi.github.io`) con `base: '/'` en `vite.config.js`.
   * Dependencia `gh-pages` y scripts `predeploy` / `deploy` en `package.json` para publicación del directorio `dist/`.
-  * Pipeline automatizado en GitHub Actions (`.github/workflows/deploy.yml`): en cada push a la rama `main`, ejecuta los tests unitarios (`npm test`), compila la aplicación (`npm run build`) y despliega la rama `gh-pages` con `peaceiris/actions-gh-pages@v4`.
+  * Pipeline automatizado en GitHub Actions (`.github/workflows/deploy.yml`): en cada push a la rama `main`, ejecuta los tests unitarios (`npm test`), compila la aplicación (`npm run build`) y despliega nativamente en GitHub Pages con `actions/upload-pages-artifact@v3` y `actions/deploy-pages@v4`.
 
 ---
 

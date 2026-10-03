@@ -32,8 +32,9 @@ Archivo de configuración: `.github/workflows/deploy.yml`
 1. **Disparador:** Automático en cada `git push` a la rama `main` o manual mediante `workflow_dispatch`.
 2. **Pasos de Ejecución:**
    1. Checkout del código con `actions/checkout@v4`.
-   2. Configuración de Node.js 20 con caché de dependencias npm (`actions/setup-node@v4`).
+   2. Configuración de Node.js con caché de dependencias npm (`actions/setup-node@v4`).
    3. Instalación limpia de dependencias con `npm ci`.
    4. Ejecución de la suite completa de pruebas con `npm test`.
    5. Compilación de artefactos estáticos con `npm run build` (`base: '/'`).
-   6. Publicación del directorio `dist/` en la rama `gh-pages` mediante `peaceiris/actions-gh-pages@v4`.
+   6. Empaquetado y despliegue nativo en GitHub Pages mediante `actions/upload-pages-artifact@v3` y `actions/deploy-pages@v4`.
+

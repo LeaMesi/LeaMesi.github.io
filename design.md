@@ -578,7 +578,7 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
      3. Instala dependencias limpias con `npm ci`.
      4. Ejecuta la suite de pruebas automatizadas con `npm test` para asegurar que nada roto sea desplegado.
      5. Compila los artefactos de producción con `npm run build`.
-     6. Publica y actualiza la rama `gh-pages` mediante `peaceiris/actions-gh-pages@v4` utilizando `${{ secrets.GITHUB_TOKEN }}`.
+     6. Sube los artefactos mediante `actions/upload-pages-artifact@v3` y realiza el despliegue nativo a GitHub Pages con `actions/deploy-pages@v4` sin requerir push a ramas protegidas.
 4. **Cero Dependencia de Servidores en Producción:** Todo el almacenamiento opera de forma local e independiente en el navegador del usuario (IndexedDB), garantizando una aplicación 100% estática, offline-first y sin riesgo de filtración de claves.
 
 ---
