@@ -83,7 +83,7 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
     const modalBody = containerElement.querySelector('.online-modal-body')
     if (!dialogEl || !modalBody) return
 
-    const isMobile = window.innerWidth <= 768
+    const isMobile = window.innerWidth <= 768 || window.innerHeight <= 520
 
     // Medición de controles que anteceden a la lista de resultados
     const providersBar = containerElement.querySelector('.online-providers-bar')
@@ -366,14 +366,16 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
       searchFormHtml = `
         <div class="online-inputs-container">
           <div class="search-input-group">
-            <span class="search-input-icon">${iconSearch}</span>
-            <input
-              type="text"
-              id="online-input-all"
-              class="form-input search-main-input"
-              placeholder="Buscar título, artista o enlace (BetterLyrics + LRC.red + LRCLIB + Genius)..."
-              value="${escapeHtml(unifiedQuery)}"
-            />
+            <div class="input-wrapper">
+                <span class="search-input-icon">${iconSearch}</span>
+                <input
+                  type="text"
+                  id="online-input-all"
+                  class="form-input search-main-input"
+                  placeholder="Buscar título, artista o enlace (BetterLyrics + LRC.red + LRCLIB + Genius)..."
+                  value="${escapeHtml(unifiedQuery)}"
+                />
+            </div>
             <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
               ${isSearching ? 'Buscando...' : `${iconSearch} Buscar en Todo`}
             </button>
@@ -406,14 +408,16 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
       if (blActiveMode === 'general') {
         blInputContent = `
           <div class="search-input-group">
-            <span class="search-input-icon">${iconSearch}</span>
-            <input
-              type="text"
-              id="bl-input-general"
-              class="form-input search-main-input"
-              placeholder="Buscar canción, artista o pegar enlace de YouTube..."
-              value="${escapeHtml(blGeneralQuery)}"
-            />
+            <div class="input-wrapper">
+                <span class="search-input-icon">${iconSearch}</span>
+                <input
+                  type="text"
+                  id="bl-input-general"
+                  class="form-input search-main-input"
+                  placeholder="Buscar canción, artista o pegar enlace de YouTube..."
+                  value="${escapeHtml(blGeneralQuery)}"
+                />
+            </div>
             <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
               ${isSearching ? 'Buscando...' : `${iconSearch} Buscar`}
             </button>
@@ -423,14 +427,16 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
         blInputContent = `
           <div class="bl-artist-mode-container">
             <div class="search-input-group">
-              <span class="search-input-icon">${iconSearch}</span>
-              <input
-                type="text"
-                id="bl-input-artist"
-                class="form-input search-main-input"
-                placeholder="Nombre exacto del artista (ej. Queen, Soda Stereo, Coldplay)..."
-                value="${escapeHtml(artistQuery)}"
-              />
+                <div class="input-wrapper">
+                  <span class="search-input-icon">${iconSearch}</span>
+                  <input
+                    type="text"
+                    id="bl-input-artist"
+                    class="form-input search-main-input"
+                    placeholder="Nombre exacto del artista (ej. Queen, Soda Stereo, Coldplay)..."
+                    value="${escapeHtml(artistQuery)}"
+                  />
+                </div>
               <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
                 ${isSearching ? 'Buscando...' : `${iconSearch} Buscar Artista`}
               </button>
@@ -475,14 +481,16 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
       } else if (blActiveMode === 'video') {
         blInputContent = `
           <div class="search-input-group">
-            <span class="search-input-icon">${iconLink}</span>
-            <input
-              type="text"
-              id="bl-input-video"
-              class="form-input search-main-input"
-              placeholder="Pegá el enlace de YouTube o YouTube Music (o el ID de 11 caracteres)..."
-              value="${escapeHtml(videoQuery)}"
-            />
+            <div class="input-wrapper">
+                <span class="search-input-icon">${iconLink}</span>
+                <input
+                  type="text"
+                  id="bl-input-video"
+                  class="form-input search-main-input"
+                  placeholder="Pegá el enlace de YouTube o YouTube Music (o el ID de 11 caracteres)..."
+                  value="${escapeHtml(videoQuery)}"
+                />
+            </div>
             <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
               ${isSearching ? 'Buscando...' : `${iconSearch} Sincronizar`}
             </button>
@@ -515,14 +523,16 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
 
           ${subMode === 'general' ? `
             <div class="search-input-group">
-              <span class="search-input-icon">${iconSearch}</span>
-              <input
-                type="text"
-                id="provider-input-general"
-                class="form-input search-main-input"
-                placeholder="Buscar canción, artista o álbum en LRC.red..."
-                value="${escapeHtml(unifiedQuery)}"
-              />
+                <div class="input-wrapper">
+                  <span class="search-input-icon">${iconSearch}</span>
+                  <input
+                    type="text"
+                    id="provider-input-general"
+                    class="form-input search-main-input"
+                    placeholder="Buscar canción, artista o álbum en LRC.red..."
+                    value="${escapeHtml(unifiedQuery)}"
+                  />
+                </div>
               <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
                 ${isSearching ? 'Buscando...' : `${iconSearch} Buscar en LRC.red`}
               </button>
@@ -611,14 +621,16 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
 
           ${subMode === 'general' ? `
             <div class="search-input-group">
-              <span class="search-input-icon">${iconSearch}</span>
-              <input
-                type="text"
-                id="provider-input-general"
-                class="form-input search-main-input"
-                placeholder="Buscar canción o artista en Genius.com..."
-                value="${escapeHtml(unifiedQuery)}"
-              />
+                <div class="input-wrapper">
+                  <span class="search-input-icon">${iconSearch}</span>
+                  <input
+                    type="text"
+                    id="provider-input-general"
+                    class="form-input search-main-input"
+                    placeholder="Buscar canción o artista en Genius.com..."
+                    value="${escapeHtml(unifiedQuery)}"
+                  />
+                </div>
               <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
                 ${isSearching ? 'Buscando...' : `${iconSearch} Buscar en Genius`}
               </button>
@@ -665,14 +677,16 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
 
           ${subMode === 'general' ? `
             <div class="search-input-group">
-              <span class="search-input-icon">${iconSearch}</span>
-              <input
-                type="text"
-                id="provider-input-general"
-                class="form-input search-main-input"
-                placeholder="Buscar canción o artista en LRCLIB..."
-                value="${escapeHtml(unifiedQuery)}"
-              />
+                <div class="input-wrapper">
+                  <span class="search-input-icon">${iconSearch}</span>
+                  <input
+                    type="text"
+                    id="provider-input-general"
+                    class="form-input search-main-input"
+                    placeholder="Buscar canción o artista en LRCLIB..."
+                    value="${escapeHtml(unifiedQuery)}"
+                  />
+                </div>
               <button type="button" class="btn btn-primary" id="btn-do-online-search" ${isSearching ? 'disabled' : ''}>
                 ${isSearching ? 'Buscando...' : `${iconSearch} Buscar en LRCLIB`}
               </button>

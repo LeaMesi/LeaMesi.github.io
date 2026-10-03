@@ -15,6 +15,7 @@ La persistencia de datos y el catálogo de canciones se gestiona primariamente *
 Para permitir compartir creaciones e interoperar con fuentes externas sin requerir login ni backend de validación de subidas:
 1. **Exportación / Importación JSON:** Los usuarios pueden exportar sus canciones a archivos JSON portables (`song-package.json`) y compartirlos. Al importar un archivo, el sistema lo valida y lo almacena localmente en IndexedDB.
 2. **Compatibilidad con Estándar `lyricsfile` (YAML):** Soporte nativo para importar y exportar archivos en formato abierto `.lyricsfile.yaml` ([especificación 1.0](https://github.com/tranxuanthang/lyricsfile/blob/main/SPECIFICATION.md)), permitiendo cargar canciones o traducciones desde repositorios comunitarios de letras.
+3. **Especificaciones y Tareas Modulares (`specs/NNNN-*`):** Toda especificación funcional, desglose de tareas y planes futuros se encuentran modularizados en carpetas individuales bajo [`specs/`](file:///home/hezztia/Documents/SarangaBaranga/specs/).
 
 El audio se reproduce principalmente a través de la **YouTube IFrame Player API** (video oficial y solo pista) o mediante elementos de audio HTML5 para archivos locales/remotos.
 

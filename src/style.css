@@ -1969,6 +1969,13 @@ input[type="number"] {
   flex-direction: column !important;
 }
 
+.online-lyrics-modal-dialog.layout-fixed-controls .online-providers-bar,
+.online-lyrics-modal-dialog.layout-fixed-controls .online-inputs-container,
+.online-lyrics-modal-dialog.layout-fixed-controls .online-options-bar,
+.online-lyrics-modal-dialog.layout-fixed-controls .status-alert {
+  flex-shrink: 0 !important;
+}
+
 .online-lyrics-modal-dialog.layout-fixed-controls .online-results-container {
   flex: 1 !important;
   overflow-y: auto !important;
@@ -1979,6 +1986,15 @@ input[type="number"] {
   overflow-y: auto !important;
   overflow-x: hidden !important;
   -webkit-overflow-scrolling: touch !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.online-lyrics-modal-dialog.layout-scroll-controls .online-providers-bar,
+.online-lyrics-modal-dialog.layout-scroll-controls .online-inputs-container,
+.online-lyrics-modal-dialog.layout-scroll-controls .online-options-bar,
+.online-lyrics-modal-dialog.layout-scroll-controls .status-alert {
+  flex-shrink: 0 !important;
 }
 
 .online-lyrics-modal-dialog.layout-scroll-controls .online-results-container {
@@ -2036,6 +2052,10 @@ input[type="number"] {
   flex-wrap: wrap;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 10px;
+  flex-shrink: 0;
+  min-height: min-content;
+  position: relative;
+  z-index: 2;
 }
 
 .online-provider-tab {
@@ -2052,6 +2072,7 @@ input[type="number"] {
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .online-provider-tab:hover {
@@ -2105,6 +2126,9 @@ input[type="number"] {
   padding: 14px 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--panel-border);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .online-options-bar {
@@ -2114,6 +2138,7 @@ input[type="number"] {
   flex-wrap: wrap;
   gap: 10px;
   padding: 4px 2px;
+  flex-shrink: 0;
 }
 
 .online-options-bar .option-field {
@@ -2280,20 +2305,27 @@ input[type="number"] {
 
 .bl-search-input-wrap,
 .search-input-group {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.input-wrapper {
+	position: relative;
+	flex: 1 1 auto;
+	min-width: 250px; 
 }
 
 .bl-search-icon,
 .search-input-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--text-muted);
-  pointer-events: none;
-  display: flex;
+    position: absolute;
+	left: 14px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--text-muted);
+	pointer-events: none;
+	display: flex;
+	align-items: center;
 }
 
 .bl-search-input,
@@ -4038,12 +4070,15 @@ input[type="number"] {
     flex-wrap: nowrap;
     padding-bottom: 8px;
     -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+    min-height: 42px;
   }
 
   .online-provider-tab {
     white-space: nowrap;
     font-size: 0.78rem;
     padding: 6px 11px;
+    flex-shrink: 0;
   }
 
   .genius-token-bar {
@@ -4165,9 +4200,13 @@ input[type="number"] {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 6px;
+    padding: 2px 2px 8px 2px;
     gap: 6px;
     scrollbar-width: none;
+    flex-shrink: 0 !important;
+    min-height: 44px !important;
+    position: relative;
+    z-index: 2;
   }
 
   .online-providers-bar::-webkit-scrollbar {
@@ -4175,15 +4214,30 @@ input[type="number"] {
   }
 
   .online-provider-tab {
-    flex-shrink: 0;
-    padding: 6px 11px;
-    font-size: 0.78rem;
+    flex-shrink: 0 !important;
+    padding: 7px 12px;
+    font-size: 0.8rem;
     white-space: nowrap;
   }
 
   .online-inputs-container {
     padding: 10px 12px;
     gap: 8px;
+    flex-shrink: 0 !important;
+    position: relative;
+    z-index: 1;
+  }
+
+  .search-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .search-input-group .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .search-hint-text {
@@ -4194,6 +4248,7 @@ input[type="number"] {
   .online-options-bar {
     gap: 6px;
     padding: 2px 0;
+    flex-shrink: 0 !important;
   }
 
   .btn-online-scroll-top {
@@ -4555,18 +4610,26 @@ input[type="number"] {
   }
 
   .online-lyrics-modal-dialog .online-providers-bar {
-    padding-bottom: 4px !important;
+    padding: 2px 2px 6px 2px !important;
     gap: 4px !important;
+    flex-shrink: 0 !important;
+    min-height: 34px !important;
+    position: relative;
+    z-index: 2;
   }
 
   .online-lyrics-modal-dialog .online-provider-tab {
     padding: 4px 8px !important;
     font-size: 0.74rem !important;
+    flex-shrink: 0 !important;
   }
 
   .online-lyrics-modal-dialog .online-inputs-container {
     padding: 8px 10px !important;
     gap: 6px !important;
+    flex-shrink: 0 !important;
+    position: relative;
+    z-index: 1;
   }
 
   .online-lyrics-modal-dialog .btn-online-scroll-top {
