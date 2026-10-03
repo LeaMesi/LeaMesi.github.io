@@ -33,3 +33,10 @@ El Editor de Canciones (`src/views/songEditorView.js`) proporciona un entorno de
    - Identificación explícita de versos vacíos como `⏸ [Pausa / Verso en blanco]` para mantener correspondencia precisa en pausas instrumentales.
    - Selector general de referencia en la barra de herramientas de versos con 4 modos: Ambos (Original + Alternativo), Solo texto original, Solo texto alternativo o Desactivado, con persistencia en `localStorage`.
    - Botón de copia rápida para transferir el texto original al verso traducido con un solo toque.
+9. **Traducción Automática Gratuita (Zero-Backend):**
+   - Integración nativa de traducción en tiempo real mediante `translationService.js` (cascada Unison API + MyMemory API).
+   - Traducción puntual de verso con un clic (`Traducir`) en la tarjeta de frase, preservando tiempos e indicando localmente el estado de carga.
+   - Traducción de toda la canción con un solo toque (`Traducir Toda la Canción`), respetando pausas instrumentales sin desfasar la estructura de versos.
+   - **Overlay Bloqueante de Carga en Pantalla:** Durante la traducción completa (canción entera o adición de idioma), se oscurece y desenfoca el fondo con un diálogo centralizado que informa el progreso y previene interacciones o modificaciones erróneas del usuario mientras se procesa.
+   - **Conservación de Texto sin Fragmentación Silábica:** Se desactiva la división silábica automática al traducir, entregando la frase íntegra sincronizada con sus marcas de inicio y fin, permitiendo al usuario silabear manualmente cuando lo desee.
+   - Opción directa en el modal de nuevo idioma ("Traducir automáticamente todas las frases desde el original") para inicializar pistas de traducción instantáneas.

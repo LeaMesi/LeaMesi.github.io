@@ -254,5 +254,139 @@ describe('views/songEditorView.js', () => {
       const phraseInput = container.querySelector('.input-phrase-text')
       expect(phraseInput.value).toBe('夜に駆ける')
     })
+
+    it('permite traducir automáticamente un verso individual con el botón Traducir sin dividir en sílabas', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          lines: [{ translation: 'Traducción única' }],
+          detectedLang: 'ja'
+        })
+      })
+
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(bilingualSong)
+
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      // Expandir la primera frase
+      const expandBtn = container.querySelector('.btn-toggle-syllables')
+      if (expandBtn && !container.querySelector('.phrase-syllables-panel')) {
+        expandBtn.click()
+      }
+
+      const translateBtn = container.querySelector('.btn-translate-ref-line')
+      expect(translateBtn).not.toBeNull()
+      translateBtn.click()
+      await new Promise(r => setTimeout(r, 20))
+
+      const phraseInput = container.querySelector('.input-phrase-text')
+      expect(phraseInput.value).toBe('Traducción única')
+
+      // NO debe generar sílabas automáticamente
+      const sylChips = container.querySelectorAll('.syllable-edit-chip')
+      expect(sylChips.length).toBe(0)
+    })
+
+    it('muestra overlay bloqueante durante la traducción completa y no genera sílabas automáticas', async () => {
+      let resolveFetch
+      const fetchPromise = new Promise(resolve => {
+        resolveFetch = resolve
+      })
+
+      global.fetch = vi.fn().mockImplementation(() => fetchPromise)
+      window.confirm = () => true
+
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(bilingualSong)
+
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      const autoTranslateAllBtn = container.querySelector('#btn-auto-translate-all')
+      expect(autoTranslateAllBtn).not.toBeNull()
+      autoTranslateAllBtn.click()
+
+      // Verificar que el overlay bloqueante está activo en pantalla
+      const loadingDialog = container.querySelector('.translation-loading-dialog')
+      expect(loadingDialog).not.toBeNull()
+      expect(loadingDialog.textContent).toContain('Traduciendo Canción')
+
+      const backdrop = container.querySelector('.translation-loading-backdrop')
+      expect(backdrop).not.toBeNull()
+
+      // Resolver la traducción
+      resolveFetch({
+        ok: true,
+        json: async () => ({
+          lines: [
+            { translation: 'Correr en la noche' }
+          ],
+          detectedLang: 'ja'
+        })
+      })
+      await new Promise(r => setTimeout(r, 20))
+
+      // Verificar que el overlay se eliminó tras finalizar
+      expect(container.querySelector('.translation-loading-dialog')).toBeNull()
+
+      const phraseInputs = container.querySelectorAll('.input-phrase-text')
+      // Verso 1 traducido
+      expect(phraseInputs[0].value).toBe('Correr en la noche')
+      // Verso 2 (pausa original en blanco) debe permanecer vacío
+      expect(phraseInputs[1].value).toBe('')
+
+      const statusAlert = container.querySelector('.status-alert')
+      expect(statusAlert.textContent).toContain('Canción traducida con éxito')
+
+      // No debe generar sílabas automáticamente
+      const sylChips = container.querySelectorAll('.syllable-edit-chip')
+      expect(sylChips.length).toBe(0)
+    })
+
+    it('permite añadir un nuevo idioma con traducción automática desde el modal sin generar sílabas automáticas', async () => {
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          lines: [
+            { translation: 'Racing into the night' }
+          ],
+          detectedLang: 'ja'
+        })
+      })
+
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(bilingualSong)
+
+      // Abrir modal de añadir idioma
+      const addLangBtn = container.querySelector('#btn-add-language')
+      addLangBtn.click()
+
+      const nameInput = container.querySelector('#input-new-lang-name')
+      const codeInput = container.querySelector('#input-new-lang-code')
+      const autoTranslateCheck = container.querySelector('#check-auto-translate')
+      const confirmBtn = container.querySelector('#btn-confirm-add-lang')
+
+      nameInput.value = 'English'
+      codeInput.value = 'en'
+      autoTranslateCheck.checked = true
+      autoTranslateCheck.dispatchEvent(new Event('change'))
+
+      confirmBtn.click()
+      await new Promise(r => setTimeout(r, 20))
+
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      expect(tabs.length).toBe(3)
+      expect(tabs[2].textContent).toContain('English')
+
+      const phraseInputs = container.querySelectorAll('.input-phrase-text')
+      expect(phraseInputs[0].value).toBe('Racing into the night')
+      expect(phraseInputs[1].value).toBe('')
+
+      // El nuevo idioma debe tener sílabas vacías (sin división automática)
+      const sylChips = container.querySelectorAll('.syllable-edit-chip')
+      expect(sylChips.length).toBe(0)
+    })
   })
 })

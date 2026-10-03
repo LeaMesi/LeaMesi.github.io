@@ -32,6 +32,14 @@
   - Identificación explícita de versos vacíos como `⏸ [Pausa / Verso en blanco]` para evitar desfasajes y confusiones al traducir canciones con pausas instrumentales.
   - Selector general de visualización en la barra de herramientas con 4 modos: Ambos (Original y Alternativo), Solo texto original, Solo alternativo o Desactivado, con persistencia en `localStorage`.
   - Botón de copia directa (`Copiar`) para transferir el texto original al verso traducido en un clic.
+- [x] **7.11. Traducción Automática y Gratuita de Canciones y Versos (`src/services/translationService.js`, `src/views/songEditorView.js` y `src/style.css`):**
+  - Motor de traducción en cascada sin costo ni backend propio (Zero-Backend) combinando Unison API (por lote) y fallback neuronal a MyMemory API.
+  - Decodificación automática de entidades HTML y preservación estricta de pausas instrumentales (versos en blanco).
+  - Overlay de bloqueo visual centralizado con fondo oscurecido y desenfocado (`translation-loading-backdrop` y `translation-loading-dialog`) durante la traducción completa para prevenir acciones no deseadas del usuario.
+  - Botón individual "Traducir" con indicador local "Traduciendo..." en la guía de referencia de cada verso.
+  - Desactivación del silabeo automático en la traducción para preservar el texto traducido intacto con tiempos sin fragmentación silábica forzada.
+  - Botón "Traducir Toda la Canción" en la barra de herramientas y estado vacío que procesa el tema completo respetando marcas de inicio/fin y pausas.
+  - Opción de traducción automática al crear un nuevo idioma o pista de traducción en el modal del editor.
 
 ---
 

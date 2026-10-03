@@ -23,6 +23,7 @@ import {
   iconEye
 } from './icons.js'
 import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
+import { translatePhrase, translateLines } from '../services/translationService.js'
 
 export function createSongEditorView({
   containerElement,
@@ -41,6 +42,8 @@ export function createSongEditorView({
   let isQuickImportModalOpen = false
   let isAddLanguageModalOpen = false
   let isEditLanguageModalOpen = false
+  let isTranslatingSong = false
+  let translatingStatusText = ''
   let previewTimer = null
   let translationRefMode = 'both' // 'both' | 'text' | 'alt' | 'none'
 
@@ -158,6 +161,8 @@ export function createSongEditorView({
     isQuickImportModalOpen = false
     isAddLanguageModalOpen = false
     isEditLanguageModalOpen = false
+    isTranslatingSong = false
+    translatingStatusText = ''
 
     // Si tiene video con URL, opcionalmente cargarlo en el reproductor multimedia
     const firstVideo = currentSong.videos?.find(v => v.url)
@@ -213,8 +218,11 @@ export function createSongEditorView({
       ? `
         <div class="empty-lines-state">
           <p class="empty-title">Este idioma aún no tiene frases añadidas.</p>
-          <p class="empty-desc">Podés añadir frases una a una o pegar la letra completa con tiempos y sílabas automáticas.</p>
+          <p class="empty-desc">${isTranslation ? 'Podés traducir automáticamente toda la canción desde el original con tiempos sincronizados, o añadir frases una a una.' : 'Podés añadir frases una a una o pegar la letra completa con tiempos y sílabas automáticas.'}</p>
           <div class="empty-actions">
+            ${isTranslation && (mainLang?.lines?.length || 0) > 0 ? `
+              <button class="btn btn-primary btn-auto-translate-all">${iconSparkles} Traducir Toda la Canción</button>
+            ` : ''}
             <button class="btn btn-primary btn-add-first-line">${iconPlus} Añadir Primera Frase</button>
             <button class="btn btn-outline btn-open-quick-import">${iconFileText} Pegar Letra Completa</button>
           </div>
@@ -259,9 +267,16 @@ export function createSongEditorView({
                   ` : '')}
                 ` : ''}
 
-                <button type="button" class="btn-copy-ref-line" data-line-idx="${lineIdx}" title="Copiar texto del verso original a este campo">
-                  Copiar
-                </button>
+                <div class="phrase-ref-actions">
+                  <button type="button" class="btn-copy-ref-line" data-line-idx="${lineIdx}" title="Copiar texto del verso original a este campo">
+                    Copiar
+                  </button>
+                  ${refText ? `
+                    <button type="button" class="btn-translate-ref-line" data-line-idx="${lineIdx}" title="Traducir automáticamente este verso al idioma actual">
+                      Traducir
+                    </button>
+                  ` : ''}
+                </div>
               </div>
             `
           } else {
@@ -699,6 +714,11 @@ export function createSongEditorView({
                     ${iconSparkles} Romaji Automático
                   </button>
                 ` : ''}
+                ${isTranslation && (mainLang?.lines?.length || 0) > 0 ? `
+                  <button class="btn btn-sm btn-outline btn-auto-translate-all" id="btn-auto-translate-all" title="Traducir automáticamente todas las frases desde el idioma original (${escapeHtml(mainLang?.name || 'Original')}) al idioma actual (${escapeHtml(activeLang?.name || '')}) de forma gratuita">
+                    ${iconSparkles} Traducir Toda la Canción
+                  </button>
+                ` : ''}
                 <button
                   class="btn btn-sm btn-outline btn-danger-outline"
                   id="btn-clear-all-syllables"
@@ -832,9 +852,16 @@ export function createSongEditorView({
               </div>
 
               <div class="form-group">
-                <label class="checkbox-label">
+                <label class="checkbox-label" for="check-copy-timings">
                   <input type="checkbox" id="check-copy-timings" checked />
                   <span>Copiar las marcas de tiempo del idioma principal (ideal para subtítulos traducidos)</span>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="checkbox-label" for="check-auto-translate">
+                  <input type="checkbox" id="check-auto-translate" />
+                  <span>Traducir automáticamente todas las frases desde el original (gratis)</span>
                 </label>
               </div>
 
@@ -889,6 +916,17 @@ export function createSongEditorView({
                   ${iconSave} Guardar Cambios
                 </button>
               </div>
+            </div>
+          </div>
+        ` : ''}
+        <!-- Overlay bloqueante de traducción completa en curso -->
+        ${isTranslatingSong ? `
+          <div class="modal-backdrop translation-loading-backdrop"></div>
+          <div class="translation-loading-dialog" role="dialog" aria-modal="true" aria-label="Traduciendo canción">
+            <div class="translation-loading-spinner"></div>
+            <div class="translation-loading-content">
+              <h3 class="translation-loading-title">${iconSparkles} Traduciendo Canción</h3>
+              <p class="translation-loading-desc">${escapeHtml(translatingStatusText || 'Traduciendo todas las frases... Por favor espera.')}</p>
             </div>
           </div>
         ` : ''}
@@ -1154,6 +1192,42 @@ export function createSongEditorView({
             }
             render()
             showStatus(`Texto original copiado al verso #${lIdx + 1}.`, 'info')
+          }
+        })
+      }
+
+      const translateRefBtn = card.querySelector('.btn-translate-ref-line')
+      if (translateRefBtn) {
+        translateRefBtn.addEventListener('click', async () => {
+          const refLine = mainLang?.lines?.[lIdx]
+          if (!refLine || !refLine.text || !refLine.text.trim()) {
+            showStatus('El verso original está vacío o es una pausa instrumental.', 'info')
+            return
+          }
+
+          translateRefBtn.disabled = true
+          translateRefBtn.textContent = 'Traduciendo...'
+
+          try {
+            const targetLang = activeLang.code || 'es'
+            const sourceLang = mainLang?.code || 'auto'
+            const translatedText = await translatePhrase(refLine.text, targetLang, sourceLang)
+
+            if (translatedText) {
+              line.text = translatedText
+              line.syllables = []
+              render()
+              showStatus(`Verso #${lIdx + 1} traducido automáticamente a "${activeLang.name}".`, 'success')
+            } else {
+              showStatus(`No se pudo traducir el verso #${lIdx + 1}.`, 'error')
+              translateRefBtn.disabled = false
+              translateRefBtn.textContent = 'Traducir'
+            }
+          } catch (err) {
+            console.error('Error al traducir verso:', err)
+            showStatus('Error de red al intentar traducir el verso.', 'error')
+            translateRefBtn.disabled = false
+            translateRefBtn.textContent = 'Traducir'
           }
         })
       }
@@ -1425,6 +1499,61 @@ export function createSongEditorView({
       })
     }
 
+    // Auto-traducir toda la canción desde el idioma principal al idioma activo
+    const handleAutoTranslateAll = async () => {
+      if (!mainLang || !mainLang.lines || mainLang.lines.length === 0) {
+        showStatus('No hay versos originales en el idioma principal para traducir.', 'info')
+        return
+      }
+
+      const confirmMsg = `¿Deseas traducir automáticamente todas las frases de "${mainLang.name}" a "${activeLang.name}"?\n(Se conservarán los tiempos y pausas instrumentales)`
+      if (typeof window !== 'undefined' && window.confirm && !window.confirm(confirmMsg)) {
+        return
+      }
+
+      isTranslatingSong = true
+      translatingStatusText = `Traduciendo toda la canción a "${activeLang.name}"... Por favor espera.`
+      render()
+
+      try {
+        const originalTexts = mainLang.lines.map(l => l.text || '')
+        const targetLang = activeLang.code || 'es'
+        const sourceLang = mainLang?.code || 'auto'
+
+        const { translatedLines } = await translateLines(originalTexts, targetLang, sourceLang)
+
+        let translatedCount = 0
+        activeLang.lines = mainLang.lines.map((origL, idx) => {
+          const transText = translatedLines[idx] || ''
+          if (transText.trim().length > 0) {
+            translatedCount++
+          }
+          return {
+            id: activeLang.lines?.[idx]?.id || `line-${activeLang.code}-${Date.now()}-${idx}`,
+            startTime: origL.startTime,
+            endTime: origL.endTime,
+            text: transText,
+            syllables: [] // Desactivado silabeo automático al traducir
+          }
+        })
+        activeLang.plain = activeLang.lines.map(l => l.text).join('\n')
+
+        showStatus(`¡Canción traducida con éxito! Se tradujeron ${translatedCount} frases a "${activeLang.name}".`, 'success')
+      } catch (err) {
+        console.error('Error al traducir canción completa:', err)
+        showStatus('Error al traducir la canción. Comprueba tu conexión a internet.', 'error')
+      } finally {
+        isTranslatingSong = false
+        translatingStatusText = ''
+        render()
+      }
+    }
+
+    const autoTranslateAllBtns = containerElement.querySelectorAll('.btn-auto-translate-all')
+    autoTranslateAllBtns.forEach(btn => {
+      btn.addEventListener('click', handleAutoTranslateAll)
+    })
+
     // 7. Modales
     // Modal importación rápida
     const openQuickImportBtns = containerElement.querySelectorAll('.btn-open-quick-import')
@@ -1502,16 +1631,28 @@ export function createSongEditorView({
       })
     })
 
+    const autoTranslateCheck = containerElement.querySelector('#check-auto-translate')
+    const copyTimingsCheck = containerElement.querySelector('#check-copy-timings')
+    if (autoTranslateCheck && copyTimingsCheck) {
+      autoTranslateCheck.addEventListener('change', () => {
+        if (autoTranslateCheck.checked) {
+          copyTimingsCheck.checked = true
+        }
+      })
+    }
+
     const confirmAddLangBtn = containerElement.querySelector('#btn-confirm-add-lang')
     if (confirmAddLangBtn) {
-      confirmAddLangBtn.addEventListener('click', () => {
+      confirmAddLangBtn.addEventListener('click', async () => {
         const nameInput = containerElement.querySelector('#input-new-lang-name')
         const codeInput = containerElement.querySelector('#input-new-lang-code')
         const copyCheck = containerElement.querySelector('#check-copy-timings')
+        const autoCheck = containerElement.querySelector('#check-auto-translate')
 
         const name = (nameInput?.value || '').trim()
         const code = (codeInput?.value || '').trim().toLowerCase()
         const shouldCopy = copyCheck?.checked ?? true
+        const shouldAutoTranslate = autoCheck?.checked ?? false
 
         if (!name || !code) {
           alert('Ingresa el nombre y el código del nuevo idioma.')
@@ -1525,18 +1666,64 @@ export function createSongEditorView({
           return
         }
 
+        const mainLang = currentSong.lyrics_data.languages.find(l => l.isMain) || currentSong.lyrics_data.languages[0]
+
         let newLines = []
-        if (shouldCopy) {
-          const mainLang = currentSong.lyrics_data.languages.find(l => l.isMain) || currentSong.lyrics_data.languages[0]
-          if (mainLang && Array.isArray(mainLang.lines)) {
-            newLines = mainLang.lines.map((l, i) => ({
-              id: `line-${code}-${Date.now()}-${i}`,
-              text: '', // Letra a traducir
-              startTime: l.startTime,
-              endTime: l.endTime,
-              syllables: []
-            }))
+        if (shouldAutoTranslate && mainLang && Array.isArray(mainLang.lines) && mainLang.lines.length > 0) {
+          isAddLanguageModalOpen = false
+          isTranslatingSong = true
+          translatingStatusText = `Traduciendo canción a "${name}"... Por favor espera.`
+          render()
+
+          try {
+            const originalTexts = mainLang.lines.map(l => l.text || '')
+            const { translatedLines } = await translateLines(originalTexts, code, mainLang.code)
+            let translatedCount = 0
+
+            newLines = mainLang.lines.map((origL, i) => {
+              const transText = translatedLines[i] || ''
+              if (transText.trim().length > 0) {
+                translatedCount++
+              }
+              return {
+                id: `line-${code}-${Date.now()}-${i}`,
+                text: transText,
+                startTime: origL.startTime,
+                endTime: origL.endTime,
+                syllables: [] // Desactivado silabeo automático al traducir
+              }
+            })
+
+            const newLang = {
+              code,
+              name,
+              isMain: false,
+              plain: newLines.map(l => l.text).join('\n'),
+              lines: newLines
+            }
+
+            currentSong.lyrics_data.languages.push(newLang)
+            activeLangIndex = currentSong.lyrics_data.languages.length - 1
+            showStatus(`Nuevo idioma "${name}" [${code}] añadido y ${translatedCount} frases traducidas automáticamente.`, 'success')
+            return
+          } catch (err) {
+            console.error('Error al autotraducir al añadir idioma:', err)
+            showStatus('Error al traducir automáticamente.', 'error')
+          } finally {
+            isTranslatingSong = false
+            translatingStatusText = ''
+            render()
           }
+        }
+
+        if (shouldCopy && mainLang && Array.isArray(mainLang.lines)) {
+          newLines = mainLang.lines.map((l, i) => ({
+            id: `line-${code}-${Date.now()}-${i}`,
+            text: '', // Letra a traducir
+            startTime: l.startTime,
+            endTime: l.endTime,
+            syllables: []
+          }))
         }
 
         const newLang = {
@@ -1550,6 +1737,7 @@ export function createSongEditorView({
         currentSong.lyrics_data.languages.push(newLang)
         activeLangIndex = currentSong.lyrics_data.languages.length - 1
         isAddLanguageModalOpen = false
+        render()
         showStatus(`Nuevo idioma "${name}" [${code}] añadido con éxito.`, 'success')
       })
     }

@@ -488,6 +488,13 @@ La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj M
 * **Gestión de Interacción sin Congelamiento:** Para evitar que el thumb de la barra de progreso quede estático tras hacer clic o arrastrar en la línea de tiempo (problema causado por la retención persistente de foco en navegadores sobre elementos `<input type="range">`), `controlsView.js` gestiona la barra con la bandera de interacción activa `isUserSeeking`.
 * **Ciclo de Eventos:** Eventos `pointerdown`, `mousedown`, `touchstart` e `input` activan `isUserSeeking = true`. Al soltar el control (`change`, `pointerup`, `mouseup`, `touchend`), se apaga la bandera y se desenfoca el elemento (`seekSlider.blur()`), permitiendo que el Master Clock continúe actualizando `seekSlider.value` en cada fotograma (`requestAnimationFrame`) de forma ininterrumpida sin necesidad de pausar.
 
+### 3.8. Servicio de Traducción Automática Gratuita (Zero-Backend): Unison & MyMemory (`src/services/translationService.js`)
+Para posibilitar la traducción instantánea de canciones completas y versos individuales sin costos operativos ni servidores intermediarios, SarangaBaranga implementa una arquitectura de traducción en cascada:
+1. **Traducción por Lotes con Unison API (`POST https://unison.boidu.dev/translate`):** Envía las líneas con contenido en una única solicitud HTTP JSON (`{ lines: string[], to: targetLang }`), traduciendo decenas de versos de forma instantánea y detectando el idioma de origen automáticamente.
+2. **Fallback Neuronal con MyMemory API (`https://api.mymemory.translated.net/get`):** Si Unison responde con error (ej. HTTP 502) o se traducen idiomas como japonés (`ja`), el servicio recurre de forma transparente a la API neuronal de MyMemory, procesando las frases en paralelo controlado (bloques de 4 líneas) con clave de cortesía para una cuota de hasta 50,000 palabras diarias gratuitas.
+3. **Preservación Estricta de Pausas Instrumentales:** Las líneas en blanco o instrumentales no se envían a las APIs de traducción (evitando errores 502 y consumo innecesario de cuota) y se reinsertan vacías en sus posiciones originales exactas, blindando la sincronización de compases.
+4. **Decodificación de Entidades HTML:** Saneamiento universal (`decodeHtmlEntities`) para eliminar caracteres codificados devueltos por traductores automáticos (`&#39;`, `&quot;`, `&amp;`, etc.).
+
 En ambos orígenes de audio, el **Sincronizador de Letras** consume un único valor normalizado: `currentTime` en segundos.
 
 ---
@@ -519,6 +526,11 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
    * **Herramientas de Borrado de Sílabas:** Controles dedicados para vaciar las sílabas de un verso individual (disponible en el encabezado de la tarjeta y en la barra de acciones rápidas de sílabas) y borrado masivo para todas las frases del idioma activo con confirmación obligatoria previa (`window.confirm`), informando el número total de versos y sílabas afectadas antes de ejecutar la acción destructiva.
    * **Importador Rápido:** Modal para pegar letras completas de corrido y calcular automáticamente versos, pausas y sílabas en segundos.
    * **Guía de Referencia de Frase Original para Traducción:** Al editar pistas secundarias (traducciones), cada tarjeta de frase presenta un banner contextual superior con la frase correspondiente del idioma principal (`mainLang.lines[lineIdx]`), mostrando texto original y alternativo/fonético (Romaji), aviso explícito de pausas instrumentales (`⏸ [Pausa / Verso en blanco]`), botón de copia rápida al verso traducido y selector en la barra de herramientas para alternar entre Ambos, Solo original, Solo alternativo o Desactivado con persistencia en `localStorage`.
+   * **Traducción Automática y Gratuita (Zero-Backend):** Motor integrado mediante `src/services/translationService.js` (cascada Unison API + MyMemory API) que permite:
+     - Traducir versos individuales con un clic en la tarjeta de frase (`Traducir`), conservando las marcas de tiempo y dejando la frase lista para canto o silabeo manual sin fragmentación silábica forzada.
+     - Traducir la canción completa (`Traducir Toda la Canción`) desde la barra de herramientas del editor o desde el estado inicial vacío de una traducción, preservando fielmente pausas instrumentales (versos en blanco) para evitar desfasajes.
+     - **Overlay Bloqueante de Progreso:** Durante traducciones completas o creación de idiomas traducidos, se activa un backdrop oscurecido y desenfocado con un cuadro de diálogo centrado (`translation-loading-dialog`) que previene manipulaciones erróneas del usuario mientras se procesa la solicitud.
+     - Opción de traducción automática al dar de alta un nuevo idioma ("Traducir automáticamente todas las frases desde el original") en el modal de idiomas.
 
 
 
