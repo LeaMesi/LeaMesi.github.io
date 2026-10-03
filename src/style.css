@@ -1606,6 +1606,7 @@ input[type="number"] {
   align-items: flex-start;
   gap: 12px;
   flex-wrap: wrap;
+  height: 100%;
 }
 
 .card-title-group {
@@ -1622,6 +1623,10 @@ input[type="number"] {
   line-height: 1.25;
   word-break: break-word;
   overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .card-artist {
