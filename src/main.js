@@ -620,6 +620,12 @@ async function initApp() {
   try {
     await getDB()
     await songMenuView.refresh()
+
+    const initialSong = playlistService.getCurrentSong()
+    if (initialSong) {
+      await loadSongIntoApp(initialSong.id, { autoplay: false })
+    }
+
     showMenuScreen()
   } catch (err) {
     console.error('Error durante la inicialización:', err)

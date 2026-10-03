@@ -179,4 +179,22 @@ describe('views/floatingPlayerView.js', () => {
 
     expect(onSeek).toHaveBeenCalledWith(120)
   })
+
+  it('inicializa con estado en pausa y tiempo en 0 al pre-cargarse', () => {
+    const floatingPlayer = createFloatingPlayerView({ containerElement: container })
+    floatingPlayer.setSong({ id: 1, title: 'Still Alive', artist: 'GLaDOS' })
+    floatingPlayer.setDuration(180)
+    floatingPlayer.setTime(0)
+    floatingPlayer.setPlayingState(false)
+    floatingPlayer.setVisible(true)
+
+    const btnPlay = container.querySelector('#btn-floating-play')
+    const curTimeEl = container.querySelector('#floating-time-current')
+    const durTimeEl = container.querySelector('#floating-time-duration')
+
+    expect(btnPlay?.title).toBe('Reproducir')
+    expect(curTimeEl?.textContent).toBe('00:00')
+    expect(durTimeEl?.textContent).toBe('03:00')
+    expect(floatingPlayer.getIsVisible()).toBe(true)
+  })
 })
