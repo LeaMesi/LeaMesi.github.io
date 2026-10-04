@@ -378,6 +378,19 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     return fallbackTime
   }
 
+  function setActiveOffset(newOffset) {
+    const off = Math.round((Number(newOffset) || 0) * 10) / 10
+    activeOffset = off
+    if (activeVideo) {
+      activeVideo.offset = off
+    }
+    const curTime = getCurrentTime()
+    const lyricsTime = getLyricsTime()
+    if (onTimeUpdate) {
+      onTimeUpdate(curTime, lyricsTime)
+    }
+  }
+
   function getLyricsTime() {
     return getCurrentTime() - activeOffset
   }
@@ -452,6 +465,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     getActiveVideo: () => activeVideo,
     getActiveVideoId: () => activeVideoId,
     getActiveOffset: () => activeOffset,
+    setActiveOffset,
     setVideo,
     setTrackType,
     getTrackType: () => currentTrackType,

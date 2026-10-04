@@ -444,7 +444,8 @@ describe('views/songMenuView.js', () => {
     // En la fila inactiva se muestra el svg de nota musical
     expect(listRow1.querySelector('.list-song-icon-wrap svg')).not.toBeNull()
     expect(listRow1.querySelector('.list-song-icon-wrap .now-playing-bars')).toBeNull()
-    expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('Ver')
+    expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('')
+    expect(listRow2.querySelector('.btn-enter-lyrics svg')).not.toBeNull()
 
     // Desactivar la canción (null)
     menu.setActiveSongId(null)
@@ -453,7 +454,8 @@ describe('views/songMenuView.js', () => {
     // Se restaura el icono de nota musical en listRow2
     expect(listRow2.querySelector('.list-song-icon-wrap svg')).not.toBeNull()
     expect(listRow2.querySelector('.list-song-icon-wrap .now-playing-bars')).toBeNull()
-    expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('Entrar')
+    expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('')
+    expect(listRow2.querySelector('.btn-enter-lyrics svg')).not.toBeNull()
 
     // Volver a activar con ID como string y alternar a cuadrícula
     menu.setActiveSongId(String(firstSong.id))

@@ -46,4 +46,4 @@ Widget compacto fijado en la esquina inferior derecha del catálogo cuando hay u
 
 ## 5. Botones de Acción en Canciones del Catálogo
 - **Vista Cuadrícula:** El botón principal de cada tarjeta de canción (`.btn-enter-lyrics`) mantiene de forma fija el texto `${iconMic} Modo Letra` tanto en el renderizado inicial como ante actualizaciones reactivas de estado (`updateActiveSongHighlight`).
-- **Vista Lista:** El botón compacto muestra `${iconMic} Ver` si la canción está activa en reproducción o `${iconMic} Entrar` si está inactiva.
+- **Vista Lista:** El botón compacto (`.btn-enter-lyrics`) muestra exclusivamente el icono `${iconMic}` sin texto alguno, integrándose de forma minimalista con los demás botones de acción compactos (`${iconFolder}`, `${iconListPlus}`, `${iconEdit}`, `${iconTrash}`).

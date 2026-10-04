@@ -27,6 +27,8 @@
   - Diccionario de kanjis y palabras embebido (`kanjiDict.js`), motor Hepburn y enriquecimiento automático.
 - [x] **23.2 - 23.3. Preservación y Reconstrucción de Espacios en Romaji:**
   - Algoritmo `getSyllableAltTextsWithSpacing` para erradicar aglutinación fonética y preservar espacios finales.
+- [x] **13.4. Calibración en Caliente de Offset en el Popover de Configuración:**
+  - Controles `-0.1s` y `+0.1s` integrados directamente en el menú de configuración de Modo Letra con display central numérico, permitiendo sincronizar la letra de inmediato sin pausar la canción.
 
 ---
 

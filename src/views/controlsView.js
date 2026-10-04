@@ -43,7 +43,8 @@ export function createControlsView({
   onPrevSong,
   onNextSong,
   onOpenPlaylist,
-  onToggleFullscreen
+  onToggleFullscreen,
+  onOffsetChange
 }) {
   let isPlaying = false
   let duration = 0
@@ -76,9 +77,18 @@ export function createControlsView({
   let isSettingsOpen = false
   let isDockClickBound = false
 
+  function formatOffset(val) {
+    const num = Number(val) || 0
+    const sign = num > 0 ? '+' : ''
+    return `${sign}${num.toFixed(1)}s`
+  }
+
   function render() {
     if (!containerElement) return
     containerElement.title = 'Volver a la lista de canciones'
+
+    const activeVideo = availableVideos.find(v => String(v.id) === String(activeVideoId)) || availableVideos[0] || null
+    const activeOffset = activeVideo ? (Number(activeVideo.offset) || 0) : 0
 
     const translations = availableLanguages.filter(l => !l.isMain)
     const translationsHtml = `
@@ -185,6 +195,22 @@ export function createControlsView({
                       </button>
                     </div>
                   </div>
+
+                  <!-- Ajuste rápido de Offset para el video seleccionado -->
+                  <div class="popover-item offset-adjust-group" title="Ajuste fino de sincronización (offset) para este video">
+                    <label>Offset:</label>
+                    <div class="offset-adjust-controls">
+                      <button type="button" class="btn btn-xs btn-outline btn-offset-step" id="btn-offset-dec" title="Restar 0.1s de offset (la letra empezará 0.1s más tarde)" ${availableVideos.length === 0 ? 'disabled' : ''}>
+                        -0.1s
+                      </button>
+                      <span class="offset-value-badge" id="controls-offset-value">${formatOffset(activeOffset)}</span>
+                      <button type="button" class="btn btn-xs btn-outline btn-offset-step" id="btn-offset-inc" title="Sumar 0.1s de offset (la letra empezará 0.1s más temprano)" ${availableVideos.length === 0 ? 'disabled' : ''}>
+                        +0.1s
+                      </button>
+                    </div>
+                  </div>
+
+                  <hr style="border: none; border-top: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));">
 
                   <!-- Selector de Frases Anteriores (0 a 3) -->
                   <div class="popover-item selector-group past-lines-group" title="Cantidad de frases anteriores visibles arriba de la actual">
@@ -339,7 +365,54 @@ export function createControlsView({
       videoSelect.addEventListener('change', (e) => {
         const vidId = e.target.value
         activeVideoId = vidId
+        const activeVid = availableVideos.find(v => String(v.id) === String(vidId))
+        const offBadge = containerElement.querySelector('#controls-offset-value')
+        if (offBadge && activeVid) {
+          offBadge.textContent = formatOffset(activeVid.offset || 0)
+        }
         if (onVideoChange) onVideoChange(vidId)
+      })
+    }
+
+    function handleOffsetDelta(delta) {
+      const activeVid = availableVideos.find(v => String(v.id) === String(activeVideoId)) || availableVideos[0]
+      if (!activeVid) return
+
+      const curOffset = Number(activeVid.offset) || 0
+      const newOffset = Math.round((curOffset + delta) * 10) / 10
+      activeVid.offset = newOffset
+
+      const offBadge = containerElement.querySelector('#controls-offset-value')
+      if (offBadge) {
+        offBadge.textContent = formatOffset(newOffset)
+      }
+
+      if (videoSelect) {
+        const option = videoSelect.querySelector(`option[value="${activeVid.id}"]`)
+        if (option) {
+          const offText = ` [${newOffset}s]`
+          option.textContent = `${activeVid.name}${offText}`
+        }
+      }
+
+      if (onOffsetChange) {
+        onOffsetChange(newOffset, activeVid.id)
+      }
+    }
+
+    const decBtn = containerElement.querySelector('#btn-offset-dec')
+    if (decBtn) {
+      decBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        handleOffsetDelta(-0.1)
+      })
+    }
+
+    const incBtn = containerElement.querySelector('#btn-offset-inc')
+    if (incBtn) {
+      incBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        handleOffsetDelta(0.1)
       })
     }
 
@@ -524,6 +597,31 @@ export function createControlsView({
     render()
   }
 
+  function setOffset(newOffset) {
+    const activeVideo = availableVideos.find(v => String(v.id) === String(activeVideoId)) || availableVideos[0] || null
+    if (activeVideo) {
+      activeVideo.offset = Number(newOffset) || 0
+      const offBadge = containerElement?.querySelector('#controls-offset-value')
+      if (offBadge) {
+        offBadge.textContent = formatOffset(activeVideo.offset)
+      }
+      const videoSelect = containerElement?.querySelector('#video-select')
+      if (videoSelect) {
+        const option = videoSelect.querySelector(`option[value="${activeVideo.id}"]`)
+        if (option) {
+          const off = activeVideo.offset
+          const offText = ` [${off}s]`
+          option.textContent = `${activeVideo.name}${offText}`
+        }
+      }
+    }
+  }
+
+  function getOffset() {
+    const activeVideo = availableVideos.find(v => String(v.id) === String(activeVideoId)) || availableVideos[0] || null
+    return activeVideo ? (Number(activeVideo.offset) || 0) : 0
+  }
+
   function setTrackType(trackType) {
     currentTrackType = trackType
     if (availableVideos.length > 1) {
@@ -623,6 +721,8 @@ export function createControlsView({
     setDuration,
     setTime,
     setVideosState,
+    setOffset,
+    getOffset,
     setTrackType,
     setLanguagesState,
     setPreviewLinesCount,

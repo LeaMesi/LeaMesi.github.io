@@ -247,7 +247,7 @@ export function createSongMenuView({
                   ${iconTrash}
                 </button>
                 <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                  ${isActive ? `${iconMic} Ver` : `${iconMic} Entrar`}
+                  ${iconMic}
                 </button>
               </div>
             </article>
@@ -1087,7 +1087,7 @@ export function createSongMenuView({
       if (enterBtn) {
         enterBtn.title = isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'
         if (card.classList.contains('song-menu-list-row')) {
-          enterBtn.innerHTML = isActive ? `${iconMic} Ver` : `${iconMic} Entrar`
+          enterBtn.innerHTML = `${iconMic}`
         } else {
           enterBtn.innerHTML = `${iconMic} Modo Letra`
         }
