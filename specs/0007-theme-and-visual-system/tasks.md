@@ -23,6 +23,9 @@
   - Incorporación de Sección 4 en `src/views/themeSettingsModal.js` ("Cuadros de Aviso y Notificaciones") para personalizar los colores de alertas de éxito, informativas y de error (`alertSuccessColor`, `alertInfoColor`, `alertErrorColor`).
   - Inyección en `:root` de variables CSS dinámicas (`--alert-*-bg`, `--alert-*-color`, `--alert-*-border`) con cálculo automático de opacidad y contraste según el brillo del panel.
   - Botón de cierre manual "X" (`.btn-close-alert`) en todos los cuadros de aviso de la aplicación y auto-cierre al cambiar de pantalla mediante `clearAllStatusAlerts()`.
+- [x] **8.6. Renovación del Icono de Micrófono y Estilos Font Awesome:**
+  - Sustitución de `iconMic` por un glifo vectorial estilizado de alta resolución con `fill="currentColor"` (`viewBox="0 0 340 340"`).
+  - Inclusión de Font Awesome 6.5.2 en `index.html` para soporte tipográfico y de recursos iconográficos complementarios.
 
 ---
 

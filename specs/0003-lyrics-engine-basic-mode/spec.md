@@ -29,3 +29,10 @@ El Modo Básico es el núcleo funcional prioritario de SarangaBaranga. Su diseñ
 4. **Subtitulado de Traducción Simultáneo:** La traducción seleccionada se muestra inmediatamente debajo de la frase cantada en cursiva (`font-style: italic`) con `--translation-color`.
 5. **Resaltado Silábico Continuo sin Espacios Espurios:** Desglose en elementos `<span>` contiguos con `white-space: pre-wrap; display: inline;` concatenados mediante `join('')`, evitando saltos de línea artificiales.
 6. **Alineación de Espacios en Texto Alternativo (Romaji):** Algoritmo `getSyllableAltTextsWithSpacing(line)` que reconstruye exactamente los espacios y puntuaciones entre palabras para evitar aglutinaciones tipográficas.
+
+---
+
+## 4. Menú de Configuración y Calibración en Modo Letra (`src/views/controlsView.js`)
+1. **Calibración de Audio y Offset en Caliente:** Menú desplegable emergente (`.settings-popover-content`) que agrupa la selección de pistas de video con indicador conciso de offset (`[${off}s]`, e.g. `[0.1s]`, `[0s]`, `[-0.1s]`), botones de ajuste fino en caliente (`-0.1s` y `+0.1s`) e indicador central numérico.
+2. **Separación Visual de Secciones:** Inclusión de un divisor horizontal sutil (`<hr>`) que separa limpiamente la calibración técnica de la pista/offset de las preferencias de visualización (frases anteriores de 0 a 3, frases siguientes de 0 a 3, conmutador de texto original/romaji y traducciones).
+
