@@ -2619,6 +2619,19 @@ input[type="number"] {
   box-shadow: 0 0 12px rgba(14, 165, 233, 0.3);
 }
 
+.online-provider-tab.tab-prov-youtube.is-active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ff6b6b;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.source-badge.badge-source-youtube {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ff6b6b;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
 .online-inputs-container {
   display: flex;
   flex-direction: column;
@@ -3144,6 +3157,231 @@ input[type="number"] {
   padding: 30px 15px;
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+/* Interfaz de YouTube y YouTube Music */
+.youtube-url-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 52px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.youtube-controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.youtube-options-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.youtube-single-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+}
+
+.youtube-preview-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .youtube-preview-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.youtube-card-media {
+  flex-shrink: 0;
+  width: 140px;
+  height: 90px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.youtube-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.youtube-card-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.youtube-meta-url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.youtube-url-link {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 320px;
+}
+
+.youtube-url-link:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.youtube-single-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Lote / Playlist de YouTube */
+.youtube-batch-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.youtube-batch-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+}
+
+.youtube-batch-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.youtube-batch-count {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+}
+
+.youtube-batch-toggles {
+  display: flex;
+  gap: 6px;
+}
+
+.youtube-library-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.youtube-library-input-row input {
+  max-width: 320px;
+}
+
+.youtube-batch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.youtube-batch-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.youtube-batch-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.youtube-batch-item.is-selected {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.youtube-item-thumb {
+  width: 54px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #000;
+}
+
+.youtube-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.youtube-item-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.youtube-item-artist {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.youtube-item-index {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.youtube-batch-footer {
+  margin-top: 6px;
 }
 
 .bl-empty-state {

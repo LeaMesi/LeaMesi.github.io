@@ -16,6 +16,7 @@ Para permitir compartir creaciones e interoperar con fuentes externas sin requer
 1. **Exportación / Importación JSON:** Los usuarios pueden exportar sus canciones a archivos JSON portables (`song-package.json`) y compartirlos. Al importar un archivo, el sistema lo valida y lo almacena localmente en IndexedDB.
 2. **Compatibilidad con Estándar `lyricsfile` (YAML):** Soporte nativo para importar y exportar archivos en formato abierto `.lyricsfile.yaml` ([especificación 1.0](https://github.com/tranxuanthang/lyricsfile/blob/main/SPECIFICATION.md)), permitiendo cargar canciones o traducciones desde repositorios comunitarios de letras.
 3. **Especificaciones y Tareas Modulares (`specs/NNNN-*`):** Toda especificación funcional, desglose de tareas y planes futuros se encuentran modularizados en carpetas individuales bajo [`specs/`](file:///home/hezztia/Documents/SarangaBaranga/specs/).
+4. **Importación Directa desde YouTube / YouTube Music (Sin API Keys):** Creación autónoma de canciones desde videos individuales o listas de reproducción (`playlist?list=...`) sin requerir claves de API ni backend (`src/services/youtubeImportService.js`), apoyándose en el servicio público oEmbed y en la YouTube IFrame API (`cuePlaylist`), permitiendo poblar canciones vacías (sin letras) para reproducción inmediata o posterior edición.
 
 El audio se reproduce principalmente a través de la **YouTube IFrame Player API** (video oficial y solo pista) o mediante elementos de audio HTML5 para archivos locales/remotos.
 

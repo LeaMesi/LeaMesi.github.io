@@ -24,6 +24,11 @@
 - [x] **29.3. Transición Inmediata al Editor y Carga Progresiva en Segundo Plano:**
   - Cierre inmediato del modal al seleccionar una canción y navegación directa al editor con paquete preliminar (título, artista, álbum, video).
   - Descarga progresiva de la letra en segundo plano con actualización en caliente de versos y sílabas (`onLyricsReady`) y de la traducción complementaria al finalizar, sin llamadas de red duplicadas y con estado interactivo visual en el editor.
+- [x] **30.1 - 30.3. Creación e Importación desde YouTube y YouTube Music (Sin Letras y Sin API Keys):**
+  - Servicio autónomo `src/services/youtubeImportService.js` con parser de identificadores de video (`extractYouTubeVideoId`) y de listas de reproducción (`extractYouTubePlaylistId`), compatible con `youtube.com`, `music.youtube.com`, `youtu.be` y Shorts.
+  - Extracción de metadatos vía oEmbed oficial (`https://www.youtube.com/oembed`) con CORS nativo y algoritmo fonético de limpieza `parseYouTubeVideoMeta` que separa artista y título y elimina sufijos de video musical.
+  - Extracción de listas de reproducción completas mediante la API IFrame de YouTube (`cuePlaylist` y `getPlaylist()`) y consultas por lotes controlados (`fetchMultipleYouTubeVideosMeta`).
+  - Pestaña dedicada `YouTube / Playlist` (`iconYoutube`) en `src/views/onlineLyricsModal.js` con soporte dual: vista previa individual con edición en caliente y opciones de "Cargar en Editor" o "Guardar en Catálogo", e importador por lote con selección de canciones y asignación opcional a una biblioteca local en IndexedDB.
 
 ---
 

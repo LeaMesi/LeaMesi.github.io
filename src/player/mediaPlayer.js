@@ -46,7 +46,7 @@ export function extractYouTubeVideoId(url) {
 }
 
 let ytApiPromise = null
-function loadYouTubeApi() {
+export function loadYouTubeApi() {
   if (window.YT && window.YT.Player) {
     return Promise.resolve(window.YT)
   }

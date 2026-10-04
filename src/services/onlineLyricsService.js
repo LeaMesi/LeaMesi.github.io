@@ -39,7 +39,8 @@ export const ONLINE_PROVIDERS = [
   { id: 'betterlyrics', name: 'BetterLyrics', badge: 'BetterLyrics' },
   { id: 'lrcred', name: 'LRC.red', badge: 'LRC.red' },
   { id: 'genius', name: 'Genius', badge: 'Genius' },
-  { id: 'lrclib', name: 'LRCLIB', badge: 'LRCLIB' }
+  { id: 'lrclib', name: 'LRCLIB', badge: 'LRCLIB' },
+  { id: 'youtube', name: 'YouTube', badge: 'YouTube' }
 ]
 
 /**
@@ -157,6 +158,14 @@ async function fetchDetailsBySource(source, item) {
     return await fetchLrclibDetails(item.rawId || item.id, item)
   } else if (source === 'genius') {
     return await fetchGeniusDetails(item)
+  } else if (source === 'youtube') {
+    return {
+      title: item.song || item.title || 'Canción de YouTube',
+      artist: item.artist || 'Artista Desconocido',
+      videoId: item.videoId || '',
+      videoUrl: item.videoUrl || (item.videoId ? `https://www.youtube.com/watch?v=${item.videoId}` : ''),
+      artwork: item.artwork || ''
+    }
   }
   throw new Error(`Proveedor de letras desconocido: "${source}".`)
 }
@@ -170,6 +179,41 @@ async function buildPackageBySource(source, details, opts) {
     return await buildSongPackageFromLrclib(details, opts)
   } else if (source === 'genius') {
     return await buildSongPackageFromGenius(details, opts)
+  } else if (source === 'youtube') {
+    return {
+      version: '1.1.0',
+      metadata: {
+        title: details.title,
+        artist: details.artist,
+        genres: [],
+        tags: [],
+        audioPath: '',
+        artwork: details.artwork || '',
+        source: 'youtube',
+        videos: details.videoUrl ? [
+          {
+            id: `vid-${Date.now()}-0`,
+            name: 'Video Oficial',
+            url: details.videoUrl,
+            offset: 0
+          }
+        ] : []
+      },
+      basic: {
+        languages: [
+          {
+            code: 'es',
+            name: 'Original',
+            isMain: true,
+            phrases: []
+          }
+        ]
+      },
+      advanced: {
+        enabled: false,
+        effects: []
+      }
+    }
   }
   throw new Error(`Proveedor de letras desconocido: "${source}".`)
 }
