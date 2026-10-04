@@ -495,4 +495,120 @@ describe('views/songEditorView.js', () => {
       expect(onSongSaved).toHaveBeenCalled()
     })
   })
+
+  describe('Gestión de idiomas en pestañas y modal de configuración', () => {
+    const multiLangSong = {
+      id: 'song-lang-test',
+      title: 'Canción Multilingüe',
+      artist: 'Artista Test',
+      lyrics_data: {
+        languages: [
+          {
+            name: 'Japonés',
+            code: 'ja',
+            isMain: true,
+            lines: [{ text: '夜に駆ける', startTime: 0, endTime: 3, syllables: [] }]
+          },
+          {
+            name: 'Español',
+            code: 'es',
+            isMain: false,
+            lines: [{ text: 'Corriendo en la noche', startTime: 0, endTime: 3, syllables: [] }]
+          }
+        ]
+      },
+      videos: [{ id: 'vid-1', name: 'Original', url: 'https://youtube.com/watch?v=123', offset: 0 }]
+    }
+
+    it('ubica el botón de añadir idioma dentro de la barra de pestañas como un botón +', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(multiLangSong)
+
+      const tabsBar = container.querySelector('.editor-lang-tabs-bar')
+      expect(tabsBar).not.toBeNull()
+
+      const addBtnInTabs = tabsBar.querySelector('#btn-add-language.btn-add-lang-tab')
+      expect(addBtnInTabs).not.toBeNull()
+
+      // En el header general ya no debe estar el botón antiguo
+      const headerOldBtn = container.querySelector('.editor-lyrics-header #btn-add-language')
+      expect(headerOldBtn).toBeNull()
+    })
+
+    it('en el idioma principal, "Hacer Principal" no aparece y "Eliminar Idioma" está bloqueado', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(multiLangSong)
+
+      // Abrir modal de configuración del idioma activo (principal: Japonés)
+      const editBtn = container.querySelector('#btn-edit-active-lang')
+      editBtn.click()
+
+      expect(container.querySelector('.modal-dialog')).not.toBeNull()
+      const setMainBtn = container.querySelector('#btn-modal-set-lang-main')
+      expect(setMainBtn).toBeNull()
+
+      const deleteBtn = container.querySelector('#btn-modal-delete-lang')
+      expect(deleteBtn).not.toBeNull()
+      expect(deleteBtn.disabled).toBe(true)
+      expect(container.querySelector('.main-lang-indicator-badge')).not.toBeNull()
+    })
+
+    it('en un idioma secundario, "Hacer Principal" aparece y "Eliminar Idioma" está habilitado', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(multiLangSong)
+
+      // Cambiar a la pestaña de Español (secundario)
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      // Abrir modal de configuración
+      const editBtn = container.querySelector('#btn-edit-active-lang')
+      editBtn.click()
+
+      const setMainBtn = container.querySelector('#btn-modal-set-lang-main')
+      expect(setMainBtn).not.toBeNull()
+
+      const deleteBtn = container.querySelector('#btn-modal-delete-lang')
+      expect(deleteBtn).not.toBeNull()
+      expect(deleteBtn.disabled).toBe(false)
+
+      // Hacer principal
+      setMainBtn.click()
+      await new Promise(r => setTimeout(r, 50))
+
+      // Ahora Español es principal: el botón "Hacer Principal" desapareció y "Eliminar" se bloqueó
+      expect(container.querySelector('#btn-modal-set-lang-main')).toBeNull()
+      const updatedDeleteBtn = container.querySelector('#btn-modal-delete-lang')
+      expect(updatedDeleteBtn.disabled).toBe(true)
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('permite eliminar un idioma secundario desde el modal cerrando el diálogo', async () => {
+      const onSongSaved = vi.fn()
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(multiLangSong)
+
+      // Cambiar a la pestaña de Español (secundario)
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      // Abrir modal de configuración
+      const editBtn = container.querySelector('#btn-edit-active-lang')
+      editBtn.click()
+
+      const deleteBtn = container.querySelector('#btn-modal-delete-lang')
+      deleteBtn.click()
+      await new Promise(r => setTimeout(r, 50))
+
+      // El modal debe haberse cerrado y debe quedar 1 solo idioma
+      expect(container.querySelector('.modal-dialog')).toBeNull()
+      const remainingTabs = container.querySelectorAll('.editor-lang-tab')
+      expect(remainingTabs.length).toBe(1)
+      expect(onSongSaved).toHaveBeenCalled()
+
+      confirmSpy.mockRestore()
+    })
+  })
 })

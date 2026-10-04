@@ -47,6 +47,11 @@
   - Guardado con debounce de 400ms en inputs de texto/números y guardado inmediato en eventos `change`/blur y acciones discretas.
   - Indicador visual no invasivo (`#editor-autosave-badge`) con animación de pulso y estados "Guardando...", "Guardado" y "Error al guardar".
   - Flusheo y persistencia garantizada al salir del editor desde el botón de retroceso (`#btn-header-back-menu` o `#brand-title`), al probar en Modo Letra o antes de descargar respaldos.
+- [x] **20.3. Optimización de Pestañas y Modal de Configuración de Idiomas:**
+  - Botón "Añadir Idioma / Traducción" reubicado desde el encabezado general a la barra de pestañas (`.editor-lang-tabs-bar`) como un botón compacto `+` (`.btn-add-lang-tab`).
+  - Unificación de controles de idioma dentro del modal de configuración (`#btn-edit-active-lang` / clic en pestaña activa):
+    - Botón "Hacer Principal" condicional: visible y funcional para idiomas secundarios, oculto si la pista ya es el idioma principal.
+    - Botón "Eliminar Idioma" con protección: deshabilitado y bloqueado con tooltip explicativo si la pista es el idioma principal (`disabled`), habilitado con diálogo de confirmación para traducciones y secundarias.
 
 ---
 

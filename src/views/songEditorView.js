@@ -632,48 +632,21 @@ export function createSongEditorView({
               <div class="lyrics-section-titles">
                 <h3>Idiomas y Letras de la Canción</h3>
               </div>
-
-              <div class="lang-actions-group">
-                <button class="btn btn-sm btn-outline" id="btn-add-language">
-                  ${iconPlus} Añadir Idioma / Traducción
-                </button>
-              </div>
             </div>
 
             <!-- Fila de Pestañas de Idiomas -->
             <div class="editor-lang-tabs-bar">
               ${langTabsHtml}
+              <button
+                type="button"
+                class="btn-add-lang-tab"
+                id="btn-add-language"
+                title="Añadir nuevo idioma o traducción"
+                aria-label="Añadir nuevo idioma o traducción"
+              >
+                ${iconPlus}
+              </button>
             </div>
-
-            <!-- Barra de estado y configuración del idioma activo -->
-            ${activeLang ? `
-              <div class="active-lang-settings-bar">
-                <div class="lang-info-group">
-                  <span class="lang-title-badge btn-trigger-edit-lang" title="Hacé clic para cambiar el nombre o código ISO de este idioma">
-                    ${activeLang.isMain ? 'Idioma Principal (Voz del Artista)' : 'Traducción Sincronizada'}: <strong>${escapeHtml(activeLang.name)}</strong> <span class="lang-code-tag">[${escapeHtml(activeLang.code)}]</span> ${iconEdit}
-                  </span>
-                  <span class="lang-counter">Frases: <strong>${lines.length}</strong></span>
-                </div>
-
-                <div class="lang-controls-group">
-                  <button class="btn btn-xs btn-outline" id="btn-edit-active-lang" title="Cambiar nombre y código ISO de este idioma">
-                    ${iconEdit} Editar Idioma
-                  </button>
-
-                  ${!activeLang.isMain ? `
-                    <button class="btn btn-xs btn-outline" id="btn-set-lang-main" title="Establecer este idioma como el cantado originalmente">
-                      Hacer Principal
-                    </button>
-                  ` : ''}
-
-                  ${languages.length > 1 ? `
-                    <button class="btn btn-xs btn-outline btn-danger-outline" id="btn-delete-active-lang" title="Eliminar esta pista de idioma">
-                      ${iconTrash} Eliminar Idioma
-                    </button>
-                  ` : ''}
-                </div>
-              </div>
-            ` : ''}
 
             <!-- Barra de Herramientas de Frases -->
             <div class="phrases-toolbar">
@@ -866,8 +839,8 @@ export function createSongEditorView({
           <div class="modal-dialog">
             <header class="modal-header">
               <div class="header-titles">
-                <h2>Editar Nombre y Código de Idioma</h2>
-                <p class="subtitle">Modificá el nombre visible y el código ISO para la pista activa</p>
+                <h2>Configurar Idioma</h2>
+                <p class="subtitle">Modificá el nombre visible, código ISO y opciones de la pista</p>
               </div>
               <button class="btn-close-modal btn-close-edit-lang">${iconClose}</button>
             </header>
@@ -893,6 +866,27 @@ export function createSongEditorView({
                   value="${escapeHtml(activeLang.code)}"
                   placeholder="Código ISO (ej. es, en)"
                 />
+              </div>
+
+              <div class="modal-lang-actions-section">
+                ${!activeLang.isMain ? `
+                  <button type="button" class="btn btn-sm btn-outline" id="btn-modal-set-lang-main" title="Establecer este idioma como la pista principal original">
+                    Hacer Principal
+                  </button>
+                ` : `
+                  <span class="main-lang-indicator-badge" title="Este idioma está configurado como la pista original">
+                    ★ Idioma Principal
+                  </span>
+                `}
+
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline btn-danger-outline"
+                  id="btn-modal-delete-lang"
+                  ${activeLang.isMain ? 'disabled title="El idioma principal no se puede eliminar. Para eliminarlo, primero debes hacer principal a otro idioma."' : 'title="Eliminar esta pista de idioma y sus frases"'}
+                >
+                  ${iconTrash} Eliminar Idioma
+                </button>
               </div>
 
               <div class="modal-footer-buttons">
@@ -1125,9 +1119,19 @@ export function createSongEditorView({
       })
     }
 
-    const setLangMainBtn = containerElement.querySelector('#btn-set-lang-main')
+    const setLangMainBtn = containerElement.querySelector('#btn-modal-set-lang-main') || containerElement.querySelector('#btn-set-lang-main')
     if (setLangMainBtn) {
       setLangMainBtn.addEventListener('click', () => {
+        const nameInput = containerElement.querySelector('#input-edit-lang-name')
+        const codeInput = containerElement.querySelector('#input-edit-lang-code')
+        const activeLang = getActiveLanguage()
+        if (nameInput && nameInput.value.trim() && activeLang) {
+          activeLang.name = nameInput.value.trim()
+        }
+        if (codeInput && codeInput.value.trim() && activeLang) {
+          activeLang.code = codeInput.value.trim().toLowerCase()
+        }
+
         const langs = currentSong.lyrics_data.languages
         langs.forEach((l, idx) => {
           l.isMain = idx === activeLangIndex
@@ -1137,13 +1141,15 @@ export function createSongEditorView({
       })
     }
 
-    const deleteActiveLangBtn = containerElement.querySelector('#btn-delete-active-lang')
+    const deleteActiveLangBtn = containerElement.querySelector('#btn-modal-delete-lang') || containerElement.querySelector('#btn-delete-active-lang')
     if (deleteActiveLangBtn) {
       deleteActiveLangBtn.addEventListener('click', () => {
         const activeLang = getActiveLanguage()
+        if (activeLang?.isMain) return
         if (window.confirm(`¿Seguro que deseas eliminar el idioma "${activeLang?.name}"?`)) {
           currentSong.lyrics_data.languages.splice(activeLangIndex, 1)
           activeLangIndex = 0
+          isEditLanguageModalOpen = false
           showStatus('Idioma eliminado.', 'info')
           triggerImmediateAutoSave()
         }
