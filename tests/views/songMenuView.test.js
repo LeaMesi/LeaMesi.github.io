@@ -283,17 +283,10 @@ describe('views/songMenuView.js', () => {
 
     const file = new File([JSON.stringify(pkg)], 'biblioteca-duplicada.json', { type: 'application/json' })
 
-    const dropzone = container.querySelector('#menu-file-dropzone') || container.querySelector('.btn-toggle-import')
-    // Abrir importador
-    const toggleImportBtn = container.querySelector('.btn-toggle-import')
-    toggleImportBtn.click()
+    expect(container.querySelector('.btn-toggle-import')).toBeNull()
 
-    const fileInput = container.querySelector('#menu-file-input')
-    Object.defineProperty(fileInput, 'files', {
-      value: [file],
-      writable: true
-    })
-    fileInput.dispatchEvent(new Event('change'))
+    // Importar paquete de biblioteca
+    menu.importFile(file)
 
     await new Promise(r => setTimeout(r, 100))
 
@@ -365,7 +358,7 @@ describe('views/songMenuView.js', () => {
     expect(onLoadLibraryAsPlaylist).toHaveBeenCalledWith(lib.id, { shuffle: true })
   })
 
-  it('destaca la canción activa inicial con clases is-active-song, is-playing y badge-now-playing', async () => {
+  it('destaca la canción activa inicial con clases is-active-song, is-playing y barras ecualizadoras', async () => {
     const { listSongs } = await import('../../src/services/songService.js')
     const allSongs = await listSongs()
     expect(allSongs.length).toBeGreaterThanOrEqual(2)
@@ -384,16 +377,22 @@ describe('views/songMenuView.js', () => {
     expect(activeCard).not.toBeNull()
     expect(inactiveCard).not.toBeNull()
 
-    // La tarjeta activa tiene las clases de destaque y el badge sonando
+    // La tarjeta activa tiene las clases de destaque y las barras animadas a la izquierda del pie
     expect(activeCard.classList.contains('is-active-song')).toBe(true)
     expect(activeCard.classList.contains('is-playing')).toBe(true)
-    expect(activeCard.querySelector('.badge-now-playing').style.display).not.toBe('none')
-    expect(activeCard.querySelector('.btn-enter-lyrics').textContent).toContain('Ver')
+    expect(activeCard.querySelector('.badge-now-playing')).toBeNull()
+    const activeIndicator = activeCard.querySelector('.card-now-playing-indicator')
+    expect(activeIndicator).not.toBeNull()
+    expect(activeIndicator.style.display).not.toBe('none')
+    expect(activeIndicator.querySelector('.now-playing-bars')).not.toBeNull()
+    expect(activeCard.querySelector('.btn-enter-lyrics').textContent).toContain('Modo Letra')
 
-    // La tarjeta inactiva no tiene las clases
+    // La tarjeta inactiva no tiene las clases ni las barras visibles
     expect(inactiveCard.classList.contains('is-active-song')).toBe(false)
-    expect(inactiveCard.querySelector('.badge-now-playing').style.display).toBe('none')
-    expect(inactiveCard.querySelector('.btn-enter-lyrics').textContent).toContain('Entrar')
+    const inactiveIndicator = inactiveCard.querySelector('.card-now-playing-indicator')
+    expect(inactiveIndicator).not.toBeNull()
+    expect(inactiveIndicator.style.display).toBe('none')
+    expect(inactiveCard.querySelector('.btn-enter-lyrics').textContent).toContain('Modo Letra')
   })
 
   it('actualiza reactivamente el resaltado entre canciones al llamar a setActiveSongId en cuadrícula y lista', async () => {
@@ -421,15 +420,16 @@ describe('views/songMenuView.js', () => {
 
     expect(card1.classList.contains('is-active-song')).toBe(false)
     expect(card1.classList.contains('is-playing')).toBe(false)
-    expect(card1.querySelector('.badge-now-playing').style.display).toBe('none')
-    expect(card1.querySelector('.btn-enter-lyrics').textContent).toContain('Entrar a Modo Letra')
+    expect(card1.querySelector('.card-now-playing-indicator').style.display).toBe('none')
+    expect(card1.querySelector('.btn-enter-lyrics').textContent).toContain('Modo Letra')
 
     expect(card2.classList.contains('is-active-song')).toBe(true)
     expect(card2.classList.contains('is-playing')).toBe(true)
-    expect(card2.querySelector('.badge-now-playing').style.display).not.toBe('none')
-    expect(card2.querySelector('.btn-enter-lyrics').textContent).toContain('Ver Modo Letra')
+    expect(card2.querySelector('.card-now-playing-indicator').style.display).not.toBe('none')
+    expect(card2.querySelector('.card-now-playing-indicator .now-playing-bars')).not.toBeNull()
+    expect(card2.querySelector('.btn-enter-lyrics').textContent).toContain('Modo Letra')
 
-    // Alternar a modo lista y verificar que el resaltado persiste
+    // Alternar a modo lista y verificar que el resaltado persiste y sustituye el icono de nota musical
     const listBtn = container.querySelector('#btn-view-list')
     listBtn.click()
 
@@ -437,15 +437,37 @@ describe('views/songMenuView.js', () => {
     const listRow2 = container.querySelector(`.song-menu-list-row[data-song-id="${secondSong.id}"]`)
     expect(listRow1.classList.contains('is-active-song')).toBe(false)
     expect(listRow2.classList.contains('is-active-song')).toBe(true)
-    expect(listRow2.querySelector('.badge-now-playing').style.display).not.toBe('none')
+    expect(listRow1.querySelector('.badge-now-playing')).toBeNull()
+    expect(listRow2.querySelector('.badge-now-playing')).toBeNull()
+    // En la fila activa se reemplazó la nota musical por las barras
+    expect(listRow2.querySelector('.list-song-icon-wrap .now-playing-bars')).not.toBeNull()
+    // En la fila inactiva se muestra el svg de nota musical
+    expect(listRow1.querySelector('.list-song-icon-wrap svg')).not.toBeNull()
+    expect(listRow1.querySelector('.list-song-icon-wrap .now-playing-bars')).toBeNull()
     expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('Ver')
 
     // Desactivar la canción (null)
     menu.setActiveSongId(null)
     expect(menu.getActiveSongId()).toBeNull()
     expect(listRow2.classList.contains('is-active-song')).toBe(false)
-    expect(listRow2.querySelector('.badge-now-playing').style.display).toBe('none')
+    // Se restaura el icono de nota musical en listRow2
+    expect(listRow2.querySelector('.list-song-icon-wrap svg')).not.toBeNull()
+    expect(listRow2.querySelector('.list-song-icon-wrap .now-playing-bars')).toBeNull()
     expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('Entrar')
+
+    // Volver a activar con ID como string y alternar a cuadrícula
+    menu.setActiveSongId(String(firstSong.id))
+    const gridBtn = container.querySelector('#btn-view-grid')
+    gridBtn.click()
+
+    card1 = container.querySelector(`.song-menu-card[data-song-id="${firstSong.id}"]`)
+    card2 = container.querySelector(`.song-menu-card[data-song-id="${secondSong.id}"]`)
+    expect(card1.classList.contains('is-active-song')).toBe(true)
+    expect(card2.classList.contains('is-active-song')).toBe(false)
+
+    // Llamar a updateHighlight() mantiene la reactividad
+    menu.updateHighlight()
+    expect(card1.classList.contains('is-active-song')).toBe(true)
   })
 
   it('permite hacer clic en una canción activa y despacha onEnterLyricsMode con su ID', async () => {
@@ -466,6 +488,27 @@ describe('views/songMenuView.js', () => {
 
     btnEnter.click()
     expect(onEnterLyricsMode).toHaveBeenCalledWith(activeSong.id)
+  })
+
+  it('permite cerrar la alerta de estado con el botón X y con el método clearStatus', async () => {
+    const menu = createSongMenuView({ containerElement: container })
+    await menu.refresh()
+
+    menu.showStatus('Operación completada exitosamente', 'success')
+    expect(container.querySelector('.status-alert')).not.toBeNull()
+    expect(container.querySelector('.status-alert-text').textContent).toBe('Operación completada exitosamente')
+
+    const closeBtn = container.querySelector('#btn-close-menu-alert')
+    expect(closeBtn).not.toBeNull()
+    closeBtn.click()
+
+    expect(container.querySelector('.status-alert')).toBeNull()
+
+    // Probar clearStatus()
+    menu.showStatus('Otra alerta informativa', 'info')
+    expect(container.querySelector('.status-alert')).not.toBeNull()
+    menu.clearStatus()
+    expect(container.querySelector('.status-alert')).toBeNull()
   })
 })
 

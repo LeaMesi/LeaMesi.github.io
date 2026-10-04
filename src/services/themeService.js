@@ -32,7 +32,12 @@ export const DEFAULT_THEME = {
   activeItalic: false,
   activeGlow: true,
   completedBold: true,
-  completedItalic: false
+  completedItalic: false,
+
+  // 4. Cuadros de Aviso y Notificaciones (Alertas de Estado)
+  alertSuccessColor: '#22c55e',
+  alertInfoColor: '#38bdf8',
+  alertErrorColor: '#ef4444'
 }
 
 export const THEME_PRESETS = [
@@ -362,6 +367,46 @@ export function applyTheme(theme = getThemeSettings()) {
   } else {
     root.style.setProperty('--lyrics-active-glow', 'none')
   }
+
+  // 5. Resaltado de Canción Activa en Menú (Modo Cuadrícula y Lista)
+  root.style.setProperty('--active-song-border', primaryColor)
+  root.style.setProperty('--active-song-shadow', hexToRgba(primaryColor, isLightPanel ? 0.3 : 0.45))
+  root.style.setProperty('--active-song-glow', hexToRgba(primaryColor, isLightPanel ? 0.15 : 0.3))
+  root.style.setProperty(
+    '--active-song-bg',
+    isLightPanel
+      ? `linear-gradient(145deg, ${hexToRgba(primaryColor, 0.12)} 0%, ${panelBg} 100%)`
+      : `linear-gradient(145deg, ${hexToRgba(primaryColor, 0.18)} 0%, ${panelBg} 100%)`
+  )
+  root.style.setProperty(
+    '--active-song-list-bg',
+    isLightPanel
+      ? `linear-gradient(90deg, ${hexToRgba(primaryColor, 0.14)} 0%, ${panelBg} 100%)`
+      : `linear-gradient(90deg, ${hexToRgba(primaryColor, 0.22)} 0%, ${panelBg} 100%)`
+  )
+  root.style.setProperty('--active-song-icon-bg', hexToRgba(primaryColor, isLightPanel ? 0.15 : 0.25))
+  root.style.setProperty('--active-song-icon-color', primaryColor)
+  root.style.setProperty('--badge-now-playing-bg', hexToRgba(primaryColor, isLightPanel ? 0.14 : 0.22))
+  root.style.setProperty('--badge-now-playing-border', hexToRgba(primaryColor, isLightPanel ? 0.35 : 0.45))
+  root.style.setProperty('--badge-now-playing-color', isLightPanel ? adjustBrightness(primaryColor, -10) : adjustBrightness(primaryColor, 35))
+  root.style.setProperty('--now-playing-bar-color', isLightPanel ? primaryColor : adjustBrightness(primaryColor, 30))
+
+  // 6. Cuadros de Aviso y Notificaciones (Alertas de Estado)
+  const successCol = theme.alertSuccessColor || '#22c55e'
+  const infoCol = theme.alertInfoColor || '#38bdf8'
+  const errorCol = theme.alertErrorColor || '#ef4444'
+
+  root.style.setProperty('--alert-success-bg', hexToRgba(successCol, isLightPanel ? 0.12 : 0.15))
+  root.style.setProperty('--alert-success-color', isLightPanel ? adjustBrightness(successCol, -20) : adjustBrightness(successCol, 25))
+  root.style.setProperty('--alert-success-border', hexToRgba(successCol, isLightPanel ? 0.35 : 0.3))
+
+  root.style.setProperty('--alert-info-bg', hexToRgba(infoCol, isLightPanel ? 0.12 : 0.15))
+  root.style.setProperty('--alert-info-color', isLightPanel ? adjustBrightness(infoCol, -20) : adjustBrightness(infoCol, 25))
+  root.style.setProperty('--alert-info-border', hexToRgba(infoCol, isLightPanel ? 0.35 : 0.3))
+
+  root.style.setProperty('--alert-error-bg', hexToRgba(errorCol, isLightPanel ? 0.12 : 0.15))
+  root.style.setProperty('--alert-error-color', isLightPanel ? adjustBrightness(errorCol, -15) : adjustBrightness(errorCol, 25))
+  root.style.setProperty('--alert-error-border', hexToRgba(errorCol, isLightPanel ? 0.35 : 0.3))
 }
 
 /**

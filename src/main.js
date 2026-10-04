@@ -1,7 +1,7 @@
 import './style.css'
 import { getDB } from './services/db.js'
 import { listSongs, fetchSongById } from './services/songService.js'
-import { applyTheme } from './services/themeService.js'
+import { applyTheme, subscribeTheme } from './services/themeService.js'
 import { createMediaPlayer, PLAYER_STATE } from './player/mediaPlayer.js'
 import { createLanguageManager } from './lyrics/languageManager.js'
 import { createBasicViewer } from './views/basicViewer.js'
@@ -211,6 +211,10 @@ async function initApp() {
     },
     onCreateEmptySong: () => {
       showEditorScreen(null)
+    },
+    onImportSuccess: async (msg) => {
+      await songMenuView?.refresh()
+      songMenuView?.showStatus(msg, 'success')
     }
   })
 
@@ -396,6 +400,7 @@ async function initApp() {
         showLyricsScreen()
         return
       }
+      songMenuView?.setActiveSongId(songId)
       await loadSongIntoApp(songId, { autoplay: true })
       showLyricsScreen()
     },
@@ -439,11 +444,20 @@ async function initApp() {
     })
     songMenuView.setPlaylistCount(plState.count)
 
+    if (plState.currentSong) {
+      songMenuView.setActiveSongId(plState.currentSong.id)
+    }
+
     if (headerPlaylistCountEl) {
       headerPlaylistCountEl.textContent = plState.count
       if (plState.count > 0) headerPlaylistCountEl.classList.add('has-items')
       else headerPlaylistCountEl.classList.remove('has-items')
     }
+  })
+
+  // 8c. Suscribir a cambios de tema visual para reactualizar el menú
+  subscribeTheme(() => {
+    songMenuView?.updateHighlight?.()
   })
 
   function checkHasAltText(language) {
@@ -485,7 +499,7 @@ async function initApp() {
     if (currentScreen === 'menu') {
       if (currentSong && mediaPlayer.getIsPlaying()) {
         if (headerTitleEl) headerTitleEl.textContent = `▶ ${currentSong.title}`
-        if (headerArtistEl) headerArtistEl.textContent = currentSong.artist ? `por ${currentSong.artist}` : ''
+        if (headerArtistEl) headerArtistEl.textContent = currentSong.artist ? `${currentSong.artist}` : ''
         if (btnHeaderNowPlaying) {
           btnHeaderNowPlaying.style.display = 'inline-flex'
         }
@@ -502,7 +516,7 @@ async function initApp() {
       }
       if (currentSong) {
         if (headerTitleEl) headerTitleEl.textContent = currentSong.title
-        if (headerArtistEl) headerArtistEl.textContent = currentSong.artist ? `por ${currentSong.artist}` : ''
+        if (headerArtistEl) headerArtistEl.textContent = currentSong.artist ? `${currentSong.artist}` : ''
       }
     } else {
       if (btnHeaderNowPlaying) {
@@ -538,8 +552,15 @@ async function initApp() {
     }
   }
 
+  function clearAllStatusAlerts() {
+    songMenuView?.clearStatus?.()
+    songEditorView?.clearStatus?.()
+    document.querySelectorAll('.status-alert').forEach(el => el.remove())
+  }
+
   // 10b. Alternar Pantallas (Menú vs Letra vs Editor)
   function showMenuScreen() {
+    clearAllStatusAlerts()
     exitFullscreenMode()
     currentScreen = 'menu'
     if (appContainer) appContainer.dataset.screen = 'menu'
@@ -567,10 +588,15 @@ async function initApp() {
       floatingPlayerView.setVisible(false)
     }
 
-    songMenuView.refresh()
+    songMenuView.refresh().then(() => {
+      if (currentSong) {
+        songMenuView?.setActiveSongId(currentSong.id)
+      }
+    })
   }
 
   function showLyricsScreen() {
+    clearAllStatusAlerts()
     currentScreen = 'lyrics'
     if (appContainer) appContainer.dataset.screen = 'lyrics'
     floatingPlayerView.setVisible(false)
@@ -589,6 +615,7 @@ async function initApp() {
   }
 
   function showEditorScreen(songToEdit = null) {
+    clearAllStatusAlerts()
     exitFullscreenMode()
     currentScreen = 'editor'
     if (appContainer) appContainer.dataset.screen = 'editor'
@@ -607,7 +634,7 @@ async function initApp() {
       headerTitleEl.textContent = songToEdit ? `Editor: ${songToEdit.title}` : 'Crear Nueva Canción'
     }
     if (headerArtistEl) {
-      headerArtistEl.textContent = songToEdit && songToEdit.artist ? `por ${songToEdit.artist}` : 'Herramienta de Creación'
+      headerArtistEl.textContent = songToEdit && songToEdit.artist ? `${songToEdit.artist}` : 'Herramienta de Creación'
     }
 
     songEditorView.open(songToEdit)
@@ -615,19 +642,28 @@ async function initApp() {
 
   // 11. Botón de volver al menú desde el header y clic en el logo "SarangaBaranga"
   if (btnHeaderBackMenu) {
-    btnHeaderBackMenu.addEventListener('click', () => {
+    btnHeaderBackMenu.addEventListener('click', async () => {
+      if (currentScreen === 'editor' && songEditorView?.flushAutoSave) {
+        await songEditorView.flushAutoSave()
+      }
       showMenuScreen()
     })
   }
 
   const brandTitleEl = document.querySelector('#brand-title')
   if (brandTitleEl) {
-    brandTitleEl.addEventListener('click', () => {
+    brandTitleEl.addEventListener('click', async () => {
+      if (currentScreen === 'editor' && songEditorView?.flushAutoSave) {
+        await songEditorView.flushAutoSave()
+      }
       showMenuScreen()
     })
-    brandTitleEl.addEventListener('keydown', (e) => {
+    brandTitleEl.addEventListener('keydown', async (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault()
+        if (currentScreen === 'editor' && songEditorView?.flushAutoSave) {
+          await songEditorView.flushAutoSave()
+        }
         showMenuScreen()
       }
     })

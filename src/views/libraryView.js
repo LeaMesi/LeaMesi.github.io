@@ -105,7 +105,8 @@ export function createLibraryView({
 
         ${statusMessage ? `
           <div class="status-alert status-${statusType}">
-            ${escapeHtml(statusMessage)}
+            <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+            <button type="button" class="btn-close-alert" id="btn-close-library-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
         ` : ''}
 
@@ -154,6 +155,14 @@ export function createLibraryView({
   }
 
   function bindEvents() {
+    const alertCloseBtn = modalElement.querySelector('#btn-close-library-alert')
+    if (alertCloseBtn) {
+      alertCloseBtn.addEventListener('click', () => {
+        statusMessage = ''
+        render()
+      })
+    }
+
     const backdrop = modalElement.querySelector('.modal-backdrop')
     if (backdrop) backdrop.addEventListener('click', close)
 

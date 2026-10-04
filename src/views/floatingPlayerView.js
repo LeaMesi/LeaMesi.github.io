@@ -43,7 +43,7 @@ export function createFloatingPlayerView({
 
     containerElement.style.display = 'block'
     const title = currentSong?.title || 'Sin título'
-    const artist = currentSong?.artist ? `por ${currentSong.artist}` : ''
+    const artist = currentSong?.artist ? `${currentSong.artist}` : ''
 
     containerElement.innerHTML = `
       <div class="floating-player-widget" id="floating-player-widget" role="region" aria-label="Reproductor flotante">

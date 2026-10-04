@@ -87,7 +87,8 @@ export function createVideoManagerModal({ containerElement, onVideosUpdated }) {
 
         ${statusMessage ? `
           <div class="status-alert status-${statusType}">
-            ${escapeHtml(statusMessage)}
+            <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+            <button type="button" class="btn-close-alert" id="btn-close-video-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
         ` : ''}
 
@@ -138,6 +139,14 @@ export function createVideoManagerModal({ containerElement, onVideosUpdated }) {
   }
 
   function bindEvents() {
+    const alertCloseBtn = containerElement.querySelector('#btn-close-video-alert')
+    if (alertCloseBtn) {
+      alertCloseBtn.addEventListener('click', () => {
+        statusMessage = ''
+        render()
+      })
+    }
+
     const backdrop = containerElement.querySelector('.modal-backdrop')
     if (backdrop) backdrop.addEventListener('click', close)
 

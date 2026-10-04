@@ -1,10 +1,8 @@
 import { listSongs, deleteSong } from '../services/songService.js'
 import {
-  importSongPackage,
   exportLibraryBackup,
-  importLibraryBackup,
   exportLibraryPackage,
-  importLibraryPackage
+  importUniversalFile
 } from '../services/shareService.js'
 import {
   listLibraries,
@@ -68,6 +66,11 @@ export function createSongMenuView({
   const savedViewMode = typeof localStorage !== 'undefined' ? localStorage.getItem('saranga_menu_view_mode') : null
   let viewMode = (savedViewMode === 'list' || savedViewMode === 'grid') ? savedViewMode : 'grid'
 
+  function areSongIdsEqual(id1, id2) {
+    if (id1 === null || id1 === undefined || id1 === '' || id2 === null || id2 === undefined || id2 === '') return false
+    return String(id1) === String(id2) || Number(id1) === Number(id2)
+  }
+
   function setViewMode(mode) {
     if (mode !== 'grid' && mode !== 'list') return
     if (viewMode === mode) return
@@ -76,6 +79,7 @@ export function createSongMenuView({
       localStorage.setItem('saranga_menu_view_mode', mode)
     }
     render()
+    updateActiveSongHighlight()
   }
 
   async function loadData() {
@@ -184,14 +188,8 @@ export function createSongMenuView({
         const videos = song.videos || []
         const langCount = song.lyrics_data?.languages?.length || 1
         const mainLang = song.lyrics_data?.languages?.find(l => l.isMain)?.name || 'Original'
-        const isActive = activeSongId !== null && Number(song.id) === activeSongId
+        const isActive = areSongIdsEqual(song.id, activeSongId)
         const activeClass = isActive ? ' is-active-song is-playing' : ''
-        const nowPlayingBadgeHtml = `
-          <span class="badge badge-now-playing" style="${isActive ? 'display: inline-flex;' : 'display: none;'}">
-            <span class="now-playing-bars"><span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span></span> En reproducción
-          </span>
-        `
-
         const videosSummary = videos.length === 0
           ? '<span class="video-pill-empty">Sin videos asociados</span>'
           : videos.map(v => {
@@ -204,12 +202,18 @@ export function createSongMenuView({
           `<span class="badge badge-library" title="En biblioteca: ${escapeHtml(l.name)}">${iconFolder} ${escapeHtml(l.name)}</span>`
         ).join('')
 
+        const nowPlayingBarsHtml = `
+          <span class="now-playing-bars" title="En reproducción">
+            <span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span>
+          </span>
+        `
+
         if (viewMode === 'list') {
           return `
             <article class="song-menu-card song-menu-list-row${activeClass}" data-song-id="${song.id}">
               <div class="list-col-main">
                 <div class="list-song-icon-wrap" title="${isActive ? 'En reproducción' : 'Canción'}">
-                  ${iconMusic}
+                  ${isActive ? nowPlayingBarsHtml : iconMusic}
                 </div>
                 <div class="list-title-group">
                   <h3 class="card-title list-card-title">${escapeHtml(song.title)}</h3>
@@ -218,7 +222,6 @@ export function createSongMenuView({
               </div>
 
               <div class="list-col-meta">
-                ${nowPlayingBadgeHtml}
                 <span class="badge badge-lang" title="Idiomas disponibles">${langCount} [${escapeHtml(mainLang)}]</span>
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
@@ -244,7 +247,7 @@ export function createSongMenuView({
                   ${iconTrash}
                 </button>
                 <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                  ${iconMic} ${isActive ? 'Ver' : 'Entrar'}
+                  ${isActive ? `${iconMic} Ver` : `${iconMic} Entrar`}
                 </button>
               </div>
             </article>
@@ -259,13 +262,12 @@ export function createSongMenuView({
                 <p class="card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
               </div>
               <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                ${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}
+                ${iconMic} Modo Letra
               </button>
             </div>
 
             <div class="card-meta">
               <div class="meta-row">
-                ${nowPlayingBadgeHtml}
                 <span class="badge badge-lang" title="Idiomas disponibles">${langCount} idioma(s) [${escapeHtml(mainLang)}]</span>
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
@@ -274,23 +276,28 @@ export function createSongMenuView({
             </div>
 
             <div class="card-footer-actions">
-              <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
-                ${iconFolder}
-              </button>
-              ${activeLibrary ? `
-                <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
-                  ${iconClose}
+              <div class="card-now-playing-indicator" style="${isActive ? 'display: inline-flex;' : 'display: none;'}" title="En reproducción">
+                ${nowPlayingBarsHtml}
+              </div>
+              <div class="card-footer-btns">
+                <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
+                  ${iconFolder}
                 </button>
-              ` : ''}
-              <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
-                ${iconListPlus}
-              </button>
-              <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
-                ${iconEdit}
-              </button>
-              <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
-                ${iconTrash}
-              </button>
+                ${activeLibrary ? `
+                  <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
+                    ${iconClose}
+                  </button>
+                ` : ''}
+                <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
+                  ${iconListPlus}
+                </button>
+                <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
+                  ${iconEdit}
+                </button>
+                <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
+                  ${iconTrash}
+                </button>
+              </div>
             </div>
           </article>
         `
@@ -309,19 +316,17 @@ export function createSongMenuView({
                 </button>
             </div>
             <div class="menu-actions-right">
-                <button class="btn btn-outline btn-toggle-import">
-                  ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
-                </button>
                 <button class="btn btn-outline" id="btn-menu-backup" title="Exportar respaldo de todas las canciones">
                   ${iconDownload} Respaldo Completo
                 </button>
-          </div>
+            </div>
           </div>
         </div>
 
         ${statusMessage ? `
           <div class="status-alert status-${statusType}">
-            ${escapeHtml(statusMessage)}
+            <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+            <button type="button" class="btn-close-alert" id="btn-close-menu-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
         ` : ''}
 
@@ -389,19 +394,20 @@ export function createSongMenuView({
             </div>
             <div class="active-lib-actions">
               <button class="btn btn-xs btn-primary-outline" id="btn-load-library-playlist" title="Cargar canciones en la lista de reproducción (en orden actual)" ${candidateSongs.length === 0 ? 'disabled' : ''}>
-                ${iconPlay} Cargar Playlist
+                ${iconPlay}
               </button>
               <button class="btn btn-xs btn-outline" id="btn-load-library-shuffle" title="Cargar canciones en la lista de reproducción en orden aleatorio (shuffle)" ${candidateSongs.length === 0 ? 'disabled' : ''}>
-                ${iconShuffle} Cargar Aleatoria
+                ${iconShuffle} 
               </button>
+              <div class="active-lib-vetical-separator">|</div>
               <button class="btn btn-xs btn-outline" id="btn-rename-active-library" title="Modificar el nombre de esta biblioteca">
-                ${iconEdit} Renombrar
+                ${iconEdit}
               </button>
               <button class="btn btn-xs btn-outline" id="btn-export-active-library" title="Exportar esta biblioteca para compartir con otros usuarios">
-                ${iconDownload} Exportar Biblioteca
+                ${iconDownload}
               </button>
               <button class="btn btn-xs btn-outline btn-danger-subtle" id="btn-delete-active-library" title="Eliminar esta biblioteca">
-                ${iconTrash} Eliminar
+                ${iconTrash}
               </button>
             </div>
           </div>
@@ -536,6 +542,16 @@ export function createSongMenuView({
   }
 
   function bindEvents() {
+    // Cerrar aviso de estado
+    const closeAlertBtn = containerElement.querySelector('#btn-close-menu-alert')
+    if (closeAlertBtn) {
+      closeAlertBtn.addEventListener('click', () => {
+        statusMessage = ''
+        const alertEl = containerElement.querySelector('.status-alert')
+        if (alertEl) alertEl.remove()
+      })
+    }
+
     // Alternar panel de importación
     const toggleImportBtn = containerElement.querySelector('.btn-toggle-import')
     if (toggleImportBtn) {
@@ -1003,40 +1019,23 @@ export function createSongMenuView({
   }
 
   async function handleImportFile(file) {
-    const fileName = file.name.toLowerCase()
     try {
-      if (fileName.endsWith('.json')) {
-        const text = await file.text()
-        const parsed = JSON.parse(text)
-        if (parsed.type === 'saranga-library-backup') {
-          await importLibraryBackup(parsed)
-          showStatus('Respaldo de biblioteca restaurado correctamente.', 'success')
-          await loadData()
-        } else if (parsed.type === 'saranga-library-package' || (parsed.library && Array.isArray(parsed.songs))) {
-          const result = await importLibraryPackage(parsed, {
-            onConflictChoice: promptConflictChoice
-          })
-          if (result) {
-            showStatus(`Biblioteca "${result.libraryName}" importada con éxito (${result.songCount} canción/es).`, 'success')
-            activeLibraryId = result.libraryId
-            await loadData()
-          } else {
-            showStatus('Importación de biblioteca cancelada.', 'info')
-            render()
-          }
-        } else {
-          const newId = await importSongPackage(parsed)
-          showStatus(`Canción "${parsed.metadata?.title || 'Importada'}" agregada con éxito.`, 'success')
-          await loadData()
-        }
-      } else if (fileName.endsWith('.yaml') || fileName.endsWith('.yml')) {
-        await importLyricsfileAsNewSong(file)
-        showStatus(`Canción importada exitosamente desde archivo Lyricsfile "${file.name}".`, 'success')
-        await loadData()
-      } else {
-        throw new Error('Formato no soportado. Debe ser .json o .yaml/.yml')
+      const result = await importUniversalFile(file, {
+        onConflictChoice: promptConflictChoice
+      })
+
+      if (result.type === 'cancelled') {
+        showStatus('Importación de biblioteca cancelada.', 'info')
+        render()
+        return
       }
 
+      if (result.type === 'library' && result.libraryId) {
+        activeLibraryId = result.libraryId
+      }
+
+      showStatus(result.message, 'success')
+      await loadData()
       isImportOpen = false
     } catch (err) {
       console.error('Error al importar:', err)
@@ -1055,39 +1054,42 @@ export function createSongMenuView({
   }
 
   function setActiveSongId(id) {
-    const parsed = (id !== null && id !== undefined && id !== '') ? Number(id) : null
-    if (activeSongId !== parsed) {
-      activeSongId = parsed
-      updateActiveSongHighlight()
-    }
+    const parsed = (id !== null && id !== undefined && id !== '')
+      ? (isNaN(Number(id)) ? String(id) : Number(id))
+      : null
+    activeSongId = parsed
+    updateActiveSongHighlight()
   }
 
   function updateActiveSongHighlight() {
     if (!containerElement) return
     const cards = containerElement.querySelectorAll('.song-menu-card')
     cards.forEach(card => {
-      const songId = Number(card.dataset.songId)
-      const isActive = activeSongId !== null && songId === activeSongId
+      const cardSongId = card.dataset.songId
+      const isActive = areSongIdsEqual(cardSongId, activeSongId)
       card.classList.toggle('is-active-song', isActive)
       card.classList.toggle('is-playing', isActive)
 
-      const badge = card.querySelector('.badge-now-playing')
-      if (badge) {
-        badge.style.display = isActive ? 'inline-flex' : 'none'
+      const indicator = card.querySelector('.card-now-playing-indicator')
+      if (indicator) {
+        indicator.style.display = isActive ? 'inline-flex' : 'none'
       }
 
       const iconWrap = card.querySelector('.list-song-icon-wrap')
       if (iconWrap) {
         iconWrap.title = isActive ? 'En reproducción' : 'Canción'
+        iconWrap.innerHTML = isActive
+          ? '<span class="now-playing-bars" title="En reproducción"><span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span></span>'
+          : iconMusic
       }
 
       const enterBtn = card.querySelector('.btn-enter-lyrics')
       if (enterBtn) {
         enterBtn.title = isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'
         if (card.classList.contains('song-menu-list-row')) {
-          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver' : 'Entrar'}`
+          enterBtn.innerHTML = isActive ? `${iconMic} Ver` : `${iconMic} Entrar`
         } else {
-          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}`
+          enterBtn.innerHTML = `${iconMic} Modo Letra`
         }
       }
     })
@@ -1102,6 +1104,14 @@ export function createSongMenuView({
     setActiveLibraryId: (id) => { activeLibraryId = id; render() },
     setActiveSongId,
     getActiveSongId: () => activeSongId,
+    updateHighlight: updateActiveSongHighlight,
+    showStatus: (msg, type = 'info') => showStatus(msg, type),
+    clearStatus: () => {
+      statusMessage = ''
+      const alertEl = containerElement?.querySelector('.status-alert')
+      if (alertEl) alertEl.remove()
+    },
+    importFile: handleImportFile,
     setPlaylistCount: (count) => {
       playlistCount = Number(count) || 0
       const badge = containerElement?.querySelector('.playlist-badge-pill')

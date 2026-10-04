@@ -49,8 +49,8 @@ describe('views/songEditorView.js', () => {
     expect(titleInput).not.toBeNull()
     expect(titleInput.value).toBe('')
 
-    const saveBtn = container.querySelector('#btn-save-song')
-    expect(saveBtn).not.toBeNull()
+    const saveAndSingBtn = container.querySelector('#btn-save-and-sing')
+    expect(saveAndSingBtn).not.toBeNull()
   })
 
   it('abre el editor precargando una canción existente con sus metadatos y frases', () => {
@@ -93,31 +93,34 @@ describe('views/songEditorView.js', () => {
     }
   })
 
-  it('renderiza los botones de exportación JSON y Lyricsfile en el encabezado del editor en la posición correcta', () => {
+  it('ubica el botón de probar en modo letra como solo icono en el controlador de tiempo y los de backup al final de metadatos', () => {
     const editor = createSongEditorView({ containerElement: container })
     editor.open(sampleSong)
 
-    const exportJsonBtn = container.querySelector('#btn-editor-export-json')
-    const exportYamlBtn = container.querySelector('#btn-editor-export-yaml')
-    const quickImportBtn = container.querySelector('.btn-open-quick-import')
-    const saveSongBtn = container.querySelector('#btn-save-song')
+    // Botón de probar en modo letra en el controlador de tiempo (a la derecha)
+    const assistantControls = container.querySelector('.editor-audio-assistant .assistant-controls')
+    expect(assistantControls).not.toBeNull()
+    const saveAndSingBtn = assistantControls.querySelector('#btn-save-and-sing')
+    expect(saveAndSingBtn).not.toBeNull()
+    expect(saveAndSingBtn.textContent.trim()).toBe('') // Solo icono, sin texto
+    expect(saveAndSingBtn.querySelector('svg')).not.toBeNull()
 
+    // Botones de backup dentro del acordeón de metadatos, después de los videos
+    const metadataSection = container.querySelector('#editor-metadata-details')
+    expect(metadataSection).not.toBeNull()
+    const backupBlock = metadataSection.querySelector('.editor-backup-block')
+    expect(backupBlock).not.toBeNull()
+
+    const exportJsonBtn = backupBlock.querySelector('#btn-editor-export-json')
+    const exportYamlBtn = backupBlock.querySelector('#btn-editor-export-yaml')
     expect(exportJsonBtn).not.toBeNull()
     expect(exportYamlBtn).not.toBeNull()
     expect(exportJsonBtn.textContent).toContain('JSON')
     expect(exportYamlBtn.textContent).toContain('Lyricsfile')
 
-    // Verificar orden: a la derecha de Pegar Letra Completa y antes de Guardar Canción
-    const headerActions = container.querySelector('.editor-header-actions')
-    const children = Array.from(headerActions.children)
-    const quickIdx = children.indexOf(quickImportBtn)
-    const jsonIdx = children.indexOf(exportJsonBtn)
-    const yamlIdx = children.indexOf(exportYamlBtn)
-    const saveIdx = children.indexOf(saveSongBtn)
-
-    expect(quickIdx).toBeLessThan(jsonIdx)
-    expect(jsonIdx).toBeLessThan(yamlIdx)
-    expect(yamlIdx).toBeLessThan(saveIdx)
+    // El primer header con botones (backup, probar, guardar) ya no existe
+    expect(container.querySelector('.editor-header-bar')).toBeNull()
+    expect(container.querySelector('#btn-save-song')).toBeNull()
   })
 
   describe('Guía de referencia de frase original al traducir', () => {
@@ -387,6 +390,313 @@ describe('views/songEditorView.js', () => {
       // El nuevo idioma debe tener sílabas vacías (sin división automática)
       const sylChips = container.querySelectorAll('.syllable-edit-chip')
       expect(sylChips.length).toBe(0)
+    })
+  })
+
+  describe('Guardado automático en tiempo real', () => {
+    it('muestra el badge de guardado automático en la barra de control', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const badge = container.querySelector('#editor-autosave-badge')
+      expect(badge).not.toBeNull()
+      expect(badge.textContent).toContain('Guardado')
+    })
+
+    it('guarda automáticamente al añadir una frase y llama onSongSaved', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      const addBtn = container.querySelector('#btn-add-phrase-top')
+      addBtn.click()
+
+      // Esperar microtareas de saveSong
+      await new Promise(r => setTimeout(r, 150))
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('guarda automáticamente al modificar el texto de un verso tras el debounce o evento change', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      const phraseInput = container.querySelector('.input-phrase-text')
+      expect(phraseInput).not.toBeNull()
+
+      phraseInput.value = 'Texto nuevo editado'
+      phraseInput.dispatchEvent(new Event('input'))
+
+      // Antes del debounce no debe haberse llamado aún
+      expect(onSongSaved).not.toHaveBeenCalled()
+
+      // Al disparar 'change', guarda inmediatamente
+      phraseInput.dispatchEvent(new Event('change'))
+      await new Promise(r => setTimeout(r, 150))
+
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('guarda automáticamente al modificar el título o artista de la canción', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      const titleInput = container.querySelector('#input-song-title')
+      titleInput.value = 'Título Actualizado Automático'
+      titleInput.dispatchEvent(new Event('input'))
+      titleInput.dispatchEvent(new Event('change'))
+
+      await new Promise(r => setTimeout(r, 150))
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('guarda automáticamente al silabear y al borrar sílabas de un verso', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      // Abrir panel de sílabas
+      const expandBtn = container.querySelector('.btn-toggle-syllables')
+      if (expandBtn && !container.querySelector('.phrase-syllables-panel')) {
+        expandBtn.click()
+      }
+
+      // Añadir sílaba
+      const addSylBtn = container.querySelector('.btn-add-syllable')
+      expect(addSylBtn).not.toBeNull()
+      addSylBtn.click()
+
+      await new Promise(r => setTimeout(r, 150))
+      expect(onSongSaved).toHaveBeenCalled()
+
+      // Borrar sílabas
+      onSongSaved.mockClear()
+      const clearSylBtn = container.querySelector('.btn-clear-line-syllables')
+      expect(clearSylBtn).not.toBeNull()
+      clearSylBtn.click()
+
+      await new Promise(r => setTimeout(r, 150))
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('flushea y guarda cambios pendientes con flushAutoSave', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      const phraseInput = container.querySelector('.input-phrase-text')
+      phraseInput.value = 'Texto pendiente de guardado'
+      phraseInput.dispatchEvent(new Event('input')) // programa autoSaveTimer
+
+      expect(onSongSaved).not.toHaveBeenCalled()
+
+      await editor.flushAutoSave()
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+  })
+
+  describe('Gestión de idiomas en pestañas y modal de configuración', () => {
+    const multiLangSong = {
+      id: 'song-lang-test',
+      title: 'Canción Multilingüe',
+      artist: 'Artista Test',
+      lyrics_data: {
+        languages: [
+          {
+            name: 'Japonés',
+            code: 'ja',
+            isMain: true,
+            lines: [{ text: '夜に駆ける', startTime: 0, endTime: 3, syllables: [] }]
+          },
+          {
+            name: 'Español',
+            code: 'es',
+            isMain: false,
+            lines: [{ text: 'Corriendo en la noche', startTime: 0, endTime: 3, syllables: [] }]
+          }
+        ]
+      },
+      videos: [{ id: 'vid-1', name: 'Original', url: 'https://youtube.com/watch?v=123', offset: 0 }]
+    }
+
+    it('ubica el botón de añadir idioma dentro de la barra de pestañas como un botón +', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(multiLangSong)
+
+      const tabsBar = container.querySelector('.editor-lang-tabs-bar')
+      expect(tabsBar).not.toBeNull()
+
+      const addBtnInTabs = tabsBar.querySelector('#btn-add-language.btn-add-lang-tab')
+      expect(addBtnInTabs).not.toBeNull()
+
+      // En el header general ya no debe estar el botón antiguo
+      const headerOldBtn = container.querySelector('.editor-lyrics-header #btn-add-language')
+      expect(headerOldBtn).toBeNull()
+    })
+
+    it('en el idioma principal, "Hacer Principal" no aparece y "Eliminar Idioma" está bloqueado', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(multiLangSong)
+
+      // Abrir modal de configuración del idioma activo (principal: Japonés) haciendo clic en la pestaña activa
+      const activeTab = container.querySelector('.editor-lang-tab.active')
+      expect(activeTab).not.toBeNull()
+      activeTab.click()
+
+      expect(container.querySelector('.modal-dialog')).not.toBeNull()
+      const setMainBtn = container.querySelector('#btn-modal-set-lang-main')
+      expect(setMainBtn).toBeNull()
+
+      const deleteBtn = container.querySelector('#btn-modal-delete-lang')
+      expect(deleteBtn).not.toBeNull()
+      expect(deleteBtn.disabled).toBe(true)
+      expect(container.querySelector('.main-lang-indicator-badge')).not.toBeNull()
+    })
+
+    it('en un idioma secundario, "Hacer Principal" aparece y "Eliminar Idioma" está habilitado', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(multiLangSong)
+
+      // Cambiar a la pestaña de Español (secundario)
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      // Abrir modal de configuración haciendo clic nuevamente en la pestaña activa
+      const activeTab = container.querySelector('.editor-lang-tab.active')
+      expect(activeTab).not.toBeNull()
+      activeTab.click()
+
+      const setMainBtn = container.querySelector('#btn-modal-set-lang-main')
+      expect(setMainBtn).not.toBeNull()
+
+      const deleteBtn = container.querySelector('#btn-modal-delete-lang')
+      expect(deleteBtn).not.toBeNull()
+      expect(deleteBtn.disabled).toBe(false)
+
+      // Hacer principal
+      setMainBtn.click()
+      await new Promise(r => setTimeout(r, 50))
+
+      // Ahora Español es principal: el botón "Hacer Principal" desapareció y "Eliminar" se bloqueó
+      expect(container.querySelector('#btn-modal-set-lang-main')).toBeNull()
+      const updatedDeleteBtn = container.querySelector('#btn-modal-delete-lang')
+      expect(updatedDeleteBtn.disabled).toBe(true)
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('permite eliminar un idioma secundario desde el modal cerrando el diálogo', async () => {
+      const onSongSaved = vi.fn()
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(multiLangSong)
+
+      // Cambiar a la pestaña de Español (secundario)
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      // Abrir modal de configuración haciendo clic nuevamente en la pestaña activa
+      const activeTab = container.querySelector('.editor-lang-tab.active')
+      expect(activeTab).not.toBeNull()
+      activeTab.click()
+
+      const deleteBtn = container.querySelector('#btn-modal-delete-lang')
+      deleteBtn.click()
+      await new Promise(r => setTimeout(r, 50))
+
+      // El modal debe haberse cerrado y debe quedar 1 solo idioma
+      expect(container.querySelector('.modal-dialog')).toBeNull()
+      const remainingTabs = container.querySelectorAll('.editor-lang-tab')
+      expect(remainingTabs.length).toBe(1)
+      expect(onSongSaved).toHaveBeenCalled()
+
+      confirmSpy.mockRestore()
+    })
+
+    it('desactiva y oculta la edición de sílabas en traducciones y solo la permite en el idioma principal', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(multiLangSong)
+
+      // 1. En el idioma principal (Japonés, isMain: true)
+      // Debe existir el botón de sílabas en los versos
+      const mainSylButtons = container.querySelectorAll('.btn-toggle-syllables')
+      expect(mainSylButtons.length).toBeGreaterThan(0)
+
+      // 2. Cambiar a la traducción (Español, isMain: false)
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      // En la traducción NO debe existir botón para editar o desplegar sílabas
+      const transSylButtons = container.querySelectorAll('.btn-toggle-syllables')
+      expect(transSylButtons.length).toBe(0)
+
+      // Tampoco debe renderizarse ningún panel de sílabas
+      const sylPanels = container.querySelectorAll('.phrase-syllables-panel')
+      expect(sylPanels.length).toBe(0)
+
+      // Tampoco debe aparecer el botón de borrar todas las sílabas
+      expect(container.querySelector('#btn-clear-all-syllables')).toBeNull()
+
+      // Y en el modal de pegar letra completa, no debe mostrar opción de silabear
+      const quickImportBtn = container.querySelector('.btn-open-quick-import')
+      quickImportBtn.click()
+      expect(container.querySelector('#check-auto-syllabify')).toBeNull()
+    })
+
+    it('mantiene la posición de scroll al mostrar o esconder el menú de sílabas', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const scrollContainer = container.querySelector('.editor-content-scroll')
+      expect(scrollContainer).not.toBeNull()
+
+      // Simular que el usuario ha scrolleado hacia abajo
+      scrollContainer.scrollTop = 450
+      expect(scrollContainer.scrollTop).toBe(450)
+
+      // Clic para colapsar o expandir sílabas
+      const toggleSylBtn = container.querySelector('.btn-toggle-syllables')
+      expect(toggleSylBtn).not.toBeNull()
+      toggleSylBtn.click()
+
+      // El contenedor de scroll debe haber preservado su posición exacta
+      const updatedScrollContainer = container.querySelector('.editor-content-scroll')
+      expect(updatedScrollContainer.scrollTop).toBe(450)
+
+      // Clic nuevamente para alternar estado
+      const toggleSylBtnAfter = container.querySelector('.btn-toggle-syllables')
+      toggleSylBtnAfter.click()
+      const finalScrollContainer = container.querySelector('.editor-content-scroll')
+      expect(finalScrollContainer.scrollTop).toBe(450)
+    })
+
+    it('permite cerrar la alerta de estado con el botón X y con el método clearStatus', async () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      // Simular alerta de estado en el editor exportando la canción
+      const exportBtn = container.querySelector('#btn-editor-export-json')
+      expect(exportBtn).not.toBeNull()
+      exportBtn.click()
+      await new Promise(r => setTimeout(r, 60))
+
+      const alertEl = container.querySelector('.status-alert')
+      expect(alertEl).not.toBeNull()
+      expect(alertEl.textContent).toContain('descargado con éxito')
+
+      const closeBtn = container.querySelector('#btn-close-editor-alert')
+      expect(closeBtn).not.toBeNull()
+      closeBtn.click()
+
+      expect(container.querySelector('.status-alert')).toBeNull()
+
+      // Probar clearStatus()
+      exportBtn.click()
+      await new Promise(r => setTimeout(r, 60))
+      expect(container.querySelector('.status-alert')).not.toBeNull()
+      editor.clearStatus()
+      expect(container.querySelector('.status-alert')).toBeNull()
     })
   })
 })

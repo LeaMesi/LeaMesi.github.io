@@ -25,9 +25,10 @@ El Editor de Canciones (`src/views/songEditorView.js`) proporciona un entorno de
 6. **Herramientas de Borrado de Sílabas:**
    - Borrado por frase individual en el encabezado de la tarjeta y en la barra rápida.
    - Borrado masivo para todas las frases del idioma activo con confirmación obligatoria previa (`window.confirm`), informando el número total de versos y sílabas afectadas.
-7. **Pestañas Multilingües:**
-   - Creación ilimitada de idiomas con opción de clonar las marcas temporales del idioma original para acelerar traducciones.
-   - Edición interactiva de nombre y código ISO al pulsar sobre la pestaña activa.
+7. **Pestañas Multilingües y Configuración Limpia:**
+   - Creación ilimitada de idiomas con botón compacto `+` en la barra de pestañas.
+   - Edición interactiva de nombre, código ISO y rol (principal vs traducción) al hacer clic directamente sobre la pestaña activa (`.editor-lang-tab.active`).
+   - Se prescinde de forma deliberada de la barra intermedia `.active-lang-settings-bar` para mantener el espacio de trabajo despejado y sin redundancias.
 8. **Guía de Referencia de Frase Original para Traducción:**
    - Visualización contextual del verso original (texto original y texto alternativo/Romaji) al editar pistas de traducción.
    - Identificación explícita de versos vacíos como `⏸ [Pausa / Verso en blanco]` para mantener correspondencia precisa en pausas instrumentales.

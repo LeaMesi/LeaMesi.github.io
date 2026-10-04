@@ -7,7 +7,8 @@ import {
   exportLibraryBackup,
   importLibraryBackup,
   exportLibraryPackage,
-  importLibraryPackage
+  importLibraryPackage,
+  importUniversalFile
 } from '../../src/services/shareService.js'
 import {
   createLibrary,
@@ -102,6 +103,63 @@ describe('services/shareService.js', () => {
 
     const song2 = await fetchSongById(importedIds[1])
     expect(song2.title).toBe('Canción Respaldo 2')
+  })
+
+  it('importa un respaldo de biblioteca pasando directamente un objeto JS parseado', async () => {
+    const backupObj = {
+      version: '1.2.0',
+      type: 'saranga-library-backup',
+      exportedAt: new Date().toISOString(),
+      libraries: [{ name: 'Rock Clásico', description: 'Favoritas del rock' }],
+      songs: [
+        {
+          title: 'Canción Objeto Directo',
+          artist: 'Artista Objeto',
+          genres: ['Rock'],
+          tags: ['direct'],
+          libraries: ['Rock Clásico'],
+          lyrics_data: { languages: [{ code: 'es', name: 'Español', isMain: true, lines: [] }] }
+        }
+      ]
+    }
+
+    // Pasar el objeto directamente (sin stringify)
+    const importedIds = await importLibraryBackup(backupObj)
+    expect(importedIds.length).toBe(1)
+
+    const song = await fetchSongById(importedIds[0])
+    expect(song.title).toBe('Canción Objeto Directo')
+    expect(song.artist).toBe('Artista Objeto')
+    expect(song.libraries.some(l => l.name === 'Rock Clásico')).toBe(true)
+  })
+
+  it('importa archivos mediante importUniversalFile detectando respaldo y paquete de canción', async () => {
+    // 1. Archivo de respaldo
+    const backupPkg = {
+      type: 'saranga-library-backup',
+      songs: [
+        {
+          title: 'Canción Universal Backup',
+          artist: 'Artista Uni'
+        }
+      ]
+    }
+    const backupFile = new File([JSON.stringify(backupPkg)], 'backup.json', { type: 'application/json' })
+    const resBackup = await importUniversalFile(backupFile)
+    expect(resBackup.type).toBe('backup')
+    expect(resBackup.count).toBe(1)
+
+    // 2. Archivo de canción individual
+    const songPkg = {
+      version: '1.1.0',
+      metadata: { title: 'Canción Universal Song', artist: 'Artista Single' },
+      basic: { languages: [{ code: 'es', name: 'Español', isMain: true, lines: [] }] }
+    }
+    const songFile = new File([JSON.stringify(songPkg)], 'song.json', { type: 'application/json' })
+    const resSong = await importUniversalFile(songFile)
+    expect(resSong.type).toBe('song')
+    expect(resSong.songId).toBeDefined()
+    expect(resSong.title).toBe('Canción Universal Song')
   })
 
   it('exporta una biblioteca con sus canciones en un paquete estructurado', async () => {

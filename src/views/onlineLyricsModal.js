@@ -15,6 +15,7 @@ import {
   hasGeniusToken
 } from '../services/onlineLyricsService.js'
 import { formatTime } from '../lyrics/timing.js'
+import { importUniversalFile } from '../services/shareService.js'
 import {
   iconSearch,
   iconClose,
@@ -26,7 +27,8 @@ import {
   iconPlus,
   iconCheck,
   iconMic,
-  iconChevronUp
+  iconChevronUp,
+  iconUpload
 } from './icons.js'
 
 function escapeHtml(str) {
@@ -39,7 +41,13 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;')
 }
 
-export function createOnlineLyricsModal({ containerElement, onSongReady, onCreateEmptySong }) {
+export function createOnlineLyricsModal({
+  containerElement,
+  onSongReady,
+  onCreateEmptySong,
+  onImportSuccess,
+  onConflictChoice
+}) {
   let isOpen = false
 
   // Estado de navegación
@@ -818,8 +826,10 @@ export function createOnlineLyricsModal({ containerElement, onSongReady, onCreat
             </h2>
           </div>
           <div class="modal-header-actions">
+            <button type="button" class="btn btn-outline btn-modal-import" id="btn-modal-import" title="Importar archivo (.json, .yaml, .yml)" aria-label="Importar archivo">${iconUpload}</button>
             <button type="button" class="btn btn-primary btn-modal-create-empty" id="btn-modal-create-empty" title="Crear canción vacía" aria-label="Crear canción vacía">${iconPlus}</button>
             <button class="btn-close-modal" id="btn-close-online-modal" title="Cerrar modal">${iconClose}</button>
+            <input type="file" id="modal-import-file-input" accept=".json,.yaml,.yml" class="hidden-input" style="display: none;" />
           </div>
         </div>
 
@@ -853,7 +863,8 @@ export function createOnlineLyricsModal({ containerElement, onSongReady, onCreat
           <!-- Alerta de Estado -->
           ${statusMessage ? `
             <div class="status-alert status-${statusType}" style="margin: 10px 0;">
-              ${escapeHtml(statusMessage)}
+              <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+              <button type="button" class="btn-close-alert" id="btn-close-online-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
             </div>
           ` : ''}
 
@@ -900,12 +911,69 @@ export function createOnlineLyricsModal({ containerElement, onSongReady, onCreat
     }
   }
 
+  async function handleModalImportFile(file) {
+    isImporting = true
+    statusMessage = 'Importando archivo...'
+    statusType = 'info'
+    render()
+
+    try {
+      const result = await importUniversalFile(file, {
+        onConflictChoice
+      })
+
+      if (result.type === 'cancelled') {
+        statusMessage = result.message
+        statusType = 'info'
+        isImporting = false
+        render()
+        return
+      }
+
+      close()
+      if (onImportSuccess) {
+        onImportSuccess(result.message)
+      }
+    } catch (err) {
+      console.error('Error al importar archivo en modal:', err)
+      isImporting = false
+      statusMessage = 'Error al importar: ' + err.message
+      statusType = 'error'
+      render()
+    }
+  }
+
   function bindEvents() {
     if (!containerElement) return
+
+    // Cerrar aviso de estado
+    const alertCloseBtn = containerElement.querySelector('#btn-close-online-alert')
+    if (alertCloseBtn) {
+      alertCloseBtn.addEventListener('click', () => {
+        statusMessage = ''
+        render()
+      })
+    }
 
     // Cerrar modal
     const closeBtn = containerElement.querySelector('#btn-close-online-modal')
     if (closeBtn) closeBtn.addEventListener('click', close)
+
+    // Importar archivo (.json / .yaml / .yml)
+    const importBtn = containerElement.querySelector('#btn-modal-import')
+    const importFileInput = containerElement.querySelector('#modal-import-file-input')
+    if (importBtn && importFileInput) {
+      importBtn.addEventListener('click', () => {
+        importFileInput.click()
+      })
+      importFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0]
+        if (file) {
+          await handleModalImportFile(file)
+          importFileInput.value = ''
+        }
+      })
+    }
 
     // Crear canción vacía
     const createEmptyBtn = containerElement.querySelector('#btn-modal-create-empty')

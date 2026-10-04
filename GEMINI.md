@@ -75,6 +75,10 @@ El código del proyecto debe ser homogéneo y seguir las siguientes directrices 
 * **Intercambio Comunitario (Export / Import):** Proveer capacidades nativas de exportación e importación de canciones en formato JSON (`src/services/shareService.js`) para compartir creaciones entre usuarios sin requerir un servidor central.
 * **Compatibilidad con Estándar Lyricsfile (YAML 1.0):** Soporte bidireccional para importar y exportar archivos `.lyricsfile.yaml` ([especificación `tranxuanthang/lyricsfile`](https://github.com/tranxuanthang/lyricsfile/blob/main/SPECIFICATION.md)) mediante `src/services/lyricsfileService.js`, permitiendo importar canciones nuevas o integrar traducciones a temas ya existentes.
 
+### 4.5. Decisiones de Diseño UI Permanentes (Inmutables)
+* **Texto de Botón en Tarjetas de Catálogo (Cuadrícula):** El botón de acceso a la letra en cada tarjeta del catálogo en vista cuadrícula (`.song-menu-card .btn-enter-lyrics` en `src/views/songMenuView.js`) debe llevar de forma invariable el texto fijo `${iconMic} Modo Letra` (tanto en el render inicial como en la actualización reactiva `updateActiveSongHighlight`). **NUNCA** alternar a textos como 'Ver Modo Letra' o 'Entrar a Modo Letra' en cuadrícula.
+* **Barra de Configuración de Idioma en Editor Suprimida:** En `src/views/songEditorView.js`, la barra intermedia `.active-lang-settings-bar` fue suprimida intencionalmente para mantener limpia y despejada la interfaz de edición. La configuración del idioma activo (abrir modal de edición de nombre/código) se activa directamente haciendo clic sobre la pestaña del idioma activo (`.editor-lang-tab.active`). **NUNCA** reintroducir `.active-lang-settings-bar`.
+
 ---
 
 ## 5. Mantenimiento Continuo del Memory Bank
