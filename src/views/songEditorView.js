@@ -199,7 +199,7 @@ export function createSongEditorView({
     const activeLang = getActiveLanguage()
     const languages = currentSong.lyrics_data.languages || []
     const mainLang = languages.find(l => l.isMain) || languages[0]
-    const isTranslation = Boolean(activeLang && mainLang && activeLang !== mainLang)
+    const isTranslation = Boolean(activeLang && !activeLang.isMain)
     const lines = activeLang?.lines || []
     const videos = currentSong.videos || []
     const isNew = !currentSong.id
@@ -238,7 +238,7 @@ export function createSongEditorView({
         </div>
       `
       : lines.map((line, lineIdx) => {
-        const isExpanded = expandedLineIndices.has(lineIdx)
+        const isExpanded = !isTranslation && expandedLineIndices.has(lineIdx)
         const sylCount = line.syllables?.length || 0
         const duration = Math.max(0, (line.endTime || 0) - (line.startTime || 0))
 
@@ -415,17 +415,19 @@ export function createSongEditorView({
               </div>
 
               <div class="phrase-actions">
-                <button class="btn btn-xs btn-outline btn-toggle-syllables" data-line-idx="${lineIdx}" title="${isExpanded ? 'Contraer sílabas' : 'Editar sílabas y tiempos'}">
-                  Sílabas (${sylCount}) ${isExpanded ? iconChevronUp : iconChevronDown}
-                </button>
+                ${!isTranslation ? `
+                  <button class="btn btn-xs btn-outline btn-toggle-syllables" data-line-idx="${lineIdx}" title="${isExpanded ? 'Contraer sílabas' : 'Editar sílabas y tiempos'}">
+                    Sílabas (${sylCount}) ${isExpanded ? iconChevronUp : iconChevronDown}
+                  </button>
+                ` : ''}
                 <button class="btn btn-xs btn-outline btn-move-line-up" data-line-idx="${lineIdx}" title="Mover arriba" ${lineIdx === 0 ? 'disabled' : ''}>${iconChevronUp}</button>
                 <button class="btn btn-xs btn-outline btn-move-line-down" data-line-idx="${lineIdx}" title="Mover abajo" ${lineIdx === lines.length - 1 ? 'disabled' : ''}>${iconChevronDown}</button>
                 <button class="btn btn-xs btn-outline btn-delete-line" data-line-idx="${lineIdx}" title="Eliminar este verso">${iconTrash}</button>
               </div>
             </div>
 
-            <!-- Panel de Sílabas y Tiempos de Canto -->
-            ${isExpanded ? `
+            <!-- Panel de Sílabas y Tiempos de Canto (solo en idioma principal) -->
+            ${!isTranslation && isExpanded ? `
               <div class="phrase-syllables-panel">
                 <div class="syllables-toolbar">
                   <div class="syllables-summary">
@@ -652,7 +654,7 @@ export function createSongEditorView({
             <div class="phrases-toolbar">
               <div class="phrases-count">
                 <span>Versos en <strong>${escapeHtml(activeLang?.name || 'Idioma')}</strong> (${lines.length})</span>
-                ${totalSylCount > 0 ? `<span class="phrases-syl-count">• <strong>${totalSylCount}</strong> sílaba(s)</span>` : ''}
+                ${!isTranslation && totalSylCount > 0 ? `<span class="phrases-syl-count">• <strong>${totalSylCount}</strong> sílaba(s)</span>` : ''}
                 ${isTranslation ? `
                   <div class="ref-mode-selector-wrapper" title="Configurar visualización de la frase original de referencia">
                     <label for="select-translation-ref-mode" class="ref-mode-label">
@@ -672,7 +674,7 @@ export function createSongEditorView({
                 <button class="btn btn-sm btn-outline btn-open-quick-import" title="Pegar texto completo y dividir en versos">
                   ${iconFileText} Pegar Letra Completa
                 </button>
-                ${hasJpInActiveLang ? `
+                ${!isTranslation && hasJpInActiveLang ? `
                   <button class="btn btn-sm btn-outline btn-auto-romaji" id="btn-auto-generate-romaji" title="Generar automáticamente texto alternativo y fonemas en Romaji para todas las frases y sílabas de este idioma">
                     ${iconSparkles} Romaji Automático
                   </button>
@@ -682,14 +684,16 @@ export function createSongEditorView({
                     ${iconSparkles} Traducir Toda la Canción
                   </button>
                 ` : ''}
-                <button
-                  class="btn btn-sm btn-outline btn-danger-outline"
-                  id="btn-clear-all-syllables"
-                  title="${totalSylCount > 0 ? 'Borrar todas las sílabas de las frases de este idioma' : 'No hay sílabas configuradas en ninguna frase'}"
-                  ${totalSylCount === 0 ? 'disabled' : ''}
-                >
-                  ${iconTrash} Borrar Todas las Sílabas
-                </button>
+                ${!isTranslation ? `
+                  <button
+                    class="btn btn-sm btn-outline btn-danger-outline"
+                    id="btn-clear-all-syllables"
+                    title="${totalSylCount > 0 ? 'Borrar todas las sílabas de las frases de este idioma' : 'No hay sílabas configuradas en ninguna frase'}"
+                    ${totalSylCount === 0 ? 'disabled' : ''}
+                  >
+                    ${iconTrash} Borrar Todas las Sílabas
+                  </button>
+                ` : ''}
                 <button class="btn btn-sm btn-primary" id="btn-add-phrase-top">
                   ${iconPlus} Añadir Frase
                 </button>
@@ -769,12 +773,14 @@ export function createSongEditorView({
                 </div>
               </div>
 
-              <div class="quick-import-checkbox-row">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="check-auto-syllabify" checked />
-                  <span>Dividir cada verso en sílabas automáticamente con tiempos proporcionales</span>
-                </label>
-              </div>
+              ${!isTranslation ? `
+                <div class="quick-import-checkbox-row">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="check-auto-syllabify" checked />
+                    <span>Dividir cada verso en sílabas automáticamente con tiempos proporcionales</span>
+                  </label>
+                </div>
+              ` : ''}
 
               <div class="modal-footer-buttons">
                 <button class="btn btn-outline btn-close-quick-import">Cancelar</button>
@@ -1971,13 +1977,15 @@ export function createSongEditorView({
             altText: String(line.altText || line.romaji || '').trim(),
             startTime: Number(line.startTime) || 0,
             endTime: Number(line.endTime) || (Number(line.startTime || 0) + 3),
-            syllables: (line.syllables || []).map((syl, sIdx) => ({
-              id: syl.id || `syl-${lIdx}-${sIdx}`,
-              text: syl.text || '',
-              altText: String(syl.altText || syl.romaji || ''),
-              startTime: Number(syl.startTime) || 0,
-              duration: Number(syl.duration) || 0.3
-            }))
+            syllables: l.isMain
+              ? (line.syllables || []).map((syl, sIdx) => ({
+                  id: syl.id || `syl-${lIdx}-${sIdx}`,
+                  text: syl.text || '',
+                  altText: String(syl.altText || syl.romaji || ''),
+                  startTime: Number(syl.startTime) || 0,
+                  duration: Number(syl.duration) || 0.3
+                }))
+              : []
           }))
         }))
       }

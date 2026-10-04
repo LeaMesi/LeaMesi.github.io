@@ -610,5 +610,35 @@ describe('views/songEditorView.js', () => {
 
       confirmSpy.mockRestore()
     })
+
+    it('desactiva y oculta la edición de sílabas en traducciones y solo la permite en el idioma principal', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(multiLangSong)
+
+      // 1. En el idioma principal (Japonés, isMain: true)
+      // Debe existir el botón de sílabas en los versos
+      const mainSylButtons = container.querySelectorAll('.btn-toggle-syllables')
+      expect(mainSylButtons.length).toBeGreaterThan(0)
+
+      // 2. Cambiar a la traducción (Español, isMain: false)
+      const tabs = container.querySelectorAll('.editor-lang-tab')
+      tabs[1].click()
+
+      // En la traducción NO debe existir botón para editar o desplegar sílabas
+      const transSylButtons = container.querySelectorAll('.btn-toggle-syllables')
+      expect(transSylButtons.length).toBe(0)
+
+      // Tampoco debe renderizarse ningún panel de sílabas
+      const sylPanels = container.querySelectorAll('.phrase-syllables-panel')
+      expect(sylPanels.length).toBe(0)
+
+      // Tampoco debe aparecer el botón de borrar todas las sílabas
+      expect(container.querySelector('#btn-clear-all-syllables')).toBeNull()
+
+      // Y en el modal de pegar letra completa, no debe mostrar opción de silabear
+      const quickImportBtn = container.querySelector('.btn-open-quick-import')
+      quickImportBtn.click()
+      expect(container.querySelector('#check-auto-syllabify')).toBeNull()
+    })
   })
 })

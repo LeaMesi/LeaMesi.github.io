@@ -52,6 +52,10 @@
   - Unificación de controles de idioma dentro del modal de configuración (`#btn-edit-active-lang` / clic en pestaña activa):
     - Botón "Hacer Principal" condicional: visible y funcional para idiomas secundarios, oculto si la pista ya es el idioma principal.
     - Botón "Eliminar Idioma" con protección: deshabilitado y bloqueado con tooltip explicativo si la pista es el idioma principal (`disabled`), habilitado con diálogo de confirmación para traducciones y secundarias.
+- [x] **20.4. Desactivación de Edición de Sílabas en Traducciones:**
+  - Edición de sílabas (`.btn-toggle-syllables`, `.phrase-syllables-panel`, `#btn-clear-all-syllables` y contador silábico) restringida con exclusividad al idioma principal (`isMain: true`).
+  - Ocultamiento de herramientas y controles silábicos en la interfaz al editar idiomas secundarios/traducciones.
+  - Supresión de casilla de división en sílabas en modal de importación rápida al encontrarse en una traducción y limpieza de array `syllables` en la persistencia de traducciones.
 
 ---
 
