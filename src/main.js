@@ -11,7 +11,6 @@ import { createSongMenuView } from './views/songMenuView.js'
 import { createVideoManagerModal } from './views/videoManagerModal.js'
 import { createOnlineLyricsModal } from './views/onlineLyricsModal.js'
 import { createThemeSettingsModal } from './views/themeSettingsModal.js'
-import { createSongEditorView } from './views/songEditorView.js'
 import { createPlaylistService, loadLibraryIntoPlaylist } from './services/playlistService.js'
 import { createPlaylistModal } from './views/playlistModal.js'
 import { createFloatingPlayerView } from './views/floatingPlayerView.js'
@@ -155,16 +154,22 @@ async function initApp() {
   const mediaPlayer = createMediaPlayer({
     containerId: 'youtube-player-container',
     onTimeUpdate: (currentTime, lyricsTime) => {
-      controlsView?.setTime(currentTime)
-      floatingPlayerView?.setTime(currentTime)
-      basicViewer.updateTime(lyricsTime !== undefined ? lyricsTime : mediaPlayer.getLyricsTime())
-      songEditorView.updateClock(currentTime)
+      if (currentScreen === 'lyrics') {
+        controlsView?.setTime(currentTime)
+        basicViewer.updateTime(lyricsTime !== undefined ? lyricsTime : mediaPlayer.getLyricsTime())
+      } else if (currentScreen === 'menu') {
+        floatingPlayerView?.setTime(currentTime)
+      } else if (currentScreen === 'editor') {
+        songEditorInstance?.updateClock(currentTime)
+      }
     },
     onStateChange: async (state) => {
       const isPlaying = mediaPlayer.getIsPlaying()
       controlsView?.setPlayingState(isPlaying)
       floatingPlayerView?.setPlayingState(isPlaying)
-      songEditorView.setPlayingState(isPlaying)
+      if (currentScreen === 'editor') {
+        songEditorInstance?.setPlayingState(isPlaying)
+      }
 
       // Auto-avance de canción en la playlist al terminar
       if (state === PLAYER_STATE.ENDED) {
@@ -257,23 +262,37 @@ async function initApp() {
     })
   }
 
-  // 6. Inicializar Editor de Letras y Creaciones
-  const songEditorView = createSongEditorView({
-    containerElement: editorScreenEl,
-    mediaPlayer,
-    onSongSaved: async (savedId) => {
-      await songMenuView.refresh()
-      const updated = await fetchSongById(savedId)
-      if (updated && currentSong && Number(currentSong.id) === Number(savedId)) {
-        currentSong = updated
-      }
-    },
-    onGoToMenu: () => showMenuScreen(),
-    onEnterLyricsMode: async (savedId) => {
-      await loadSongIntoApp(savedId, { autoplay: true })
-      showLyricsScreen()
-    }
-  })
+  // 6. Inicializar Editor de Letras y Creaciones (Carga perezosa bajo demanda)
+  let songEditorInstance = null
+  let songEditorLoadingPromise = null
+
+  async function getSongEditorView() {
+    if (songEditorInstance) return songEditorInstance
+    if (songEditorLoadingPromise) return songEditorLoadingPromise
+
+    songEditorLoadingPromise = (async () => {
+      const { createSongEditorView } = await import('./views/songEditorView.js')
+      songEditorInstance = createSongEditorView({
+        containerElement: editorScreenEl,
+        mediaPlayer,
+        onSongSaved: async (savedId) => {
+          await songMenuView.refresh()
+          const updated = await fetchSongById(savedId)
+          if (updated && currentSong && Number(currentSong.id) === Number(savedId)) {
+            currentSong = updated
+          }
+        },
+        onGoToMenu: () => showMenuScreen(),
+        onEnterLyricsMode: async (savedId) => {
+          await loadSongIntoApp(savedId, { autoplay: true })
+          showLyricsScreen()
+        }
+      })
+      return songEditorInstance
+    })()
+
+    return songEditorLoadingPromise
+  }
 
   // 7. Inicializar Barra de Controles (Modo Letra)
   const controlsView = createControlsView({
@@ -568,7 +587,7 @@ async function initApp() {
 
   function clearAllStatusAlerts() {
     songMenuView?.clearStatus?.()
-    songEditorView?.clearStatus?.()
+    songEditorInstance?.clearStatus?.()
     document.querySelectorAll('.status-alert').forEach(el => el.remove())
   }
 
@@ -628,7 +647,7 @@ async function initApp() {
     controlsView.render()
   }
 
-  function showEditorScreen(songToEdit = null, loadOptions = {}) {
+  async function showEditorScreen(songToEdit = null, loadOptions = {}) {
     clearAllStatusAlerts()
     exitFullscreenMode()
     currentScreen = 'editor'
@@ -651,14 +670,15 @@ async function initApp() {
       headerArtistEl.textContent = songToEdit && songToEdit.artist ? `${songToEdit.artist}` : 'Herramienta de Creación'
     }
 
-    songEditorView.open(songToEdit, loadOptions)
+    const editor = await getSongEditorView()
+    editor.open(songToEdit, loadOptions)
   }
 
   // 11. Botón de volver al menú desde el header y clic en el logo "SarangaBaranga"
   if (btnHeaderBackMenu) {
     btnHeaderBackMenu.addEventListener('click', async () => {
-      if (currentScreen === 'editor' && songEditorView?.flushAutoSave) {
-        await songEditorView.flushAutoSave()
+      if (currentScreen === 'editor' && songEditorInstance?.flushAutoSave) {
+        await songEditorInstance.flushAutoSave()
       }
       showMenuScreen()
     })
@@ -667,16 +687,16 @@ async function initApp() {
   const brandTitleEl = document.querySelector('#brand-title')
   if (brandTitleEl) {
     brandTitleEl.addEventListener('click', async () => {
-      if (currentScreen === 'editor' && songEditorView?.flushAutoSave) {
-        await songEditorView.flushAutoSave()
+      if (currentScreen === 'editor' && songEditorInstance?.flushAutoSave) {
+        await songEditorInstance.flushAutoSave()
       }
       showMenuScreen()
     })
     brandTitleEl.addEventListener('keydown', async (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault()
-        if (currentScreen === 'editor' && songEditorView?.flushAutoSave) {
-          await songEditorView.flushAutoSave()
+        if (currentScreen === 'editor' && songEditorInstance?.flushAutoSave) {
+          await songEditorInstance.flushAutoSave()
         }
         showMenuScreen()
       }

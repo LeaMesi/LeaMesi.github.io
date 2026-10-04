@@ -72,7 +72,9 @@
   - Detección en tiempo real de la posición de reproducción del asistente de audio (`updateClock` y scrubbing en barra de progreso).
   - Resaltado del contenedor de la tarjeta del verso activo (`.phrase-editor-card.is-active-phrase`) con borde distintivo y resplandor adaptados al color de la sílaba activa del tema visual configurado (`var(--lyrics-active-color)`), incluyendo badge `#` resaltado.
   - Resaltado en tiempo real del contenedor de la sílaba activa (`.syllable-edit-chip.is-active-syllable`) dentro del panel de sílabas expandido, cambiando el borde del chip al color de sílaba activa del tema (`var(--lyrics-active-color)`), con resplandor glow y badge `#` destacado.
-  - Rendimiento óptimo en bucle RAF sin reflows innecesarios mediante comparación de conjuntos activos (`Set`), y sincronización reactiva al arrastrar el slider de progreso o al saltar en la pista.
+- [x] **20.9. Carga Perezosa (Lazy Loading) y Reducción de Consumo de RAM en Móviles:**
+  - Desacoplamiento de `songEditorView.js` del bundle principal inicial mediante importación dinámica `await import('./views/songEditorView.js')` dentro de `getSongEditorView()`, separándolo en un chunk asíncrono independiente.
+  - El módulo del editor (~2.500 líneas) no se descarga, no se parsea ni se aloja en la memoria RAM en el arranque de la aplicación, manteniéndose completamente descargado mientras el usuario escucha música o lee letras en su dispositivo móvil.
 
 ---
 

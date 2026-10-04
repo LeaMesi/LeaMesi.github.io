@@ -417,5 +417,70 @@ describe('views/controlsView.js', () => {
       expect(btnInc.disabled).toBe(true)
     })
   })
+
+  describe('Prevención de fuga de clics y gestión de popover de configuración', () => {
+    it('no navega al menú al hacer clic en el botón de reproducción o en botones interactivos', () => {
+      const onGoToMenu = vi.fn()
+      const onPlayToggle = vi.fn()
+      const controls = createControlsView({
+        containerElement: container,
+        onGoToMenu,
+        onPlayToggle
+      })
+      controls.render()
+
+      const playBtn = container.querySelector('.btn-play-pause')
+      // Simular cambio de estado durante el clic
+      playBtn.addEventListener('click', () => {
+        controls.setPlayingState(true)
+      })
+
+      playBtn.click()
+      expect(onPlayToggle).toHaveBeenCalled()
+      expect(onGoToMenu).not.toHaveBeenCalled()
+    })
+
+    it('abre y cierra el menú de configuración al interactuar con el toggle y con el documento', () => {
+      const controls = createControlsView({ containerElement: container })
+      controls.render()
+
+      const settingsToggle = container.querySelector('#btn-controls-settings-toggle')
+      const popover = container.querySelector('#controls-settings-popover')
+
+      expect(popover.classList.contains('is-open')).toBe(false)
+
+      // Abrir popover
+      settingsToggle.click()
+      expect(popover.classList.contains('is-open')).toBe(true)
+      expect(settingsToggle.classList.contains('is-active')).toBe(true)
+
+      // Clic dentro del popover no debe cerrarlo
+      popover.click()
+      expect(popover.classList.contains('is-open')).toBe(true)
+
+      // Clic fuera en el documento debe cerrarlo
+      const outsideEl = document.createElement('div')
+      document.body.appendChild(outsideEl)
+      outsideEl.click()
+
+      expect(popover.classList.contains('is-open')).toBe(false)
+      expect(settingsToggle.classList.contains('is-active')).toBe(false)
+      outsideEl.remove()
+    })
+
+    it('navega al menú solo cuando se hace clic en el área vacía del dock', () => {
+      const onGoToMenu = vi.fn()
+      const controls = createControlsView({
+        containerElement: container,
+        onGoToMenu
+      })
+      controls.render()
+
+      // Clic directo en el contenedor principal (área vacía)
+      container.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      expect(onGoToMenu).toHaveBeenCalledTimes(1)
+    })
+  })
 })
+
 
