@@ -640,5 +640,32 @@ describe('views/songEditorView.js', () => {
       quickImportBtn.click()
       expect(container.querySelector('#check-auto-syllabify')).toBeNull()
     })
+
+    it('mantiene la posición de scroll al mostrar o esconder el menú de sílabas', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const scrollContainer = container.querySelector('.editor-content-scroll')
+      expect(scrollContainer).not.toBeNull()
+
+      // Simular que el usuario ha scrolleado hacia abajo
+      scrollContainer.scrollTop = 450
+      expect(scrollContainer.scrollTop).toBe(450)
+
+      // Clic para colapsar o expandir sílabas
+      const toggleSylBtn = container.querySelector('.btn-toggle-syllables')
+      expect(toggleSylBtn).not.toBeNull()
+      toggleSylBtn.click()
+
+      // El contenedor de scroll debe haber preservado su posición exacta
+      const updatedScrollContainer = container.querySelector('.editor-content-scroll')
+      expect(updatedScrollContainer.scrollTop).toBe(450)
+
+      // Clic nuevamente para alternar estado
+      const toggleSylBtnAfter = container.querySelector('.btn-toggle-syllables')
+      toggleSylBtnAfter.click()
+      const finalScrollContainer = container.querySelector('.editor-content-scroll')
+      expect(finalScrollContainer.scrollTop).toBe(450)
+    })
   })
 })

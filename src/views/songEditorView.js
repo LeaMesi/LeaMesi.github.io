@@ -49,6 +49,7 @@ export function createSongEditorView({
   let autoSaveTimer = null
   let isSaving = false
   let pendingSave = false
+  let resetScrollOnNextRender = false
 
   try {
     const savedRefMode = localStorage.getItem(STORAGE_KEY_REF_MODE)
@@ -179,6 +180,7 @@ export function createSongEditorView({
       mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
     }
 
+    resetScrollOnNextRender = true
     render()
   }
 
@@ -195,6 +197,15 @@ export function createSongEditorView({
 
   function render() {
     if (!containerElement || !currentSong) return
+
+    const previousScrollEl = containerElement.querySelector('.editor-content-scroll')
+    const previousScrollTop = resetScrollOnNextRender ? 0 : (previousScrollEl ? previousScrollEl.scrollTop : 0)
+    const previousTabsEl = containerElement.querySelector('.editor-lang-tabs-bar')
+    const previousTabsScrollLeft = resetScrollOnNextRender ? 0 : (previousTabsEl ? previousTabsEl.scrollLeft : 0)
+    const previousWindowScrollY = (typeof window !== 'undefined' && !resetScrollOnNextRender)
+      ? (window.scrollY || document.documentElement?.scrollTop || 0)
+      : 0
+    resetScrollOnNextRender = false
 
     const activeLang = getActiveLanguage()
     const languages = currentSong.lyrics_data.languages || []
@@ -416,13 +427,13 @@ export function createSongEditorView({
 
               <div class="phrase-actions">
                 ${!isTranslation ? `
-                  <button class="btn btn-xs btn-outline btn-toggle-syllables" data-line-idx="${lineIdx}" title="${isExpanded ? 'Contraer sílabas' : 'Editar sílabas y tiempos'}">
+                  <button type="button" class="btn btn-xs btn-outline btn-toggle-syllables" data-line-idx="${lineIdx}" title="${isExpanded ? 'Contraer sílabas' : 'Editar sílabas y tiempos'}">
                     Sílabas (${sylCount}) ${isExpanded ? iconChevronUp : iconChevronDown}
                   </button>
                 ` : ''}
-                <button class="btn btn-xs btn-outline btn-move-line-up" data-line-idx="${lineIdx}" title="Mover arriba" ${lineIdx === 0 ? 'disabled' : ''}>${iconChevronUp}</button>
-                <button class="btn btn-xs btn-outline btn-move-line-down" data-line-idx="${lineIdx}" title="Mover abajo" ${lineIdx === lines.length - 1 ? 'disabled' : ''}>${iconChevronDown}</button>
-                <button class="btn btn-xs btn-outline btn-delete-line" data-line-idx="${lineIdx}" title="Eliminar este verso">${iconTrash}</button>
+                <button type="button" class="btn btn-xs btn-outline btn-move-line-up" data-line-idx="${lineIdx}" title="Mover arriba" ${lineIdx === 0 ? 'disabled' : ''}>${iconChevronUp}</button>
+                <button type="button" class="btn btn-xs btn-outline btn-move-line-down" data-line-idx="${lineIdx}" title="Mover abajo" ${lineIdx === lines.length - 1 ? 'disabled' : ''}>${iconChevronDown}</button>
+                <button type="button" class="btn btn-xs btn-outline btn-delete-line" data-line-idx="${lineIdx}" title="Eliminar este verso">${iconTrash}</button>
               </div>
             </div>
 
@@ -649,6 +660,24 @@ export function createSongEditorView({
                 ${iconPlus}
               </button>
             </div>
+
+            <!-- Barra de estado y configuración del idioma activo -->
+            ${activeLang ? `
+              <div class="active-lang-settings-bar">
+                <div class="lang-info-group">
+                  <span class="lang-title-badge btn-trigger-edit-lang" title="Hacé clic para configurar este idioma">
+                    ${activeLang.isMain ? 'Idioma Principal (Voz del Artista)' : 'Traducción Sincronizada'}: <strong>${escapeHtml(activeLang.name)}</strong> <span class="lang-code-tag">[${escapeHtml(activeLang.code)}]</span> ${iconEdit}
+                  </span>
+                  <span class="lang-counter">Frases: <strong>${lines.length}</strong></span>
+                </div>
+
+                <div class="lang-controls-group">
+                  <button class="btn btn-xs btn-outline" id="btn-edit-active-lang" title="Cambiar nombre, código o gestionar este idioma">
+                    ${iconEdit} Configurar Idioma
+                  </button>
+                </div>
+              </div>
+            ` : ''}
 
             <!-- Barra de Herramientas de Frases -->
             <div class="phrases-toolbar">
@@ -917,6 +946,18 @@ export function createSongEditorView({
         ` : ''}
       </div>
     `
+
+    const newScrollEl = containerElement.querySelector('.editor-content-scroll')
+    if (newScrollEl && previousScrollTop > 0) {
+      newScrollEl.scrollTop = previousScrollTop
+    }
+    const newTabsEl = containerElement.querySelector('.editor-lang-tabs-bar')
+    if (newTabsEl && previousTabsScrollLeft > 0) {
+      newTabsEl.scrollLeft = previousTabsScrollLeft
+    }
+    if (typeof window !== 'undefined' && previousWindowScrollY > 0) {
+      window.scrollTo(0, previousWindowScrollY)
+    }
 
     bindEvents()
   }
@@ -1363,7 +1404,8 @@ export function createSongEditorView({
       }
 
       if (toggleSyllablesBtn) {
-        toggleSyllablesBtn.addEventListener('click', () => {
+        toggleSyllablesBtn.addEventListener('click', (e) => {
+          e.preventDefault()
           if (expandedLineIndices.has(lIdx)) {
             expandedLineIndices.delete(lIdx)
           } else {

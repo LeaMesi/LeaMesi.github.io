@@ -3338,7 +3338,6 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  scroll-behavior: smooth;
 }
 
 .editor-section-card {

@@ -56,6 +56,10 @@
   - Edición de sílabas (`.btn-toggle-syllables`, `.phrase-syllables-panel`, `#btn-clear-all-syllables` y contador silábico) restringida con exclusividad al idioma principal (`isMain: true`).
   - Ocultamiento de herramientas y controles silábicos en la interfaz al editar idiomas secundarios/traducciones.
   - Supresión de casilla de división en sílabas en modal de importación rápida al encontrarse en una traducción y limpieza de array `syllables` en la persistencia de traducciones.
+- [x] **20.5. Preservación de Posición de Scroll en el Editor:**
+  - Captura y restauración automática e inmediata de `scrollTop` de `.editor-content-scroll`, `scrollLeft` de `.editor-lang-tabs-bar` y `window.scrollY` durante los ciclos de renderizado.
+  - Al hacer clic en el botón "Sílabas" para mostrar o contraer el panel de sílabas de cualquier verso, la pantalla mantiene con total exactitud la posición en la que está sin saltos ni desplazamientos hacia arriba.
+  - Supresión de `scroll-behavior: smooth` en `.editor-content-scroll` para evitar deslizamientos animados indeseados al alternar elementos dinámicos.
 
 ---
 
