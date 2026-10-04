@@ -86,21 +86,25 @@ describe('lyricsModeFullscreen and background navigation', () => {
     const onGoToMenu = vi.fn()
 
     lyricsScreen.addEventListener('click', (e) => {
-      if (e.target.closest('#controls-dock, .modal-dialog, #btn-exit-fullscreen, button, input, select, textarea, a, .upcoming-phrase-item')) {
+      if (e.target.closest('#controls-dock, .modal-dialog, #btn-exit-fullscreen, button, input, select, textarea, a, .upcoming-phrase-item, .past-phrase-item')) {
         return
       }
       onGoToMenu()
     })
 
     const viewer = createBasicViewer(lyricsViewport, {
+      initialPastCount: 1,
+      initialPreviewCount: 1,
       onSeekLine: vi.fn()
     })
     viewer.setLyrics({
       lines: [
         { id: '1', startTime: 0, endTime: 5, text: 'Línea uno', syllables: [] },
-        { id: '2', startTime: 6, endTime: 10, text: 'Línea dos', syllables: [] }
+        { id: '2', startTime: 6, endTime: 10, text: 'Línea dos', syllables: [] },
+        { id: '3', startTime: 11, endTime: 15, text: 'Línea tres', syllables: [] }
       ]
     })
+    viewer.updateTime(7.0) // Activa línea dos, línea uno es pasada, línea tres es futura
 
     // 1. Clic en el fondo del viewport
     lyricsViewport.click()
@@ -108,12 +112,17 @@ describe('lyricsModeFullscreen and background navigation', () => {
 
     // 2. Clic en una frase siguiente (upcoming-phrase-item) no debe ir al menú
     const upcoming = lyricsViewport.querySelector('.upcoming-phrase-item')
-    if (upcoming) {
-      upcoming.click()
-      expect(onGoToMenu).toHaveBeenCalledTimes(1)
-    }
+    expect(upcoming).not.toBeNull()
+    upcoming.click()
+    expect(onGoToMenu).toHaveBeenCalledTimes(1)
 
-    // 3. Clic dentro del dock de controles no debe ir al menú
+    // 3. Clic en una frase anterior (past-phrase-item) no debe ir al menú
+    const past = lyricsViewport.querySelector('.past-phrase-item')
+    expect(past).not.toBeNull()
+    past.click()
+    expect(onGoToMenu).toHaveBeenCalledTimes(1)
+
+    // 4. Clic dentro del dock de controles no debe ir al menú
     controlsDock.click()
     expect(onGoToMenu).toHaveBeenCalledTimes(1)
   })

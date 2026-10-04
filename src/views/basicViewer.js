@@ -2,7 +2,12 @@ import { findActiveLineIndex, evaluateSyllablesState, findMatchingTranslationLin
 import { applyTheme } from '../services/themeService.js'
 
 export function createBasicViewer(containerElement, options = {}) {
-  const { onSeekLine, initialPreviewCount = 2, initialScriptDisplayMode = 'both' } = options
+  const {
+    onSeekLine,
+    initialPreviewCount = 2,
+    initialPastCount = (options.initialPreviousCount !== undefined ? options.initialPreviousCount : 0),
+    initialScriptDisplayMode = 'both'
+  } = options
 
   let currentLines = []
   let translationLines = []
@@ -10,6 +15,9 @@ export function createBasicViewer(containerElement, options = {}) {
   let previewCount = (initialPreviewCount !== undefined && initialPreviewCount !== null && !isNaN(Number(initialPreviewCount)))
     ? Math.max(0, Math.min(3, Number(initialPreviewCount)))
     : 2
+  let pastCount = (initialPastCount !== undefined && initialPastCount !== null && !isNaN(Number(initialPastCount)))
+    ? Math.max(0, Math.min(3, Number(initialPastCount)))
+    : 0
   let scriptDisplayMode = (initialScriptDisplayMode === 'original' || initialScriptDisplayMode === 'alt')
     ? initialScriptDisplayMode
     : 'both'
@@ -28,6 +36,18 @@ export function createBasicViewer(containerElement, options = {}) {
     const num = isNaN(val) ? 2 : Math.max(0, Math.min(3, val))
     if (previewCount !== num) {
       previewCount = num
+      renderedActiveIndex = -999
+      if (currentLines.length > 0) {
+        renderStage(activeLineIndex >= 0 ? activeLineIndex : 0)
+      }
+    }
+  }
+
+  function setPastCount(count) {
+    const val = Number(count)
+    const num = isNaN(val) ? 0 : Math.max(0, Math.min(3, val))
+    if (pastCount !== num) {
+      pastCount = num
       renderedActiveIndex = -999
       if (currentLines.length > 0) {
         renderStage(activeLineIndex >= 0 ? activeLineIndex : 0)
@@ -209,6 +229,8 @@ export function createBasicViewer(containerElement, options = {}) {
 
     const safeIdx = Math.max(0, Math.min(currentLines.length - 1, activeIdx))
     const activeLine = currentLines[safeIdx]
+    const pastStart = Math.max(0, safeIdx - pastCount)
+    const pastLines = pastCount > 0 ? currentLines.slice(pastStart, safeIdx) : []
     const upcomingLines = previewCount > 0 ? currentLines.slice(safeIdx + 1, safeIdx + 1 + previewCount) : []
 
     const activeMainHtml = renderLineMainContent(activeLine, true)
@@ -230,6 +252,46 @@ export function createBasicViewer(containerElement, options = {}) {
         <div class="lyric-line-main is-primary-alt" id="active-line-main">${activeAltHtml || activeMainHtml}</div>
       `
     }
+
+    const pastItemsHtml = pastLines.map((pLine, offset) => {
+      const pIdx = pastStart + offset
+      const dist = safeIdx - pIdx
+      const pMainHtml = renderLineMainContent(pLine, false)
+      const pAltHtml = renderLineAltContent(pLine, false)
+      const pTransHtml = renderTranslationLine(pLine, pIdx, false)
+
+      let pLinesHtml = ''
+      if (scriptDisplayMode === 'both') {
+        pLinesHtml = `
+          <div class="lyric-line-main">${pMainHtml}</div>
+          ${pAltHtml ? `<div class="lyric-line-alt">${pAltHtml}</div>` : ''}
+        `
+      } else if (scriptDisplayMode === 'original') {
+        pLinesHtml = `
+          <div class="lyric-line-main">${pMainHtml}</div>
+        `
+      } else if (scriptDisplayMode === 'alt') {
+        pLinesHtml = `
+          <div class="lyric-line-main is-primary-alt">${pAltHtml || pMainHtml}</div>
+        `
+      }
+
+      return `
+        <div class="past-phrase-item past-rank-${dist}" data-index="${pIdx}" title="Retroceder a esta frase (${pLine.startTime}s)">
+          ${pLinesHtml}
+          ${pTransHtml}
+        </div>
+      `
+    }).join('')
+
+    const pastBoxHtml = (pastCount > 0 && pastItemsHtml)
+      ? `
+        <!-- Frases Anteriores (Arriba) -->
+        <div class="past-phrases-container" id="past-phrases-box">
+          ${pastItemsHtml}
+        </div>
+      `
+      : ''
 
     const upcomingItemsHtml = upcomingLines.map((uLine, offset) => {
       const uIdx = safeIdx + 1 + offset
@@ -272,6 +334,8 @@ export function createBasicViewer(containerElement, options = {}) {
 
     containerElement.innerHTML = `
       <div class="lyrics-stage-display">
+        ${pastBoxHtml}
+
         <!-- Frase Actual en el centro -->
         <div class="active-phrase-container animate-phrase-change" id="active-phrase-box" data-index="${safeIdx}">
           <div class="lyric-line-wrapper is-active">
@@ -286,8 +350,18 @@ export function createBasicViewer(containerElement, options = {}) {
 
     renderedActiveIndex = safeIdx
 
-    // Permitir clic en frases siguientes para saltar directamente en la reproducción
+    // Permitir clic en frases para saltar/retroceder directamente en la reproducción
     if (onSeekLine) {
+      const pastEls = containerElement.querySelectorAll('.past-phrase-item')
+      pastEls.forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = Number(el.dataset.index)
+          if (!isNaN(idx) && currentLines[idx]) {
+            onSeekLine(currentLines[idx].startTime)
+          }
+        })
+      })
+
       const upcomingEls = containerElement.querySelectorAll('.upcoming-phrase-item')
       upcomingEls.forEach(el => {
         el.addEventListener('click', () => {
@@ -345,6 +419,11 @@ export function createBasicViewer(containerElement, options = {}) {
     setLyrics,
     updateTime,
     setPreviewCount,
+    getPreviewCount: () => previewCount,
+    setPastCount,
+    getPastCount: () => pastCount,
+    setPreviousCount: setPastCount,
+    getPreviousCount: () => pastCount,
     setScriptDisplayMode,
     getScriptDisplayMode: () => scriptDisplayMode,
     applyStyles

@@ -194,4 +194,56 @@ describe('views/basicViewer.js', () => {
     const newActiveAlt = container.querySelector('#active-line-alt')
     expect(newActiveAlt.textContent).toBe('shiritai sono himitsu misuteriasu')
   })
+
+  it('renderiza las frases anteriores arriba de la actual cuando pastCount > 0 y permite retroceder al hacer clic', () => {
+    const onSeekLine = vi.fn()
+    const viewer = createBasicViewer(container, {
+      initialPastCount: 2,
+      onSeekLine
+    })
+    viewer.setLyrics({ lines: sampleLines })
+
+    // Con frase activa en índice 2 ('Tercera frase cantada')
+    viewer.updateTime(16.0)
+
+    const pastBox = container.querySelector('#past-phrases-box')
+    expect(pastBox).not.toBeNull()
+    const pastItems = pastBox.querySelectorAll('.past-phrase-item')
+    expect(pastItems.length).toBe(2)
+
+    // Orden cronológico: primero la frase 0, luego la frase 1
+    expect(pastItems[0].textContent).toContain('Primera frase cantada')
+    expect(pastItems[1].textContent).toContain('Segunda frase cantada')
+
+    // Al hacer clic en la primera frase anterior, retrocede a su startTime (5.0)
+    pastItems[0].click()
+    expect(onSeekLine).toHaveBeenCalledWith(5.0)
+
+    // Al hacer clic en la segunda frase anterior, retrocede a su startTime (10.0)
+    pastItems[1].click()
+    expect(onSeekLine).toHaveBeenCalledWith(10.0)
+  })
+
+  it('permite cambiar la cantidad de frases anteriores con setPastCount (0 a 3)', () => {
+    const viewer = createBasicViewer(container, { initialPastCount: 0 })
+    viewer.setLyrics({ lines: sampleLines })
+    viewer.updateTime(16.0)
+
+    // Con 0 no se muestra el contenedor superior
+    expect(container.querySelector('#past-phrases-box')).toBeNull()
+
+    // Cambiar a 1 frase anterior
+    viewer.setPastCount(1)
+    const pastBox = container.querySelector('#past-phrases-box')
+    expect(pastBox).not.toBeNull()
+    const pastItems = pastBox.querySelectorAll('.past-phrase-item')
+    expect(pastItems.length).toBe(1)
+    expect(pastItems[0].textContent).toContain('Segunda frase cantada')
+
+    // Cambiar a 3 frases anteriores (sampleLines solo tiene 2 anteriores respecto a idx 2)
+    viewer.setPastCount(3)
+    const pastItems3 = container.querySelectorAll('.past-phrase-item')
+    expect(pastItems3.length).toBe(2)
+    expect(viewer.getPastCount()).toBe(3)
+  })
 })

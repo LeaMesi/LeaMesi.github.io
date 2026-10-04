@@ -132,12 +132,18 @@ async function initApp() {
     ? Math.max(0, Math.min(3, Number(savedPreviewLines)))
     : 2
 
+  const savedPastLines = localStorage.getItem('saranga_past_lines')
+  const initialPastLines = (savedPastLines !== null && !isNaN(Number(savedPastLines)))
+    ? Math.max(0, Math.min(3, Number(savedPastLines)))
+    : 0
+
   const savedScriptMode = localStorage.getItem('saranga_script_display')
   const initialScriptMode = (savedScriptMode === 'original' || savedScriptMode === 'alt') ? savedScriptMode : 'both'
 
   const languageManager = createLanguageManager([])
   const basicViewer = createBasicViewer(lyricsViewportEl, {
     initialPreviewCount: initialPreviewLines,
+    initialPastCount: initialPastLines,
     initialScriptDisplayMode: initialScriptMode,
     onSeekLine: (seconds) => mediaPlayer.seekLyricsTime(seconds)
   })
@@ -270,6 +276,7 @@ async function initApp() {
   const controlsView = createControlsView({
     containerElement: controlsDockEl,
     initialPreviewLines,
+    initialPastLines,
     initialVolume: mediaPlayer.getVolume(),
     initialScriptDisplayMode: initialScriptMode,
     onPlayToggle: () => mediaPlayer.togglePlay(),
@@ -298,6 +305,9 @@ async function initApp() {
     },
     onPreviewLinesChange: (count) => {
       basicViewer.setPreviewCount(count)
+    },
+    onPastLinesChange: (count) => {
+      basicViewer.setPastCount(count)
     },
     onModeToggle: (newMode) => switchMode(newMode),
     onGoToMenu: () => showMenuScreen(),
@@ -627,8 +637,8 @@ async function initApp() {
   // 11c. Clic en el fondo del reproductor (Modo Letra) para volver a la lista de canciones
   if (lyricsScreenEl) {
     lyricsScreenEl.addEventListener('click', (e) => {
-      // Si se hace clic dentro del dock de controles, modales, botón de salir de pantalla completa, botones, inputs, selects, links o frases siguientes (con acción de salto temporal), ignorar
-      if (e.target.closest('#controls-dock, .modal-dialog, #btn-exit-fullscreen, button, input, select, textarea, a, .upcoming-phrase-item')) {
+      // Si se hace clic dentro del dock de controles, modales, botón de salir de pantalla completa, botones, inputs, selects, links, frases siguientes o frases anteriores (con acción de salto temporal), ignorar
+      if (e.target.closest('#controls-dock, .modal-dialog, #btn-exit-fullscreen, button, input, select, textarea, a, .upcoming-phrase-item, .past-phrase-item')) {
         return
       }
       const selection = window.getSelection?.()

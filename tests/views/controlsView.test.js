@@ -18,6 +18,7 @@ describe('views/controlsView.js', () => {
     expect(container.querySelector('#video-select')).not.toBeNull()
     expect(container.querySelector('#script-select')).not.toBeNull()
     expect(container.querySelector('#trans-select')).not.toBeNull()
+    expect(container.querySelector('#past-lines-select')).not.toBeNull()
     expect(container.querySelector('#preview-lines-select')).not.toBeNull()
   })
 
@@ -72,6 +73,31 @@ describe('views/controlsView.js', () => {
     expect(localStorage.getItem('saranga_preview_lines')).toBe('0')
   })
 
+  it('permite cambiar la cantidad de líneas anteriores (0 a 3) y persiste en localStorage', () => {
+    const onPastLinesChange = vi.fn()
+    const controls = createControlsView({
+      containerElement: container,
+      initialPastLines: 0,
+      onPastLinesChange
+    })
+    controls.render()
+
+    const pastSelect = container.querySelector('#past-lines-select')
+    expect(pastSelect.value).toBe('0')
+
+    pastSelect.value = '2'
+    pastSelect.dispatchEvent(new Event('change'))
+
+    expect(onPastLinesChange).toHaveBeenCalledWith(2)
+    expect(localStorage.getItem('saranga_past_lines')).toBe('2')
+    expect(controls.getPastLinesCount()).toBe(2)
+
+    // Modificar vía método público setPastLinesCount
+    controls.setPastLinesCount(3)
+    expect(pastSelect.value).toBe('3')
+    expect(controls.getPastLinesCount()).toBe(3)
+  })
+
   it('no incluye botones de esconder o expandir el dock y provee botón de pantalla completa', () => {
     const onToggleFullscreen = vi.fn()
     const controls = createControlsView({ containerElement: container, onToggleFullscreen })
@@ -124,13 +150,15 @@ describe('views/controlsView.js', () => {
     settingsToggleBtn.click()
     expect(popover.classList.contains('is-open')).toBe(true)
 
-    // 3. Los selectores de video, siguientes y traducción residen dentro del popover
+    // 3. Los selectores de video, anteriores, siguientes y traducción residen dentro del popover
     const popoverContent = popover.querySelector('.settings-popover-content')
+    const pastGroup = popoverContent.querySelector('.past-lines-group')
     const previewGroup = popoverContent.querySelector('.preview-lines-group')
     const videoGroup = popoverContent.querySelector('.video-selector-group')
     const scriptGroup = popoverContent.querySelector('.script-selector-group')
     const transGroup = popoverContent.querySelector('.translation-group')
 
+    expect(pastGroup).not.toBeNull()
     expect(previewGroup).not.toBeNull()
     expect(videoGroup).not.toBeNull()
     expect(scriptGroup).not.toBeNull()

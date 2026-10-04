@@ -18,6 +18,8 @@ import {
 export function createControlsView({
   containerElement,
   initialPreviewLines = 2,
+  initialPastLines = 0,
+  initialPreviousLines = undefined,
   initialVolume = 80,
   initialScriptDisplayMode = 'both',
   onPlayToggle,
@@ -31,6 +33,8 @@ export function createControlsView({
   onScriptDisplayModeChange,
   onBilingualToggle,
   onPreviewLinesChange,
+  onPastLinesChange,
+  onPreviousLinesChange,
   onOpenLibrary,
   onGoToMenu,
   onModeToggle,
@@ -60,6 +64,10 @@ export function createControlsView({
   let previewLinesCount = (initialPreviewLines !== undefined && initialPreviewLines !== null && !isNaN(Number(initialPreviewLines)))
     ? Math.max(0, Math.min(3, Number(initialPreviewLines)))
     : 2
+  const effectiveInitialPast = initialPreviousLines !== undefined ? initialPreviousLines : initialPastLines
+  let pastLinesCount = (effectiveInitialPast !== undefined && effectiveInitialPast !== null && !isNaN(Number(effectiveInitialPast)))
+    ? Math.max(0, Math.min(3, Number(effectiveInitialPast)))
+    : 0
   let scriptDisplayMode = (initialScriptDisplayMode === 'original' || initialScriptDisplayMode === 'alt')
     ? initialScriptDisplayMode
     : 'both'
@@ -178,6 +186,17 @@ export function createControlsView({
                         ${iconSettings}
                       </button>
                     </div>
+                  </div>
+
+                  <!-- Selector de Frases Anteriores (0 a 3) -->
+                  <div class="popover-item selector-group past-lines-group" title="Cantidad de frases anteriores visibles arriba de la actual">
+                    <label for="past-lines-select">Anteriores:</label>
+                    <select id="past-lines-select" class="select-input select-small">
+                      <option value="0" ${pastLinesCount === 0 ? 'selected' : ''}>Ninguna</option>
+                      <option value="1" ${pastLinesCount === 1 ? 'selected' : ''}>1 frase</option>
+                      <option value="2" ${pastLinesCount === 2 ? 'selected' : ''}>2 frases</option>
+                      <option value="3" ${pastLinesCount === 3 ? 'selected' : ''}>3 frases</option>
+                    </select>
                   </div>
 
                   <!-- Selector de Frases Siguientes (0 a 3) -->
@@ -333,6 +352,18 @@ export function createControlsView({
     if (transSelect) {
       transSelect.addEventListener('change', (e) => {
         if (onTranslationChange) onTranslationChange(e.target.value)
+      })
+    }
+
+    const pastLinesSelect = containerElement.querySelector('#past-lines-select')
+    if (pastLinesSelect) {
+      pastLinesSelect.addEventListener('change', (e) => {
+        const val = Number(e.target.value)
+        const count = isNaN(val) ? 0 : Math.max(0, Math.min(3, val))
+        pastLinesCount = count
+        localStorage.setItem('saranga_past_lines', count)
+        if (onPastLinesChange) onPastLinesChange(count)
+        else if (onPreviousLinesChange) onPreviousLinesChange(count)
       })
     }
 
@@ -503,6 +534,13 @@ export function createControlsView({
     if (sel) sel.value = String(previewLinesCount)
   }
 
+  function setPastLinesCount(count) {
+    const val = Number(count)
+    pastLinesCount = isNaN(val) ? 0 : Math.max(0, Math.min(3, val))
+    const sel = containerElement?.querySelector('#past-lines-select')
+    if (sel) sel.value = String(pastLinesCount)
+  }
+
   function setScriptState({ hasAltText: hasAlt, mode }) {
     if (hasAlt !== undefined) hasAltText = Boolean(hasAlt)
     if (mode === 'both' || mode === 'original' || mode === 'alt') {
@@ -575,6 +613,11 @@ export function createControlsView({
     setTrackType,
     setLanguagesState,
     setPreviewLinesCount,
+    getPreviewLinesCount: () => previewLinesCount,
+    setPastLinesCount,
+    getPastLinesCount: () => pastLinesCount,
+    setPreviousLinesCount: setPastLinesCount,
+    getPreviousLinesCount: () => pastLinesCount,
     setScriptState,
     setScriptDisplayMode,
     getScriptDisplayMode: () => scriptDisplayMode,

@@ -384,6 +384,121 @@ input[type="number"] {
   line-height: 1.35;
 }
 
+/* Frases Anteriores (Arriba de la actual) - Letras sueltas sin caja */
+.past-phrases-container {
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+  position: relative;
+}
+
+.past-phrases-container:empty {
+  display: none;
+  margin: 0;
+}
+
+.past-phrase-item {
+  width: 100%;
+  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.past-phrase-item:hover {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.past-phrase-item:hover .lyric-line-main {
+  color: var(--text-main);
+  opacity: 1;
+}
+
+.past-phrase-item:hover .translation-line {
+  opacity: 0.95;
+}
+
+.past-phrase-item .lyric-line-main {
+  font-size: calc(var(--lyrics-original-size, var(--lyrics-font-size)) * 0.70);
+  font-weight: var(--lyrics-original-font-weight, 500);
+  font-style: var(--lyrics-original-font-style, normal);
+  line-height: 1.35;
+  letter-spacing: -0.3px;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Gradación sutil de color apagado para frases anteriores */
+.past-phrase-item.past-rank-1 .lyric-line-main {
+  color: var(--lyrics-original-color, var(--text-muted));
+  opacity: 0.85;
+}
+
+.past-phrase-item.past-rank-2 .lyric-line-main {
+  color: var(--lyrics-original-color, var(--text-inactive));
+  opacity: 0.65;
+}
+
+.past-phrase-item.past-rank-3 .lyric-line-main {
+  color: var(--lyrics-original-color, var(--text-inactive));
+  opacity: 0.48;
+}
+
+/* Texto alternativo en frases anteriores */
+.past-phrase-item .lyric-line-alt {
+  margin-top: 4px;
+  font-size: calc(var(--lyrics-alt-size, calc(var(--lyrics-original-size, var(--lyrics-font-size)) * 0.72)) * 0.70);
+  font-weight: var(--lyrics-alt-font-weight, 500);
+  font-style: var(--lyrics-alt-font-style, normal);
+  line-height: 1.35;
+  color: var(--lyrics-alt-color, #a5f3fc);
+  letter-spacing: -0.2px;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.past-phrase-item.past-rank-1 .lyric-line-alt {
+  opacity: 0.8;
+}
+
+.past-phrase-item.past-rank-2 .lyric-line-alt {
+  opacity: 0.6;
+}
+
+.past-phrase-item.past-rank-3 .lyric-line-alt {
+  opacity: 0.42;
+}
+
+.past-phrase-item:hover .lyric-line-alt {
+  color: var(--lyrics-alt-color, #a5f3fc);
+  opacity: 0.95;
+}
+
+.past-phrase-item .translation-line {
+  margin-top: 5px;
+  font-size: calc(var(--lyrics-translation-size, calc(var(--lyrics-font-size) * 0.55)) * 0.76);
+  font-style: var(--lyrics-translation-font-style, italic);
+  font-weight: var(--lyrics-translation-font-weight, 400);
+  color: var(--translation-color);
+  opacity: 0.7;
+}
+
+.past-phrase-item.past-rank-2 .translation-line {
+  opacity: 0.55;
+}
+
+.past-phrase-item.past-rank-3 .translation-line {
+  opacity: 0.40;
+}
+
 /* Frases Siguientes (Debajo de la actual) - Letras sueltas sin caja */
 .upcoming-phrases-container {
   width: 100%;
@@ -1319,7 +1434,7 @@ input[type="number"] {
 
 .badge-library {
   background: rgba(56, 189, 248, 0.12);
-  color: #7dd3fc;
+  color: #57e97e;
   border: 1px solid rgba(56, 189, 248, 0.25);
   display: inline-flex;
   align-items: center;
@@ -4148,14 +4263,17 @@ input[type="number"] {
     overflow-wrap: break-word;
   }
 
+  .past-phrase-item .lyric-line-main,
   .upcoming-phrase-item .lyric-line-main {
     font-size: clamp(0.95rem, 3.8vw, 1.35rem);
   }
 
+  .past-phrase-item .lyric-line-alt,
   .upcoming-phrase-item .lyric-line-alt {
     font-size: clamp(0.8rem, 3.2vw, 1.1rem);
   }
 
+  .past-phrase-item .translation-line,
   .upcoming-phrase-item .translation-line {
     font-size: clamp(0.75rem, 3vw, 0.98rem);
   }
@@ -4770,23 +4888,32 @@ input[type="number"] {
     line-height: 1.22 !important;
   }
 
+  .past-phrases-container {
+    margin-bottom: 6px !important;
+    gap: 4px !important;
+  }
+
   .upcoming-phrases-container {
     margin-top: 6px !important;
     gap: 4px !important;
   }
 
+  .past-phrase-item,
   .upcoming-phrase-item {
     padding: 3px 10px !important;
   }
 
+  .past-phrase-item .lyric-line-main,
   .upcoming-phrase-item .lyric-line-main {
     font-size: clamp(0.8rem, 3.5vh, 1.1rem) !important;
   }
 
+  .past-phrase-item .lyric-line-alt,
   .upcoming-phrase-item .lyric-line-alt {
     font-size: clamp(0.68rem, 2.8vh, 0.92rem) !important;
   }
 
+  .past-phrase-item .translation-line,
   .upcoming-phrase-item .translation-line {
     font-size: clamp(0.68rem, 2.8vh, 0.88rem) !important;
   }

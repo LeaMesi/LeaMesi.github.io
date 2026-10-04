@@ -213,12 +213,6 @@ export function createSongMenuView({
                 ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
               </div>
 
-              <div class="list-col-videos">
-                <div class="videos-pill-list">
-                  ${videosSummary}
-                </div>
-              </div>
-
               <div class="list-col-actions">
                 <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
                   ${iconFolder}
@@ -263,15 +257,6 @@ export function createSongMenuView({
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
                 ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
-              </div>
-
-              <div class="card-videos-row">
-                <div class="videos-pill-list">
-                  ${videosSummary}
-                </div>
-                <button class="btn btn-outline btn-xs btn-manage-videos" data-song-id="${song.id}" title="Gestionar videos y configurar offsets">
-                  ${iconSettings} Videos (${videos.length})
-                </button>
               </div>
             </div>
 
