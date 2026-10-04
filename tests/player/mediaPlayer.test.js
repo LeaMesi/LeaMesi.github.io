@@ -193,5 +193,27 @@ describe('player/mediaPlayer.js', () => {
       const lastUpdate = timeUpdates[timeUpdates.length - 1]
       expect(lastUpdate.lyricsTime).toBe(lastUpdate.currentTime - 1.5)
     })
+
+    it('detiene la reproducción, resetea estado y notifica al llamar a stop()', async () => {
+      const stateChanges = []
+      player = createMediaPlayer({
+        containerId: 'yt-test-player',
+        onStateChange: (st) => stateChanges.push(st)
+      })
+
+      await player.loadSong({
+        title: 'Stop Test',
+        audio_path: 'test.mp3'
+      }, null, { autoplay: false })
+
+      player.play()
+      expect(player.getIsPlaying()).toBe(true)
+
+      player.stop()
+      expect(player.getIsPlaying()).toBe(false)
+      expect(player.getDuration()).toBe(0)
+      expect(stateChanges).toContain(PLAYER_STATE.PAUSED)
+    })
   })
 })
+

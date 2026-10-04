@@ -16,7 +16,7 @@
 - [x] **19.5. Pruebas de Vistas e Interfaz:**
   - Suites para `icons`, `basicViewer`, `controlsView`, `songMenuView`, `songEditorView`, `playlistModal`, `floatingPlayerView` y modales.
 - [x] **19.6. Verificación de Suites Integrales:**
-  - 27 suites de prueba y 307 pruebas automatizadas ejecutadas y pasando al 100%, incorporando `tests/services/youtubeImportService.test.js`, pruebas de la pestaña de YouTube en `tests/views/onlineLyricsModal.test.js`, y pruebas de prevención de fuga de clics y gestión de popover en `tests/views/controlsView.test.js`.
+  - 27 suites de prueba y 310 pruebas automatizadas ejecutadas y pasando al 100%, incorporando pruebas de desalojo y detención al eliminar canciones en `tests/views/songMenuView.test.js`, método `stop()` en `tests/player/mediaPlayer.test.js` y `removeSongById` en `tests/services/playlistService.test.js`.
 - [x] **25.1 - 25.3. Despliegue en GitHub Pages y Automatización CI/CD:**
   - `gh-pages` en `package.json`, workflow en `.github/workflows/deploy.yml` ejecutando tests, build y deploy automático.
 

@@ -239,6 +239,9 @@ async function initApp() {
       await loadSongIntoApp(song.id, { autoplay: true })
       showLyricsScreen()
     },
+    onRemoveSong: async (removedSong) => {
+      await handleSongEviction(removedSong?.id)
+    },
     onLibraryCreated: () => {
       songMenuView.refresh()
     }
@@ -424,6 +427,50 @@ async function initApp() {
     }
   })
 
+  async function clearActivePlayback() {
+    currentSong = null
+    mediaPlayer.stop()
+    floatingPlayerView.setVisible(false)
+    floatingPlayerView.setSong(null)
+    floatingPlayerView.setPlayingState(false)
+    floatingPlayerView.setTime(0)
+    floatingPlayerView.setDuration(0)
+    controlsView.setVideosState({ videos: [], activeId: null })
+    controlsView.setTime(0)
+    controlsView.setPlayingState(false)
+    controlsView.setDuration(0)
+    basicViewer.setLyrics({ lines: [] })
+    songMenuView?.setActiveSongId(null)
+    updateHeaderPlaybackState()
+
+    if (currentScreen === 'lyrics' || currentScreen === 'editor') {
+      showMenuScreen()
+    }
+  }
+
+  async function handleSongEviction(evictedSongId) {
+    if (evictedSongId === undefined || evictedSongId === null) return
+
+    // 1. Quitar siempre de la playlist si aún estaba en ella
+    playlistService.removeSongById(evictedSongId)
+
+    // 2. Si la canción eliminada o retirada es la que está sonando o cargada actualmente
+    if (currentSong && Number(currentSong.id) === Number(evictedSongId)) {
+      const wasPlaying = mediaPlayer.getIsPlaying()
+      mediaPlayer.stop()
+
+      const nextSong = playlistService.getCurrentSong()
+      if (nextSong) {
+        await loadSongIntoApp(nextSong.id, { autoplay: wasPlaying })
+        if (currentScreen === 'lyrics') {
+          showLyricsScreen()
+        }
+      } else {
+        await clearActivePlayback()
+      }
+    }
+  }
+
   // 8. Inicializar Menú de Selección de Canciones
   const songMenuView = createSongMenuView({
     containerElement: menuScreenEl,
@@ -451,6 +498,9 @@ async function initApp() {
     },
     onEditSong: (song) => {
       showEditorScreen(song)
+    },
+    onDeleteSong: async (songId) => {
+      await handleSongEviction(songId)
     },
     onAddToPlaylist: (song) => {
       return playlistService.addSong(song)

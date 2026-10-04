@@ -45,6 +45,7 @@ export function createSongMenuView({
   onSearchBetterLyrics,
   onSearchOnlineLyrics,
   onEditSong,
+  onDeleteSong,
   onAddToPlaylist,
   onOpenPlaylist,
   onLoadLibraryAsPlaylist
@@ -968,6 +969,9 @@ export function createSongMenuView({
           try {
             await deleteSong(songId)
             if (activeSongId === songId) activeSongId = null
+            if (onDeleteSong) {
+              await onDeleteSong(songId)
+            }
             showStatus('Canción eliminada correctamente.', 'info')
             await loadData()
           } catch (err) {
