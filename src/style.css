@@ -916,6 +916,20 @@ input[type="number"] {
   margin-top: 2px;
 }
 
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-modal-create-empty {
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+}
+
 .btn-close-modal {
   background: none;
   border: none;
@@ -1111,7 +1125,14 @@ input[type="number"] {
 
 .menu-actions {
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+}
+
+.menu-actions-right {
+  display: flex;
   gap: 10px;
 }
 
@@ -1740,8 +1761,136 @@ input[type="number"] {
 }
 
 /* ==========================================================================
-   Selector de Videos en Controles (Modo Letra)
+   Configuración y Selectores en Controles (Modo Letra)
    ========================================================================== */
+.controls-settings-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-controls-settings-toggle {
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-controls-settings-toggle.is-active,
+.btn-controls-settings-toggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: var(--primary-color, #6366f1);
+}
+
+.controls-settings-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  width: 310px;
+  max-width: 90vw;
+  background: var(--panel-bg, #0f172a);
+  border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.15));
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  padding: 14px 16px;
+  z-index: 60;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  animation: popoverFadeIn 0.18s ease-out;
+}
+
+.controls-settings-popover.is-open {
+  display: flex;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));
+}
+
+.settings-popover-title {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-main, #f8fafc);
+  letter-spacing: 0.3px;
+}
+
+.btn-close-popover {
+  background: none;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.btn-close-popover:hover {
+  color: var(--text-main, #ffffff);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.settings-popover-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.popover-item label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+  min-width: 72px;
+}
+
+.popover-item select {
+  flex: 1;
+  min-width: 0;
+}
+
+.video-select-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.video-select-actions select {
+  flex: 1;
+  min-width: 0;
+}
+
 .video-selector-group {
   display: flex;
   align-items: center;
@@ -1755,13 +1904,14 @@ input[type="number"] {
 }
 
 .select-video {
-  max-width: 260px;
+  width: 100%;
   font-size: 0.82rem;
   text-overflow: ellipsis;
 }
 
 .btn-manage-song-videos {
   padding: 5px 8px;
+  flex-shrink: 0;
 }
 
 .btn-menu-return {
@@ -2855,7 +3005,9 @@ input[type="number"] {
 .assistant-controls {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
 }
 
 .assistant-clock {
@@ -4089,6 +4241,18 @@ input[type="number"] {
     min-height: 32px;
   }
 
+  .btn-controls-settings-toggle {
+    padding: 4px 8px;
+    min-height: 32px;
+  }
+
+  .controls-settings-popover {
+    right: 0;
+    width: min(290px, 86vw);
+    bottom: calc(100% + 8px);
+    padding: 10px 12px;
+  }
+
   .clock-label {
     display: none !important;
   }
@@ -4658,6 +4822,13 @@ input[type="number"] {
     flex-shrink: 0 !important;
   }
 
+  .center-controls {
+    display: block;
+    position: absolute;
+	left: 50%;
+	transform: translateX(-25%);
+  }
+
   .btn-play-pause {
     padding: 3px 10px !important;
     font-size: 0.78rem !important;
@@ -4696,10 +4867,20 @@ input[type="number"] {
   }
 
   #btn-controls-edit,
-  .btn-dock-collapse {
+  .btn-dock-collapse,
+  .btn-controls-settings-toggle {
     padding: 3px 8px !important;
     font-size: 0.75rem !important;
     min-height: 28px !important;
+  }
+
+  .controls-settings-popover {
+    right: 0 !important;
+    width: min(280px, 80vw) !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    bottom: calc(100% + 6px) !important;
+    padding: 8px 10px !important;
   }
 
   .btn-dock-floating-expand {

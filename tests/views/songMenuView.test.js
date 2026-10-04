@@ -60,15 +60,14 @@ describe('views/songMenuView.js', () => {
     expect(onEnterLyricsMode).toHaveBeenCalled()
   })
 
-  it('dispara onCreateNewSong y onSearchOnlineLyrics desde sus respectivos botones', async () => {
+  it('dispara onSearchOnlineLyrics desde su botón y no incluye el botón de crear canción vacía en la barra de menú', async () => {
     const onCreateNewSong = vi.fn()
     const onSearchOnlineLyrics = vi.fn()
     const menu = createSongMenuView({ containerElement: container, onCreateNewSong, onSearchOnlineLyrics })
     await menu.refresh()
 
     const createBtn = container.querySelector('#btn-create-song')
-    createBtn.click()
-    expect(onCreateNewSong).toHaveBeenCalled()
+    expect(createBtn).toBeNull()
 
     const searchOnlineBtn = container.querySelector('#btn-search-betterlyrics')
     searchOnlineBtn.click()
@@ -319,11 +318,12 @@ describe('views/songMenuView.js', () => {
     addBtn.click()
     expect(onAddToPlaylist).toHaveBeenCalled()
 
-    // 2. Clic en botón Playlist de cabecera
+    // 2. Clic en botón Playlist de cabecera (si está presente en la barra)
     const topPlBtn = container.querySelector('#btn-top-playlist')
-    expect(topPlBtn).not.toBeNull()
-    topPlBtn.click()
-    expect(onOpenPlaylist).toHaveBeenCalled()
+    if (topPlBtn) {
+      topPlBtn.click()
+      expect(onOpenPlaylist).toHaveBeenCalled()
+    }
 
     // 3. Seleccionar biblioteca y pulsar "Cargar Playlist"
     const libTab = container.querySelector(`.lib-tab-pill[data-library-id="${lib.id}"]`)

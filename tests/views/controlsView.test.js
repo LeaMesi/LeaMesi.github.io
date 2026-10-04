@@ -106,30 +106,50 @@ describe('views/controlsView.js', () => {
     expect(onScriptDisplayModeChange).toHaveBeenCalledWith('alt')
   })
 
-  it('posiciona el selector de frases siguientes en primer lugar y oculta texto/traducción cuando no aplican', () => {
+  it('ubica el botón de colapsar en el centro y organiza video, siguientes y traducción en el menú de configuración', () => {
     const controls = createControlsView({ containerElement: container })
     controls.render()
 
+    // 1. El botón de colapsar dock debe estar centrado en .center-controls
     const centerControls = container.querySelector('.center-controls')
-    const children = Array.from(centerControls.children)
+    expect(centerControls).not.toBeNull()
+    const collapseBtn = centerControls.querySelector('#btn-dock-collapse')
+    expect(collapseBtn).not.toBeNull()
+    expect(Array.from(centerControls.children)[0]).toBe(collapseBtn)
 
-    // 1. Selector 'siguientes' debe ser el primer hijo
-    const previewGroup = container.querySelector('.preview-lines-group')
-    expect(children[0]).toBe(previewGroup)
+    // 2. Ruedita de configuración y popover deben existir en los controles
+    const settingsToggleBtn = container.querySelector('#btn-controls-settings-toggle')
+    const popover = container.querySelector('#controls-settings-popover')
+    expect(settingsToggleBtn).not.toBeNull()
+    expect(popover).not.toBeNull()
+    expect(popover.classList.contains('is-open')).toBe(false)
 
-    // 2. Sin altText ni traducciones por defecto, texto y traducción deben estar ocultos (display: none)
-    const scriptGroup = container.querySelector('.script-selector-group')
-    const transGroup = container.querySelector('.translation-group')
+    // Al hacer clic en la ruedita, el popover se abre
+    settingsToggleBtn.click()
+    expect(popover.classList.contains('is-open')).toBe(true)
 
+    // 3. Los selectores de video, siguientes y traducción residen dentro del popover
+    const popoverContent = popover.querySelector('.settings-popover-content')
+    const previewGroup = popoverContent.querySelector('.preview-lines-group')
+    const videoGroup = popoverContent.querySelector('.video-selector-group')
+    const scriptGroup = popoverContent.querySelector('.script-selector-group')
+    const transGroup = popoverContent.querySelector('.translation-group')
+
+    expect(previewGroup).not.toBeNull()
+    expect(videoGroup).not.toBeNull()
+    expect(scriptGroup).not.toBeNull()
+    expect(transGroup).not.toBeNull()
+
+    // 4. Sin altText ni traducciones por defecto, texto y traducción deben estar ocultos (display: none)
     expect(scriptGroup.style.display).toBe('none')
     expect(transGroup.style.display).toBe('none')
 
-    // 3. Al activar hasAltText, el selector de texto debe hacerse visible
+    // 5. Al activar hasAltText, el selector de texto debe hacerse visible
     controls.setScriptState({ hasAltText: true, mode: 'both' })
     const updatedScriptGroup = container.querySelector('.script-selector-group')
     expect(updatedScriptGroup.style.display).not.toBe('none')
 
-    // 4. Al proveer traducciones disponibles, el selector de traducción debe hacerse visible
+    // 6. Al proveer traducciones disponibles, el selector de traducción debe hacerse visible
     controls.setLanguagesState({
       languages: [
         { code: 'es', name: 'Español', isMain: true },

@@ -304,27 +304,21 @@ export function createSongMenuView({
       <div class="song-menu-view-container">
         <!-- Barra de Título y Operaciones Principales -->
         <div class="menu-top-bar">
-          <div class="menu-titles">
-            <h2 class="menu-heading">Menú de Selección de Canciones</h2>
-            <p class="menu-subheading">Organiza tus canciones en bibliotecas, expórtalas en grupo y canta con letra sincronizada.</p>
-          </div>
 
           <div class="menu-actions">
-            <button class="btn btn-primary" id="btn-create-song" title="Crear una nueva canción desde cero">
-              ${iconPlus} Crear Canción
-            </button>
-            <button class="btn btn-secondary" id="btn-search-betterlyrics" title="Buscar canciones online en BetterLyrics, Genius y LRCLIB">
-              ${iconGlobe} Buscar Canción Online
-            </button>
-            <button class="btn btn-outline btn-toggle-import">
-              ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
-            </button>
-            <button class="btn btn-outline" id="btn-top-playlist" title="Ver lista de reproducción activa">
-              ${iconListMusic} Playlist (${playlistCount})
-            </button>
-            <button class="btn btn-outline" id="btn-menu-backup" title="Exportar respaldo de todas las canciones">
-              ${iconDownload} Respaldo Completo
-            </button>
+            <div>
+                <button class="btn btn-primary" id="btn-search-betterlyrics" title="Buscar canciones online en distintas fuentes">
+                  ${iconPlus} Agregar canción
+                </button>
+            </div>
+            <div class="menu-actions-right">
+                <button class="btn btn-outline btn-toggle-import">
+                  ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
+                </button>
+                <button class="btn btn-outline" id="btn-menu-backup" title="Exportar respaldo de todas las canciones">
+                  ${iconDownload} Respaldo Completo
+                </button>
+          </div>
           </div>
         </div>
 
@@ -430,9 +424,6 @@ export function createSongMenuView({
             ${filterQuery ? `<button class="btn-clear-search" id="btn-clear-search">${iconClose}</button>` : ''}
           </div>
           <div class="menu-filter-right-controls">
-            <button class="btn btn-xs btn-outline btn-menu-open-playlist" id="btn-menu-open-playlist" title="Abrir lista de reproducción activa (${playlistCount} canciones)">
-              ${iconListMusic} Playlist <span class="playlist-badge-pill ${playlistCount > 0 ? 'has-items' : ''}">${playlistCount}</span>
-            </button>
             <div class="song-count-badge">
               ${filtered.length} de ${candidateSongs.length} canción(es)
             </div>

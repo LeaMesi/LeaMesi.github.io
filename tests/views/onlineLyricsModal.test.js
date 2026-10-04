@@ -47,6 +47,26 @@ describe('views/onlineLyricsModal.js', () => {
     expect(container.classList.contains('is-open')).toBe(false)
   })
 
+  it('incluye un botón "+" primario sin texto a la izquierda del botón de cerrar que invoca onCreateEmptySong y cierra el modal', () => {
+    const onCreateEmptySong = vi.fn()
+    const modal = createOnlineLyricsModal({ containerElement: container, onCreateEmptySong })
+    modal.open()
+
+    const createBtn = container.querySelector('#btn-modal-create-empty')
+    const closeBtn = container.querySelector('#btn-close-online-modal')
+
+    expect(createBtn).not.toBeNull()
+    expect(closeBtn).not.toBeNull()
+    expect(createBtn.classList.contains('btn-primary')).toBe(true)
+    expect(createBtn.textContent.trim()).toBe('')
+    expect(createBtn.querySelector('svg')).not.toBeNull()
+    expect(createBtn.nextElementSibling).toBe(closeBtn)
+
+    createBtn.click()
+    expect(onCreateEmptySong).toHaveBeenCalledTimes(1)
+    expect(container.classList.contains('is-open')).toBe(false)
+  })
+
   it('restablece el estado de importación y permite cargar canciones consecutivas sin dejar botones deshabilitados', async () => {
     const mockResults = [
       { id: 'song-1', song: 'Canción 1', artist: 'Artista 1', source: 'betterlyrics', syncType: 'richsync' },

@@ -197,6 +197,9 @@ async function initApp() {
     containerElement: betterlyricsModalEl,
     onSongReady: (songPackage) => {
       showEditorScreen(songPackage)
+    },
+    onCreateEmptySong: () => {
+      showEditorScreen(null)
     }
   })
 
