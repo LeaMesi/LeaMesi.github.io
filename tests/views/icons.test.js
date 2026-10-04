@@ -40,7 +40,9 @@ describe('views/icons.js', () => {
       'iconShuffle',
       'iconListMusic',
       'iconListPlus',
-      'iconEye'
+      'iconEye',
+      'iconMaximize',
+      'iconMinimize'
     ]
 
     requiredIcons.forEach(iconName => {

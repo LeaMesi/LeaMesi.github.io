@@ -510,7 +510,7 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
 
 2. **Modo Letra (`BasicModeViewer` / `lyricsViewport`):**
    * Pantalla dedicada a la visualización de la letra y el canto sincronizado sílaba a sílaba.
-   * Incorpora acceso rápido en el encabezado (`← Menú de Canciones`) y en los controles para regresar al menú en cualquier momento.
+   * Incorpora acceso rápido en el encabezado (`← Menú de Canciones`), navegación directa al catálogo al hacer clic en el fondo del reproductor, y botón de pantalla completa (`#btn-controls-fullscreen`) que oculta los controles y el encabezado, disponiendo de un botón flotante para salir (`#btn-exit-fullscreen`).
    * Barra de controles con barra de progreso, botón de reproducción/pausa, selector dinámico de videos asociados con offsets, **slider interactivo de volumen y botón de silenciado**, selector de traducciones y selector de líneas siguientes (0 a 3 frases).
    * Botón directo "✏️ Editar" para ingresar a ajustar la letra de la canción activa en cualquier momento.
 

@@ -528,49 +528,61 @@ input[type="number"] {
   height: 0;
 }
 
-.controls-dock.is-collapsed .controls-wrapper {
-  display: none;
+/* Pantalla completa en Modo Letra */
+.is-fullscreen-lyrics .app-header {
+  display: none !important;
 }
 
-.btn-dock-floating-expand {
+.is-fullscreen-lyrics .controls-dock {
+  display: none !important;
+}
+
+.is-fullscreen-lyrics .screen-lyrics {
+  height: 100vh !important;
+  height: 100dvh !important;
+  padding: 0 !important;
+}
+
+.is-fullscreen-lyrics .lyrics-stage-viewport {
+  padding-bottom: max(24px, var(--safe-bottom)) !important;
+}
+
+.btn-exit-fullscreen {
+  display: none;
   position: fixed;
-  bottom: max(12px, var(--safe-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 40;
-  display: inline-flex;
+  top: max(16px, var(--safe-top));
+  right: max(16px, var(--safe-right));
+  z-index: 100;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: rgba(15, 23, 42, 0.9);
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(15, 23, 42, 0.85);
   border: 1px solid var(--panel-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   color: var(--text-main);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  pointer-events: auto;
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.btn-dock-floating-expand:hover {
+.btn-exit-fullscreen:hover {
   background: rgba(30, 41, 59, 0.95);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateX(-50%) translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--primary-contrast, #fff);
+  transform: translateY(-1px);
 }
 
-.screen-lyrics.has-collapsed-dock .lyrics-stage-viewport,
-.screen-lyrics:has(.controls-dock.is-collapsed) .lyrics-stage-viewport {
-  padding-bottom: max(24px, var(--safe-bottom));
+.is-fullscreen-lyrics .btn-exit-fullscreen {
+  display: inline-flex !important;
 }
 
-.btn-dock-collapse {
-  padding: 8px 10px;
+.btn-controls-fullscreen {
+  padding: 8px 12px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
 }
 
 .controls-wrapper {
@@ -4236,7 +4248,7 @@ input[type="number"] {
     min-height: 32px;
   }
 
-  .btn-dock-collapse {
+  .btn-controls-fullscreen {
     padding: 4px 8px;
     min-height: 32px;
   }
@@ -4826,7 +4838,7 @@ input[type="number"] {
     display: block;
     position: absolute;
 	left: 50%;
-	transform: translateX(-25%);
+	transform: translateX(-50%);
   }
 
   .btn-play-pause {
@@ -4867,7 +4879,7 @@ input[type="number"] {
   }
 
   #btn-controls-edit,
-  .btn-dock-collapse,
+  .btn-controls-fullscreen,
   .btn-controls-settings-toggle {
     padding: 3px 8px !important;
     font-size: 0.75rem !important;
@@ -4881,12 +4893,6 @@ input[type="number"] {
     overflow-y: auto !important;
     bottom: calc(100% + 6px) !important;
     padding: 8px 10px !important;
-  }
-
-  .btn-dock-floating-expand {
-    bottom: max(6px, var(--safe-bottom)) !important;
-    padding: 4px 10px !important;
-    font-size: 0.75rem !important;
   }
 
   /* Menú de Canciones en Landscape */

@@ -74,6 +74,29 @@ describe('views/songMenuView.js', () => {
     expect(onSearchOnlineLyrics).toHaveBeenCalled()
   })
 
+  it('no muestra botón de crear canción vacía en estado sin canciones y permite buscar online', async () => {
+    const db = await getDB()
+    const originalSongs = await db.getAll('songs')
+    try {
+      await db.clear('songs')
+      const onSearchOnlineLyrics = vi.fn()
+      const menu = createSongMenuView({ containerElement: container, onSearchOnlineLyrics })
+      await menu.refresh()
+
+      expect(container.querySelector('#btn-create-song')).toBeNull()
+      expect(container.querySelector('.btn-create-empty-song')).toBeNull()
+
+      const searchBlBtn = container.querySelector('.btn-search-bl-empty')
+      expect(searchBlBtn).not.toBeNull()
+      searchBlBtn.click()
+      expect(onSearchOnlineLyrics).toHaveBeenCalled()
+    } finally {
+      for (const s of originalSongs) {
+        await db.put('songs', s)
+      }
+    }
+  })
+
   it('no muestra los botones de exportación individual (JSON/Lyricsfile) en las tarjetas de la lista ni de la grilla', async () => {
     const menu = createSongMenuView({ containerElement: container })
     await menu.refresh()

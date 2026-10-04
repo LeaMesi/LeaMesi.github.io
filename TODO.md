@@ -1,13 +1,13 @@
-- En el menú de lista de canciones, el botón "Crear canción" ahora mismo crea una canción vacía. Quiero que ese botón no esté en la lista de canciones y aparezca desde el buscador de canciones online. Quiero que esté a la izquierda de la x que cierra ese menú, que sea un botón "+" sin texto y con estilo primario.
+- **Controles del modo letra:** Sacar los botones de esconder y mostrar. Si se hace clic en el fondo del reproductor lleva al usuario a la lista de canciones. Agregar botón pantalla completa que esconde los controles, el header y pone la página en pantalla completa. Dejar un botón para salir del modo pantalla completa.
 
-- **Reproductor modo letra:** No esconder, llevar al selector de canciones. Agregar botón pantalla completa.
+- **Modo letra:** Ahora mismo muestra los siguientes versos, se puede hacer clic para avanzar hasta ese verso, y se pueden mostrar entre 0 a 3. Hacer lo mismo para mostrar los versos anteriores. Hacer clic en el verso retrocede y hay una opción para mostrar entre 0 a 3.
 
-- **Editor:** Asistente de audio en vivo: Agregar barra de tiempo
+- **Editor:** Asistente de audio en vivo: Agregar barra de tiempo para avanzar y retroceder en cualquier punto de la canción.
 
 - **Editor:** Cargar en tiempo real desde la api y no dejar al usuario esperando en la lista de canciones.
 
 - Clic en SarangaBaranga -> Volver a la lista de canciones.
 
-- **Modo letra:** Mostrar versos anteriores. Hacer clic en el verso retrocede.
-
 - Importar playlist de youtube.
+
+

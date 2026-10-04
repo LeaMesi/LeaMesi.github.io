@@ -15,7 +15,7 @@ import { createSongEditorView } from './views/songEditorView.js'
 import { createPlaylistService, loadLibraryIntoPlaylist } from './services/playlistService.js'
 import { createPlaylistModal } from './views/playlistModal.js'
 import { createFloatingPlayerView } from './views/floatingPlayerView.js'
-import { iconArrowLeft, iconPalette, iconListMusic, iconMic } from './views/icons.js'
+import { iconArrowLeft, iconPalette, iconListMusic, iconMic, iconMinimize } from './views/icons.js'
 
 async function initApp() {
   // Aplicar tema guardado inmediatamente
@@ -67,6 +67,11 @@ async function initApp() {
 
     <!-- Pantalla 2: Modo Letra (Visualización y Controles) -->
     <section class="screen-view screen-lyrics" id="lyrics-screen" style="display: none;">
+      <!-- Botón Flotante para Salir de Pantalla Completa -->
+      <button type="button" class="btn btn-outline btn-exit-fullscreen" id="btn-exit-fullscreen" title="Salir de pantalla completa" aria-label="Salir de pantalla completa">
+        ${iconMinimize} <span class="nav-text-full">Salir de pantalla completa</span><span class="nav-text-short">Salir</span>
+      </button>
+
       <main class="main-stage-container">
         <!-- Visor de Letras Sincronizadas -->
         <section class="lyrics-stage-viewport" id="lyrics-viewport"></section>
@@ -109,6 +114,7 @@ async function initApp() {
   const editorScreenEl = document.querySelector('#editor-screen')
   const lyricsViewportEl = document.querySelector('#lyrics-viewport')
   const controlsDockEl = document.querySelector('#controls-dock')
+  const btnExitFullscreen = document.querySelector('#btn-exit-fullscreen')
   const videoModalEl = document.querySelector('#video-modal')
   const betterlyricsModalEl = document.querySelector('#betterlyrics-modal')
   const themeModalEl = document.querySelector('#theme-modal')
@@ -327,6 +333,9 @@ async function initApp() {
     },
     onOpenPlaylist: () => {
       playlistModal.open()
+    },
+    onToggleFullscreen: () => {
+      enterFullscreenMode()
     }
   })
 
@@ -488,8 +497,36 @@ async function initApp() {
     }
   }
 
-  // 10. Alternar Pantallas (Menú vs Letra vs Editor)
+  // 10. Gestión de Pantalla Completa en Modo Letra
+  function enterFullscreenMode() {
+    if (appContainer) appContainer.classList.add('is-fullscreen-lyrics')
+    document.body.classList.add('is-fullscreen-lyrics')
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {})
+    } else if (document.documentElement.webkitRequestFullscreen) {
+      try {
+        document.documentElement.webkitRequestFullscreen()
+      } catch (_) {}
+    }
+  }
+
+  function exitFullscreenMode() {
+    if (appContainer) appContainer.classList.remove('is-fullscreen-lyrics')
+    document.body.classList.remove('is-fullscreen-lyrics')
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {})
+      } else if (document.webkitExitFullscreen) {
+        try {
+          document.webkitExitFullscreen()
+        } catch (_) {}
+      }
+    }
+  }
+
+  // 10b. Alternar Pantallas (Menú vs Letra vs Editor)
   function showMenuScreen() {
+    exitFullscreenMode()
     currentScreen = 'menu'
     if (appContainer) appContainer.dataset.screen = 'menu'
     // No pausamos mediaPlayer para que la música siga sonando de fondo mientras se edita la playlist o el menú
@@ -536,6 +573,7 @@ async function initApp() {
   }
 
   function showEditorScreen(songToEdit = null) {
+    exitFullscreenMode()
     currentScreen = 'editor'
     if (appContainer) appContainer.dataset.screen = 'editor'
     floatingPlayerView.setVisible(false)
@@ -562,6 +600,41 @@ async function initApp() {
   // 11. Botón de volver al menú desde el header
   if (btnHeaderBackMenu) {
     btnHeaderBackMenu.addEventListener('click', () => {
+      showMenuScreen()
+    })
+  }
+
+  // 11b. Botón salir de pantalla completa
+  if (btnExitFullscreen) {
+    btnExitFullscreen.addEventListener('click', (e) => {
+      e.stopPropagation()
+      exitFullscreenMode()
+    })
+  }
+
+  // Sincronizar salida de pantalla completa nativa del navegador (Esc o gesto)
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && (appContainer?.classList.contains('is-fullscreen-lyrics') || document.body.classList.contains('is-fullscreen-lyrics'))) {
+      exitFullscreenMode()
+    }
+  })
+  document.addEventListener('webkitfullscreenchange', () => {
+    if (!document.webkitFullscreenElement && (appContainer?.classList.contains('is-fullscreen-lyrics') || document.body.classList.contains('is-fullscreen-lyrics'))) {
+      exitFullscreenMode()
+    }
+  })
+
+  // 11c. Clic en el fondo del reproductor (Modo Letra) para volver a la lista de canciones
+  if (lyricsScreenEl) {
+    lyricsScreenEl.addEventListener('click', (e) => {
+      // Si se hace clic dentro del dock de controles, modales, botón de salir de pantalla completa, botones, inputs, selects, links o frases siguientes (con acción de salto temporal), ignorar
+      if (e.target.closest('#controls-dock, .modal-dialog, #btn-exit-fullscreen, button, input, select, textarea, a, .upcoming-phrase-item')) {
+        return
+      }
+      const selection = window.getSelection?.()
+      if (selection && selection.toString().trim().length > 0) {
+        return
+      }
       showMenuScreen()
     })
   }

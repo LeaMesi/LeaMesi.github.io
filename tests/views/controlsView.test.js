@@ -72,22 +72,18 @@ describe('views/controlsView.js', () => {
     expect(localStorage.getItem('saranga_preview_lines')).toBe('0')
   })
 
-  it('permite colapsar y expandir el dock de controles (modo inmersivo)', () => {
-    const controls = createControlsView({ containerElement: container })
+  it('no incluye botones de esconder o expandir el dock y provee botón de pantalla completa', () => {
+    const onToggleFullscreen = vi.fn()
+    const controls = createControlsView({ containerElement: container, onToggleFullscreen })
     controls.render()
 
-    const collapseBtn = container.querySelector('#btn-dock-collapse')
-    collapseBtn.click()
+    expect(container.querySelector('#btn-dock-collapse')).toBeNull()
+    expect(container.querySelector('#btn-dock-expand')).toBeNull()
 
-    expect(controls.getIsDockCollapsed()).toBe(true)
-    expect(container.classList.contains('is-collapsed')).toBe(true)
-
-    // Botón flotante de expansión aparece
-    const expandBtn = container.querySelector('#btn-dock-expand')
-    expect(expandBtn).not.toBeNull()
-    expandBtn.click()
-
-    expect(controls.getIsDockCollapsed()).toBe(false)
+    const fsBtn = container.querySelector('#btn-controls-fullscreen')
+    expect(fsBtn).not.toBeNull()
+    fsBtn.click()
+    expect(onToggleFullscreen).toHaveBeenCalled()
   })
 
   it('dispara onScriptDisplayModeChange al alternar el modo de texto', () => {
@@ -106,16 +102,16 @@ describe('views/controlsView.js', () => {
     expect(onScriptDisplayModeChange).toHaveBeenCalledWith('alt')
   })
 
-  it('ubica el botón de colapsar en el centro y organiza video, siguientes y traducción en el menú de configuración', () => {
+  it('ubica el botón de pantalla completa en el centro y organiza video, siguientes y traducción en el menú de configuración', () => {
     const controls = createControlsView({ containerElement: container })
     controls.render()
 
-    // 1. El botón de colapsar dock debe estar centrado en .center-controls
+    // 1. El botón de pantalla completa debe estar centrado en .center-controls
     const centerControls = container.querySelector('.center-controls')
     expect(centerControls).not.toBeNull()
-    const collapseBtn = centerControls.querySelector('#btn-dock-collapse')
-    expect(collapseBtn).not.toBeNull()
-    expect(Array.from(centerControls.children)[0]).toBe(collapseBtn)
+    const fsBtn = centerControls.querySelector('#btn-controls-fullscreen')
+    expect(fsBtn).not.toBeNull()
+    expect(Array.from(centerControls.children)[0]).toBe(fsBtn)
 
     // 2. Ruedita de configuración y popover deben existir en los controles
     const settingsToggleBtn = container.querySelector('#btn-controls-settings-toggle')

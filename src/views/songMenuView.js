@@ -159,10 +159,9 @@ export function createSongMenuView({
           <div class="empty-songs-state">
             <div class="empty-icon">${iconMusic}</div>
             <h3>Aún no hay canciones en tu biblioteca</h3>
-            <p>Crea una canción o importa tu primer paquete JSON o archivo .lyricsfile.yaml para comenzar a cantar.</p>
+            <p>Agrega canciones desde el buscador online o importa tu primer paquete JSON o archivo .lyricsfile.yaml para comenzar a cantar.</p>
             <div class="empty-btn-group">
-              <button class="btn btn-primary btn-create-empty-song">${iconPlus} Crear Primera Canción</button>
-              <button class="btn btn-secondary btn-search-bl-empty" title="Buscar canciones en BetterLyrics, Genius y LRCLIB">${iconGlobe} Buscar Canción Online</button>
+              <button class="btn btn-primary btn-search-bl-empty" title="Buscar canciones online en distintas fuentes">${iconPlus} Agregar Canción</button>
               <button class="btn btn-outline btn-open-import">${iconUpload} Importar Canción</button>
             </div>
           </div>

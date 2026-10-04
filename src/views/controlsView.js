@@ -9,8 +9,7 @@ import {
   iconVolume,
   iconVolumeMute,
   iconPalette,
-  iconChevronDown,
-  iconChevronUp,
+  iconMaximize,
   iconSkipBack,
   iconSkipForward,
   iconListMusic
@@ -39,7 +38,8 @@ export function createControlsView({
   onOpenTheme,
   onPrevSong,
   onNextSong,
-  onOpenPlaylist
+  onOpenPlaylist,
+  onToggleFullscreen
 }) {
   let isPlaying = false
   let duration = 0
@@ -65,23 +65,10 @@ export function createControlsView({
     : 'both'
   let hasAltText = false
   let currentMode = 'basic' // 'basic' | 'advanced'
-  let isDockCollapsed = false
   let isSettingsOpen = false
 
   function render() {
     if (!containerElement) return
-
-    if (isDockCollapsed) {
-      containerElement.classList.add('is-collapsed')
-      if (containerElement.parentElement) {
-        containerElement.parentElement.classList.add('has-collapsed-dock')
-      }
-    } else {
-      containerElement.classList.remove('is-collapsed')
-      if (containerElement.parentElement) {
-        containerElement.parentElement.classList.remove('has-collapsed-dock')
-      }
-    }
 
     const translations = availableLanguages.filter(l => !l.isMain)
     const translationsHtml = `
@@ -103,12 +90,7 @@ export function createControlsView({
       }).join('')
 
     containerElement.innerHTML = `
-      ${isDockCollapsed ? `
-        <button class="btn-dock-floating-expand" id="btn-dock-expand" title="Mostrar barra de controles">
-          ${iconChevronUp}
-        </button>
-      ` : ''}
-      <div class="controls-wrapper ${isDockCollapsed ? 'is-hidden-dock' : ''}">
+      <div class="controls-wrapper">
         <!-- Barra de progreso superior -->
         <div class="progress-bar-row">
           <span class="time-label current-time">${formatTime(Math.max(0, currentTime))}</span>
@@ -151,9 +133,9 @@ export function createControlsView({
           </div>
 
           <div class="center-controls">
-            <!-- Botón Colapsar Barra de Controles (Modo Inmersivo) en el centro -->
-            <button class="btn btn-outline btn-dock-collapse btn-dock-floating-expand" id="btn-dock-collapse" title="Ocultar controles para pantalla completa de letras">
-              ${iconChevronDown}
+            <!-- Botón Pantalla Completa en el centro -->
+            <button class="btn btn-outline btn-controls-fullscreen" id="btn-controls-fullscreen" title="Pantalla completa">
+              ${iconMaximize} <span class="nav-text-full">Pantalla completa</span>
             </button>
           </div>
 
@@ -395,20 +377,12 @@ export function createControlsView({
       })
     }
 
-    const collapseBtn = containerElement.querySelector('#btn-dock-collapse')
-    if (collapseBtn) {
-      collapseBtn.addEventListener('click', () => {
-        isDockCollapsed = true
+    // Pantalla completa
+    const fullscreenBtn = containerElement.querySelector('#btn-controls-fullscreen')
+    if (fullscreenBtn) {
+      fullscreenBtn.addEventListener('click', () => {
         isSettingsOpen = false
-        render()
-      })
-    }
-
-    const expandBtn = containerElement.querySelector('#btn-dock-expand')
-    if (expandBtn) {
-      expandBtn.addEventListener('click', () => {
-        isDockCollapsed = false
-        render()
+        if (onToggleFullscreen) onToggleFullscreen()
       })
     }
 
@@ -607,10 +581,7 @@ export function createControlsView({
     setMode,
     setVolume,
     setPlaylistState,
-    getIsDockCollapsed: () => isDockCollapsed,
-    setDockCollapsed: (val) => {
-      isDockCollapsed = Boolean(val)
-      render()
-    }
+    getIsDockCollapsed: () => false,
+    setDockCollapsed: () => {}
   }
 }
