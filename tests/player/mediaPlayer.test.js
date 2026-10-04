@@ -164,5 +164,34 @@ describe('player/mediaPlayer.js', () => {
       expect(isPlayingReported).toBe(true)
       playerInstance.destroy()
     })
+
+    it('permite cambiar el offset en caliente mediante setActiveOffset sin pausar ni reiniciar el video', async () => {
+      const timeUpdates = []
+      player = createMediaPlayer({
+        containerId: 'yt-test-player',
+        onTimeUpdate: (currentTime, lyricsTime) => {
+          timeUpdates.push({ currentTime, lyricsTime })
+        }
+      })
+
+      await player.loadSong({
+        title: 'Offset Test',
+        videos: [
+          { id: 'v1', name: 'Pista', url: '', offset: 1.0 }
+        ]
+      })
+
+      expect(player.getActiveOffset()).toBe(1.0)
+
+      // Cambiar offset en caliente
+      player.setActiveOffset(1.5)
+      expect(player.getActiveOffset()).toBe(1.5)
+      expect(player.getVideos()[0].offset).toBe(1.5)
+
+      // Debe haber emitido onTimeUpdate inmediatamente con el nuevo lyricsTime
+      expect(timeUpdates.length).toBeGreaterThan(0)
+      const lastUpdate = timeUpdates[timeUpdates.length - 1]
+      expect(lastUpdate.lyricsTime).toBe(lastUpdate.currentTime - 1.5)
+    })
   })
 })

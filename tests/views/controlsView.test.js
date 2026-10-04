@@ -311,5 +311,103 @@ describe('views/controlsView.js', () => {
     container.click()
     expect(onGoToMenu).toHaveBeenCalledTimes(1)
   })
+
+  describe('Ajuste rápido de offset (-0.1s y +0.1s)', () => {
+    it('muestra el valor del offset formateado en el badge central', () => {
+      const controls = createControlsView({ containerElement: container })
+      controls.setVideosState({
+        videos: [
+          { id: 'v1', name: 'Original', offset: 0.5 }
+        ],
+        activeId: 'v1'
+      })
+
+      const badge = container.querySelector('#controls-offset-value')
+      expect(badge).not.toBeNull()
+      expect(badge.textContent).toBe('+0.5s')
+      expect(controls.getOffset()).toBe(0.5)
+    })
+
+    it('ajusta el offset con -0.1s y +0.1s, dispara onOffsetChange y actualiza la UI', () => {
+      const onOffsetChange = vi.fn()
+      const controls = createControlsView({
+        containerElement: container,
+        onOffsetChange
+      })
+      controls.setVideosState({
+        videos: [
+          { id: 'v1', name: 'Video 1', offset: 0.0 },
+          { id: 'v2', name: 'Video 2', offset: 1.2 }
+        ],
+        activeId: 'v1'
+      })
+
+      const badge = container.querySelector('#controls-offset-value')
+      const btnDec = container.querySelector('#btn-offset-dec')
+      const btnInc = container.querySelector('#btn-offset-inc')
+
+      expect(badge.textContent).toBe('0.0s')
+
+      // Clic en +0.1s
+      btnInc.click()
+      expect(onOffsetChange).toHaveBeenCalledWith(0.1, 'v1')
+      expect(badge.textContent).toBe('+0.1s')
+      expect(controls.getOffset()).toBe(0.1)
+
+      // Clic en -0.1s dos veces
+      btnDec.click()
+      expect(onOffsetChange).toHaveBeenCalledWith(0.0, 'v1')
+      expect(badge.textContent).toBe('0.0s')
+
+      btnDec.click()
+      expect(onOffsetChange).toHaveBeenCalledWith(-0.1, 'v1')
+      expect(badge.textContent).toBe('-0.1s')
+      expect(controls.getOffset()).toBe(-0.1)
+    })
+
+    it('actualiza el badge del offset al cambiar de video en el selector', () => {
+      const controls = createControlsView({ containerElement: container })
+      controls.setVideosState({
+        videos: [
+          { id: 'v1', name: 'Pista 1', offset: 0.0 },
+          { id: 'v2', name: 'Pista 2', offset: -1.5 }
+        ],
+        activeId: 'v1'
+      })
+
+      const badge = container.querySelector('#controls-offset-value')
+      const videoSelect = container.querySelector('#video-select')
+      expect(badge.textContent).toBe('0.0s')
+
+      // Cambiar al video 2
+      videoSelect.value = 'v2'
+      videoSelect.dispatchEvent(new Event('change'))
+
+      expect(badge.textContent).toBe('-1.5s')
+    })
+
+    it('permite actualizar el offset externamente con setOffset', () => {
+      const controls = createControlsView({ containerElement: container })
+      controls.setVideosState({
+        videos: [{ id: 'v1', name: 'Pista 1', offset: 0.0 }],
+        activeId: 'v1'
+      })
+
+      controls.setOffset(2.4)
+      const badge = container.querySelector('#controls-offset-value')
+      expect(badge.textContent).toBe('+2.4s')
+      expect(controls.getOffset()).toBe(2.4)
+    })
+
+    it('deshabilita los botones de offset si no hay videos disponibles', () => {
+      const controls = createControlsView({ containerElement: container })
+      controls.setVideosState({ videos: [], activeId: null })
+
+      const btnDec = container.querySelector('#btn-offset-dec')
+      const btnInc = container.querySelector('#btn-offset-inc')
+      expect(btnDec.disabled).toBe(true)
+      expect(btnInc.disabled).toBe(true)
+    })
+  })
 })
 

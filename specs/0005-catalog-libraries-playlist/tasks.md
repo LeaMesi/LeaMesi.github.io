@@ -20,7 +20,7 @@
   - Widget flotante con seek slider, volumen, restart, prev/next con autoplay y pre-carga en pausa.
 - [x] **28.1 - 28.3. Resaltado Reactivo de Canción en Reproducción y Navegación sin Reinicio:**
   - Si se hace clic en la canción actualmente en reproducción desde el catálogo (grilla o lista), navega directamente a Modo Letra continuando la reproducción sin pausar ni reiniciar desde 0.
-  - Resaltado visual en cuadrícula y lista con clases `.is-active-song`, `.is-playing`, animación de tres barras ecualizadoras (`.now-playing-bars`), y botón principal con texto fijo `${iconMic} Modo Letra` en cuadrícula (y dinámico 'Ver' / 'Entrar' en modo lista).
+  - Resaltado visual en cuadrícula y lista con clases `.is-active-song`, `.is-playing`, animación de tres barras ecualizadoras (`.now-playing-bars`), y botón principal con texto fijo `${iconMic} Modo Letra` en cuadrícula y exclusivamente el icono `${iconMic}` sin texto en modo lista.
 - [x] **29.1. Limpieza de Barra Superior de Catálogo:**
   - Reubicación del botón de importar: retirado de la barra superior del catálogo (`.menu-actions-right` en `songMenuView.js`), dejando exclusivamente el botón "Respaldo Completo" y centralizando las acciones de incorporación de canciones en el menú de búsqueda online.
 - [x] **29.2. Botón de Cierre "X" en Alertas de Estado y Limpieza al Cambiar de Pantalla:**

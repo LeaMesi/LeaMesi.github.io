@@ -1,6 +1,6 @@
 import './style.css'
 import { getDB } from './services/db.js'
-import { listSongs, fetchSongById } from './services/songService.js'
+import { listSongs, fetchSongById, updateSongVideos } from './services/songService.js'
 import { applyTheme, subscribeTheme } from './services/themeService.js'
 import { createMediaPlayer, PLAYER_STATE } from './player/mediaPlayer.js'
 import { createLanguageManager } from './lyrics/languageManager.js'
@@ -295,6 +295,20 @@ async function initApp() {
         activeId: videoId
       })
       controlsView.setDuration(mediaPlayer.getDuration())
+    },
+    onOffsetChange: async (newOffset, videoId) => {
+      mediaPlayer.setActiveOffset(newOffset)
+      if (currentSong && Array.isArray(currentSong.videos)) {
+        const vid = currentSong.videos.find(v => String(v.id) === String(videoId))
+        if (vid) {
+          vid.offset = newOffset
+          try {
+            await updateSongVideos(currentSong.id, currentSong.videos)
+          } catch (err) {
+            console.warn('Error al persistir offset de video:', err)
+          }
+        }
+      }
     },
     onManageVideos: () => {
       if (currentSong) {

@@ -2211,6 +2211,55 @@ input[type="number"] {
   flex-shrink: 0;
 }
 
+.offset-adjust-group {
+  margin-top: 2px;
+}
+
+.offset-adjust-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 1;
+}
+
+.offset-value-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary, #38bdf8);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 58px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.btn-offset-step {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font-mono, monospace);
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-offset-step:hover:not(:disabled) {
+  background-color: var(--btn-outline-hover, rgba(255, 255, 255, 0.12));
+  border-color: var(--primary, #38bdf8);
+}
+
+.btn-offset-step:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .btn-menu-return {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--panel-border);
