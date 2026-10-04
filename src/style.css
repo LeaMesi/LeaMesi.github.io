@@ -1443,6 +1443,10 @@ input[type="number"] {
   flex-wrap: wrap;
 }
 
+.active-lib-vetical-separator {
+  color: var(--text-muted);
+}
+
 .btn-danger-subtle {
   color: #fca5a5;
   border-color: rgba(239, 68, 68, 0.3);

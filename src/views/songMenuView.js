@@ -264,7 +264,7 @@ export function createSongMenuView({
                 <p class="card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
               </div>
               <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                ${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}
+                ${iconMic} Modo Letra
               </button>
             </div>
 
@@ -398,19 +398,20 @@ export function createSongMenuView({
             </div>
             <div class="active-lib-actions">
               <button class="btn btn-xs btn-primary-outline" id="btn-load-library-playlist" title="Cargar canciones en la lista de reproducción (en orden actual)" ${candidateSongs.length === 0 ? 'disabled' : ''}>
-                ${iconPlay} Cargar Playlist
+                ${iconPlay}
               </button>
               <button class="btn btn-xs btn-outline" id="btn-load-library-shuffle" title="Cargar canciones en la lista de reproducción en orden aleatorio (shuffle)" ${candidateSongs.length === 0 ? 'disabled' : ''}>
-                ${iconShuffle} Cargar Aleatoria
+                ${iconShuffle} 
               </button>
+              <div class="active-lib-vetical-separator">|</div>
               <button class="btn btn-xs btn-outline" id="btn-rename-active-library" title="Modificar el nombre de esta biblioteca">
-                ${iconEdit} Renombrar
+                ${iconEdit}
               </button>
               <button class="btn btn-xs btn-outline" id="btn-export-active-library" title="Exportar esta biblioteca para compartir con otros usuarios">
-                ${iconDownload} Exportar Biblioteca
+                ${iconDownload}
               </button>
               <button class="btn btn-xs btn-outline btn-danger-subtle" id="btn-delete-active-library" title="Eliminar esta biblioteca">
-                ${iconTrash} Eliminar
+                ${iconTrash}
               </button>
             </div>
           </div>
@@ -1097,9 +1098,9 @@ export function createSongMenuView({
       if (enterBtn) {
         enterBtn.title = isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'
         if (card.classList.contains('song-menu-list-row')) {
-          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver' : 'Entrar'}`
+          enterBtn.innerHTML = `${iconMic}`
         } else {
-          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}`
+          enterBtn.innerHTML = `${iconMic} Modo Letra`
         }
       }
     })
