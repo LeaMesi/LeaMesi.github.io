@@ -28,6 +28,10 @@
   - `exportLibraryBackup()` e `importLibraryBackup()` para respaldo completo.
 - [x] **2.4. Adaptador de Estándar `lyricsfile` (`src/services/lyricsfileService.js`):**
   - Parser seguro de YAML 1.0, conversor de milisegundos a segundos y generador inverso.
+- [x] **2.5. Respaldo Completo Resiliente e Importación Universal:**
+  - `importLibraryBackup` e `importSongPackage` soportando polimórficamente objetos JS directos, cadenas JSON, Blobs y Files, resolviendo la excepción `Unexpected end of JSON input`.
+  - Preservación y reconstrucción de bibliotecas y asociaciones N:M en respaldos completos.
+  - Función `importUniversalFile` como punto único de entrada para archivos JSON (respaldos, paquetes de biblioteca y paquetes de canción) y YAML Lyricsfile.
 - [x] **18.1. Normalización Universal de Esquemas:**
   - Enriquecer `validateSongPackage` para soportar simultáneamente formato empaquetado y entidad directa.
 - [x] **18.2. Ensamblado Dual de Paquetes en Proveedores:**

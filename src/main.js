@@ -211,6 +211,10 @@ async function initApp() {
     },
     onCreateEmptySong: () => {
       showEditorScreen(null)
+    },
+    onImportSuccess: async (msg) => {
+      await songMenuView?.refresh()
+      songMenuView?.showStatus(msg, 'success')
     }
   })
 

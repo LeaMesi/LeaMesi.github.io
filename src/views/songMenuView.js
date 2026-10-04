@@ -1,10 +1,8 @@
 import { listSongs, deleteSong } from '../services/songService.js'
 import {
-  importSongPackage,
   exportLibraryBackup,
-  importLibraryBackup,
   exportLibraryPackage,
-  importLibraryPackage
+  importUniversalFile
 } from '../services/shareService.js'
 import {
   listLibraries,
@@ -249,7 +247,7 @@ export function createSongMenuView({
                   ${iconTrash}
                 </button>
                 <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                  ${iconMic}
+                  ${isActive ? `${iconMic} Ver` : `${iconMic} Entrar`}
                 </button>
               </div>
             </article>
@@ -264,7 +262,7 @@ export function createSongMenuView({
                 <p class="card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
               </div>
               <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                ${iconMic} Modo Letra
+                ${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}
               </button>
             </div>
 
@@ -318,13 +316,10 @@ export function createSongMenuView({
                 </button>
             </div>
             <div class="menu-actions-right">
-                <button class="btn btn-outline btn-toggle-import">
-                  ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
-                </button>
                 <button class="btn btn-outline" id="btn-menu-backup" title="Exportar respaldo de todas las canciones">
                   ${iconDownload} Respaldo Completo
                 </button>
-          </div>
+            </div>
           </div>
         </div>
 
@@ -1013,40 +1008,23 @@ export function createSongMenuView({
   }
 
   async function handleImportFile(file) {
-    const fileName = file.name.toLowerCase()
     try {
-      if (fileName.endsWith('.json')) {
-        const text = await file.text()
-        const parsed = JSON.parse(text)
-        if (parsed.type === 'saranga-library-backup') {
-          await importLibraryBackup(parsed)
-          showStatus('Respaldo de biblioteca restaurado correctamente.', 'success')
-          await loadData()
-        } else if (parsed.type === 'saranga-library-package' || (parsed.library && Array.isArray(parsed.songs))) {
-          const result = await importLibraryPackage(parsed, {
-            onConflictChoice: promptConflictChoice
-          })
-          if (result) {
-            showStatus(`Biblioteca "${result.libraryName}" importada con éxito (${result.songCount} canción/es).`, 'success')
-            activeLibraryId = result.libraryId
-            await loadData()
-          } else {
-            showStatus('Importación de biblioteca cancelada.', 'info')
-            render()
-          }
-        } else {
-          const newId = await importSongPackage(parsed)
-          showStatus(`Canción "${parsed.metadata?.title || 'Importada'}" agregada con éxito.`, 'success')
-          await loadData()
-        }
-      } else if (fileName.endsWith('.yaml') || fileName.endsWith('.yml')) {
-        await importLyricsfileAsNewSong(file)
-        showStatus(`Canción importada exitosamente desde archivo Lyricsfile "${file.name}".`, 'success')
-        await loadData()
-      } else {
-        throw new Error('Formato no soportado. Debe ser .json o .yaml/.yml')
+      const result = await importUniversalFile(file, {
+        onConflictChoice: promptConflictChoice
+      })
+
+      if (result.type === 'cancelled') {
+        showStatus('Importación de biblioteca cancelada.', 'info')
+        render()
+        return
       }
 
+      if (result.type === 'library' && result.libraryId) {
+        activeLibraryId = result.libraryId
+      }
+
+      showStatus(result.message, 'success')
+      await loadData()
       isImportOpen = false
     } catch (err) {
       console.error('Error al importar:', err)
@@ -1098,9 +1076,9 @@ export function createSongMenuView({
       if (enterBtn) {
         enterBtn.title = isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'
         if (card.classList.contains('song-menu-list-row')) {
-          enterBtn.innerHTML = `${iconMic}`
+          enterBtn.innerHTML = isActive ? `${iconMic} Ver` : `${iconMic} Entrar`
         } else {
-          enterBtn.innerHTML = `${iconMic} Modo Letra`
+          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}`
         }
       }
     })
@@ -1116,6 +1094,8 @@ export function createSongMenuView({
     setActiveSongId,
     getActiveSongId: () => activeSongId,
     updateHighlight: updateActiveSongHighlight,
+    showStatus: (msg, type = 'info') => showStatus(msg, type),
+    importFile: handleImportFile,
     setPlaylistCount: (count) => {
       playlistCount = Number(count) || 0
       const badge = containerElement?.querySelector('.playlist-badge-pill')

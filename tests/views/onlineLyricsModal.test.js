@@ -67,6 +67,50 @@ describe('views/onlineLyricsModal.js', () => {
     expect(container.classList.contains('is-open')).toBe(false)
   })
 
+  it('incluye un botón de importar a la izquierda del botón "+" con sólo icono y sin texto que permite cargar archivos', async () => {
+    const onImportSuccess = vi.fn()
+    const modal = createOnlineLyricsModal({ containerElement: container, onImportSuccess })
+    modal.open()
+
+    const importBtn = container.querySelector('#btn-modal-import')
+    const createBtn = container.querySelector('#btn-modal-create-empty')
+    const fileInput = container.querySelector('#modal-import-file-input')
+
+    expect(importBtn).not.toBeNull()
+    expect(createBtn).not.toBeNull()
+    expect(fileInput).not.toBeNull()
+
+    // El botón está inmediatamente a la izquierda del botón "+"
+    expect(createBtn.previousElementSibling).toBe(importBtn)
+
+    // El botón sólo tiene icono y no texto
+    expect(importBtn.textContent.trim()).toBe('')
+    expect(importBtn.querySelector('svg')).not.toBeNull()
+
+    // Simular clic en el botón de importar
+    const clickSpy = vi.spyOn(fileInput, 'click')
+    importBtn.click()
+    expect(clickSpy).toHaveBeenCalledTimes(1)
+
+    // Simular selección de archivo de canción JSON
+    const pkg = {
+      version: '1.1.0',
+      metadata: { title: 'Canción Desde Modal', artist: 'Artista Modal' },
+      basic: { languages: [{ code: 'es', name: 'Español', isMain: true, lines: [] }] }
+    }
+    const file = new File([JSON.stringify(pkg)], 'cancion-modal.json', { type: 'application/json' })
+    Object.defineProperty(fileInput, 'files', {
+      value: [file],
+      writable: true
+    })
+    fileInput.dispatchEvent(new Event('change'))
+
+    await vi.waitFor(() => {
+      expect(onImportSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(container.classList.contains('is-open')).toBe(false)
+  })
+
   it('restablece el estado de importación y permite cargar canciones consecutivas sin dejar botones deshabilitados', async () => {
     const mockResults = [
       { id: 'song-1', song: 'Canción 1', artist: 'Artista 1', source: 'betterlyrics', syncType: 'richsync' },

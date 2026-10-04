@@ -21,8 +21,8 @@
 - [x] **28.1 - 28.3. Resaltado Reactivo de Canción en Reproducción y Navegación sin Reinicio:**
   - Si se hace clic en la canción actualmente en reproducción desde el catálogo (grilla o lista), navega directamente a Modo Letra continuando la reproducción sin pausar ni reiniciar desde 0.
   - Resaltado visual en cuadrícula y lista con clases `.is-active-song`, `.is-playing`, botón dinámico 'Ver'/'Ver Modo Letra' y animación de tres barras ecualizadoras (`.now-playing-bars`): ubicada a la izquierda del todo del pie de la tarjeta en modo cuadrícula (`.card-now-playing-indicator`) separada de los botones de acción, y reemplazando al icono de nota musical en el modo lista (`.list-song-icon-wrap`), suprimiendo el badge de texto redundante.
-  - Sincronización reactiva del resaltado ante cambios de pista desde el minireproductor, controles de modo letra o avance automático al finalizar la canción.
-
+- [x] **29.1. Limpieza de Barra Superior de Catálogo:**
+  - Reubicación del botón de importar: retirado de la barra superior del catálogo (`.menu-actions-right` en `songMenuView.js`), dejando exclusivamente el botón "Respaldo Completo" y centralizando las acciones de incorporación de canciones en el menú de búsqueda online.
 
 ---
 

@@ -283,17 +283,10 @@ describe('views/songMenuView.js', () => {
 
     const file = new File([JSON.stringify(pkg)], 'biblioteca-duplicada.json', { type: 'application/json' })
 
-    const dropzone = container.querySelector('#menu-file-dropzone') || container.querySelector('.btn-toggle-import')
-    // Abrir importador
-    const toggleImportBtn = container.querySelector('.btn-toggle-import')
-    toggleImportBtn.click()
+    expect(container.querySelector('.btn-toggle-import')).toBeNull()
 
-    const fileInput = container.querySelector('#menu-file-input')
-    Object.defineProperty(fileInput, 'files', {
-      value: [file],
-      writable: true
-    })
-    fileInput.dispatchEvent(new Event('change'))
+    // Importar paquete de biblioteca
+    menu.importFile(file)
 
     await new Promise(r => setTimeout(r, 100))
 

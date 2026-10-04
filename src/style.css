@@ -1071,7 +1071,8 @@ input[type="number"] {
   gap: 8px;
 }
 
-.btn-modal-create-empty {
+.btn-modal-create-empty,
+.btn-modal-import {
   padding: 6px 10px;
   display: inline-flex;
   align-items: center;
