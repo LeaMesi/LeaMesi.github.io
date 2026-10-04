@@ -390,7 +390,12 @@ async function initApp() {
   // 8. Inicializar Menú de Selección de Canciones
   const songMenuView = createSongMenuView({
     containerElement: menuScreenEl,
+    initialActiveSongId: currentSong ? currentSong.id : null,
     onEnterLyricsMode: async (songId) => {
+      if (currentSong && Number(currentSong.id) === Number(songId)) {
+        showLyricsScreen()
+        return
+      }
       await loadSongIntoApp(songId, { autoplay: true })
       showLyricsScreen()
     },
@@ -551,12 +556,14 @@ async function initApp() {
     updateHeaderPlaybackState()
 
     if (currentSong) {
+      songMenuView?.setActiveSongId(currentSong.id)
       floatingPlayerView.setSong(currentSong)
       floatingPlayerView.setPlayingState(mediaPlayer.getIsPlaying())
       floatingPlayerView.setDuration(mediaPlayer.getDuration())
       floatingPlayerView.setTime(mediaPlayer.getCurrentTime())
       floatingPlayerView.setVisible(true)
     } else {
+      songMenuView?.setActiveSongId(null)
       floatingPlayerView.setVisible(false)
     }
 
@@ -672,6 +679,7 @@ async function initApp() {
     currentSong = song
     playlistService.setCurrentSong(song)
     updateHeaderPlaybackState()
+    songMenuView?.setActiveSongId(currentSong.id)
 
     const lyricsData = song.lyrics_data || {}
     const languages = Array.isArray(lyricsData.languages) ? lyricsData.languages : []

@@ -40,6 +40,7 @@ import {
 
 export function createSongMenuView({
   containerElement,
+  initialActiveSongId = null,
   onEnterLyricsMode,
   onManageVideos,
   onCreateNewSong,
@@ -53,6 +54,9 @@ export function createSongMenuView({
   let songs = []
   let libraries = []
   let activeLibraryId = 'all' // 'all' | number/string
+  let activeSongId = (initialActiveSongId !== null && initialActiveSongId !== undefined && initialActiveSongId !== '')
+    ? Number(initialActiveSongId)
+    : null
   let playlistCount = 0
   let filterQuery = ''
   let statusMessage = ''
@@ -180,6 +184,13 @@ export function createSongMenuView({
         const videos = song.videos || []
         const langCount = song.lyrics_data?.languages?.length || 1
         const mainLang = song.lyrics_data?.languages?.find(l => l.isMain)?.name || 'Original'
+        const isActive = activeSongId !== null && Number(song.id) === activeSongId
+        const activeClass = isActive ? ' is-active-song is-playing' : ''
+        const nowPlayingBadgeHtml = `
+          <span class="badge badge-now-playing" style="${isActive ? 'display: inline-flex;' : 'display: none;'}">
+            <span class="now-playing-bars"><span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span></span> En reproducción
+          </span>
+        `
 
         const videosSummary = videos.length === 0
           ? '<span class="video-pill-empty">Sin videos asociados</span>'
@@ -195,9 +206,9 @@ export function createSongMenuView({
 
         if (viewMode === 'list') {
           return `
-            <article class="song-menu-card song-menu-list-row" data-song-id="${song.id}">
+            <article class="song-menu-card song-menu-list-row${activeClass}" data-song-id="${song.id}">
               <div class="list-col-main">
-                <div class="list-song-icon-wrap" title="Canción">
+                <div class="list-song-icon-wrap" title="${isActive ? 'En reproducción' : 'Canción'}">
                   ${iconMusic}
                 </div>
                 <div class="list-title-group">
@@ -207,6 +218,7 @@ export function createSongMenuView({
               </div>
 
               <div class="list-col-meta">
+                ${nowPlayingBadgeHtml}
                 <span class="badge badge-lang" title="Idiomas disponibles">${langCount} [${escapeHtml(mainLang)}]</span>
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
@@ -231,8 +243,8 @@ export function createSongMenuView({
                 <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
                   ${iconTrash}
                 </button>
-                <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="Entrar al modo letra y cantar">
-                  ${iconMic} Entrar
+                <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
+                  ${iconMic} ${isActive ? 'Ver' : 'Entrar'}
                 </button>
               </div>
             </article>
@@ -240,19 +252,20 @@ export function createSongMenuView({
         }
 
         return `
-          <article class="song-menu-card" data-song-id="${song.id}">
+          <article class="song-menu-card${activeClass}" data-song-id="${song.id}">
             <div class="card-header">
               <div class="card-title-group">
                 <h3 class="card-title">${escapeHtml(song.title)}</h3>
                 <p class="card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
               </div>
-              <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="Entrar al modo letra y cantar">
-                ${iconMic} Entrar a Modo Letra
+              <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
+                ${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}
               </button>
             </div>
 
             <div class="card-meta">
               <div class="meta-row">
+                ${nowPlayingBadgeHtml}
                 <span class="badge badge-lang" title="Idiomas disponibles">${langCount} idioma(s) [${escapeHtml(mainLang)}]</span>
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
@@ -938,6 +951,7 @@ export function createSongMenuView({
         if (confirmed) {
           try {
             await deleteSong(songId)
+            if (activeSongId === songId) activeSongId = null
             showStatus('Canción eliminada correctamente.', 'info')
             await loadData()
           } catch (err) {
@@ -1040,6 +1054,45 @@ export function createSongMenuView({
       .replace(/'/g, '&#039;')
   }
 
+  function setActiveSongId(id) {
+    const parsed = (id !== null && id !== undefined && id !== '') ? Number(id) : null
+    if (activeSongId !== parsed) {
+      activeSongId = parsed
+      updateActiveSongHighlight()
+    }
+  }
+
+  function updateActiveSongHighlight() {
+    if (!containerElement) return
+    const cards = containerElement.querySelectorAll('.song-menu-card')
+    cards.forEach(card => {
+      const songId = Number(card.dataset.songId)
+      const isActive = activeSongId !== null && songId === activeSongId
+      card.classList.toggle('is-active-song', isActive)
+      card.classList.toggle('is-playing', isActive)
+
+      const badge = card.querySelector('.badge-now-playing')
+      if (badge) {
+        badge.style.display = isActive ? 'inline-flex' : 'none'
+      }
+
+      const iconWrap = card.querySelector('.list-song-icon-wrap')
+      if (iconWrap) {
+        iconWrap.title = isActive ? 'En reproducción' : 'Canción'
+      }
+
+      const enterBtn = card.querySelector('.btn-enter-lyrics')
+      if (enterBtn) {
+        enterBtn.title = isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'
+        if (card.classList.contains('song-menu-list-row')) {
+          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver' : 'Entrar'}`
+        } else {
+          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}`
+        }
+      }
+    })
+  }
+
   return {
     render,
     refresh: loadData,
@@ -1047,6 +1100,8 @@ export function createSongMenuView({
     getLibraries: () => libraries,
     getActiveLibraryId: () => activeLibraryId,
     setActiveLibraryId: (id) => { activeLibraryId = id; render() },
+    setActiveSongId,
+    getActiveSongId: () => activeSongId,
     setPlaylistCount: (count) => {
       playlistCount = Number(count) || 0
       const badge = containerElement?.querySelector('.playlist-badge-pill')
