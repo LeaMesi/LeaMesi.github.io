@@ -1812,8 +1812,8 @@ input[type="number"] {
 .now-playing-bars {
   display: inline-flex;
   align-items: flex-end;
-  gap: 2px;
-  height: 12px;
+  gap: 2.5px;
+  height: 14px;
 }
 
 .now-playing-bars .bar {
@@ -1821,6 +1821,29 @@ input[type="number"] {
   background: var(--now-playing-bar-color, var(--primary-color, #38bdf8));
   border-radius: 1px;
   animation: soundBarPulse 0.9s ease-in-out infinite alternate;
+}
+
+.card-now-playing-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 4px;
+}
+
+.card-now-playing-indicator .now-playing-bars {
+  height: 14px;
+  gap: 2.5px;
+}
+
+.list-song-icon-wrap .now-playing-bars {
+  height: 16px;
+  gap: 3px;
+}
+
+.list-song-icon-wrap .now-playing-bars .bar {
+  width: 3px;
+  border-radius: 1.5px;
 }
 
 .now-playing-bars .bar-1 {
@@ -1963,10 +1986,19 @@ input[type="number"] {
 
 .card-footer-actions {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
   padding-top: 12px;
   border-top: 1px solid var(--panel-border);
+}
+
+.card-footer-btns {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .empty-songs-state {
@@ -4694,12 +4726,26 @@ input[type="number"] {
   }
 
   .card-footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .card-now-playing-indicator {
+    margin-bottom: 2px;
+  }
+
+  .card-footer-btns {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 6px;
+    width: 100%;
   }
 
-  .card-footer-actions .btn {
+  .card-footer-actions .btn,
+  .card-footer-btns .btn {
     justify-content: center;
     font-size: 0.72rem;
     padding: 6px 2px;

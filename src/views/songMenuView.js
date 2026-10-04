@@ -192,12 +192,6 @@ export function createSongMenuView({
         const mainLang = song.lyrics_data?.languages?.find(l => l.isMain)?.name || 'Original'
         const isActive = areSongIdsEqual(song.id, activeSongId)
         const activeClass = isActive ? ' is-active-song is-playing' : ''
-        const nowPlayingBadgeHtml = `
-          <span class="badge badge-now-playing" style="${isActive ? 'display: inline-flex;' : 'display: none;'}">
-            <span class="now-playing-bars"><span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span></span> En reproducción
-          </span>
-        `
-
         const videosSummary = videos.length === 0
           ? '<span class="video-pill-empty">Sin videos asociados</span>'
           : videos.map(v => {
@@ -210,12 +204,18 @@ export function createSongMenuView({
           `<span class="badge badge-library" title="En biblioteca: ${escapeHtml(l.name)}">${iconFolder} ${escapeHtml(l.name)}</span>`
         ).join('')
 
+        const nowPlayingBarsHtml = `
+          <span class="now-playing-bars" title="En reproducción">
+            <span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span>
+          </span>
+        `
+
         if (viewMode === 'list') {
           return `
             <article class="song-menu-card song-menu-list-row${activeClass}" data-song-id="${song.id}">
               <div class="list-col-main">
                 <div class="list-song-icon-wrap" title="${isActive ? 'En reproducción' : 'Canción'}">
-                  ${iconMusic}
+                  ${isActive ? nowPlayingBarsHtml : iconMusic}
                 </div>
                 <div class="list-title-group">
                   <h3 class="card-title list-card-title">${escapeHtml(song.title)}</h3>
@@ -224,7 +224,6 @@ export function createSongMenuView({
               </div>
 
               <div class="list-col-meta">
-                ${nowPlayingBadgeHtml}
                 <span class="badge badge-lang" title="Idiomas disponibles">${langCount} [${escapeHtml(mainLang)}]</span>
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
@@ -271,7 +270,6 @@ export function createSongMenuView({
 
             <div class="card-meta">
               <div class="meta-row">
-                ${nowPlayingBadgeHtml}
                 <span class="badge badge-lang" title="Idiomas disponibles">${langCount} idioma(s) [${escapeHtml(mainLang)}]</span>
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
@@ -280,23 +278,28 @@ export function createSongMenuView({
             </div>
 
             <div class="card-footer-actions">
-              <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
-                ${iconFolder}
-              </button>
-              ${activeLibrary ? `
-                <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
-                  ${iconClose}
+              <div class="card-now-playing-indicator" style="${isActive ? 'display: inline-flex;' : 'display: none;'}" title="En reproducción">
+                ${nowPlayingBarsHtml}
+              </div>
+              <div class="card-footer-btns">
+                <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
+                  ${iconFolder}
                 </button>
-              ` : ''}
-              <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
-                ${iconListPlus}
-              </button>
-              <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
-                ${iconEdit}
-              </button>
-              <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
-                ${iconTrash}
-              </button>
+                ${activeLibrary ? `
+                  <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
+                    ${iconClose}
+                  </button>
+                ` : ''}
+                <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
+                  ${iconListPlus}
+                </button>
+                <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
+                  ${iconEdit}
+                </button>
+                <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
+                  ${iconTrash}
+                </button>
+              </div>
             </div>
           </article>
         `
@@ -1077,14 +1080,17 @@ export function createSongMenuView({
       card.classList.toggle('is-active-song', isActive)
       card.classList.toggle('is-playing', isActive)
 
-      const badge = card.querySelector('.badge-now-playing')
-      if (badge) {
-        badge.style.display = isActive ? 'inline-flex' : 'none'
+      const indicator = card.querySelector('.card-now-playing-indicator')
+      if (indicator) {
+        indicator.style.display = isActive ? 'inline-flex' : 'none'
       }
 
       const iconWrap = card.querySelector('.list-song-icon-wrap')
       if (iconWrap) {
         iconWrap.title = isActive ? 'En reproducción' : 'Canción'
+        iconWrap.innerHTML = isActive
+          ? '<span class="now-playing-bars" title="En reproducción"><span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span></span>'
+          : iconMusic
       }
 
       const enterBtn = card.querySelector('.btn-enter-lyrics')
