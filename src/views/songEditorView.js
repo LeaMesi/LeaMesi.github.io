@@ -20,7 +20,9 @@ import {
   iconDownload,
   iconSparkles,
   iconGlobe,
-  iconEye
+  iconEye,
+  iconVolume,
+  iconVolumeMute
 } from './icons.js'
 import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 import { translatePhrase, translateLines } from '../services/translationService.js'
@@ -53,6 +55,9 @@ export function createSongEditorView({
   let loadSessionCounter = 0
   let isSongLoadingOnline = false
   let onlineSourceName = ''
+  let isUserSeeking = false
+  let isVolumeMenuOpen = false
+  let documentClickListener = null
 
   try {
     const savedRefMode = localStorage.getItem(STORAGE_KEY_REF_MODE)
@@ -264,7 +269,7 @@ export function createSongEditorView({
 
     // Si tiene video con URL, opcionalmente cargarlo en el reproductor multimedia
     const firstVideo = currentSong.videos?.find(v => v.url)
-    if (firstVideo && mediaPlayer) {
+    if (firstVideo && typeof mediaPlayer?.loadSong === 'function') {
       mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
     }
 
@@ -617,6 +622,10 @@ export function createSongEditorView({
       </div>
     `).join('')
 
+    const currentTime = mediaPlayer?.getCurrentTime ? Math.max(0, mediaPlayer.getCurrentTime() || 0) : 0
+    const duration = mediaPlayer?.getDuration ? Math.max(0, mediaPlayer.getDuration() || 0) : 0
+    const currentVolume = mediaPlayer?.getVolume ? Math.max(0, Math.min(100, Math.round(mediaPlayer.getVolume() ?? 100))) : 100
+
     containerElement.innerHTML = `
       <div class="song-editor-view-container">
         ${statusMessage ? `
@@ -629,29 +638,81 @@ export function createSongEditorView({
         <!-- Asistente de Audio para Sincronización en Vivo -->
         <div class="editor-audio-assistant">
           <div class="assistant-controls">
-            <button class="btn btn-primary btn-sm btn-assistant-play" id="btn-assistant-play" title="${mediaPlayer?.getIsPlaying() ? 'Pausar' : 'Reproducir'}">
-              ${mediaPlayer?.getIsPlaying() ? `${iconPause}` : `${iconPlay}`}
-            </button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-5" title="Retroceder 5 segundos">-5s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-1" title="Retroceder 1 segundo">-1s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-0.1" title="Retroceder 0.1 segundos">-0.1s</button>
-            
-            <div class="assistant-clock">
-              <span class="clock-time" id="assistant-clock-time">${formatTime(Math.max(0, mediaPlayer?.getCurrentTime() || 0), true)}</span>
+            <!-- Izquierda: Parlante con menú vertical de volumen + Barra de progreso con tiempo -->
+            <div class="assistant-left-group">
+              <div class="editor-volume-wrapper" id="editor-volume-wrapper">
+                <button
+                  type="button"
+                  class="btn btn-outline btn-xs btn-editor-volume ${isVolumeMenuOpen ? 'is-active' : ''}"
+                  id="btn-editor-volume"
+                  title="Volumen: ${currentVolume}%"
+                  aria-label="Volumen"
+                >
+                  ${currentVolume === 0 ? iconVolumeMute : iconVolume}
+                </button>
+                <div class="editor-volume-popover ${isVolumeMenuOpen ? 'is-open' : ''}" id="editor-volume-popover">
+                  <span class="editor-volume-percent" id="editor-volume-percent">${currentVolume}%</span>
+                  <div class="editor-volume-slider-track">
+                    <input
+                      type="range"
+                      class="editor-volume-slider"
+                      id="editor-volume-slider"
+                      min="0"
+                      max="100"
+                      value="${currentVolume}"
+                      orient="vertical"
+                      aria-label="Nivel de volumen"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="editor-progress-group">
+                <span class="editor-time-label" id="editor-progress-current">${formatTime(Math.max(0, currentTime))}</span>
+                <input
+                  type="range"
+                  class="editor-progress-slider"
+                  id="editor-progress-slider"
+                  min="0"
+                  max="${Math.max(1, duration)}"
+                  step="0.1"
+                  value="${Math.max(0, currentTime)}"
+                  title="Posición de la canción"
+                  aria-label="Posición de la canción"
+                />
+                <span class="editor-time-label" id="editor-progress-duration">${formatTime(duration)}</span>
+              </div>
             </div>
 
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="0.1" title="Adelantar 0.1 segundos">+0.1s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="1" title="Adelantar 1 segundo">+1s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="5" title="Adelantar 5 segundos">+5s</button>
+            <!-- Centro: Botones de transporte, saltos, reloj y Modo Letra -->
+            <div class="assistant-center-group">
+              <button class="btn btn-primary btn-sm btn-assistant-play" id="btn-assistant-play" title="${mediaPlayer?.getIsPlaying() ? 'Pausar' : 'Reproducir'}">
+                ${mediaPlayer?.getIsPlaying() ? `${iconPause}` : `${iconPlay}`}
+              </button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-5" title="Retroceder 5 segundos">-5s</button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-1" title="Retroceder 1 segundo">-1s</button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-0.1" title="Retroceder 0.1 segundos">-0.1s</button>
+              
+              <div class="assistant-clock">
+                <span class="clock-time" id="assistant-clock-time">${formatTime(Math.max(0, currentTime), true)}</span>
+              </div>
 
-            <button class="btn btn-success btn-sm btn-assistant-sing" id="btn-save-and-sing" title="Guardar y probar en Modo Letra" aria-label="Probar en Modo Letra">
-              ${iconMic}
-            </button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="0.1" title="Adelantar 0.1 segundos">+0.1s</button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="1" title="Adelantar 1 segundo">+1s</button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="5" title="Adelantar 5 segundos">+5s</button>
 
-            <span class="editor-autosave-badge ${isSaving ? 'is-saving' : ''}" id="editor-autosave-badge" title="Guardado automático activado">
-              <span class="autosave-dot"></span>
-              <span class="autosave-text">${isSaving ? 'Guardando...' : 'Guardado'}</span>
-            </span>
+              <button class="btn btn-success btn-sm btn-assistant-sing" id="btn-save-and-sing" title="Guardar y probar en Modo Letra" aria-label="Probar en Modo Letra">
+                ${iconMic}
+              </button>
+            </div>
+
+            <!-- Derecha: Indicador de guardado pegado al extremo derecho -->
+            <div class="assistant-right-group">
+              <span class="editor-autosave-badge ${isSaving ? 'is-saving' : ''}" id="editor-autosave-badge" title="Guardado automático activado">
+                <span class="autosave-dot"></span>
+                <span class="autosave-text">${isSaving ? 'Guardando...' : 'Guardado'}</span>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -1065,6 +1126,10 @@ export function createSongEditorView({
           autoSaveTimer = null
           await performSave()
         }
+        if (documentClickListener) {
+          document.removeEventListener('click', documentClickListener)
+          documentClickListener = null
+        }
         if (onGoToMenu) onGoToMenu()
       })
     }
@@ -1217,6 +1282,98 @@ export function createSongEditorView({
         }
       })
     })
+
+    // Control de volumen y menú vertical
+    const volumeBtn = containerElement.querySelector('#btn-editor-volume')
+    const volumePopover = containerElement.querySelector('#editor-volume-popover')
+    const volumeSlider = containerElement.querySelector('#editor-volume-slider')
+    const volumePercent = containerElement.querySelector('#editor-volume-percent')
+
+    if (volumeBtn && volumePopover) {
+      volumeBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        isVolumeMenuOpen = !isVolumeMenuOpen
+        volumePopover.classList.toggle('is-open', isVolumeMenuOpen)
+        volumeBtn.classList.toggle('is-active', isVolumeMenuOpen)
+      })
+    }
+
+    if (volumePopover) {
+      volumePopover.addEventListener('click', (e) => {
+        e.stopPropagation()
+      })
+    }
+
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', (e) => {
+        const val = Number(e.target.value)
+        if (mediaPlayer?.setVolume) {
+          mediaPlayer.setVolume(val)
+        }
+        if (volumePercent) {
+          volumePercent.textContent = `${val}%`
+        }
+        if (volumeBtn) {
+          volumeBtn.innerHTML = val === 0 ? iconVolumeMute : iconVolume
+          volumeBtn.title = `Volumen: ${val}%`
+        }
+      })
+    }
+
+    // Cerrar menú vertical de volumen al hacer clic en otro lado
+    if (documentClickListener) {
+      document.removeEventListener('click', documentClickListener)
+      documentClickListener = null
+    }
+
+    documentClickListener = (e) => {
+      if (!isVolumeMenuOpen) return
+      const wrapper = containerElement.querySelector('#editor-volume-wrapper')
+      if (wrapper && !wrapper.contains(e.target)) {
+        isVolumeMenuOpen = false
+        const popover = containerElement.querySelector('#editor-volume-popover')
+        if (popover) popover.classList.remove('is-open')
+        const btn = containerElement.querySelector('#btn-editor-volume')
+        if (btn) btn.classList.remove('is-active')
+      }
+    }
+    document.addEventListener('click', documentClickListener)
+
+    // Barra de progreso interactiva con tiempo
+    const progressSlider = containerElement.querySelector('#editor-progress-slider')
+    const progressCurrent = containerElement.querySelector('#editor-progress-current')
+
+    if (progressSlider) {
+      progressSlider.addEventListener('mousedown', () => {
+        isUserSeeking = true
+      })
+      progressSlider.addEventListener('touchstart', () => {
+        isUserSeeking = true
+      }, { passive: true })
+
+      progressSlider.addEventListener('input', (e) => {
+        isUserSeeking = true
+        const val = Number(e.target.value)
+        if (progressCurrent) {
+          progressCurrent.textContent = formatTime(val)
+        }
+      })
+
+      progressSlider.addEventListener('change', (e) => {
+        const val = Number(e.target.value)
+        if (mediaPlayer?.seek) {
+          mediaPlayer.seek(val)
+        }
+        isUserSeeking = false
+      })
+
+      progressSlider.addEventListener('mouseup', () => {
+        isUserSeeking = false
+      })
+      progressSlider.addEventListener('touchend', () => {
+        isUserSeeking = false
+      })
+    }
 
     // 5. Tabs de Idiomas
     const langTabs = containerElement.querySelectorAll('.editor-lang-tab')
@@ -2220,6 +2377,10 @@ export function createSongEditorView({
     showStatus(`¡Canción "${currentSong.title}" guardada exitosamente!`, 'success')
 
     if (enterLyricsAfter && onEnterLyricsMode) {
+      if (documentClickListener) {
+        document.removeEventListener('click', documentClickListener)
+        documentClickListener = null
+      }
       onEnterLyricsMode(savedId)
     }
 
@@ -2231,6 +2392,24 @@ export function createSongEditorView({
     const clockEl = containerElement?.querySelector('#assistant-clock-time')
     if (clockEl) {
       clockEl.textContent = formatTime(Math.max(0, time), true)
+    }
+
+    if (!isUserSeeking) {
+      const progressSlider = containerElement?.querySelector('#editor-progress-slider')
+      const progressCurrent = containerElement?.querySelector('#editor-progress-current')
+      const progressDuration = containerElement?.querySelector('#editor-progress-duration')
+      const dur = mediaPlayer?.getDuration ? mediaPlayer.getDuration() : 0
+
+      if (progressSlider) {
+        progressSlider.max = String(Math.max(1, dur))
+        progressSlider.value = String(Math.max(0, time))
+      }
+      if (progressCurrent) {
+        progressCurrent.textContent = formatTime(Math.max(0, time))
+      }
+      if (progressDuration) {
+        progressDuration.textContent = formatTime(dur)
+      }
     }
   }
 
@@ -2256,6 +2435,12 @@ export function createSongEditorView({
     updateClock,
     setPlayingState,
     flushAutoSave: triggerImmediateAutoSave,
+    destroy: () => {
+      if (documentClickListener) {
+        document.removeEventListener('click', documentClickListener)
+        documentClickListener = null
+      }
+    },
     clearStatus: () => {
       statusMessage = ''
       const alertEl = containerElement?.querySelector('.status-alert')

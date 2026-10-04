@@ -123,6 +123,91 @@ describe('views/songEditorView.js', () => {
     expect(container.querySelector('#btn-save-song')).toBeNull()
   })
 
+  it('renderiza la barra de progreso, el parlante a la izquierda de los botones y el estado de guardado a la derecha', () => {
+    const mockMediaPlayer = {
+      getCurrentTime: () => 10,
+      getDuration: () => 180,
+      getVolume: () => 80,
+      getIsPlaying: () => false,
+      setVolume: vi.fn(),
+      seek: vi.fn()
+    }
+    const editor = createSongEditorView({ containerElement: container, mediaPlayer: mockMediaPlayer })
+    editor.open(sampleSong)
+
+    const leftGroup = container.querySelector('.assistant-left-group')
+    expect(leftGroup).not.toBeNull()
+    expect(leftGroup.querySelector('#btn-editor-volume')).not.toBeNull()
+    expect(leftGroup.querySelector('#editor-volume-popover')).not.toBeNull()
+    expect(leftGroup.querySelector('#editor-progress-slider')).not.toBeNull()
+    expect(leftGroup.querySelector('#editor-progress-current')).not.toBeNull()
+    expect(leftGroup.querySelector('#editor-progress-duration')).not.toBeNull()
+
+    const rightGroup = container.querySelector('.assistant-right-group')
+    expect(rightGroup).not.toBeNull()
+    const badge = rightGroup.querySelector('#editor-autosave-badge')
+    expect(badge).not.toBeNull()
+    expect(badge.textContent).toContain('Guardado')
+  })
+
+  it('despliega el menú vertical de volumen al hacer clic en el parlante y lo cierra al hacer clic afuera', () => {
+    const mockMediaPlayer = {
+      getCurrentTime: () => 0,
+      getDuration: () => 100,
+      getVolume: () => 75,
+      getIsPlaying: () => false,
+      setVolume: vi.fn(),
+      seek: vi.fn()
+    }
+    const editor = createSongEditorView({ containerElement: container, mediaPlayer: mockMediaPlayer })
+    editor.open(sampleSong)
+
+    const volumeBtn = container.querySelector('#btn-editor-volume')
+    const popover = container.querySelector('#editor-volume-popover')
+    expect(popover.classList.contains('is-open')).toBe(false)
+
+    // Clic en el parlante abre el menú vertical
+    volumeBtn.click()
+    expect(popover.classList.contains('is-open')).toBe(true)
+
+    // Clic afuera del contenedor cierra el menú
+    document.body.click()
+    expect(popover.classList.contains('is-open')).toBe(false)
+  })
+
+  it('permite cambiar el volumen con el slider vertical y buscar posición en la barra de progreso', () => {
+    const setVolumeSpy = vi.fn()
+    const seekSpy = vi.fn()
+    const mockMediaPlayer = {
+      getCurrentTime: () => 5,
+      getDuration: () => 120,
+      getVolume: () => 50,
+      getIsPlaying: () => false,
+      setVolume: setVolumeSpy,
+      seek: seekSpy
+    }
+    const editor = createSongEditorView({ containerElement: container, mediaPlayer: mockMediaPlayer })
+    editor.open(sampleSong)
+
+    // Ajustar volumen
+    const volumeSlider = container.querySelector('#editor-volume-slider')
+    volumeSlider.value = '90'
+    volumeSlider.dispatchEvent(new Event('input'))
+    expect(setVolumeSpy).toHaveBeenCalledWith(90)
+    expect(container.querySelector('#editor-volume-percent').textContent).toBe('90%')
+
+    // Buscar en la barra de progreso
+    const progressSlider = container.querySelector('#editor-progress-slider')
+    progressSlider.value = '45'
+    progressSlider.dispatchEvent(new Event('change'))
+    expect(seekSpy).toHaveBeenCalledWith(45)
+
+    // updateClock sincroniza el tiempo y el slider si el usuario no está arrastrando
+    editor.updateClock(60)
+    expect(container.querySelector('#editor-progress-current').textContent).toBe('01:00')
+    expect(progressSlider.value).toBe('60')
+  })
+
   describe('Guía de referencia de frase original al traducir', () => {
     const bilingualSong = {
       id: 10,

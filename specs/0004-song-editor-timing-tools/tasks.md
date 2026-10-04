@@ -64,6 +64,10 @@
 - [x] **20.6. Botón de Cierre "X" en Alertas del Editor y Limpieza al Navegar:**
   - Botón de descarte "X" (`#btn-close-editor-alert` / `.btn-close-alert`) para cerrar manualmente cualquier aviso de confirmación, guardado o exportación en el editor.
   - Método `clearStatus()` expuesto en la API del editor y auto-cierre automático al salir o cambiar de pantalla en `main.js`.
+- [x] **20.7. Reorganización Ergonómica del Asistente de Audio Superior:**
+  - Menú vertical emergente de volumen activado por icono de parlante (`iconVolume` / `iconVolumeMute`) con slider vertical y porcentaje, con cierre automático al hacer clic en cualquier otro lado (`documentClickListener`).
+  - Barra de progreso interactiva con tiempo actual y duración total de la canción (`00:00 / 03:45`), sincronizada con el Master Clock en tiempo real y con capacidad de búsqueda (*seek*) interactiva al arrastrar.
+  - Ubicación ergonómica: volumen y barra de progreso a la izquierda de los botones de transporte y reloj, y texto de estado de guardado automático ("Guardando..." / "Guardado") fijado y pegado al extremo derecho (`margin-left: auto`).
 
 ---
 
