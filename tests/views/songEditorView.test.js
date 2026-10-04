@@ -49,8 +49,8 @@ describe('views/songEditorView.js', () => {
     expect(titleInput).not.toBeNull()
     expect(titleInput.value).toBe('')
 
-    const saveBtn = container.querySelector('#btn-save-song')
-    expect(saveBtn).not.toBeNull()
+    const saveAndSingBtn = container.querySelector('#btn-save-and-sing')
+    expect(saveAndSingBtn).not.toBeNull()
   })
 
   it('abre el editor precargando una canción existente con sus metadatos y frases', () => {
@@ -93,31 +93,34 @@ describe('views/songEditorView.js', () => {
     }
   })
 
-  it('renderiza los botones de exportación JSON y Lyricsfile en el encabezado del editor en la posición correcta', () => {
+  it('ubica el botón de probar en modo letra como solo icono en el controlador de tiempo y los de backup al final de metadatos', () => {
     const editor = createSongEditorView({ containerElement: container })
     editor.open(sampleSong)
 
-    const exportJsonBtn = container.querySelector('#btn-editor-export-json')
-    const exportYamlBtn = container.querySelector('#btn-editor-export-yaml')
-    const quickImportBtn = container.querySelector('.btn-open-quick-import')
-    const saveSongBtn = container.querySelector('#btn-save-song')
+    // Botón de probar en modo letra en el controlador de tiempo (a la derecha)
+    const assistantControls = container.querySelector('.editor-audio-assistant .assistant-controls')
+    expect(assistantControls).not.toBeNull()
+    const saveAndSingBtn = assistantControls.querySelector('#btn-save-and-sing')
+    expect(saveAndSingBtn).not.toBeNull()
+    expect(saveAndSingBtn.textContent.trim()).toBe('') // Solo icono, sin texto
+    expect(saveAndSingBtn.querySelector('svg')).not.toBeNull()
 
+    // Botones de backup dentro del acordeón de metadatos, después de los videos
+    const metadataSection = container.querySelector('#editor-metadata-details')
+    expect(metadataSection).not.toBeNull()
+    const backupBlock = metadataSection.querySelector('.editor-backup-block')
+    expect(backupBlock).not.toBeNull()
+
+    const exportJsonBtn = backupBlock.querySelector('#btn-editor-export-json')
+    const exportYamlBtn = backupBlock.querySelector('#btn-editor-export-yaml')
     expect(exportJsonBtn).not.toBeNull()
     expect(exportYamlBtn).not.toBeNull()
     expect(exportJsonBtn.textContent).toContain('JSON')
     expect(exportYamlBtn.textContent).toContain('Lyricsfile')
 
-    // Verificar orden: a la derecha de Pegar Letra Completa y antes de Guardar Canción
-    const headerActions = container.querySelector('.editor-header-actions')
-    const children = Array.from(headerActions.children)
-    const quickIdx = children.indexOf(quickImportBtn)
-    const jsonIdx = children.indexOf(exportJsonBtn)
-    const yamlIdx = children.indexOf(exportYamlBtn)
-    const saveIdx = children.indexOf(saveSongBtn)
-
-    expect(quickIdx).toBeLessThan(jsonIdx)
-    expect(jsonIdx).toBeLessThan(yamlIdx)
-    expect(yamlIdx).toBeLessThan(saveIdx)
+    // El primer header con botones (backup, probar, guardar) ya no existe
+    expect(container.querySelector('.editor-header-bar')).toBeNull()
+    expect(container.querySelector('#btn-save-song')).toBeNull()
   })
 
   describe('Guía de referencia de frase original al traducir', () => {
@@ -387,6 +390,109 @@ describe('views/songEditorView.js', () => {
       // El nuevo idioma debe tener sílabas vacías (sin división automática)
       const sylChips = container.querySelectorAll('.syllable-edit-chip')
       expect(sylChips.length).toBe(0)
+    })
+  })
+
+  describe('Guardado automático en tiempo real', () => {
+    it('muestra el badge de guardado automático en la barra de control', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const badge = container.querySelector('#editor-autosave-badge')
+      expect(badge).not.toBeNull()
+      expect(badge.textContent).toContain('Guardado')
+    })
+
+    it('guarda automáticamente al añadir una frase y llama onSongSaved', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      const addBtn = container.querySelector('#btn-add-phrase-top')
+      addBtn.click()
+
+      // Esperar microtareas de saveSong
+      await new Promise(r => setTimeout(r, 150))
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('guarda automáticamente al modificar el texto de un verso tras el debounce o evento change', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      const phraseInput = container.querySelector('.input-phrase-text')
+      expect(phraseInput).not.toBeNull()
+
+      phraseInput.value = 'Texto nuevo editado'
+      phraseInput.dispatchEvent(new Event('input'))
+
+      // Antes del debounce no debe haberse llamado aún
+      expect(onSongSaved).not.toHaveBeenCalled()
+
+      // Al disparar 'change', guarda inmediatamente
+      phraseInput.dispatchEvent(new Event('change'))
+      await new Promise(r => setTimeout(r, 150))
+
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('guarda automáticamente al modificar el título o artista de la canción', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      const titleInput = container.querySelector('#input-song-title')
+      titleInput.value = 'Título Actualizado Automático'
+      titleInput.dispatchEvent(new Event('input'))
+      titleInput.dispatchEvent(new Event('change'))
+
+      await new Promise(r => setTimeout(r, 150))
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('guarda automáticamente al silabear y al borrar sílabas de un verso', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      // Abrir panel de sílabas
+      const expandBtn = container.querySelector('.btn-toggle-syllables')
+      if (expandBtn && !container.querySelector('.phrase-syllables-panel')) {
+        expandBtn.click()
+      }
+
+      // Añadir sílaba
+      const addSylBtn = container.querySelector('.btn-add-syllable')
+      expect(addSylBtn).not.toBeNull()
+      addSylBtn.click()
+
+      await new Promise(r => setTimeout(r, 150))
+      expect(onSongSaved).toHaveBeenCalled()
+
+      // Borrar sílabas
+      onSongSaved.mockClear()
+      const clearSylBtn = container.querySelector('.btn-clear-line-syllables')
+      expect(clearSylBtn).not.toBeNull()
+      clearSylBtn.click()
+
+      await new Promise(r => setTimeout(r, 150))
+      expect(onSongSaved).toHaveBeenCalled()
+    })
+
+    it('flushea y guarda cambios pendientes con flushAutoSave', async () => {
+      const onSongSaved = vi.fn()
+      const editor = createSongEditorView({ containerElement: container, onSongSaved })
+      editor.open(sampleSong)
+
+      const phraseInput = container.querySelector('.input-phrase-text')
+      phraseInput.value = 'Texto pendiente de guardado'
+      phraseInput.dispatchEvent(new Event('input')) // programa autoSaveTimer
+
+      expect(onSongSaved).not.toHaveBeenCalled()
+
+      await editor.flushAutoSave()
+      expect(onSongSaved).toHaveBeenCalled()
     })
   })
 })

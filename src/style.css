@@ -1772,35 +1772,36 @@ input[type="number"] {
 
 /* Canción activa en reproducción destacada */
 .song-menu-card.is-active-song {
-  border-color: var(--primary-color, #6366f1) !important;
-  box-shadow: 0 0 0 1px var(--primary-color, #6366f1), 0 8px 24px -4px rgba(99, 102, 241, 0.4) !important;
-  background: linear-gradient(145deg, rgba(99, 102, 241, 0.14) 0%, rgba(30, 41, 59, 0.95) 100%) !important;
+  border-color: var(--active-song-border, var(--primary-color, #6366f1)) !important;
+  box-shadow: 0 0 0 1px var(--active-song-border, var(--primary-color, #6366f1)), 0 8px 24px -4px var(--active-song-shadow, rgba(99, 102, 241, 0.4)) !important;
+  background: var(--active-song-bg, linear-gradient(145deg, rgba(99, 102, 241, 0.14) 0%, var(--panel-bg, #0f172a) 100%)) !important;
 }
 
 .song-menu-card.song-menu-list-row.is-active-song {
-  background: linear-gradient(90deg, rgba(99, 102, 241, 0.18) 0%, rgba(30, 41, 59, 0.85) 100%) !important;
-  box-shadow: 0 0 0 1px var(--primary-color, #6366f1), 0 4px 16px -2px rgba(99, 102, 241, 0.35) !important;
+  background: var(--active-song-list-bg, linear-gradient(90deg, rgba(99, 102, 241, 0.18) 0%, var(--panel-bg, #0f172a) 100%)) !important;
+  box-shadow: 0 0 0 1px var(--active-song-border, var(--primary-color, #6366f1)), 0 4px 16px -2px var(--active-song-shadow, rgba(99, 102, 241, 0.35)) !important;
 }
 
 .song-menu-card.is-active-song:hover {
   border-color: var(--primary-hover, #818cf8) !important;
-  box-shadow: 0 0 0 1px var(--primary-hover, #818cf8), 0 12px 28px -4px rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 0 0 1px var(--primary-hover, #818cf8), 0 12px 28px -4px var(--active-song-shadow, rgba(99, 102, 241, 0.5)) !important;
 }
 
 .song-menu-card.is-active-song .list-song-icon-wrap {
-  background: rgba(99, 102, 241, 0.25);
-  color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+  background: var(--active-song-icon-bg, rgba(99, 102, 241, 0.25));
+  color: var(--active-song-icon-color, var(--primary-color, #38bdf8));
+  box-shadow: 0 0 10px var(--active-song-glow, rgba(99, 102, 241, 0.4));
 }
 
 /* Badge "En reproducción" con barras ecualizadoras animadas */
+.song-menu-card .badge-now-playing,
 .badge-now-playing {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(99, 102, 241, 0.25);
-  color: #a5f3fc;
-  border: 1px solid rgba(56, 189, 248, 0.45);
+  background: var(--badge-now-playing-bg, rgba(99, 102, 241, 0.25));
+  color: var(--badge-now-playing-color, #a5f3fc);
+  border: 1px solid var(--badge-now-playing-border, rgba(99, 102, 241, 0.45));
   font-size: 0.72rem;
   font-weight: 600;
   padding: 3px 8px;
@@ -1817,7 +1818,7 @@ input[type="number"] {
 
 .now-playing-bars .bar {
   width: 2.5px;
-  background: #38bdf8;
+  background: var(--now-playing-bar-color, var(--primary-color, #38bdf8));
   border-radius: 1px;
   animation: soundBarPulse 0.9s ease-in-out infinite alternate;
 }
@@ -3261,6 +3262,74 @@ input[type="number"] {
   text-align: center;
 }
 
+.btn-assistant-sing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  margin-left: 6px;
+  background: #10b981;
+  color: #fff;
+  border: 1px solid #059669;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.btn-assistant-sing:hover {
+  background: #059669;
+  transform: scale(1.06);
+}
+
+.btn-assistant-sing svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Indicador de Guardado Automático */
+.editor-autosave-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: 6px;
+  user-select: none;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.editor-autosave-badge .autosave-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.editor-autosave-badge.is-saving .autosave-dot {
+  background: #f59e0b;
+  animation: autosave-pulse 0.9s infinite alternate ease-in-out;
+}
+
+.editor-autosave-badge.is-saving .autosave-text {
+  color: #f59e0b;
+}
+
+.editor-autosave-badge.is-error .autosave-dot {
+  background: #ef4444;
+}
+
+.editor-autosave-badge.is-error .autosave-text {
+  color: #ef4444;
+}
+
+@keyframes autosave-pulse {
+  from { opacity: 0.4; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1.15); }
+}
+
 /* Scroll Principal del Editor */
 .editor-content-scroll {
   flex: 1;
@@ -3383,6 +3452,20 @@ input[type="number"] {
 .video-offset-wrapper input {
   width: 70px;
   text-align: center;
+}
+
+/* Copias de Seguridad y Respaldo en Metadatos del Editor */
+.editor-backup-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--panel-border);
+}
+
+.backup-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* Sección de Letras e Idiomas */
@@ -4631,10 +4714,6 @@ input[type="number"] {
     justify-content: center;
     font-size: 0.78rem;
     padding: 6px 8px;
-  }
-
-  #btn-save-and-sing {
-    grid-column: span 2;
   }
 
   .editor-audio-assistant {

@@ -68,6 +68,24 @@ describe('services/themeService.js', () => {
       const rootStyle = document.documentElement.style
       expect(rootStyle.getPropertyValue('--bg-color')).toBe('#123456')
       expect(rootStyle.getPropertyValue('--lyrics-scale')).toBe('1.50')
+      expect(rootStyle.getPropertyValue('--active-song-border')).toBeDefined()
+      expect(rootStyle.getPropertyValue('--active-song-bg')).toBeDefined()
+    })
+
+    it('actualiza las variables CSS de resaltado de canción activa al cambiar de tema', () => {
+      // Tema Cyberpunk (rosa)
+      applyTheme(THEME_PRESETS.find(p => p.id === 'cyberpunk').settings)
+      const rootStyle = document.documentElement.style
+      expect(rootStyle.getPropertyValue('--active-song-border')).toBe('#ec4899')
+      expect(rootStyle.getPropertyValue('--active-song-bg')).toContain('rgba(')
+
+      // Tema Bosque Esmeralda (verde)
+      applyTheme(THEME_PRESETS.find(p => p.id === 'emerald').settings)
+      expect(rootStyle.getPropertyValue('--active-song-border')).toBe('#10b981')
+
+      // Tema Minimalista Claro
+      applyTheme(THEME_PRESETS.find(p => p.id === 'light').settings)
+      expect(rootStyle.getPropertyValue('--active-song-border')).toBe('#4338ca')
     })
 
     it('resetThemeSettings restablece los valores de fábrica', () => {

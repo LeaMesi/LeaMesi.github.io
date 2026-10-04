@@ -21,8 +21,10 @@
   - Botón de vaciado de sílabas preservando texto y marcas de inicio/fin.
 - [x] **10.2. Borrado Masivo de Sílabas con Confirmación Previa:**
   - Botón con confirmación obligatoria mediante `window.confirm` y contador dinámico.
-- [x] **20.1. Reubicación de Botones de Exportación:**
-  - Botones de exportar JSON y YAML trasladados al encabezado del editor para mayor coherencia.
+- [x] **20.1. Reubicación y Optimización de la Barra Superior del Editor:**
+  - Eliminación de la barra superior previa (`editor-header-bar`) y supresión del botón redundante "Guardar Canción".
+  - Botón "Probar en Modo Letra" (`#btn-save-and-sing`) transformado en botón con solo icono (`${iconMic}`) ubicado a la derecha de los controles de tiempo en la barra del asistente de audio (`.editor-audio-assistant`).
+  - Botones de respaldo individual (`#btn-editor-export-json` y `#btn-editor-export-yaml`) reubicados al final del acordeón "Metadatos Generales y Videos Asociados" (`#editor-metadata-details`), justo tras la gestión de videos asociados.
 - [x] **7.9. Ponderación Fonética Inteligente en Tiempos de Sílabas (`src/lyrics/syllablesHelper.js`):**
   - Algoritmo `calculateSyllableWeight` que pondera diptongos/triptongos, acentuación tónica, apertura vocálica, codas consonánticas, cesuras y alargamiento de final de verso (phrase-final lengthening).
   - Actualización de `autoDistributeSyllables` con ponderación fonética por defecto y preservación de modo equitativo (`{ mode: 'equal' }`).
@@ -40,6 +42,11 @@
   - Desactivación del silabeo automático en la traducción para preservar el texto traducido intacto con tiempos sin fragmentación silábica forzada.
   - Botón "Traducir Toda la Canción" en la barra de herramientas y estado vacío que procesa el tema completo respetando marcas de inicio/fin y pausas.
   - Opción de traducción automática al crear un nuevo idioma o pista de traducción en el modal del editor.
+- [x] **20.2. Guardado Automático en Tiempo Real (Auto-Save):**
+  - Persistencia automática en segundo plano de cualquier cambio realizado por el usuario: edición de versos, tiempos, metadatos, videos, sílabas, adición o eliminación de elementos, traducciones o herramientas masivas.
+  - Guardado con debounce de 400ms en inputs de texto/números y guardado inmediato en eventos `change`/blur y acciones discretas.
+  - Indicador visual no invasivo (`#editor-autosave-badge`) con animación de pulso y estados "Guardando...", "Guardado" y "Error al guardar".
+  - Flusheo y persistencia garantizada al salir del editor desde el botón de retroceso (`#btn-header-back-menu` o `#brand-title`), al probar en Modo Letra o antes de descargar respaldos.
 
 ---
 

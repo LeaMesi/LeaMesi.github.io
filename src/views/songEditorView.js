@@ -46,6 +46,9 @@ export function createSongEditorView({
   let translatingStatusText = ''
   let previewTimer = null
   let translationRefMode = 'both' // 'both' | 'text' | 'alt' | 'none'
+  let autoSaveTimer = null
+  let isSaving = false
+  let pendingSave = false
 
   try {
     const savedRefMode = localStorage.getItem(STORAGE_KEY_REF_MODE)
@@ -163,6 +166,12 @@ export function createSongEditorView({
     isEditLanguageModalOpen = false
     isTranslatingSong = false
     translatingStatusText = ''
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+      autoSaveTimer = null
+    }
+    isSaving = false
+    pendingSave = false
 
     // Si tiene video con URL, opcionalmente cargarlo en el reproductor multimedia
     const firstVideo = currentSong.videos?.find(v => v.url)
@@ -497,34 +506,6 @@ export function createSongEditorView({
 
     containerElement.innerHTML = `
       <div class="song-editor-view-container">
-        <!-- Barra de Encabezado Superior -->
-        <header class="editor-header-bar">
-          <div class="editor-brand">
-            <div class="editor-title-block">
-              <h2 class="editor-heading">${isNew ? 'Crear Nueva Canción' : `Edición`}</h2>
-              <span class="editor-subheading">${isNew ? 'Añade metadatos, videos de YouTube / YouTube Music y letras multilingües con sílabas' : `${escapeHtml(currentSong.title || 'Sin Título')} - ${escapeHtml(currentSong.artist || 'Desconocido')}`}</span>
-            </div>
-          </div>
-
-          <div class="editor-header-actions">
-            <button class="btn btn-outline btn-sm btn-open-quick-import" title="Importar o pegar letra completa de un tirón">
-              ${iconFileText} Pegar Letra Completa
-            </button>
-            <button class="btn btn-outline btn-sm" id="btn-editor-export-json" title="Exportar paquete de canción JSON (copia de seguridad)">
-              ${iconDownload} JSON
-            </button>
-            <button class="btn btn-outline btn-sm" id="btn-editor-export-yaml" title="Exportar al estándar Lyricsfile (.yaml)">
-              ${iconDownload} Lyricsfile
-            </button>
-            <button class="btn btn-primary btn-sm" id="btn-save-song" title="Guardar cambios en tu biblioteca local (IndexedDB)">
-              ${iconSave} Guardar Canción
-            </button>
-            <button class="btn btn-success btn-sm" id="btn-save-and-sing" title="Guardar e ingresar directamente al visor de letras sincronizadas">
-              ${iconMic} Probar en Modo Letra
-            </button>
-          </div>
-        </header>
-
         ${statusMessage ? `
           <div class="status-alert status-${statusType}">
             ${escapeHtml(statusMessage)}
@@ -534,20 +515,29 @@ export function createSongEditorView({
         <!-- Asistente de Audio para Sincronización en Vivo -->
         <div class="editor-audio-assistant">
           <div class="assistant-controls">
-            <button class="btn btn-primary btn-sm btn-assistant-play" id="btn-assistant-play">
+            <button class="btn btn-primary btn-sm btn-assistant-play" id="btn-assistant-play" title="${mediaPlayer?.getIsPlaying() ? 'Pausar' : 'Reproducir'}">
               ${mediaPlayer?.getIsPlaying() ? `${iconPause}` : `${iconPlay}`}
             </button>
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-5" title="Retroceder 5 segundos">-5s</button>
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-1" title="Retroceder 1 segundo">-1s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-0.1" title="Retroceder 1 segundo">-1s</button>
+            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-0.1" title="Retroceder 0.1 segundos">-0.1s</button>
             
             <div class="assistant-clock">
               <span class="clock-time" id="assistant-clock-time">${formatTime(Math.max(0, mediaPlayer?.getCurrentTime() || 0), true)}</span>
             </div>
 
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="0.1" title="Adelantar 1 segundo">+1s</button>
+            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="0.1" title="Adelantar 0.1 segundos">+0.1s</button>
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="1" title="Adelantar 1 segundo">+1s</button>
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="5" title="Adelantar 5 segundos">+5s</button>
+
+            <button class="btn btn-success btn-sm btn-assistant-sing" id="btn-save-and-sing" title="Guardar y probar en Modo Letra" aria-label="Probar en Modo Letra">
+              ${iconMic}
+            </button>
+
+            <span class="editor-autosave-badge ${isSaving ? 'is-saving' : ''}" id="editor-autosave-badge" title="Guardado automático activado">
+              <span class="autosave-dot"></span>
+              <span class="autosave-text">${isSaving ? 'Guardando...' : 'Guardado'}</span>
+            </span>
           </div>
         </div>
 
@@ -616,6 +606,21 @@ export function createSongEditorView({
                 </div>
                 <div class="videos-list-container">
                   ${videosListHtml}
+                </div>
+              </div>
+
+              <!-- Opciones de Respaldo y Copia de Seguridad -->
+              <div class="editor-backup-block">
+                <div class="block-header">
+                  <h4>Copias de Seguridad y Respaldo</h4>
+                </div>
+                <div class="backup-actions-row">
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-editor-export-json" title="Exportar paquete de canción JSON (copia de seguridad)">
+                    ${iconDownload} Exportar JSON
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-editor-export-yaml" title="Exportar al estándar Lyricsfile (.yaml)">
+                    ${iconDownload} Exportar Lyricsfile
+                  </button>
                 </div>
               </div>
             </div>
@@ -728,11 +733,6 @@ export function createSongEditorView({
                 <button class="btn btn-outline" id="btn-add-phrase-bottom">
                   ${iconPlus} Añadir Frase al Final
                 </button>
-                ${totalSylCount > 0 ? `
-                  <button class="btn btn-outline btn-danger-outline btn-clear-all-syllables-trigger" title="Borrar todas las sílabas de las frases de este idioma">
-                    ${iconTrash} Borrar Todas las Sílabas
-                  </button>
-                ` : ''}
               </div>
             ` : ''}
           </section>
@@ -925,7 +925,12 @@ export function createSongEditorView({
     // 1. Botón Volver
     const backBtn = containerElement.querySelector('#btn-editor-back')
     if (backBtn) {
-      backBtn.addEventListener('click', () => {
+      backBtn.addEventListener('click', async () => {
+        if (autoSaveTimer) {
+          clearTimeout(autoSaveTimer)
+          autoSaveTimer = null
+          await performSave()
+        }
         if (onGoToMenu) onGoToMenu()
       })
     }
@@ -935,6 +940,14 @@ export function createSongEditorView({
     if (titleInput) {
       titleInput.addEventListener('input', (e) => {
         currentSong.title = e.target.value
+        const summaryBadge = containerElement.querySelector('.editor-section-summary .summary-badge')
+        if (summaryBadge) {
+          summaryBadge.textContent = `${e.target.value.trim() || 'Completar datos'} (${(currentSong.videos || []).length} video(s))`
+        }
+        scheduleAutoSave(400)
+      })
+      titleInput.addEventListener('change', () => {
+        triggerImmediateAutoSave()
       })
     }
 
@@ -942,20 +955,36 @@ export function createSongEditorView({
     if (artistInput) {
       artistInput.addEventListener('input', (e) => {
         currentSong.artist = e.target.value
+        scheduleAutoSave(400)
+      })
+      artistInput.addEventListener('change', () => {
+        triggerImmediateAutoSave()
       })
     }
 
     const genresInput = containerElement.querySelector('#input-song-genres')
     if (genresInput) {
-      genresInput.addEventListener('change', (e) => {
+      const handleGenres = (e) => {
         currentSong.genres = e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+        scheduleAutoSave(400)
+      }
+      genresInput.addEventListener('input', handleGenres)
+      genresInput.addEventListener('change', () => {
+        handleGenres({ target: genresInput })
+        triggerImmediateAutoSave()
       })
     }
 
     const tagsInput = containerElement.querySelector('#input-song-tags')
     if (tagsInput) {
-      tagsInput.addEventListener('change', (e) => {
+      const handleTags = (e) => {
         currentSong.tags = e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+        scheduleAutoSave(400)
+      }
+      tagsInput.addEventListener('input', handleTags)
+      tagsInput.addEventListener('change', () => {
+        handleTags({ target: tagsInput })
+        triggerImmediateAutoSave()
       })
     }
 
@@ -972,16 +1001,28 @@ export function createSongEditorView({
       if (nameInput) {
         nameInput.addEventListener('input', (e) => {
           if (currentSong.videos[vIdx]) currentSong.videos[vIdx].name = e.target.value
+          scheduleAutoSave(400)
+        })
+        nameInput.addEventListener('change', () => {
+          triggerImmediateAutoSave()
         })
       }
       if (urlInput) {
         urlInput.addEventListener('input', (e) => {
           if (currentSong.videos[vIdx]) currentSong.videos[vIdx].url = e.target.value
+          scheduleAutoSave(400)
+        })
+        urlInput.addEventListener('change', () => {
+          triggerImmediateAutoSave()
         })
       }
       if (offsetInput) {
         offsetInput.addEventListener('input', (e) => {
           if (currentSong.videos[vIdx]) currentSong.videos[vIdx].offset = Number(e.target.value) || 0
+          scheduleAutoSave(400)
+        })
+        offsetInput.addEventListener('change', () => {
+          triggerImmediateAutoSave()
         })
       }
       if (testBtn) {
@@ -1003,6 +1044,7 @@ export function createSongEditorView({
         removeBtn.addEventListener('click', () => {
           currentSong.videos.splice(vIdx, 1)
           render()
+          triggerImmediateAutoSave()
         })
       }
     })
@@ -1018,6 +1060,7 @@ export function createSongEditorView({
           offset: 0
         })
         render()
+        triggerImmediateAutoSave()
       })
     }
 
@@ -1090,6 +1133,7 @@ export function createSongEditorView({
           l.isMain = idx === activeLangIndex
         })
         showStatus(`"${langs[activeLangIndex].name}" establecido como Idioma Principal.`, 'success')
+        triggerImmediateAutoSave()
       })
     }
 
@@ -1101,6 +1145,7 @@ export function createSongEditorView({
           currentSong.lyrics_data.languages.splice(activeLangIndex, 1)
           activeLangIndex = 0
           showStatus('Idioma eliminado.', 'info')
+          triggerImmediateAutoSave()
         }
       })
     }
@@ -1130,6 +1175,7 @@ export function createSongEditorView({
       lines.push(newLine)
       expandedLineIndices.add(lines.length - 1)
       render()
+      triggerImmediateAutoSave()
     }
 
     if (addPhraseTopBtn) addPhraseTopBtn.addEventListener('click', addLineHandler)
@@ -1177,6 +1223,7 @@ export function createSongEditorView({
             }
             render()
             showStatus(`Texto original copiado al verso #${lIdx + 1}.`, 'info')
+            triggerImmediateAutoSave()
           }
         })
       }
@@ -1203,6 +1250,7 @@ export function createSongEditorView({
               line.syllables = []
               render()
               showStatus(`Verso #${lIdx + 1} traducido automáticamente a "${activeLang.name}".`, 'success')
+              triggerImmediateAutoSave()
             } else {
               showStatus(`No se pudo traducir el verso #${lIdx + 1}.`, 'error')
               translateRefBtn.disabled = false
@@ -1226,24 +1274,40 @@ export function createSongEditorView({
       if (textInput) {
         textInput.addEventListener('input', (e) => {
           line.text = e.target.value
+          scheduleAutoSave(400)
+        })
+        textInput.addEventListener('change', () => {
+          triggerImmediateAutoSave()
         })
       }
 
       if (altInput) {
         altInput.addEventListener('input', (e) => {
           line.altText = e.target.value
+          scheduleAutoSave(400)
+        })
+        altInput.addEventListener('change', () => {
+          triggerImmediateAutoSave()
         })
       }
 
       if (startInput) {
         startInput.addEventListener('input', (e) => {
           line.startTime = Number(e.target.value) || 0
+          scheduleAutoSave(400)
+        })
+        startInput.addEventListener('change', () => {
+          triggerImmediateAutoSave()
         })
       }
 
       if (endInput) {
         endInput.addEventListener('input', (e) => {
           line.endTime = Number(e.target.value) || 0
+          scheduleAutoSave(400)
+        })
+        endInput.addEventListener('change', () => {
+          triggerImmediateAutoSave()
         })
       }
 
@@ -1256,6 +1320,7 @@ export function createSongEditorView({
               line.endTime = +(line.startTime + 3.0).toFixed(2)
             }
             render()
+            triggerImmediateAutoSave()
           }
         })
       }
@@ -1266,6 +1331,7 @@ export function createSongEditorView({
             const cur = Math.max(0, mediaPlayer.getCurrentTime())
             line.endTime = +cur.toFixed(2)
             render()
+            triggerImmediateAutoSave()
           }
         })
       }
@@ -1301,6 +1367,7 @@ export function createSongEditorView({
           lines[lIdx] = lines[lIdx - 1]
           lines[lIdx - 1] = temp
           render()
+          triggerImmediateAutoSave()
         })
       }
 
@@ -1310,6 +1377,7 @@ export function createSongEditorView({
           lines[lIdx] = lines[lIdx + 1]
           lines[lIdx + 1] = temp
           render()
+          triggerImmediateAutoSave()
         })
       }
 
@@ -1318,6 +1386,7 @@ export function createSongEditorView({
           lines.splice(lIdx, 1)
           expandedLineIndices.delete(lIdx)
           render()
+          triggerImmediateAutoSave()
         })
       }
 
@@ -1331,6 +1400,7 @@ export function createSongEditorView({
           const rawSyllables = splitPhraseIntoSyllables(line.text)
           line.syllables = autoDistributeSyllables(rawSyllables, line.startTime, line.endTime)
           showStatus(`Frase #${lIdx + 1} dividida en ${line.syllables.length} sílaba(s) con ponderación fonética.`, 'success')
+          triggerImmediateAutoSave()
         })
       }
 
@@ -1343,6 +1413,7 @@ export function createSongEditorView({
           const rawWords = splitPhraseIntoWords(line.text)
           line.syllables = autoDistributeSyllables(rawWords, line.startTime, line.endTime)
           showStatus(`Frase #${lIdx + 1} dividida en ${line.syllables.length} palabra(s) con ponderación fonética.`, 'success')
+          triggerImmediateAutoSave()
         })
       }
 
@@ -1354,6 +1425,7 @@ export function createSongEditorView({
           }
           line.syllables = autoDistributeSyllables(line.syllables, line.startTime, line.endTime)
           showStatus(`Tiempos calculados con ponderación fonética para el verso #${lIdx + 1}.`, 'success')
+          triggerImmediateAutoSave()
         })
       }
 
@@ -1369,6 +1441,7 @@ export function createSongEditorView({
             duration: 0.35
           })
           render()
+          triggerImmediateAutoSave()
         })
       }
 
@@ -1381,6 +1454,7 @@ export function createSongEditorView({
           line.syllables = []
           render()
           showStatus(`Sílabas borradas del verso #${lIdx + 1}.`, 'info')
+          triggerImmediateAutoSave()
         })
       })
 
@@ -1401,21 +1475,37 @@ export function createSongEditorView({
         if (sTextInput) {
           sTextInput.addEventListener('input', (e) => {
             syl.text = e.target.value
+            scheduleAutoSave(400)
+          })
+          sTextInput.addEventListener('change', () => {
+            triggerImmediateAutoSave()
           })
         }
         if (sAltInput) {
           sAltInput.addEventListener('input', (e) => {
             syl.altText = e.target.value
+            scheduleAutoSave(400)
+          })
+          sAltInput.addEventListener('change', () => {
+            triggerImmediateAutoSave()
           })
         }
         if (sStartInput) {
           sStartInput.addEventListener('input', (e) => {
             syl.startTime = Number(e.target.value) || 0
+            scheduleAutoSave(400)
+          })
+          sStartInput.addEventListener('change', () => {
+            triggerImmediateAutoSave()
           })
         }
         if (sDurInput) {
           sDurInput.addEventListener('input', (e) => {
             syl.duration = Number(e.target.value) || 0.1
+            scheduleAutoSave(400)
+          })
+          sDurInput.addEventListener('change', () => {
+            triggerImmediateAutoSave()
           })
         }
         if (sCaptureBtn) {
@@ -1424,6 +1514,7 @@ export function createSongEditorView({
               const cur = Math.max(0, mediaPlayer.getCurrentTime())
               syl.startTime = +cur.toFixed(2)
               render()
+              triggerImmediateAutoSave()
             }
           })
         }
@@ -1431,6 +1522,7 @@ export function createSongEditorView({
           sRemoveBtn.addEventListener('click', () => {
             line.syllables.splice(sIdx, 1)
             render()
+            triggerImmediateAutoSave()
           })
         }
       })
@@ -1453,6 +1545,7 @@ export function createSongEditorView({
         })
         render()
         showStatus(`Se han borrado todas las sílabas de los ${lines.length} versos en "${langName}".`, 'success')
+        triggerImmediateAutoSave()
       }
     }
 
@@ -1481,6 +1574,7 @@ export function createSongEditorView({
         }
         render()
         showStatus('Texto alternativo y fonemas en Romaji generados con éxito para todas las frases y sílabas.', 'success')
+        triggerImmediateAutoSave()
       })
     }
 
@@ -1531,6 +1625,7 @@ export function createSongEditorView({
         isTranslatingSong = false
         translatingStatusText = ''
         render()
+        triggerImmediateAutoSave()
       }
     }
 
@@ -1603,7 +1698,9 @@ export function createSongEditorView({
         activeLang.plain = text
         expandedLineIndices = new Set([0])
         isQuickImportModalOpen = false
+        render()
         showStatus(`¡Se generaron ${generatedLines.length} versos exitosamente para "${activeLang.name}"!`, 'success')
+        triggerImmediateAutoSave()
       })
     }
 
@@ -1690,6 +1787,7 @@ export function createSongEditorView({
             currentSong.lyrics_data.languages.push(newLang)
             activeLangIndex = currentSong.lyrics_data.languages.length - 1
             showStatus(`Nuevo idioma "${name}" [${code}] añadido y ${translatedCount} frases traducidas automáticamente.`, 'success')
+            triggerImmediateAutoSave()
             return
           } catch (err) {
             console.error('Error al autotraducir al añadir idioma:', err)
@@ -1724,6 +1822,7 @@ export function createSongEditorView({
         isAddLanguageModalOpen = false
         render()
         showStatus(`Nuevo idioma "${name}" [${code}] añadido con éxito.`, 'success')
+        triggerImmediateAutoSave()
       })
     }
 
@@ -1762,7 +1861,9 @@ export function createSongEditorView({
           activeLang.name = newName
           activeLang.code = newCode
           isEditLanguageModalOpen = false
+          render()
           showStatus(`Idioma actualizado correctamente: "${newName}" [${newCode}].`, 'success')
+          triggerImmediateAutoSave()
         }
       })
     }
@@ -1814,7 +1915,142 @@ export function createSongEditorView({
     }
   }
 
+  function updateAutoSaveIndicator(state) {
+    const badge = containerElement?.querySelector('#editor-autosave-badge')
+    if (!badge) return
+    const textEl = badge.querySelector('.autosave-text')
+    badge.classList.remove('is-saving', 'is-error')
+    if (state === 'saving') {
+      badge.classList.add('is-saving')
+      if (textEl) textEl.textContent = 'Guardando...'
+    } else if (state === 'error') {
+      badge.classList.add('is-error')
+      if (textEl) textEl.textContent = 'Error al guardar'
+    } else {
+      if (textEl) textEl.textContent = 'Guardado'
+    }
+  }
+
+  function getSongDataToSave() {
+    if (!currentSong) return null
+    const titleDom = containerElement?.querySelector('#input-song-title')?.value
+    const artistDom = containerElement?.querySelector('#input-song-artist')?.value
+    if (titleDom !== undefined) currentSong.title = titleDom
+    if (artistDom !== undefined) currentSong.artist = artistDom
+
+    const title = (currentSong.title && currentSong.title.trim()) || 'Sin Título'
+    const artist = (currentSong.artist && currentSong.artist.trim()) || 'Artista Desconocido'
+
+    return {
+      ...currentSong,
+      title,
+      artist,
+      genres: Array.isArray(currentSong.genres) ? currentSong.genres : [],
+      tags: Array.isArray(currentSong.tags) ? currentSong.tags : [],
+      videos: (currentSong.videos || []).map((v, i) => ({
+        id: v.id || `vid-${Date.now()}-${i}`,
+        name: (v.name || `Video ${i + 1}`).trim(),
+        url: (v.url || '').trim(),
+        offset: Number(v.offset) || 0
+      })),
+      lyrics_data: {
+        ...currentSong.lyrics_data,
+        videos: currentSong.videos,
+        languages: (currentSong.lyrics_data?.languages || []).map(l => ({
+          ...l,
+          plain: (l.lines || []).map(line => line.text || '').join('\n'),
+          lines: (l.lines || []).map((line, lIdx) => ({
+            id: line.id || `line-${l.code}-${lIdx}`,
+            text: line.text || '',
+            altText: String(line.altText || line.romaji || '').trim(),
+            startTime: Number(line.startTime) || 0,
+            endTime: Number(line.endTime) || (Number(line.startTime || 0) + 3),
+            syllables: (line.syllables || []).map((syl, sIdx) => ({
+              id: syl.id || `syl-${lIdx}-${sIdx}`,
+              text: syl.text || '',
+              altText: String(syl.altText || syl.romaji || ''),
+              startTime: Number(syl.startTime) || 0,
+              duration: Number(syl.duration) || 0.3
+            }))
+          }))
+        }))
+      }
+    }
+  }
+
+  async function performSave() {
+    if (!currentSong) return null
+    const songData = getSongDataToSave()
+    if (!songData) return null
+
+    updateAutoSaveIndicator('saving')
+    isSaving = true
+
+    try {
+      const savedId = await saveSong(songData)
+      currentSong.id = savedId
+      currentSong.artist = songData.artist
+      if (!currentSong.title) {
+        currentSong.title = songData.title
+      }
+
+      const subheadingEl = containerElement?.querySelector('.editor-subheading')
+      if (subheadingEl) {
+        subheadingEl.textContent = `Artista: ${escapeHtml(currentSong.artist)} | ID: ${currentSong.id}`
+      }
+
+      updateAutoSaveIndicator('saved')
+
+      if (onSongSaved) {
+        await onSongSaved(savedId)
+      }
+      return savedId
+    } catch (err) {
+      console.error('Error al guardar automáticamente:', err)
+      updateAutoSaveIndicator('error')
+      return null
+    } finally {
+      isSaving = false
+      if (pendingSave) {
+        pendingSave = false
+        performSave()
+      }
+    }
+  }
+
+  function scheduleAutoSave(debounceMs = 400) {
+    updateAutoSaveIndicator('saving')
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+    }
+    autoSaveTimer = setTimeout(() => {
+      autoSaveTimer = null
+      if (isSaving) {
+        pendingSave = true
+      } else {
+        performSave()
+      }
+    }, debounceMs)
+  }
+
+  async function triggerImmediateAutoSave() {
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+      autoSaveTimer = null
+    }
+    if (isSaving) {
+      pendingSave = true
+      return null
+    }
+    return await performSave()
+  }
+
   async function handleSaveSong(enterLyricsAfter = false) {
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer)
+      autoSaveTimer = null
+    }
+
     const titleDom = containerElement.querySelector('#input-song-title')?.value
     const artistDom = containerElement.querySelector('#input-song-artist')?.value
     if (titleDom !== undefined) currentSong.title = titleDom
@@ -1829,68 +2065,16 @@ export function createSongEditorView({
       return null
     }
 
-    try {
-      // Normalizar datos antes de guardar
-      const songDataToSave = {
-        ...currentSong,
-        title: currentSong.title.trim(),
-        artist: (currentSong.artist || 'Artista Desconocido').trim(),
-        genres: Array.isArray(currentSong.genres) ? currentSong.genres : [],
-        tags: Array.isArray(currentSong.tags) ? currentSong.tags : [],
-        videos: (currentSong.videos || []).map((v, i) => ({
-          id: v.id || `vid-${Date.now()}-${i}`,
-          name: (v.name || `Video ${i + 1}`).trim(),
-          url: (v.url || '').trim(),
-          offset: Number(v.offset) || 0
-        })),
-        lyrics_data: {
-          ...currentSong.lyrics_data,
-          videos: currentSong.videos,
-          languages: currentSong.lyrics_data.languages.map(l => ({
-            ...l,
-            lines: (l.lines || []).map((line, lIdx) => ({
-              id: line.id || `line-${l.code}-${lIdx}`,
-              text: line.text || '',
-              altText: String(line.altText || line.romaji || '').trim(),
-              startTime: Number(line.startTime) || 0,
-              endTime: Number(line.endTime) || (Number(line.startTime || 0) + 3),
-              syllables: (line.syllables || []).map((syl, sIdx) => ({
-                id: syl.id || `syl-${lIdx}-${sIdx}`,
-                text: syl.text || '',
-                altText: String(syl.altText || syl.romaji || ''),
-                startTime: Number(syl.startTime) || 0,
-                duration: Number(syl.duration) || 0.3
-              }))
-            }))
-          }))
-        }
-      }
+    const savedId = await performSave()
+    if (!savedId) return null
 
-      const savedId = await saveSong(songDataToSave)
-      currentSong.id = savedId
-      currentSong.artist = songDataToSave.artist
+    showStatus(`¡Canción "${currentSong.title}" guardada exitosamente!`, 'success')
 
-      const subheadingEl = containerElement.querySelector('.editor-subheading')
-      if (subheadingEl) {
-        subheadingEl.textContent = `Artista: ${escapeHtml(currentSong.artist)} | ID: ${currentSong.id}`
-      }
-
-      showStatus(`¡Canción "${currentSong.title}" guardada exitosamente!`, 'success')
-
-      if (onSongSaved) {
-        await onSongSaved(savedId)
-      }
-
-      if (enterLyricsAfter && onEnterLyricsMode) {
-        onEnterLyricsMode(savedId)
-      }
-
-      return savedId
-    } catch (err) {
-      console.error('Error al guardar la canción:', err)
-      showStatus('Error al guardar la canción: ' + err.message, 'error')
-      return null
+    if (enterLyricsAfter && onEnterLyricsMode) {
+      onEnterLyricsMode(savedId)
     }
+
+    return savedId
   }
 
   // Actualización del reloj del asistente en tiempo real si el reproductor está activo
@@ -1921,6 +2105,7 @@ export function createSongEditorView({
   return {
     open,
     updateClock,
-    setPlayingState
+    setPlayingState,
+    flushAutoSave: triggerImmediateAutoSave
   }
 }

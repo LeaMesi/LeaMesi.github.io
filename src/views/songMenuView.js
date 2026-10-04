@@ -68,6 +68,11 @@ export function createSongMenuView({
   const savedViewMode = typeof localStorage !== 'undefined' ? localStorage.getItem('saranga_menu_view_mode') : null
   let viewMode = (savedViewMode === 'list' || savedViewMode === 'grid') ? savedViewMode : 'grid'
 
+  function areSongIdsEqual(id1, id2) {
+    if (id1 === null || id1 === undefined || id1 === '' || id2 === null || id2 === undefined || id2 === '') return false
+    return String(id1) === String(id2) || Number(id1) === Number(id2)
+  }
+
   function setViewMode(mode) {
     if (mode !== 'grid' && mode !== 'list') return
     if (viewMode === mode) return
@@ -76,6 +81,7 @@ export function createSongMenuView({
       localStorage.setItem('saranga_menu_view_mode', mode)
     }
     render()
+    updateActiveSongHighlight()
   }
 
   async function loadData() {
@@ -184,7 +190,7 @@ export function createSongMenuView({
         const videos = song.videos || []
         const langCount = song.lyrics_data?.languages?.length || 1
         const mainLang = song.lyrics_data?.languages?.find(l => l.isMain)?.name || 'Original'
-        const isActive = activeSongId !== null && Number(song.id) === activeSongId
+        const isActive = areSongIdsEqual(song.id, activeSongId)
         const activeClass = isActive ? ' is-active-song is-playing' : ''
         const nowPlayingBadgeHtml = `
           <span class="badge badge-now-playing" style="${isActive ? 'display: inline-flex;' : 'display: none;'}">
@@ -244,7 +250,7 @@ export function createSongMenuView({
                   ${iconTrash}
                 </button>
                 <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                  ${iconMic} ${isActive ? 'Ver' : 'Entrar'}
+                  ${iconMic}
                 </button>
               </div>
             </article>
@@ -1055,19 +1061,19 @@ export function createSongMenuView({
   }
 
   function setActiveSongId(id) {
-    const parsed = (id !== null && id !== undefined && id !== '') ? Number(id) : null
-    if (activeSongId !== parsed) {
-      activeSongId = parsed
-      updateActiveSongHighlight()
-    }
+    const parsed = (id !== null && id !== undefined && id !== '')
+      ? (isNaN(Number(id)) ? String(id) : Number(id))
+      : null
+    activeSongId = parsed
+    updateActiveSongHighlight()
   }
 
   function updateActiveSongHighlight() {
     if (!containerElement) return
     const cards = containerElement.querySelectorAll('.song-menu-card')
     cards.forEach(card => {
-      const songId = Number(card.dataset.songId)
-      const isActive = activeSongId !== null && songId === activeSongId
+      const cardSongId = card.dataset.songId
+      const isActive = areSongIdsEqual(cardSongId, activeSongId)
       card.classList.toggle('is-active-song', isActive)
       card.classList.toggle('is-playing', isActive)
 
@@ -1102,6 +1108,7 @@ export function createSongMenuView({
     setActiveLibraryId: (id) => { activeLibraryId = id; render() },
     setActiveSongId,
     getActiveSongId: () => activeSongId,
+    updateHighlight: updateActiveSongHighlight,
     setPlaylistCount: (count) => {
       playlistCount = Number(count) || 0
       const badge = containerElement?.querySelector('.playlist-badge-pill')

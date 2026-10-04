@@ -446,6 +446,20 @@ describe('views/songMenuView.js', () => {
     expect(listRow2.classList.contains('is-active-song')).toBe(false)
     expect(listRow2.querySelector('.badge-now-playing').style.display).toBe('none')
     expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('Entrar')
+
+    // Volver a activar con ID como string y alternar a cuadrícula
+    menu.setActiveSongId(String(firstSong.id))
+    const gridBtn = container.querySelector('#btn-view-grid')
+    gridBtn.click()
+
+    card1 = container.querySelector(`.song-menu-card[data-song-id="${firstSong.id}"]`)
+    card2 = container.querySelector(`.song-menu-card[data-song-id="${secondSong.id}"]`)
+    expect(card1.classList.contains('is-active-song')).toBe(true)
+    expect(card2.classList.contains('is-active-song')).toBe(false)
+
+    // Llamar a updateHighlight() mantiene la reactividad
+    menu.updateHighlight()
+    expect(card1.classList.contains('is-active-song')).toBe(true)
   })
 
   it('permite hacer clic en una canción activa y despacha onEnterLyricsMode con su ID', async () => {
