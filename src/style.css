@@ -4283,6 +4283,20 @@ input[type="number"] {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
+.phrase-editor-card.is-active-phrase {
+  border-color: var(--lyrics-active-color) !important;
+  background: color-mix(in srgb, var(--panel-bg) 92%, var(--lyrics-active-color) 8%);
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.25), 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--lyrics-active-color) 35%, transparent), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.phrase-editor-card.is-active-phrase .phrase-index-badge {
+  background: var(--lyrics-active-color);
+  color: #0f172a;
+  font-weight: 800;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--lyrics-active-color) 45%, transparent);
+}
+
 .phrase-card-header {
   display: flex;
   align-items: center;
@@ -4702,6 +4716,28 @@ input[type="number"] {
   gap: 6px;
   width: 185px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.syllable-edit-chip.is-active-syllable {
+  border-color: var(--lyrics-active-color) !important;
+  background: color-mix(in srgb, var(--panel-bg) 86%, var(--lyrics-active-color) 14%);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.35);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--lyrics-active-color) 45%, transparent);
+}
+
+.syllable-edit-chip.is-active-syllable .syl-idx {
+  background: var(--lyrics-active-color);
+  color: #0f172a;
+  font-weight: 800;
+  border-radius: 3px;
+  padding: 1px 5px;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--lyrics-active-color) 45%, transparent);
+}
+
+.syllable-edit-chip.is-active-syllable .input-syl-text {
+  border-color: color-mix(in srgb, var(--lyrics-active-color) 50%, transparent);
+  font-weight: 700;
 }
 
 .chip-top {

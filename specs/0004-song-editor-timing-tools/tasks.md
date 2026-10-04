@@ -68,6 +68,11 @@
   - Menú vertical emergente de volumen activado por icono de parlante (`iconVolume` / `iconVolumeMute`) con slider vertical y porcentaje, con cierre automático al hacer clic en cualquier otro lado (`documentClickListener`).
   - Barra de progreso interactiva con tiempo actual y duración total de la canción (`00:00 / 03:45`), sincronizada con el Master Clock en tiempo real y con capacidad de búsqueda (*seek*) interactiva al arrastrar.
   - Ubicación ergonómica: volumen y barra de progreso a la izquierda de los botones de transporte y reloj, y texto de estado de guardado automático ("Guardando..." / "Guardado") fijado y pegado al extremo derecho (`margin-left: auto`).
+- [x] **20.8. Resaltado Reactivo de Verso y Sílaba Activa en el Editor:**
+  - Detección en tiempo real de la posición de reproducción del asistente de audio (`updateClock` y scrubbing en barra de progreso).
+  - Resaltado del contenedor de la tarjeta del verso activo (`.phrase-editor-card.is-active-phrase`) con borde distintivo y resplandor adaptados al color de la sílaba activa del tema visual configurado (`var(--lyrics-active-color)`), incluyendo badge `#` resaltado.
+  - Resaltado en tiempo real del contenedor de la sílaba activa (`.syllable-edit-chip.is-active-syllable`) dentro del panel de sílabas expandido, cambiando el borde del chip al color de sílaba activa del tema (`var(--lyrics-active-color)`), con resplandor glow y badge `#` destacado.
+  - Rendimiento óptimo en bucle RAF sin reflows innecesarios mediante comparación de conjuntos activos (`Set`), y sincronización reactiva al arrastrar el slider de progreso o al saltar en la pista.
 
 ---
 

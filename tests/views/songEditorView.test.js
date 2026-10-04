@@ -784,4 +784,64 @@ describe('views/songEditorView.js', () => {
       expect(container.querySelector('.status-alert')).toBeNull()
     })
   })
+
+  describe('Resaltado reactivo de verso y sílaba activa en el editor', () => {
+    it('resalta el contenedor del verso y la sílaba actual según el tiempo del asistente', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const line0 = container.querySelector('.phrase-editor-card[data-line-idx="0"]')
+      expect(line0).not.toBeNull()
+      expect(line0.classList.contains('is-active-phrase')).toBe(false)
+
+      // A 2.5s: cae dentro del verso 0 (2.0s - 5.0s) y en la sílaba 0 "Fra" (2.0s - 3.5s)
+      editor.updateClock(2.5)
+
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+      const syl0 = container.querySelector('.syllable-edit-chip[data-line-idx="0"][data-syl-idx="0"]')
+      const syl1 = container.querySelector('.syllable-edit-chip[data-line-idx="0"][data-syl-idx="1"]')
+      expect(syl0).not.toBeNull()
+      expect(syl1).not.toBeNull()
+      expect(syl0.classList.contains('is-active-syllable')).toBe(true)
+      expect(syl1.classList.contains('is-active-syllable')).toBe(false)
+
+      // A 3.8s: cambia a la sílaba 1 "se" (3.5s - 5.0s) manteniendo el verso 0 activo
+      editor.updateClock(3.8)
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(false)
+      expect(syl1.classList.contains('is-active-syllable')).toBe(true)
+
+      // A 6.0s: fuera del verso 0 (termina a 5.0s)
+      editor.updateClock(6.0)
+      expect(line0.classList.contains('is-active-phrase')).toBe(false)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(false)
+      expect(syl1.classList.contains('is-active-syllable')).toBe(false)
+    })
+
+    it('actualiza el verso y sílaba activa al deslizar la barra de progreso del asistente', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const progressSlider = container.querySelector('#editor-progress-slider')
+      expect(progressSlider).not.toBeNull()
+
+      const line0 = container.querySelector('.phrase-editor-card[data-line-idx="0"]')
+      const syl0 = container.querySelector('.syllable-edit-chip[data-line-idx="0"][data-syl-idx="0"]')
+
+      // Deslizar al segundo 2.2 con rango configurado
+      progressSlider.max = '10'
+      progressSlider.value = '2.2'
+      progressSlider.dispatchEvent(new Event('input'))
+
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(true)
+
+      // Deslizar a silencio / antes del inicio (0.5s)
+      progressSlider.value = '0.5'
+      progressSlider.dispatchEvent(new Event('input'))
+
+      expect(line0.classList.contains('is-active-phrase')).toBe(false)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(false)
+    })
+  })
 })

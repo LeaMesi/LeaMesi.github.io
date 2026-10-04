@@ -58,6 +58,8 @@ export function createSongEditorView({
   let isUserSeeking = false
   let isVolumeMenuOpen = false
   let documentClickListener = null
+  let currentActiveLineIndices = new Set()
+  let currentActiveSylKeys = new Set()
 
   try {
     const savedRefMode = localStorage.getItem(STORAGE_KEY_REF_MODE)
@@ -273,6 +275,7 @@ export function createSongEditorView({
       mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
     }
 
+    clearActiveElements()
     resetScrollOnNextRender = true
     render()
 
@@ -292,8 +295,109 @@ export function createSongEditorView({
     return currentSong.lyrics_data.languages[activeLangIndex] || currentSong.lyrics_data.languages[0]
   }
 
+  function getLineTimeRange(line) {
+    const start = Number(line?.startTime) || 0
+    let end = (Number(line?.endTime) > start) ? Number(line.endTime) : (start + 3.0)
+    if (Array.isArray(line?.syllables) && line.syllables.length > 0) {
+      for (let i = 0; i < line.syllables.length; i++) {
+        const s = line.syllables[i]
+        const sStart = Number(s?.startTime) || 0
+        const sDur = Math.max(0.05, Number(s?.duration) || 0.3)
+        const sEnd = sStart + sDur
+        if (sEnd > end) {
+          end = sEnd
+        }
+      }
+    }
+    return { start, end }
+  }
+
+  function clearActiveElements() {
+    if (containerElement) {
+      const activeCards = containerElement.querySelectorAll('.phrase-editor-card.is-active-phrase')
+      activeCards.forEach(el => el.classList.remove('is-active-phrase'))
+      const activeChips = containerElement.querySelectorAll('.syllable-edit-chip.is-active-syllable')
+      activeChips.forEach(el => el.classList.remove('is-active-syllable'))
+    }
+    currentActiveLineIndices = new Set()
+    currentActiveSylKeys = new Set()
+  }
+
+  function updateActiveElements(time) {
+    if (!containerElement || !currentSong) return
+    const activeLang = getActiveLanguage()
+    const lines = activeLang?.lines || []
+    if (lines.length === 0) {
+      clearActiveElements()
+      return
+    }
+
+    const nextActiveLineIndices = new Set()
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const { start, end } = getLineTimeRange(line)
+      if (time >= start && time <= end) {
+        nextActiveLineIndices.add(i)
+      }
+    }
+
+    const nextActiveSylKeys = new Set()
+    for (const lineIdx of nextActiveLineIndices) {
+      const line = lines[lineIdx]
+      if (Array.isArray(line?.syllables) && line.syllables.length > 0) {
+        for (let s = 0; s < line.syllables.length; s++) {
+          const syl = line.syllables[s]
+          const sStart = Number(syl?.startTime) || 0
+          const sDur = Math.max(0.05, Number(syl?.duration) || 0.3)
+          const sEnd = sStart + sDur
+          if (time >= sStart && time < sEnd) {
+            nextActiveSylKeys.add(`${lineIdx}-${s}`)
+          }
+        }
+      }
+    }
+
+    // Retirar clase is-active-phrase de versos que ya no están activos
+    for (const oldIdx of currentActiveLineIndices) {
+      if (!nextActiveLineIndices.has(oldIdx)) {
+        const el = containerElement.querySelector(`.phrase-editor-card[data-line-idx="${oldIdx}"]`)
+        if (el) el.classList.remove('is-active-phrase')
+      }
+    }
+
+    // Añadir clase is-active-phrase a nuevos versos activos
+    for (const newIdx of nextActiveLineIndices) {
+      if (!currentActiveLineIndices.has(newIdx)) {
+        const el = containerElement.querySelector(`.phrase-editor-card[data-line-idx="${newIdx}"]`)
+        if (el) el.classList.add('is-active-phrase')
+      }
+    }
+    currentActiveLineIndices = nextActiveLineIndices
+
+    // Retirar clase is-active-syllable de sílabas que ya no están activas
+    for (const oldKey of currentActiveSylKeys) {
+      if (!nextActiveSylKeys.has(oldKey)) {
+        const [lIdx, sIdx] = oldKey.split('-')
+        const el = containerElement.querySelector(`.syllable-edit-chip[data-line-idx="${lIdx}"][data-syl-idx="${sIdx}"]`)
+        if (el) el.classList.remove('is-active-syllable')
+      }
+    }
+
+    // Añadir clase is-active-syllable a nuevas sílabas activas
+    for (const newKey of nextActiveSylKeys) {
+      if (!currentActiveSylKeys.has(newKey)) {
+        const [lIdx, sIdx] = newKey.split('-')
+        const el = containerElement.querySelector(`.syllable-edit-chip[data-line-idx="${lIdx}"][data-syl-idx="${sIdx}"]`)
+        if (el) el.classList.add('is-active-syllable')
+      }
+    }
+    currentActiveSylKeys = nextActiveSylKeys
+  }
+
   function render() {
     if (!containerElement || !currentSong) return
+
+    clearActiveElements()
 
     const previousScrollEl = containerElement.querySelector('.editor-content-scroll')
     const previousScrollTop = resetScrollOnNextRender ? 0 : (previousScrollEl ? previousScrollEl.scrollTop : 0)
@@ -1104,6 +1208,11 @@ export function createSongEditorView({
     }
 
     bindEvents()
+
+    const curTime = (mediaPlayer && typeof mediaPlayer.getCurrentTime === 'function')
+      ? Math.max(0, mediaPlayer.getCurrentTime())
+      : 0
+    updateActiveElements(curTime)
   }
 
   function bindEvents() {
@@ -1130,6 +1239,7 @@ export function createSongEditorView({
           document.removeEventListener('click', documentClickListener)
           documentClickListener = null
         }
+        clearActiveElements()
         if (onGoToMenu) onGoToMenu()
       })
     }
@@ -1357,6 +1467,11 @@ export function createSongEditorView({
         if (progressCurrent) {
           progressCurrent.textContent = formatTime(val)
         }
+        const clockEl = containerElement.querySelector('#assistant-clock-time')
+        if (clockEl) {
+          clockEl.textContent = formatTime(val, true)
+        }
+        updateActiveElements(val)
       })
 
       progressSlider.addEventListener('change', (e) => {
@@ -2381,6 +2496,7 @@ export function createSongEditorView({
         document.removeEventListener('click', documentClickListener)
         documentClickListener = null
       }
+      clearActiveElements()
       onEnterLyricsMode(savedId)
     }
 
@@ -2411,6 +2527,9 @@ export function createSongEditorView({
         progressDuration.textContent = formatTime(dur)
       }
     }
+
+    // Resaltado reactivo del verso y sílaba actual marcados por el asistente
+    updateActiveElements(Math.max(0, time))
   }
 
   function setPlayingState(playing) {
@@ -2440,6 +2559,7 @@ export function createSongEditorView({
         document.removeEventListener('click', documentClickListener)
         documentClickListener = null
       }
+      clearActiveElements()
     },
     clearStatus: () => {
       statusMessage = ''
