@@ -17,6 +17,16 @@ import {
 import { formatTime } from '../lyrics/timing.js'
 import { importUniversalFile } from '../services/shareService.js'
 import {
+  extractYouTubeVideoId,
+  extractYouTubePlaylistId,
+  extractVideoIdsFromText,
+  fetchYouTubeVideoMeta,
+  fetchYouTubePlaylistVideoIds,
+  fetchMultipleYouTubeVideosMeta,
+  buildSongPackageFromYouTubeMeta,
+  importYouTubeSongs
+} from '../services/youtubeImportService.js'
+import {
   iconSearch,
   iconClose,
   iconGlobe,
@@ -28,7 +38,10 @@ import {
   iconCheck,
   iconMic,
   iconChevronUp,
-  iconUpload
+  iconUpload,
+  iconYoutube,
+  iconSave,
+  iconEdit
 } from './icons.js'
 
 function escapeHtml(str) {
@@ -51,7 +64,7 @@ export function createOnlineLyricsModal({
   let isOpen = false
 
   // Estado de navegación
-  let activeProvider = 'all' // 'all' | 'betterlyrics' | 'genius' | 'lrclib'
+  let activeProvider = 'all' // 'all' | 'betterlyrics' | 'lrcred' | 'genius' | 'lrclib' | 'youtube'
   let blActiveMode = 'general' // 'general' | 'artist' | 'artist_song' | 'video'
   let subMode = 'general' // 'general' | 'artist_song' (para genius y lrclib)
 
@@ -64,6 +77,12 @@ export function createOnlineLyricsModal({
   let blStrictArtist = true
   let syncFilter = 'all' // 'all' | 'richsync' | 'linesync'
   let selectedTranslateLang = 'es'
+
+  // Estado de YouTube / Playlist
+  let ytInputUrl = ''
+  let ytProgressText = ''
+  let ytResults = []
+  let ytLibraryName = 'Playlist de YouTube'
 
   // Token de Genius
   let showGeniusTokenConfig = false
@@ -146,6 +165,7 @@ export function createOnlineLyricsModal({
       if (!containerElement) return
       let targetInput = null
       if (activeProvider === 'all') targetInput = containerElement.querySelector('#online-input-all')
+      else if (activeProvider === 'youtube') targetInput = containerElement.querySelector('#youtube-input-url')
       else if (activeProvider === 'betterlyrics') {
         if (blActiveMode === 'general') targetInput = containerElement.querySelector('#bl-input-general')
         else if (blActiveMode === 'artist') targetInput = containerElement.querySelector('#bl-input-artist')
@@ -199,6 +219,185 @@ export function createOnlineLyricsModal({
     // 4. Traducción
     const transEl = containerElement.querySelector('#online-select-translate')
     if (transEl) selectedTranslateLang = transEl.value
+
+    // 5. YouTube / Playlist
+    const ytUrlEl = containerElement.querySelector('#youtube-input-url')
+    if (ytUrlEl) ytInputUrl = ytUrlEl.value.trim()
+
+    const ytLibEl = containerElement.querySelector('#yt-library-name-input')
+    if (ytLibEl) ytLibraryName = ytLibEl.value.trim()
+
+    const ytTitleEl = containerElement.querySelector('#yt-edit-title')
+    if (ytTitleEl && ytResults.length === 1) ytResults[0].title = ytTitleEl.value.trim()
+
+    const ytArtistEl = containerElement.querySelector('#yt-edit-artist')
+    if (ytArtistEl && ytResults.length === 1) ytResults[0].artist = ytArtistEl.value.trim()
+  }
+
+  async function handleYouTubeExtract() {
+    readFormInputs()
+    if (!ytInputUrl) {
+      statusMessage = 'Ingresá un enlace de video, de playlist o varios enlaces de YouTube.'
+      statusType = 'error'
+      render()
+      return
+    }
+
+    isSearching = true
+    statusMessage = ''
+    ytProgressText = 'Analizando enlace...'
+    render()
+
+    try {
+      const playlistId = extractYouTubePlaylistId(ytInputUrl)
+      const isPurePlaylist = ytInputUrl.includes('playlist?list=') ||
+        (/^(?:PL|UU|LL|FL|RD|OLAK5uy_)[a-zA-Z0-9_-]+$/.test(ytInputUrl.trim()) && !ytInputUrl.includes('watch?v='))
+
+      if (playlistId && (isPurePlaylist || !extractYouTubeVideoId(ytInputUrl))) {
+        ytProgressText = 'Consultando canciones de la lista de YouTube...'
+        render()
+
+        const videoIds = await fetchYouTubePlaylistVideoIds(playlistId)
+        if (!videoIds || videoIds.length === 0) {
+          throw new Error('No se encontraron videos en la lista o la lista es privada.')
+        }
+
+        ytProgressText = `Obteniendo información de ${videoIds.length} canciones...`
+        render()
+
+        const metas = await fetchMultipleYouTubeVideosMeta(videoIds, {
+          onProgress: (done, total) => {
+            ytProgressText = `Obteniendo datos de canciones (${done} de ${total})...`
+            render()
+          }
+        })
+
+        ytResults = metas.map(m => ({ ...m, isSelected: true }))
+        statusMessage = `Se obtuvieron ${metas.length} canciones de la lista.`
+        statusType = 'success'
+      } else {
+        const multiIds = extractVideoIdsFromText(ytInputUrl)
+        if (multiIds.length > 1) {
+          ytProgressText = `Obteniendo información de ${multiIds.length} videos...`
+          render()
+
+          const metas = await fetchMultipleYouTubeVideosMeta(multiIds, {
+            onProgress: (done, total) => {
+              ytProgressText = `Obteniendo datos (${done} de ${total})...`
+              render()
+            }
+          })
+
+          ytResults = metas.map(m => ({ ...m, isSelected: true }))
+          statusMessage = `Se obtuvieron ${metas.length} canciones.`
+          statusType = 'success'
+        } else if (multiIds.length === 1) {
+          const videoId = multiIds[0]
+          ytProgressText = 'Obteniendo metadatos del video...'
+          render()
+
+          const meta = await fetchYouTubeVideoMeta(videoId)
+          ytResults = [{ ...meta, isSelected: true }]
+          statusMessage = 'Información del video obtenida con éxito.'
+          statusType = 'success'
+        } else if (playlistId) {
+          ytProgressText = 'Consultando canciones de la lista de YouTube...'
+          render()
+
+          const videoIds = await fetchYouTubePlaylistVideoIds(playlistId)
+          const metas = await fetchMultipleYouTubeVideosMeta(videoIds, {
+            onProgress: (done, total) => {
+              ytProgressText = `Obteniendo datos (${done} de ${total})...`
+              render()
+            }
+          })
+
+          ytResults = metas.map(m => ({ ...m, isSelected: true }))
+          statusMessage = `Se obtuvieron ${metas.length} canciones de la lista.`
+          statusType = 'success'
+        } else {
+          throw new Error('No se pudo reconocer un enlace válido de video o de playlist de YouTube / YouTube Music.')
+        }
+      }
+    } catch (err) {
+      console.error('Error al extraer de YouTube:', err)
+      statusMessage = err.message || 'Error al procesar el enlace de YouTube.'
+      statusType = 'error'
+    } finally {
+      isSearching = false
+      ytProgressText = ''
+      render()
+    }
+  }
+
+  async function handleYouTubeSingleLoadEditor() {
+    if (!ytResults || ytResults.length === 0) return
+    readFormInputs()
+    const item = ytResults[0]
+    const pkg = buildSongPackageFromYouTubeMeta(item)
+
+    close()
+    if (onSongReady) {
+      onSongReady(pkg, {
+        initialStatus: {
+          message: `Canción "${item.title}" cargada desde YouTube (sin letras). ¡Lista para reproducir o editar!`,
+          type: 'success'
+        },
+        sourceName: 'YouTube'
+      })
+    }
+  }
+
+  async function handleYouTubeSingleSaveCatalog() {
+    if (!ytResults || ytResults.length === 0) return
+    readFormInputs()
+    const item = ytResults[0]
+    isImporting = true
+    render()
+
+    try {
+      await importYouTubeSongs([item])
+      close()
+      if (onImportSuccess) {
+        onImportSuccess(`Canción "${item.title}" guardada exitosamente en el catálogo.`)
+      }
+    } catch (err) {
+      console.error('Error al guardar canción de YouTube en catálogo:', err)
+      statusMessage = 'Error al guardar canción: ' + err.message
+      statusType = 'error'
+      isImporting = false
+      render()
+    }
+  }
+
+  async function handleYouTubeBatchImport() {
+    readFormInputs()
+    const selected = ytResults.filter(r => r.isSelected)
+    if (selected.length === 0) {
+      statusMessage = 'Seleccioná al menos una canción para importar.'
+      statusType = 'error'
+      render()
+      return
+    }
+
+    isImporting = true
+    statusMessage = ''
+    render()
+
+    try {
+      const saved = await importYouTubeSongs(selected, { libraryName: ytLibraryName })
+      close()
+      if (onImportSuccess) {
+        const libMsg = ytLibraryName ? ` en la biblioteca "${ytLibraryName}"` : ''
+        onImportSuccess(`Se importaron ${saved.length} canciones desde YouTube${libMsg} sin letras.`)
+      }
+    } catch (err) {
+      console.error('Error al importar canciones de YouTube:', err)
+      statusMessage = 'Error al importar canciones: ' + err.message
+      statusType = 'error'
+      isImporting = false
+      render()
+    }
   }
 
   async function handleSearch() {
@@ -302,24 +501,80 @@ export function createOnlineLyricsModal({
     if (isImporting) return
     isImporting = true
     activeLoadingItemId = item.id
-    statusMessage = `Obteniendo letra desde ${item.sourceName || 'el proveedor'}...`
-    statusType = 'info'
-    render()
+
+    const translateTo = selectedTranslateLang !== 'none' ? selectedTranslateLang : null
+    const sourceName = item.sourceName || 'el proveedor'
+
+    const initialSong = {
+      title: item.song || '',
+      artist: item.artist || '',
+      metadata: {
+        title: item.song || '',
+        artist: item.artist || '',
+        album: item.album || '',
+        duration: item.duration || 0,
+        artwork: item.artwork || '',
+        source: item.sourceName || item.source || ''
+      },
+      videos: item.videoId ? [
+        {
+          id: `vid-${Date.now()}-0`,
+          name: 'Video Oficial',
+          url: `https://www.youtube.com/watch?v=${item.videoId}`,
+          offset: 0
+        }
+      ] : [],
+      lyrics_data: {
+        languages: [
+          {
+            code: 'es',
+            name: 'Principal',
+            isMain: true,
+            plain: '',
+            lines: []
+          }
+        ]
+      }
+    }
+
+    // Cerrar el modal inmediatamente para llevar al usuario al editor sin esperas
+    close()
+
+    let progressCallbacks = null
+
+    const loadPromise = buildSongPackageFromOnlineResult(item, {
+      translateTo,
+      onProgress: (msg) => {
+        if (progressCallbacks?.onProgress) {
+          progressCallbacks.onProgress(msg)
+        }
+      },
+      onLyricsReady: (basePkg) => {
+        if (progressCallbacks?.onLyricsReady) {
+          progressCallbacks.onLyricsReady(basePkg)
+        }
+      }
+    })
+
+    if (onSongReady) {
+      onSongReady(initialSong, {
+        loadPromise,
+        initialStatus: {
+          message: `Obteniendo letra desde ${sourceName}...`,
+          type: 'info'
+        },
+        sourceName,
+        translateTo,
+        registerProgressCallbacks: (cbs) => {
+          progressCallbacks = cbs
+        }
+      })
+    }
 
     try {
-      const translateTo = selectedTranslateLang !== 'none' ? selectedTranslateLang : null
-      const songPackage = await buildSongPackageFromOnlineResult(item, { translateTo })
-
-      close()
-
-      if (onSongReady) {
-        onSongReady(songPackage)
-      }
+      await loadPromise
     } catch (err) {
       console.error('Error al procesar letra seleccionada:', err)
-      statusMessage = 'No se pudo cargar la letra: ' + (err.message || err)
-      statusType = 'error'
-      render()
     } finally {
       isImporting = false
       activeLoadingItemId = null
@@ -355,6 +610,7 @@ export function createOnlineLyricsModal({
       else if (p.id === 'lrcred') icon = iconMic
       else if (p.id === 'genius') icon = iconMusicNote
       else if (p.id === 'lrclib') icon = iconFileText
+      else if (p.id === 'youtube') icon = iconYoutube
 
       return `
         <button
@@ -739,11 +995,130 @@ export function createOnlineLyricsModal({
           </div>
         </div>
       `
+    } else if (activeProvider === 'youtube') {
+      searchFormHtml = `
+        <div class="online-inputs-container youtube-inputs-container">
+          <div class="input-with-label">
+            <label for="youtube-input-url" class="field-sublabel">Enlace de Video o Lista de Reproducción de YouTube / YouTube Music:</label>
+            <textarea
+              id="youtube-input-url"
+              class="form-input youtube-url-input"
+              rows="2"
+              placeholder="Pegá un enlace de video, shorts o playlist."
+            >${escapeHtml(ytInputUrl)}</textarea>
+          </div>
+          <div class="youtube-controls-bar">
+            <p class="search-hint-text">
+              Soporta videos o playlists de YouTube y YouTube Music, o listas de URLs (una por línea).
+            </p>
+            <button type="button" class="btn btn-primary" id="btn-do-youtube-extract" ${isSearching ? 'disabled' : ''}>
+              ${isSearching ? (ytProgressText || 'Extrayendo...') : `${iconYoutube} Extraer de YouTube`}
+            </button>
+          </div>
+        </div>
+      `
     }
 
     // 3. Resultados de Búsqueda
     let resultsListHtml = ''
-    if (searchResults.length > 0) {
+    if (activeProvider === 'youtube') {
+      if (ytResults.length === 1) {
+        const item = ytResults[0]
+        resultsListHtml = `
+          <div class="youtube-single-preview">
+            <div class="youtube-preview-card">
+              <div class="youtube-card-media">
+                <img src="${escapeHtml(item.thumbnail)}" class="youtube-preview-img" alt="Thumbnail" />
+              </div>
+              <div class="youtube-card-fields">
+                <div class="input-with-label">
+                  <label class="field-sublabel" for="yt-edit-title">Título de la Canción:</label>
+                  <input type="text" id="yt-edit-title" class="form-input form-input-sm" value="${escapeHtml(item.title)}" />
+                </div>
+                <div class="input-with-label">
+                  <label class="field-sublabel" for="yt-edit-artist">Artista o Banda:</label>
+                  <input type="text" id="yt-edit-artist" class="form-input form-input-sm" value="${escapeHtml(item.artist)}" />
+                </div>
+                <div class="youtube-meta-url">
+                  <span class="source-badge badge-source-youtube">${iconYoutube} YouTube</span>
+                  <a href="${escapeHtml(item.videoUrl)}" target="_blank" rel="noopener noreferrer" class="youtube-url-link">${escapeHtml(item.videoUrl)}</a>
+                </div>
+              </div>
+            </div>
+            <div class="youtube-single-actions">
+              <button type="button" class="btn btn-primary" id="btn-yt-load-editor" ${isImporting ? 'disabled' : ''}>
+                ${iconEdit} Cargar en Editor
+              </button>
+              <button type="button" class="btn btn-outline" id="btn-yt-save-catalog" ${isImporting ? 'disabled' : ''}>
+                ${iconSave} Guardar en Catálogo (sin letras)
+              </button>
+            </div>
+          </div>
+        `
+      } else if (ytResults.length > 1) {
+        const selectedCount = ytResults.filter(r => r.isSelected).length
+        resultsListHtml = `
+          <div class="youtube-batch-container">
+            <div class="youtube-batch-header">
+              <div class="youtube-batch-title-row">
+                <h4 class="youtube-batch-count">
+                  ${iconYoutube} Se encontraron ${ytResults.length} canciones
+                </h4>
+                <div class="youtube-batch-toggles">
+                  <button type="button" class="btn btn-xs btn-outline" id="btn-yt-select-all">Seleccionar todas</button>
+                  <button type="button" class="btn btn-xs btn-outline" id="btn-yt-deselect-all">Deseleccionar todas</button>
+                </div>
+              </div>
+              <div class="youtube-library-input-row">
+                <label for="yt-library-name-input" class="field-sublabel">Asignar a Biblioteca (opcional):</label>
+                <input
+                  type="text"
+                  id="yt-library-name-input"
+                  class="form-input form-input-sm"
+                  placeholder="ej. Playlist de YouTube"
+                  value="${escapeHtml(ytLibraryName)}"
+                />
+              </div>
+            </div>
+
+            <div class="youtube-batch-list">
+              ${ytResults.map((item, idx) => `
+                <div class="youtube-batch-item ${item.isSelected ? 'is-selected' : ''}" data-idx="${idx}">
+                  <label class="youtube-item-checkbox-label">
+                    <input type="checkbox" class="youtube-item-check" data-idx="${idx}" ${item.isSelected ? 'checked' : ''} />
+                  </label>
+                  <img src="${escapeHtml(item.thumbnail)}" class="youtube-item-thumb" alt="Thumb" loading="lazy" />
+                  <div class="youtube-item-info">
+                    <div class="youtube-item-title">${escapeHtml(item.title)}</div>
+                    <div class="youtube-item-artist">${escapeHtml(item.artist)}</div>
+                  </div>
+                  <span class="youtube-item-index">#${idx + 1}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="youtube-batch-footer">
+              <button
+                type="button"
+                class="btn btn-primary btn-block btn-lg"
+                id="btn-yt-import-batch"
+                ${selectedCount === 0 || isImporting ? 'disabled' : ''}
+              >
+                ${isImporting ? 'Importando canciones...' : `${iconPlus} Importar ${selectedCount} canciones a SarangaBaranga`}
+              </button>
+            </div>
+          </div>
+        `
+      } else if (!isSearching) {
+        resultsListHtml = `
+          <div class="bl-empty-results youtube-empty-state">
+            <div class="empty-icon" style="font-size: 2rem; color: #ef4444; margin-bottom: 8px;">${iconYoutube}</div>
+            <h4>Importá desde YouTube o YouTube Music</h4>
+            <p>Pegá la dirección web de un video o de una playlist para crear las canciones sin letras al instante.</p>
+          </div>
+        `
+      }
+    } else if (searchResults.length > 0) {
       resultsListHtml = searchResults.map(item => {
         const isThisLoading = isImporting && activeLoadingItemId === item.id
         const durationText = item.duration > 0 ? formatTime(item.duration) : ''
@@ -843,22 +1218,30 @@ export function createOnlineLyricsModal({
           ${searchFormHtml}
 
           <!-- Barra de Opciones de Traducción -->
-          <div class="online-options-bar">
-            <div class="option-field">
-              <label for="online-select-translate" class="field-sublabel">Traducir automáticamente a:</label>
-              <select id="online-select-translate" class="form-select select-sm">
-                <option value="es" ${selectedTranslateLang === 'es' ? 'selected' : ''}>Español (es)</option>
-                <option value="en" ${selectedTranslateLang === 'en' ? 'selected' : ''}>English (en)</option>
-                <option value="ja" ${selectedTranslateLang === 'ja' ? 'selected' : ''}>日本語 (ja)</option>
-                <option value="pt" ${selectedTranslateLang === 'pt' ? 'selected' : ''}>Português (pt)</option>
-                <option value="fr" ${selectedTranslateLang === 'fr' ? 'selected' : ''}>Français (fr)</option>
-                <option value="none" ${selectedTranslateLang === 'none' ? 'selected' : ''}>(Sin traducción)</option>
-              </select>
+          ${activeProvider === 'youtube' ? `
+            <div class="online-options-bar youtube-options-bar">
+              <span class="youtube-options-tag">
+                ${iconYoutube} Extracción de metadatos (sin letras) • Podés reproducir de inmediato o agregar letras más adelante
+              </span>
             </div>
-            ${lastSearchSummary ? `
-              <span class="online-search-summary-tag">${escapeHtml(lastSearchSummary)}</span>
-            ` : ''}
-          </div>
+          ` : `
+            <div class="online-options-bar">
+              <div class="option-field">
+                <label for="online-select-translate" class="field-sublabel">Traducir automáticamente a:</label>
+                <select id="online-select-translate" class="form-select select-sm">
+                  <option value="es" ${selectedTranslateLang === 'es' ? 'selected' : ''}>Español (es)</option>
+                  <option value="en" ${selectedTranslateLang === 'en' ? 'selected' : ''}>English (en)</option>
+                  <option value="ja" ${selectedTranslateLang === 'ja' ? 'selected' : ''}>日本語 (ja)</option>
+                  <option value="pt" ${selectedTranslateLang === 'pt' ? 'selected' : ''}>Português (pt)</option>
+                  <option value="fr" ${selectedTranslateLang === 'fr' ? 'selected' : ''}>Français (fr)</option>
+                  <option value="none" ${selectedTranslateLang === 'none' ? 'selected' : ''}>(Sin traducción)</option>
+                </select>
+              </div>
+              ${lastSearchSummary ? `
+                <span class="online-search-summary-tag">${escapeHtml(lastSearchSummary)}</span>
+              ` : ''}
+            </div>
+          `}
 
           <!-- Alerta de Estado -->
           ${statusMessage ? `
@@ -1062,9 +1445,71 @@ export function createOnlineLyricsModal({
       })
     }
 
-    // Botón de búsqueda
+    // Botón de búsqueda de letras
     const searchBtn = containerElement.querySelector('#btn-do-online-search')
     if (searchBtn) searchBtn.addEventListener('click', handleSearch)
+
+    // Botón de extracción de YouTube
+    const ytExtractBtn = containerElement.querySelector('#btn-do-youtube-extract')
+    if (ytExtractBtn) ytExtractBtn.addEventListener('click', handleYouTubeExtract)
+
+    // Atajo Ctrl+Enter / Cmd+Enter en el área de URL de YouTube
+    const ytTextarea = containerElement.querySelector('#youtube-input-url')
+    if (ytTextarea) {
+      ytTextarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault()
+          handleYouTubeExtract()
+        }
+      })
+    }
+
+    // Acciones de video individual de YouTube
+    const ytLoadEditorBtn = containerElement.querySelector('#btn-yt-load-editor')
+    if (ytLoadEditorBtn) ytLoadEditorBtn.addEventListener('click', handleYouTubeSingleLoadEditor)
+
+    const ytSaveCatalogBtn = containerElement.querySelector('#btn-yt-save-catalog')
+    if (ytSaveCatalogBtn) ytSaveCatalogBtn.addEventListener('click', handleYouTubeSingleSaveCatalog)
+
+    // Acciones de playlist / batch de YouTube
+    const ytSelectAllBtn = containerElement.querySelector('#btn-yt-select-all')
+    if (ytSelectAllBtn) {
+      ytSelectAllBtn.addEventListener('click', () => {
+        ytResults.forEach(r => { r.isSelected = true })
+        render()
+      })
+    }
+
+    const ytDeselectAllBtn = containerElement.querySelector('#btn-yt-deselect-all')
+    if (ytDeselectAllBtn) {
+      ytDeselectAllBtn.addEventListener('click', () => {
+        ytResults.forEach(r => { r.isSelected = false })
+        render()
+      })
+    }
+
+    const ytChecks = containerElement.querySelectorAll('.youtube-item-check')
+    ytChecks.forEach(chk => {
+      chk.addEventListener('change', () => {
+        const idx = Number(chk.dataset.idx)
+        if (!isNaN(idx) && ytResults[idx]) {
+          ytResults[idx].isSelected = chk.checked
+          const itemEl = containerElement.querySelector(`.youtube-batch-item[data-idx="${idx}"]`)
+          if (itemEl) {
+            itemEl.classList.toggle('is-selected', chk.checked)
+          }
+          const batchBtn = containerElement.querySelector('#btn-yt-import-batch')
+          const selCount = ytResults.filter(r => r.isSelected).length
+          if (batchBtn) {
+            batchBtn.disabled = selCount === 0 || isImporting
+            batchBtn.innerHTML = isImporting ? 'Importando canciones...' : `${iconPlus} Importar ${selCount} canciones a SarangaBaranga`
+          }
+        }
+      })
+    })
+
+    const ytImportBatchBtn = containerElement.querySelector('#btn-yt-import-batch')
+    if (ytImportBatchBtn) ytImportBatchBtn.addEventListener('click', handleYouTubeBatchImport)
 
     // Tecla Enter en inputs
     const inputs = containerElement.querySelectorAll('.search-main-input, .bl-dual-inputs-grid input')

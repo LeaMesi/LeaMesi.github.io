@@ -64,6 +64,17 @@
 - [x] **20.6. Botón de Cierre "X" en Alertas del Editor y Limpieza al Navegar:**
   - Botón de descarte "X" (`#btn-close-editor-alert` / `.btn-close-alert`) para cerrar manualmente cualquier aviso de confirmación, guardado o exportación en el editor.
   - Método `clearStatus()` expuesto en la API del editor y auto-cierre automático al salir o cambiar de pantalla en `main.js`.
+- [x] **20.7. Reorganización Ergonómica del Asistente de Audio Superior:**
+  - Menú vertical emergente de volumen activado por icono de parlante (`iconVolume` / `iconVolumeMute`) con slider vertical y porcentaje, con cierre automático al hacer clic en cualquier otro lado (`documentClickListener`).
+  - Barra de progreso interactiva con tiempo actual y duración total de la canción (`00:00 / 03:45`), sincronizada con el Master Clock en tiempo real y con capacidad de búsqueda (*seek*) interactiva al arrastrar.
+  - Ubicación ergonómica: volumen y barra de progreso a la izquierda de los botones de transporte y reloj, y texto de estado de guardado automático ("Guardando..." / "Guardado") fijado y pegado al extremo derecho (`margin-left: auto`).
+- [x] **20.8. Resaltado Reactivo de Verso y Sílaba Activa en el Editor:**
+  - Detección en tiempo real de la posición de reproducción del asistente de audio (`updateClock` y scrubbing en barra de progreso).
+  - Resaltado del contenedor de la tarjeta del verso activo (`.phrase-editor-card.is-active-phrase`) con borde distintivo y resplandor adaptados al color de la sílaba activa del tema visual configurado (`var(--lyrics-active-color)`), incluyendo badge `#` resaltado.
+  - Resaltado en tiempo real del contenedor de la sílaba activa (`.syllable-edit-chip.is-active-syllable`) dentro del panel de sílabas expandido, cambiando el borde del chip al color de sílaba activa del tema (`var(--lyrics-active-color)`), con resplandor glow y badge `#` destacado.
+- [x] **20.9. Carga Perezosa (Lazy Loading) y Reducción de Consumo de RAM en Móviles:**
+  - Desacoplamiento de `songEditorView.js` del bundle principal inicial mediante importación dinámica `await import('./views/songEditorView.js')` dentro de `getSongEditorView()`, separándolo en un chunk asíncrono independiente.
+  - El módulo del editor (~2.500 líneas) no se descarga, no se parsea ni se aloja en la memoria RAM en el arranque de la aplicación, manteniéndose completamente descargado mientras el usuario escucha música o lee letras en su dispositivo móvil.
 
 ---
 

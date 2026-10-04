@@ -308,5 +308,37 @@ describe('services/playlistService.js', () => {
     // Si ya existe, setCurrentSongById funciona sólo con el ID
     expect(playlist.setCurrentSongById(50)).toBe(true)
   })
+
+  it('quita canciones por ID mediante removeSongById y actualiza el estado y puntero actual', () => {
+    const playlist = createPlaylistService({ storageKey: 'test_remove_by_id' })
+    const song1 = { id: 1, title: 'Tema 1', artist: 'Artista 1' }
+    const song2 = { id: 2, title: 'Tema 2', artist: 'Artista 2' }
+    const song3 = { id: 3, title: 'Tema 3', artist: 'Artista 3' }
+
+    playlist.addSong(song1)
+    playlist.addSong(song2)
+    playlist.addSong(song3)
+
+    expect(playlist.getState().count).toBe(3)
+    expect(playlist.getCurrentSong().id).toBe(1)
+
+    // Quitar la canción que está sonando (Tema 1)
+    expect(playlist.removeSongById(1)).toBe(true)
+    expect(playlist.getState().count).toBe(2)
+    // El puntero debe avanzar a la siguiente (Tema 2)
+    expect(playlist.getCurrentSong().id).toBe(2)
+
+    // Quitar una canción inexistente
+    expect(playlist.removeSongById(999)).toBe(false)
+    expect(playlist.getState().count).toBe(2)
+
+    // Quitar las canciones restantes
+    expect(playlist.removeSongById(2)).toBe(true)
+    expect(playlist.removeSongById(3)).toBe(true)
+    expect(playlist.getState().count).toBe(0)
+    expect(playlist.getCurrentSong()).toBeNull()
+    expect(playlist.getCurrentIndex()).toBe(-1)
+  })
 })
+
 

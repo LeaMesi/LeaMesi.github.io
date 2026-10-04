@@ -217,9 +217,9 @@ describe('services/onlineLyricsService.js y proveedores', () => {
   })
 
   describe('onlineLyricsService - orquestador', () => {
-    it('expone los proveedores configurados incluyendo LRC.red', () => {
-      expect(ONLINE_PROVIDERS.length).toBe(5)
-      expect(ONLINE_PROVIDERS.map(p => p.id)).toEqual(['all', 'betterlyrics', 'lrcred', 'genius', 'lrclib'])
+    it('expone los proveedores configurados incluyendo LRC.red y YouTube', () => {
+      expect(ONLINE_PROVIDERS.length).toBe(6)
+      expect(ONLINE_PROVIDERS.map(p => p.id)).toEqual(['all', 'betterlyrics', 'lrcred', 'genius', 'lrclib', 'youtube'])
     })
 
     it('limita a un máximo de 6 resultados por fuente en la búsqueda general (modo all)', async () => {

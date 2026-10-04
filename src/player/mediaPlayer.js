@@ -46,7 +46,7 @@ export function extractYouTubeVideoId(url) {
 }
 
 let ytApiPromise = null
-function loadYouTubeApi() {
+export function loadYouTubeApi() {
   if (window.YT && window.YT.Player) {
     return Promise.resolve(window.YT)
   }
@@ -341,6 +341,35 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     if (onStateChange) onStateChange(PLAYER_STATE.PAUSED)
   }
 
+  function stop() {
+    isPlaying = false
+    stopClock()
+    if (activeSource === 'youtube' && ytPlayer) {
+      try {
+        if (ytPlayer.stopVideo) ytPlayer.stopVideo()
+        else if (ytPlayer.pauseVideo) ytPlayer.pauseVideo()
+      } catch (_) {}
+    } else if (activeSource === 'audio' && audioElement) {
+      try {
+        audioElement.pause()
+        audioElement.currentTime = 0
+        audioElement.removeAttribute('src')
+        audioElement.load()
+      } catch (_) {}
+    } else if (activeSource === 'virtual') {
+      if (fallbackTimer) clearInterval(fallbackTimer)
+      fallbackTime = 0
+    }
+    activeSource = 'none'
+    currentSong = null
+    currentVideos = []
+    activeVideo = null
+    activeVideoId = null
+    lastKnownDuration = 0
+    if (onTimeUpdate) onTimeUpdate(0, 0)
+    if (onStateChange) onStateChange(PLAYER_STATE.PAUSED)
+  }
+
   function togglePlay() {
     if (isPlaying) {
       pause()
@@ -400,6 +429,9 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
   }
 
   function getDuration() {
+    if (activeSource === 'none') {
+      return 0
+    }
     if (activeSource === 'youtube' && ytPlayer && ytPlayer.getDuration) {
       const dur = ytPlayer.getDuration()
       if (dur > 0) return dur
@@ -454,6 +486,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     loadSong,
     play,
     pause,
+    stop,
     togglePlay,
     seek,
     seekLyricsTime,

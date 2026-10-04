@@ -123,6 +123,91 @@ describe('views/songEditorView.js', () => {
     expect(container.querySelector('#btn-save-song')).toBeNull()
   })
 
+  it('renderiza la barra de progreso, el parlante a la izquierda de los botones y el estado de guardado a la derecha', () => {
+    const mockMediaPlayer = {
+      getCurrentTime: () => 10,
+      getDuration: () => 180,
+      getVolume: () => 80,
+      getIsPlaying: () => false,
+      setVolume: vi.fn(),
+      seek: vi.fn()
+    }
+    const editor = createSongEditorView({ containerElement: container, mediaPlayer: mockMediaPlayer })
+    editor.open(sampleSong)
+
+    const leftGroup = container.querySelector('.assistant-left-group')
+    expect(leftGroup).not.toBeNull()
+    expect(leftGroup.querySelector('#btn-editor-volume')).not.toBeNull()
+    expect(leftGroup.querySelector('#editor-volume-popover')).not.toBeNull()
+    expect(leftGroup.querySelector('#editor-progress-slider')).not.toBeNull()
+    expect(leftGroup.querySelector('#editor-progress-current')).not.toBeNull()
+    expect(leftGroup.querySelector('#editor-progress-duration')).not.toBeNull()
+
+    const rightGroup = container.querySelector('.assistant-right-group')
+    expect(rightGroup).not.toBeNull()
+    const badge = rightGroup.querySelector('#editor-autosave-badge')
+    expect(badge).not.toBeNull()
+    expect(badge.textContent).toContain('Guardado')
+  })
+
+  it('despliega el menú vertical de volumen al hacer clic en el parlante y lo cierra al hacer clic afuera', () => {
+    const mockMediaPlayer = {
+      getCurrentTime: () => 0,
+      getDuration: () => 100,
+      getVolume: () => 75,
+      getIsPlaying: () => false,
+      setVolume: vi.fn(),
+      seek: vi.fn()
+    }
+    const editor = createSongEditorView({ containerElement: container, mediaPlayer: mockMediaPlayer })
+    editor.open(sampleSong)
+
+    const volumeBtn = container.querySelector('#btn-editor-volume')
+    const popover = container.querySelector('#editor-volume-popover')
+    expect(popover.classList.contains('is-open')).toBe(false)
+
+    // Clic en el parlante abre el menú vertical
+    volumeBtn.click()
+    expect(popover.classList.contains('is-open')).toBe(true)
+
+    // Clic afuera del contenedor cierra el menú
+    document.body.click()
+    expect(popover.classList.contains('is-open')).toBe(false)
+  })
+
+  it('permite cambiar el volumen con el slider vertical y buscar posición en la barra de progreso', () => {
+    const setVolumeSpy = vi.fn()
+    const seekSpy = vi.fn()
+    const mockMediaPlayer = {
+      getCurrentTime: () => 5,
+      getDuration: () => 120,
+      getVolume: () => 50,
+      getIsPlaying: () => false,
+      setVolume: setVolumeSpy,
+      seek: seekSpy
+    }
+    const editor = createSongEditorView({ containerElement: container, mediaPlayer: mockMediaPlayer })
+    editor.open(sampleSong)
+
+    // Ajustar volumen
+    const volumeSlider = container.querySelector('#editor-volume-slider')
+    volumeSlider.value = '90'
+    volumeSlider.dispatchEvent(new Event('input'))
+    expect(setVolumeSpy).toHaveBeenCalledWith(90)
+    expect(container.querySelector('#editor-volume-percent').textContent).toBe('90%')
+
+    // Buscar en la barra de progreso
+    const progressSlider = container.querySelector('#editor-progress-slider')
+    progressSlider.value = '45'
+    progressSlider.dispatchEvent(new Event('change'))
+    expect(seekSpy).toHaveBeenCalledWith(45)
+
+    // updateClock sincroniza el tiempo y el slider si el usuario no está arrastrando
+    editor.updateClock(60)
+    expect(container.querySelector('#editor-progress-current').textContent).toBe('01:00')
+    expect(progressSlider.value).toBe('60')
+  })
+
   describe('Guía de referencia de frase original al traducir', () => {
     const bilingualSong = {
       id: 10,
@@ -697,6 +782,66 @@ describe('views/songEditorView.js', () => {
       expect(container.querySelector('.status-alert')).not.toBeNull()
       editor.clearStatus()
       expect(container.querySelector('.status-alert')).toBeNull()
+    })
+  })
+
+  describe('Resaltado reactivo de verso y sílaba activa en el editor', () => {
+    it('resalta el contenedor del verso y la sílaba actual según el tiempo del asistente', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const line0 = container.querySelector('.phrase-editor-card[data-line-idx="0"]')
+      expect(line0).not.toBeNull()
+      expect(line0.classList.contains('is-active-phrase')).toBe(false)
+
+      // A 2.5s: cae dentro del verso 0 (2.0s - 5.0s) y en la sílaba 0 "Fra" (2.0s - 3.5s)
+      editor.updateClock(2.5)
+
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+      const syl0 = container.querySelector('.syllable-edit-chip[data-line-idx="0"][data-syl-idx="0"]')
+      const syl1 = container.querySelector('.syllable-edit-chip[data-line-idx="0"][data-syl-idx="1"]')
+      expect(syl0).not.toBeNull()
+      expect(syl1).not.toBeNull()
+      expect(syl0.classList.contains('is-active-syllable')).toBe(true)
+      expect(syl1.classList.contains('is-active-syllable')).toBe(false)
+
+      // A 3.8s: cambia a la sílaba 1 "se" (3.5s - 5.0s) manteniendo el verso 0 activo
+      editor.updateClock(3.8)
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(false)
+      expect(syl1.classList.contains('is-active-syllable')).toBe(true)
+
+      // A 6.0s: fuera del verso 0 (termina a 5.0s)
+      editor.updateClock(6.0)
+      expect(line0.classList.contains('is-active-phrase')).toBe(false)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(false)
+      expect(syl1.classList.contains('is-active-syllable')).toBe(false)
+    })
+
+    it('actualiza el verso y sílaba activa al deslizar la barra de progreso del asistente', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const progressSlider = container.querySelector('#editor-progress-slider')
+      expect(progressSlider).not.toBeNull()
+
+      const line0 = container.querySelector('.phrase-editor-card[data-line-idx="0"]')
+      const syl0 = container.querySelector('.syllable-edit-chip[data-line-idx="0"][data-syl-idx="0"]')
+
+      // Deslizar al segundo 2.2 con rango configurado
+      progressSlider.max = '10'
+      progressSlider.value = '2.2'
+      progressSlider.dispatchEvent(new Event('input'))
+
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(true)
+
+      // Deslizar a silencio / antes del inicio (0.5s)
+      progressSlider.value = '0.5'
+      progressSlider.dispatchEvent(new Event('input'))
+
+      expect(line0.classList.contains('is-active-phrase')).toBe(false)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(false)
     })
   })
 })

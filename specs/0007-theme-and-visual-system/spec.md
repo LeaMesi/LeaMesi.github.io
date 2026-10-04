@@ -7,7 +7,7 @@
 
 ## 1. Principios de Diseño Visual y Bajo Ruido
 1. **Erradicación de Emojis en la UI:** Cero emojis en la interfaz de usuario. Los elementos gráficos se limitan exclusivamente a zonas funcionales interactivas mediante iconos vectoriales SVG limpios (`stroke="currentColor"`).
-2. **Biblioteca Centralizada de Iconos (`src/views/icons.js`):** Iconos vectoriales inline geométricos, accesibles y adaptables al color del contexto sin requerir fuentes externas ni dependencias pesadas.
+2. **Biblioteca Centralizada de Iconos (`src/views/icons.js`):** Iconos vectoriales inline geométricos, accesibles y adaptables al color del contexto sin requerir fuentes pesadas. Para acciones musicales clave como el acceso a Modo Letra, se incorpora un glifo de micrófono de alta precisión (`iconMic` con `viewBox: "0 0 340 340"`) y se enlaza la hoja de estilos de Font Awesome 6.5.2 en `index.html`.
 
 ---
 

@@ -20,7 +20,9 @@ import {
   iconDownload,
   iconSparkles,
   iconGlobe,
-  iconEye
+  iconEye,
+  iconVolume,
+  iconVolumeMute
 } from './icons.js'
 import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 import { translatePhrase, translateLines } from '../services/translationService.js'
@@ -50,6 +52,14 @@ export function createSongEditorView({
   let isSaving = false
   let pendingSave = false
   let resetScrollOnNextRender = false
+  let loadSessionCounter = 0
+  let isSongLoadingOnline = false
+  let onlineSourceName = ''
+  let isUserSeeking = false
+  let isVolumeMenuOpen = false
+  let documentClickListener = null
+  let currentActiveLineIndices = new Set()
+  let currentActiveSylKeys = new Set()
 
   try {
     const savedRefMode = localStorage.getItem(STORAGE_KEY_REF_MODE)
@@ -100,67 +110,152 @@ export function createSongEditorView({
     }
   }
 
-  function open(songToEdit = null) {
-    if (songToEdit) {
-      // Clonar profundamente para no alterar el objeto original hasta guardar
-      currentSong = JSON.parse(JSON.stringify(songToEdit))
+  function unpackSong(songToEdit) {
+    if (!songToEdit) return getBlankSongTemplate()
+    const song = JSON.parse(JSON.stringify(songToEdit))
 
-      // Desempaquetar si viene en formato package { metadata, basic, advanced }
-      if (currentSong.metadata) {
-        if (!currentSong.title && currentSong.metadata.title) currentSong.title = currentSong.metadata.title
-        if (!currentSong.artist && currentSong.metadata.artist) currentSong.artist = currentSong.metadata.artist
-        if ((!currentSong.videos || currentSong.videos.length === 0) && currentSong.metadata.videos) {
-          currentSong.videos = currentSong.metadata.videos
-        }
-        if ((!currentSong.genres || currentSong.genres.length === 0) && currentSong.metadata.genres) {
-          currentSong.genres = currentSong.metadata.genres
-        }
-        if ((!currentSong.tags || currentSong.tags.length === 0) && currentSong.metadata.tags) {
-          currentSong.tags = currentSong.metadata.tags
-        }
-        if (!currentSong.audio_path && currentSong.metadata.audioPath) {
-          currentSong.audio_path = currentSong.metadata.audioPath
-        }
+    // Desempaquetar si viene en formato package { metadata, basic, advanced }
+    if (song.metadata) {
+      if (!song.title && song.metadata.title) song.title = song.metadata.title
+      if (!song.artist && song.metadata.artist) song.artist = song.metadata.artist
+      if ((!song.videos || song.videos.length === 0) && song.metadata.videos) {
+        song.videos = song.metadata.videos
       }
+      if ((!song.genres || song.genres.length === 0) && song.metadata.genres) {
+        song.genres = song.metadata.genres
+      }
+      if ((!song.tags || song.tags.length === 0) && song.metadata.tags) {
+        song.tags = song.metadata.tags
+      }
+      if (!song.audio_path && song.metadata.audioPath) {
+        song.audio_path = song.metadata.audioPath
+      }
+    }
 
-      if (!currentSong.lyrics_data) {
-        currentSong.lyrics_data = currentSong.basic || {}
-      }
+    if (!song.lyrics_data) {
+      song.lyrics_data = song.basic || {}
+    }
 
-      // Normalizar estructura
-      if (!Array.isArray(currentSong.lyrics_data.languages) || currentSong.lyrics_data.languages.length === 0) {
-        if (currentSong.basic && Array.isArray(currentSong.basic.languages) && currentSong.basic.languages.length > 0) {
-          currentSong.lyrics_data.languages = currentSong.basic.languages
-        } else {
-          currentSong.lyrics_data.languages = [
-            {
-              code: 'es',
-              name: 'Español (Original)',
-              isMain: true,
-              plain: currentSong.lyrics_data.plain || '',
-              lines: currentSong.lyrics_data.lines || []
-            }
-          ]
-        }
-      }
-      if (!Array.isArray(currentSong.videos) || currentSong.videos.length === 0) {
-        currentSong.videos = [
+    // Normalizar estructura
+    if (!Array.isArray(song.lyrics_data.languages) || song.lyrics_data.languages.length === 0) {
+      if (song.basic && Array.isArray(song.basic.languages) && song.basic.languages.length > 0) {
+        song.lyrics_data.languages = song.basic.languages
+      } else {
+        song.lyrics_data.languages = [
           {
-            id: `vid-${Date.now()}-0`,
-            name: 'Video Oficial',
-            url: currentSong.metadata?.youtubeUrlFull || currentSong.lyrics_data.youtube?.full || '',
-            offset: 0
+            code: 'es',
+            name: 'Español (Original)',
+            isMain: true,
+            plain: song.lyrics_data.plain || '',
+            lines: song.lyrics_data.lines || []
           }
         ]
       }
+    }
+    if (!Array.isArray(song.videos) || song.videos.length === 0) {
+      song.videos = [
+        {
+          id: `vid-${Date.now()}-0`,
+          name: 'Video Oficial',
+          url: song.metadata?.youtubeUrlFull || song.lyrics_data.youtube?.full || '',
+          offset: 0
+        }
+      ]
+    }
+
+    return song
+  }
+
+  function applyLoadedData(newPackage, msg, type) {
+    if (!newPackage || !currentSong) return
+
+    const titleInput = containerElement?.querySelector('#editor-title-input')
+    const artistInput = containerElement?.querySelector('#editor-artist-input')
+    const userTitle = titleInput ? titleInput.value.trim() : null
+    const userArtist = artistInput ? artistInput.value.trim() : null
+
+    const unpacked = unpackSong(newPackage)
+
+    if (userTitle && userTitle !== currentSong.title) {
+      unpacked.title = userTitle
+    }
+    if (userArtist && userArtist !== currentSong.artist) {
+      unpacked.artist = userArtist
+    }
+
+    currentSong = unpacked
+    if (activeLangIndex >= currentSong.lyrics_data.languages.length) {
+      activeLangIndex = 0
+    }
+
+    statusMessage = msg || ''
+    statusType = type || 'info'
+    isSongLoadingOnline = false
+
+    const firstVideo = currentSong.videos?.find(v => v.url)
+    if (firstVideo && mediaPlayer) {
+      mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
+    }
+
+    render()
+    triggerImmediateAutoSave()
+  }
+
+  function setupBackgroundLoading(loadOptions, session) {
+    const { loadPromise, sourceName, translateTo, registerProgressCallbacks } = loadOptions
+
+    if (registerProgressCallbacks) {
+      registerProgressCallbacks({
+        onProgress: (msg) => {
+          if (session !== loadSessionCounter) return
+          statusMessage = msg
+          statusType = 'info'
+          render()
+        },
+        onLyricsReady: (basePkg) => {
+          if (session !== loadSessionCounter) return
+          isSongLoadingOnline = false
+          const msg = translateTo && translateTo !== 'none'
+            ? `Letra obtenida desde ${sourceName || 'el proveedor'}. Traduciendo frases a ${translateTo}...`
+            : `¡Letra cargada con éxito desde ${sourceName || 'el proveedor'}!`
+          applyLoadedData(basePkg, msg, 'info')
+        }
+      })
+    }
+
+    if (loadPromise) {
+      loadPromise
+        .then((fullPackage) => {
+          if (session !== loadSessionCounter) return
+          isSongLoadingOnline = false
+          applyLoadedData(fullPackage, `¡Letra cargada y lista${sourceName ? ` desde ${sourceName}` : ''}!`, 'success')
+        })
+        .catch((err) => {
+          if (session !== loadSessionCounter) return
+          isSongLoadingOnline = false
+          statusMessage = `No se pudo obtener la letra${sourceName ? ` desde ${sourceName}` : ''}: ` + (err.message || err)
+          statusType = 'error'
+          render()
+        })
+    }
+  }
+
+  function open(songToEdit = null, loadOptions = {}) {
+    const currentSession = ++loadSessionCounter
+
+    if (songToEdit) {
+      currentSong = unpackSong(songToEdit)
     } else {
       currentSong = getBlankSongTemplate()
     }
 
+    isSongLoadingOnline = Boolean(loadOptions.loadPromise)
+    onlineSourceName = loadOptions.sourceName || ''
+
     activeLangIndex = 0
     expandedLineIndices = new Set([0]) // Expandir la primera frase por defecto
-    statusMessage = ''
-    statusType = 'info'
+    statusMessage = loadOptions.initialStatus?.message || ''
+    statusType = loadOptions.initialStatus?.type || 'info'
     isMetadataOpen = !currentSong.title // Abrir metadatos si es una canción nueva
     isQuickImportModalOpen = false
     isAddLanguageModalOpen = false
@@ -176,12 +271,17 @@ export function createSongEditorView({
 
     // Si tiene video con URL, opcionalmente cargarlo en el reproductor multimedia
     const firstVideo = currentSong.videos?.find(v => v.url)
-    if (firstVideo && mediaPlayer) {
+    if (firstVideo && typeof mediaPlayer?.loadSong === 'function') {
       mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
     }
 
+    clearActiveElements()
     resetScrollOnNextRender = true
     render()
+
+    if (loadOptions.loadPromise) {
+      setupBackgroundLoading(loadOptions, currentSession)
+    }
   }
 
   function showStatus(msg, type = 'info') {
@@ -195,8 +295,109 @@ export function createSongEditorView({
     return currentSong.lyrics_data.languages[activeLangIndex] || currentSong.lyrics_data.languages[0]
   }
 
+  function getLineTimeRange(line) {
+    const start = Number(line?.startTime) || 0
+    let end = (Number(line?.endTime) > start) ? Number(line.endTime) : (start + 3.0)
+    if (Array.isArray(line?.syllables) && line.syllables.length > 0) {
+      for (let i = 0; i < line.syllables.length; i++) {
+        const s = line.syllables[i]
+        const sStart = Number(s?.startTime) || 0
+        const sDur = Math.max(0.05, Number(s?.duration) || 0.3)
+        const sEnd = sStart + sDur
+        if (sEnd > end) {
+          end = sEnd
+        }
+      }
+    }
+    return { start, end }
+  }
+
+  function clearActiveElements() {
+    if (containerElement) {
+      const activeCards = containerElement.querySelectorAll('.phrase-editor-card.is-active-phrase')
+      activeCards.forEach(el => el.classList.remove('is-active-phrase'))
+      const activeChips = containerElement.querySelectorAll('.syllable-edit-chip.is-active-syllable')
+      activeChips.forEach(el => el.classList.remove('is-active-syllable'))
+    }
+    currentActiveLineIndices = new Set()
+    currentActiveSylKeys = new Set()
+  }
+
+  function updateActiveElements(time) {
+    if (!containerElement || !currentSong) return
+    const activeLang = getActiveLanguage()
+    const lines = activeLang?.lines || []
+    if (lines.length === 0) {
+      clearActiveElements()
+      return
+    }
+
+    const nextActiveLineIndices = new Set()
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const { start, end } = getLineTimeRange(line)
+      if (time >= start && time <= end) {
+        nextActiveLineIndices.add(i)
+      }
+    }
+
+    const nextActiveSylKeys = new Set()
+    for (const lineIdx of nextActiveLineIndices) {
+      const line = lines[lineIdx]
+      if (Array.isArray(line?.syllables) && line.syllables.length > 0) {
+        for (let s = 0; s < line.syllables.length; s++) {
+          const syl = line.syllables[s]
+          const sStart = Number(syl?.startTime) || 0
+          const sDur = Math.max(0.05, Number(syl?.duration) || 0.3)
+          const sEnd = sStart + sDur
+          if (time >= sStart && time < sEnd) {
+            nextActiveSylKeys.add(`${lineIdx}-${s}`)
+          }
+        }
+      }
+    }
+
+    // Retirar clase is-active-phrase de versos que ya no están activos
+    for (const oldIdx of currentActiveLineIndices) {
+      if (!nextActiveLineIndices.has(oldIdx)) {
+        const el = containerElement.querySelector(`.phrase-editor-card[data-line-idx="${oldIdx}"]`)
+        if (el) el.classList.remove('is-active-phrase')
+      }
+    }
+
+    // Añadir clase is-active-phrase a nuevos versos activos
+    for (const newIdx of nextActiveLineIndices) {
+      if (!currentActiveLineIndices.has(newIdx)) {
+        const el = containerElement.querySelector(`.phrase-editor-card[data-line-idx="${newIdx}"]`)
+        if (el) el.classList.add('is-active-phrase')
+      }
+    }
+    currentActiveLineIndices = nextActiveLineIndices
+
+    // Retirar clase is-active-syllable de sílabas que ya no están activas
+    for (const oldKey of currentActiveSylKeys) {
+      if (!nextActiveSylKeys.has(oldKey)) {
+        const [lIdx, sIdx] = oldKey.split('-')
+        const el = containerElement.querySelector(`.syllable-edit-chip[data-line-idx="${lIdx}"][data-syl-idx="${sIdx}"]`)
+        if (el) el.classList.remove('is-active-syllable')
+      }
+    }
+
+    // Añadir clase is-active-syllable a nuevas sílabas activas
+    for (const newKey of nextActiveSylKeys) {
+      if (!currentActiveSylKeys.has(newKey)) {
+        const [lIdx, sIdx] = newKey.split('-')
+        const el = containerElement.querySelector(`.syllable-edit-chip[data-line-idx="${lIdx}"][data-syl-idx="${sIdx}"]`)
+        if (el) el.classList.add('is-active-syllable')
+      }
+    }
+    currentActiveSylKeys = nextActiveSylKeys
+  }
+
   function render() {
     if (!containerElement || !currentSong) return
+
+    clearActiveElements()
 
     const previousScrollEl = containerElement.querySelector('.editor-content-scroll')
     const previousScrollTop = resetScrollOnNextRender ? 0 : (previousScrollEl ? previousScrollEl.scrollTop : 0)
@@ -235,19 +436,27 @@ export function createSongEditorView({
 
     // Lista de frases del idioma activo
     const linesListHtml = lines.length === 0
-      ? `
-        <div class="empty-lines-state">
-          <p class="empty-title">Este idioma aún no tiene frases añadidas.</p>
-          <p class="empty-desc">${isTranslation ? 'Podés traducir automáticamente toda la canción desde el original con tiempos sincronizados, o añadir frases una a una.' : 'Podés añadir frases una a una o pegar la letra completa con tiempos y sílabas automáticas.'}</p>
-          <div class="empty-actions">
-            ${isTranslation && (mainLang?.lines?.length || 0) > 0 ? `
-              <button class="btn btn-primary btn-auto-translate-all">${iconSparkles} Traducir Toda la Canción</button>
-            ` : ''}
-            <button class="btn btn-primary btn-add-first-line">${iconPlus} Añadir Primera Frase</button>
-            <button class="btn btn-outline btn-open-quick-import">${iconFileText} Pegar Letra Completa</button>
+      ? (isSongLoadingOnline
+        ? `
+          <div class="empty-lines-state">
+            <div class="translation-loading-spinner" style="margin: 1.5rem auto;"></div>
+            <p class="empty-title">Descargando letra y sincronización...</p>
+            <p class="empty-desc">Conectando con ${escapeHtml(onlineSourceName || 'el proveedor')} para obtener los versos, tiempos y sílabas.</p>
           </div>
-        </div>
-      `
+        `
+        : `
+          <div class="empty-lines-state">
+            <p class="empty-title">Este idioma aún no tiene frases añadidas.</p>
+            <p class="empty-desc">${isTranslation ? 'Podés traducir automáticamente toda la canción desde el original con tiempos sincronizados, o añadir frases una a una.' : 'Podés añadir frases una a una o pegar la letra completa con tiempos y sílabas automáticas.'}</p>
+            <div class="empty-actions">
+              ${isTranslation && (mainLang?.lines?.length || 0) > 0 ? `
+                <button class="btn btn-primary btn-auto-translate-all">${iconSparkles} Traducir Toda la Canción</button>
+              ` : ''}
+              <button class="btn btn-primary btn-add-first-line">${iconPlus} Añadir Primera Frase</button>
+              <button class="btn btn-outline btn-open-quick-import">${iconFileText} Pegar Letra Completa</button>
+            </div>
+          </div>
+        `)
       : lines.map((line, lineIdx) => {
         const isExpanded = !isTranslation && expandedLineIndices.has(lineIdx)
         const sylCount = line.syllables?.length || 0
@@ -517,6 +726,10 @@ export function createSongEditorView({
       </div>
     `).join('')
 
+    const currentTime = mediaPlayer?.getCurrentTime ? Math.max(0, mediaPlayer.getCurrentTime() || 0) : 0
+    const duration = mediaPlayer?.getDuration ? Math.max(0, mediaPlayer.getDuration() || 0) : 0
+    const currentVolume = mediaPlayer?.getVolume ? Math.max(0, Math.min(100, Math.round(mediaPlayer.getVolume() ?? 100))) : 100
+
     containerElement.innerHTML = `
       <div class="song-editor-view-container">
         ${statusMessage ? `
@@ -529,29 +742,81 @@ export function createSongEditorView({
         <!-- Asistente de Audio para Sincronización en Vivo -->
         <div class="editor-audio-assistant">
           <div class="assistant-controls">
-            <button class="btn btn-primary btn-sm btn-assistant-play" id="btn-assistant-play" title="${mediaPlayer?.getIsPlaying() ? 'Pausar' : 'Reproducir'}">
-              ${mediaPlayer?.getIsPlaying() ? `${iconPause}` : `${iconPlay}`}
-            </button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-5" title="Retroceder 5 segundos">-5s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-1" title="Retroceder 1 segundo">-1s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-0.1" title="Retroceder 0.1 segundos">-0.1s</button>
-            
-            <div class="assistant-clock">
-              <span class="clock-time" id="assistant-clock-time">${formatTime(Math.max(0, mediaPlayer?.getCurrentTime() || 0), true)}</span>
+            <!-- Izquierda: Parlante con menú vertical de volumen + Barra de progreso con tiempo -->
+            <div class="assistant-left-group">
+              <div class="editor-volume-wrapper" id="editor-volume-wrapper">
+                <button
+                  type="button"
+                  class="btn btn-outline btn-xs btn-editor-volume ${isVolumeMenuOpen ? 'is-active' : ''}"
+                  id="btn-editor-volume"
+                  title="Volumen: ${currentVolume}%"
+                  aria-label="Volumen"
+                >
+                  ${currentVolume === 0 ? iconVolumeMute : iconVolume}
+                </button>
+                <div class="editor-volume-popover ${isVolumeMenuOpen ? 'is-open' : ''}" id="editor-volume-popover">
+                  <span class="editor-volume-percent" id="editor-volume-percent">${currentVolume}%</span>
+                  <div class="editor-volume-slider-track">
+                    <input
+                      type="range"
+                      class="editor-volume-slider"
+                      id="editor-volume-slider"
+                      min="0"
+                      max="100"
+                      value="${currentVolume}"
+                      orient="vertical"
+                      aria-label="Nivel de volumen"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="editor-progress-group">
+                <span class="editor-time-label" id="editor-progress-current">${formatTime(Math.max(0, currentTime))}</span>
+                <input
+                  type="range"
+                  class="editor-progress-slider"
+                  id="editor-progress-slider"
+                  min="0"
+                  max="${Math.max(1, duration)}"
+                  step="0.1"
+                  value="${Math.max(0, currentTime)}"
+                  title="Posición de la canción"
+                  aria-label="Posición de la canción"
+                />
+                <span class="editor-time-label" id="editor-progress-duration">${formatTime(duration)}</span>
+              </div>
             </div>
 
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="0.1" title="Adelantar 0.1 segundos">+0.1s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="1" title="Adelantar 1 segundo">+1s</button>
-            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="5" title="Adelantar 5 segundos">+5s</button>
+            <!-- Centro: Botones de transporte, saltos, reloj y Modo Letra -->
+            <div class="assistant-center-group">
+              <button class="btn btn-primary btn-sm btn-assistant-play" id="btn-assistant-play" title="${mediaPlayer?.getIsPlaying() ? 'Pausar' : 'Reproducir'}">
+                ${mediaPlayer?.getIsPlaying() ? `${iconPause}` : `${iconPlay}`}
+              </button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-5" title="Retroceder 5 segundos">-5s</button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-1" title="Retroceder 1 segundo">-1s</button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-0.1" title="Retroceder 0.1 segundos">-0.1s</button>
+              
+              <div class="assistant-clock">
+                <span class="clock-time" id="assistant-clock-time">${formatTime(Math.max(0, currentTime), true)}</span>
+              </div>
 
-            <button class="btn btn-success btn-sm btn-assistant-sing" id="btn-save-and-sing" title="Guardar y probar en Modo Letra" aria-label="Probar en Modo Letra">
-              ${iconMic}
-            </button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="0.1" title="Adelantar 0.1 segundos">+0.1s</button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="1" title="Adelantar 1 segundo">+1s</button>
+              <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="5" title="Adelantar 5 segundos">+5s</button>
 
-            <span class="editor-autosave-badge ${isSaving ? 'is-saving' : ''}" id="editor-autosave-badge" title="Guardado automático activado">
-              <span class="autosave-dot"></span>
-              <span class="autosave-text">${isSaving ? 'Guardando...' : 'Guardado'}</span>
-            </span>
+              <button class="btn btn-success btn-sm btn-assistant-sing" id="btn-save-and-sing" title="Guardar y probar en Modo Letra" aria-label="Probar en Modo Letra">
+                ${iconMic}
+              </button>
+            </div>
+
+            <!-- Derecha: Indicador de guardado pegado al extremo derecho -->
+            <div class="assistant-right-group">
+              <span class="editor-autosave-badge ${isSaving ? 'is-saving' : ''}" id="editor-autosave-badge" title="Guardado automático activado">
+                <span class="autosave-dot"></span>
+                <span class="autosave-text">${isSaving ? 'Guardando...' : 'Guardado'}</span>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -943,6 +1208,11 @@ export function createSongEditorView({
     }
 
     bindEvents()
+
+    const curTime = (mediaPlayer && typeof mediaPlayer.getCurrentTime === 'function')
+      ? Math.max(0, mediaPlayer.getCurrentTime())
+      : 0
+    updateActiveElements(curTime)
   }
 
   function bindEvents() {
@@ -965,6 +1235,11 @@ export function createSongEditorView({
           autoSaveTimer = null
           await performSave()
         }
+        if (documentClickListener) {
+          document.removeEventListener('click', documentClickListener)
+          documentClickListener = null
+        }
+        clearActiveElements()
         if (onGoToMenu) onGoToMenu()
       })
     }
@@ -1117,6 +1392,103 @@ export function createSongEditorView({
         }
       })
     })
+
+    // Control de volumen y menú vertical
+    const volumeBtn = containerElement.querySelector('#btn-editor-volume')
+    const volumePopover = containerElement.querySelector('#editor-volume-popover')
+    const volumeSlider = containerElement.querySelector('#editor-volume-slider')
+    const volumePercent = containerElement.querySelector('#editor-volume-percent')
+
+    if (volumeBtn && volumePopover) {
+      volumeBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        isVolumeMenuOpen = !isVolumeMenuOpen
+        volumePopover.classList.toggle('is-open', isVolumeMenuOpen)
+        volumeBtn.classList.toggle('is-active', isVolumeMenuOpen)
+      })
+    }
+
+    if (volumePopover) {
+      volumePopover.addEventListener('click', (e) => {
+        e.stopPropagation()
+      })
+    }
+
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', (e) => {
+        const val = Number(e.target.value)
+        if (mediaPlayer?.setVolume) {
+          mediaPlayer.setVolume(val)
+        }
+        if (volumePercent) {
+          volumePercent.textContent = `${val}%`
+        }
+        if (volumeBtn) {
+          volumeBtn.innerHTML = val === 0 ? iconVolumeMute : iconVolume
+          volumeBtn.title = `Volumen: ${val}%`
+        }
+      })
+    }
+
+    // Cerrar menú vertical de volumen al hacer clic en otro lado
+    if (documentClickListener) {
+      document.removeEventListener('click', documentClickListener)
+      documentClickListener = null
+    }
+
+    documentClickListener = (e) => {
+      if (!isVolumeMenuOpen) return
+      const wrapper = containerElement.querySelector('#editor-volume-wrapper')
+      if (wrapper && !wrapper.contains(e.target)) {
+        isVolumeMenuOpen = false
+        const popover = containerElement.querySelector('#editor-volume-popover')
+        if (popover) popover.classList.remove('is-open')
+        const btn = containerElement.querySelector('#btn-editor-volume')
+        if (btn) btn.classList.remove('is-active')
+      }
+    }
+    document.addEventListener('click', documentClickListener)
+
+    // Barra de progreso interactiva con tiempo
+    const progressSlider = containerElement.querySelector('#editor-progress-slider')
+    const progressCurrent = containerElement.querySelector('#editor-progress-current')
+
+    if (progressSlider) {
+      progressSlider.addEventListener('mousedown', () => {
+        isUserSeeking = true
+      })
+      progressSlider.addEventListener('touchstart', () => {
+        isUserSeeking = true
+      }, { passive: true })
+
+      progressSlider.addEventListener('input', (e) => {
+        isUserSeeking = true
+        const val = Number(e.target.value)
+        if (progressCurrent) {
+          progressCurrent.textContent = formatTime(val)
+        }
+        const clockEl = containerElement.querySelector('#assistant-clock-time')
+        if (clockEl) {
+          clockEl.textContent = formatTime(val, true)
+        }
+        updateActiveElements(val)
+      })
+
+      progressSlider.addEventListener('change', (e) => {
+        const val = Number(e.target.value)
+        if (mediaPlayer?.seek) {
+          mediaPlayer.seek(val)
+        }
+        isUserSeeking = false
+      })
+
+      progressSlider.addEventListener('mouseup', () => {
+        isUserSeeking = false
+      })
+      progressSlider.addEventListener('touchend', () => {
+        isUserSeeking = false
+      })
+    }
 
     // 5. Tabs de Idiomas
     const langTabs = containerElement.querySelectorAll('.editor-lang-tab')
@@ -2120,6 +2492,11 @@ export function createSongEditorView({
     showStatus(`¡Canción "${currentSong.title}" guardada exitosamente!`, 'success')
 
     if (enterLyricsAfter && onEnterLyricsMode) {
+      if (documentClickListener) {
+        document.removeEventListener('click', documentClickListener)
+        documentClickListener = null
+      }
+      clearActiveElements()
       onEnterLyricsMode(savedId)
     }
 
@@ -2132,6 +2509,27 @@ export function createSongEditorView({
     if (clockEl) {
       clockEl.textContent = formatTime(Math.max(0, time), true)
     }
+
+    if (!isUserSeeking) {
+      const progressSlider = containerElement?.querySelector('#editor-progress-slider')
+      const progressCurrent = containerElement?.querySelector('#editor-progress-current')
+      const progressDuration = containerElement?.querySelector('#editor-progress-duration')
+      const dur = mediaPlayer?.getDuration ? mediaPlayer.getDuration() : 0
+
+      if (progressSlider) {
+        progressSlider.max = String(Math.max(1, dur))
+        progressSlider.value = String(Math.max(0, time))
+      }
+      if (progressCurrent) {
+        progressCurrent.textContent = formatTime(Math.max(0, time))
+      }
+      if (progressDuration) {
+        progressDuration.textContent = formatTime(dur)
+      }
+    }
+
+    // Resaltado reactivo del verso y sílaba actual marcados por el asistente
+    updateActiveElements(Math.max(0, time))
   }
 
   function setPlayingState(playing) {
@@ -2156,6 +2554,13 @@ export function createSongEditorView({
     updateClock,
     setPlayingState,
     flushAutoSave: triggerImmediateAutoSave,
+    destroy: () => {
+      if (documentClickListener) {
+        document.removeEventListener('click', documentClickListener)
+        documentClickListener = null
+      }
+      clearActiveElements()
+    },
     clearStatus: () => {
       statusMessage = ''
       const alertEl = containerElement?.querySelector('.status-alert')

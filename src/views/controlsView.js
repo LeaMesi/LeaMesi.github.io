@@ -76,6 +76,7 @@ export function createControlsView({
   let currentMode = 'basic' // 'basic' | 'advanced'
   let isSettingsOpen = false
   let isDockClickBound = false
+  let documentClickListener = null
 
   function formatOffset(val) {
     const num = Number(val) || 0
@@ -266,7 +267,12 @@ export function createControlsView({
     if (!isDockClickBound && containerElement) {
       isDockClickBound = true
       containerElement.addEventListener('click', (e) => {
-        if (e.target.closest('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .modal-dialog, .time-label, .volume-percent-label')) {
+        const path = e.composedPath ? e.composedPath() : []
+        const isInteractive = path.some(el => {
+          if (!el || !el.matches) return false
+          return el.matches('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .modal-dialog, .time-label, .volume-percent-label')
+        })
+        if (isInteractive || e.target.closest('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .modal-dialog, .time-label, .volume-percent-label')) {
           return
         }
         const selection = window.getSelection?.()
@@ -279,16 +285,36 @@ export function createControlsView({
     }
 
     const playBtn = containerElement.querySelector('.btn-play-pause')
-    if (playBtn) playBtn.addEventListener('click', () => onPlayToggle && onPlayToggle())
+    if (playBtn) {
+      playBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        onPlayToggle && onPlayToggle()
+      })
+    }
 
     const prevBtn = containerElement.querySelector('#btn-prev-song')
-    if (prevBtn) prevBtn.addEventListener('click', () => onPrevSong && onPrevSong())
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        onPrevSong && onPrevSong()
+      })
+    }
 
     const nextBtn = containerElement.querySelector('#btn-next-song')
-    if (nextBtn) nextBtn.addEventListener('click', () => onNextSong && onNextSong())
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        onNextSong && onNextSong()
+      })
+    }
 
     const plBtn = containerElement.querySelector('#btn-controls-playlist')
-    if (plBtn) plBtn.addEventListener('click', () => onOpenPlaylist && onOpenPlaylist())
+    if (plBtn) {
+      plBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        onOpenPlaylist && onOpenPlaylist()
+      })
+    }
 
     const seekSlider = containerElement.querySelector('.seek-slider')
     if (seekSlider) {
@@ -345,7 +371,8 @@ export function createControlsView({
     }
 
     if (muteBtn) {
-      muteBtn.addEventListener('click', () => {
+      muteBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
         if (currentVolume > 0) {
           previousVolume = currentVolume
           currentVolume = 0
@@ -418,7 +445,8 @@ export function createControlsView({
 
     const manageVideosBtn = containerElement.querySelector('.btn-manage-song-videos')
     if (manageVideosBtn) {
-      manageVideosBtn.addEventListener('click', () => {
+      manageVideosBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
         if (onManageVideos) onManageVideos()
       })
     }
@@ -466,7 +494,8 @@ export function createControlsView({
 
     const modeBtn = containerElement.querySelector('.btn-mode-toggle')
     if (modeBtn) {
-      modeBtn.addEventListener('click', () => {
+      modeBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
         const nextMode = currentMode === 'basic' ? 'advanced' : 'basic'
         if (onModeToggle) onModeToggle(nextMode)
       })
@@ -474,21 +503,24 @@ export function createControlsView({
 
     const editBtn = containerElement.querySelector('#btn-controls-edit')
     if (editBtn) {
-      editBtn.addEventListener('click', () => {
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
         if (onEditSong) onEditSong()
       })
     }
 
     const themeBtn = containerElement.querySelector('#btn-controls-theme')
     if (themeBtn) {
-      themeBtn.addEventListener('click', () => {
+      themeBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
         if (onOpenTheme) onOpenTheme()
       })
     }
 
     const menuBtn = containerElement.querySelector('#btn-controls-menu')
     if (menuBtn) {
-      menuBtn.addEventListener('click', () => {
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
         if (onGoToMenu) onGoToMenu()
         else if (onOpenLibrary) onOpenLibrary()
       })
@@ -497,7 +529,8 @@ export function createControlsView({
     // Pantalla completa
     const fullscreenBtn = containerElement.querySelector('#btn-controls-fullscreen')
     if (fullscreenBtn) {
-      fullscreenBtn.addEventListener('click', () => {
+      fullscreenBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
         isSettingsOpen = false
         if (onToggleFullscreen) onToggleFullscreen()
       })
@@ -539,10 +572,16 @@ export function createControlsView({
       })
     }
 
-    const onDocumentClick = (e) => {
+    if (documentClickListener) {
+      document.removeEventListener('click', documentClickListener)
+    }
+
+    documentClickListener = (e) => {
       if (!isSettingsOpen) return
       const wrapper = containerElement.querySelector('.controls-settings-wrapper')
-      if (wrapper && !wrapper.contains(e.target)) {
+      const popover = containerElement.querySelector('#controls-settings-popover')
+      const isInside = (wrapper && wrapper.contains(e.target)) || (popover && popover.contains(e.target))
+      if (!isInside) {
         isSettingsOpen = false
         if (settingsPopover) {
           settingsPopover.classList.remove('is-open')
@@ -554,7 +593,7 @@ export function createControlsView({
       }
     }
 
-    document.addEventListener('click', onDocumentClick)
+    document.addEventListener('click', documentClickListener)
   }
 
   function setPlayingState(playing) {

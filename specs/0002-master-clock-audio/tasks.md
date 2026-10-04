@@ -24,7 +24,9 @@
 - [x] **5.6. Ajuste Rápido de Offset en Caliente (-0.1s y +0.1s):**
   - Botones `-0.1s` y `+0.1s` con badge central del offset en el popover de configuración de `controlsView.js`.
   - Método `setActiveOffset` en `mediaPlayer.js` que actualiza `activeOffset` y sincroniza las letras en tiempo real sin pausar, reiniciar ni alterar la posición del reproductor de YouTube/audio.
-  - Persistencia automática de los cambios en IndexedDB mediante `updateSongVideos`.
+- [x] **3.4. Optimización de Master Clock Bridge y Ahorro de CPU Móvil:**
+  - Despacho condicional de eventos en bucle de 60fps (`onTimeUpdate` y `onStateChange`) en `main.js` restringido estrictamente a la pantalla activa (`currentScreen` igual a `lyrics`, `menu` o `editor`).
+  - Evita el sondeo y recálculos innecesarios en vistas ocultas, reduciendo drásticamente el consumo de CPU y batería en dispositivos móviles.
 
 ---
 

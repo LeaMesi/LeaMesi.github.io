@@ -29,6 +29,9 @@
   - Algoritmo `getSyllableAltTextsWithSpacing` para erradicar aglutinación fonética y preservar espacios finales.
 - [x] **13.4. Calibración en Caliente de Offset en el Popover de Configuración:**
   - Controles `-0.1s` y `+0.1s` integrados directamente en el menú de configuración de Modo Letra con display central numérico, permitiendo sincronizar la letra de inmediato sin pausar la canción.
+- [x] **13.5. Separador Visual y Formato Limpio de Offset en el Popover de Configuración:**
+  - Inserción de divisor horizontal (`<hr>`) entre la sección de calibración de video y los controles de visualización de frases.
+  - Formateo conciso del valor de offset en las opciones del selector de video (`[${off}s]`), simplificando la lectura en la interfaz.
 
 ---
 

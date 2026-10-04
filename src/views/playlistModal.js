@@ -42,6 +42,7 @@ export function createPlaylistModal({
   containerElement,
   playlistService,
   onPlaySong,
+  onRemoveSong,
   onLibraryCreated
 }) {
   let isOpen = false
@@ -589,7 +590,12 @@ export function createPlaylistModal({
     containerElement.querySelectorAll('.btn-delete-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = Number(btn.dataset.index)
+        const songsList = playlistService.getSongs()
+        const targetSong = songsList[idx]
         playlistService.removeSongByIndex(idx)
+        if (onRemoveSong && targetSong) {
+          onRemoveSong(targetSong)
+        }
       })
     })
   }

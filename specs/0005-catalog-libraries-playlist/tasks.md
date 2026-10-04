@@ -26,6 +26,10 @@
 - [x] **29.2. Botón de Cierre "X" en Alertas de Estado y Limpieza al Cambiar de Pantalla:**
   - Incorporación de botón "X" (`#btn-close-menu-alert` / `.btn-close-alert`) para descartar mensajes de confirmación e información (como "Respaldo completo exportado con éxito").
   - Método `clearStatus()` en la interfaz del componente y auto-cierre automático de alertas al cambiar entre Menú, Modo Letra y Editor de Canciones en `main.js`.
+- [x] **29.3. Desalojo y Detención Inmediata al Eliminar Canciones (Desconexión de Playlist y Reproductor):**
+  - Incorporación de callback `onDeleteSong` en `createSongMenuView` y `onRemoveSong` en `createPlaylistModal`, orquestados mediante `handleSongEviction` y `clearActivePlayback` en `src/main.js`.
+  - Al eliminar una canción de la base de datos o retirarla de la lista de reproducción, se remueve automáticamente de la playlist activa (`playlistService.removeSongById`).
+  - Si la canción eliminada o retirada es la que está sonando o cargada en ese momento, el reproductor multimedia detiene la reproducción y libera el canal de audio de inmediato (`mediaPlayer.stop()`), transicionando fluidamente a la siguiente canción de la cola (si existe) o reseteando por completo el estado del reproductor flotante, controles y visor si no quedan más canciones.
 
 ---
 

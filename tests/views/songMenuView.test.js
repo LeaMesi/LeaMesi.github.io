@@ -512,7 +512,40 @@ describe('views/songMenuView.js', () => {
     menu.clearStatus()
     expect(container.querySelector('.status-alert')).toBeNull()
   })
+
+  it('elimina la canción de la base de datos y dispara onDeleteSong al confirmar', async () => {
+    const onDeleteSong = vi.fn()
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+    const menu = createSongMenuView({
+      containerElement: container,
+      onDeleteSong
+    })
+    await menu.refresh()
+
+    const initialCards = container.querySelectorAll('.song-menu-card')
+    const initialCount = initialCards.length
+    expect(initialCount).toBeGreaterThan(0)
+
+    const firstCard = initialCards[0]
+    const songId = Number(firstCard.dataset.songId)
+    const deleteBtn = firstCard.querySelector('.btn-delete-song')
+    expect(deleteBtn).not.toBeNull()
+
+    deleteBtn.click()
+    await new Promise(resolve => setTimeout(resolve, 60))
+
+    expect(confirmSpy).toHaveBeenCalled()
+    expect(onDeleteSong).toHaveBeenCalledWith(songId)
+
+    const remainingCards = container.querySelectorAll('.song-menu-card')
+    expect(remainingCards.length).toBe(initialCount - 1)
+    expect(container.querySelector(`.song-menu-card[data-song-id="${songId}"]`)).toBeNull()
+
+    confirmSpy.mockRestore()
+  })
 })
+
 
 
 

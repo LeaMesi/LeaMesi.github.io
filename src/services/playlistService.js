@@ -216,11 +216,14 @@ export function createPlaylistService({ initialSongs = [], storageKey = 'saranga
      * @returns {boolean}
      */
     removeSongById(songId) {
-      const idx = songs.findIndex(s => Number(s.id) === Number(songId))
-      if (idx !== -1) {
-        return this.removeSongByIndex(idx)
+      let removedAny = false
+      let idx = songs.findIndex(s => Number(s.id) === Number(songId))
+      while (idx !== -1) {
+        this.removeSongByIndex(idx)
+        removedAny = true
+        idx = songs.findIndex(s => Number(s.id) === Number(songId))
       }
-      return false
+      return removedAny
     },
 
     /**

@@ -16,6 +16,7 @@ Para permitir compartir creaciones e interoperar con fuentes externas sin requer
 1. **Exportación / Importación JSON:** Los usuarios pueden exportar sus canciones a archivos JSON portables (`song-package.json`) y compartirlos. Al importar un archivo, el sistema lo valida y lo almacena localmente en IndexedDB.
 2. **Compatibilidad con Estándar `lyricsfile` (YAML):** Soporte nativo para importar y exportar archivos en formato abierto `.lyricsfile.yaml` ([especificación 1.0](https://github.com/tranxuanthang/lyricsfile/blob/main/SPECIFICATION.md)), permitiendo cargar canciones o traducciones desde repositorios comunitarios de letras.
 3. **Especificaciones y Tareas Modulares (`specs/NNNN-*`):** Toda especificación funcional, desglose de tareas y planes futuros se encuentran modularizados en carpetas individuales bajo [`specs/`](file:///home/hezztia/Documents/SarangaBaranga/specs/).
+4. **Importación Directa desde YouTube / YouTube Music (Sin API Keys):** Creación autónoma de canciones desde videos individuales o listas de reproducción (`playlist?list=...`) sin requerir claves de API ni backend (`src/services/youtubeImportService.js`), apoyándose en el servicio público oEmbed y en la YouTube IFrame API (`cuePlaylist`), permitiendo poblar canciones vacías (sin letras) para reproducción inmediata o posterior edición.
 
 El audio se reproduce principalmente a través de la **YouTube IFrame Player API** (video oficial y solo pista) o mediante elementos de audio HTML5 para archivos locales/remotos.
 
@@ -592,7 +593,7 @@ Para reducir el ruido visual y ofrecer una interfaz limpia, moderna y profesiona
    * **Tiempos y Archivos:** `iconClock` (Captura de tiempos / Distribuir), `iconFileText` (Pegar Letra), `iconUpload` (Importar / Cargar), `iconDownload` (Exportar / Respaldo), `iconSettings` (Configuración), `iconChevronUp` / `iconChevronDown` (Expandir / Contraer / Reordenar).
 2. **Implementación Técnica:**
    * Archivo centralizado: [`src/views/icons.js`](file:///home/hezztia/Documents/SarangaBaranga/src/views/icons.js).
-   * Los iconos son cadenas SVG vectoriales inline (`viewBox="0 0 24 24"`, `stroke="currentColor"`), adaptándose automáticamente al color de texto del botón o contenedor sin librerías externas ni fuentes pesadas de terceros.
+   * Los iconos son cadenas SVG vectoriales inline (`viewBox="0 0 24 24"`, `stroke="currentColor"`), adaptándose automáticamente al color de texto del botón o contenedor. Para el icono musical distintivo de Modo Letra (`iconMic`), se emplea un glifo vectorial estilizado de alta precisión (`viewBox="0 0 340 340"`, `fill="currentColor"`) y se enlaza la hoja de estilos de Font Awesome 6.5.2 en `index.html`.
    * Reglas CSS en [`src/style.css`](file:///home/hezztia/Documents/SarangaBaranga/src/style.css) (`.icon-svg`) garantizan alineación vertical perfecta y comportamiento responsive.
 
 ---
@@ -768,6 +769,10 @@ Para garantizar un espacio de trabajo despejado y minimizar la sobrecarga cognit
 * **Prioridad Incondicional del Selector "Siguientes":** Ubicado permanentemente en la **primera posición** de `.center-controls` (`.preview-lines-group`). Esto asegura que incluso cuando las opciones lingüísticas adicionales no apliquen a la canción en reproducción, el selector de cantidad de versos siguientes (0 a 3) conserve una posición estable y predecible.
 * **Ocultamiento Condicional de "Texto" (`.script-selector-group`):** Si la pista activa no contiene texto alternativo o fonético (ej. canciones sin caracteres Kanji o sin Romaji, `!hasAltText`), el contenedor se oculta dinámicamente (`display: none`), evitando controles inoperantes.
 * **Ocultamiento Condicional de "Traducción" (`.translation-group`):** Si la canción solo cuenta con su idioma original (`translations.length === 0`), el selector de traducción se oculta por completo (`display: none`) para mantener la barra limpia y enfocada.
+
+### 12.4. Popover de Configuración y Calibración en Caliente (`controlsView.js`)
+* **Calibración de Pista y Offset:** Permite seleccionar la fuente de video activa mostrando el offset de forma compacta (`[${off}s]`) y ajustar la sincronización en vivo con botones `-0.1s` y `+0.1s` con badge central de valor.
+* **Separador Visual (`<hr>`):** Delimita de forma clara y limpia la zona superior de ajuste de audio/video de las preferencias inferiores de visualización de frases (frases anteriores de 0 a 3, frases siguientes de 0 a 3, modo de texto y subtítulos de traducción).
 
 ---
 

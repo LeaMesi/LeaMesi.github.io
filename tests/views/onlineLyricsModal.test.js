@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createOnlineLyricsModal } from '../../src/views/onlineLyricsModal.js'
 import * as onlineLyricsService from '../../src/services/onlineLyricsService.js'
+import * as youtubeImportService from '../../src/services/youtubeImportService.js'
 
 describe('views/onlineLyricsModal.js', () => {
   let container = null
@@ -19,7 +20,7 @@ describe('views/onlineLyricsModal.js', () => {
     expect(container.querySelector('#btn-do-online-search')).not.toBeNull()
 
     const providerTabs = container.querySelectorAll('.online-provider-tab')
-    expect(providerTabs.length).toBe(5)
+    expect(providerTabs.length).toBe(6)
   })
 
   it('permite alternar entre pestañas de proveedores (BetterLyrics, LRC.red, Genius, LRCLIB)', () => {
@@ -271,9 +272,144 @@ describe('views/onlineLyricsModal.js', () => {
 
     // Comprobar que todos los botones de cada fuente están presentes
     const providerTabs = providersBar.querySelectorAll('.online-provider-tab')
-    expect(providerTabs.length).toBe(5)
+    expect(providerTabs.length).toBe(6)
 
     // Verificar orden contiguo en el DOM para evitar solapamientos
     expect(providersBar.nextElementSibling).toBe(inputsContainer)
+  })
+
+  it('cierra el modal de inmediato y despacha la canción inicial para abrir el editor sin esperas', async () => {
+    const mockResults = [
+      { id: 'prog-1', song: 'Speed Song', artist: 'Fast Artist', videoId: 'abc12345', source: 'betterlyrics', sourceName: 'BetterLyrics', syncType: 'richsync' }
+    ]
+    vi.spyOn(onlineLyricsService, 'searchOnlineLyrics').mockResolvedValue(mockResults)
+    let resolvePackage
+    const loadPromise = new Promise((resolve) => { resolvePackage = resolve })
+    vi.spyOn(onlineLyricsService, 'buildSongPackageFromOnlineResult').mockReturnValue(loadPromise)
+
+    const onSongReady = vi.fn()
+    const modal = createOnlineLyricsModal({ containerElement: container, onSongReady })
+    modal.open()
+
+    const input = container.querySelector('#online-input-all')
+    input.value = 'speed'
+    container.querySelector('#btn-do-online-search').click()
+
+    await vi.waitFor(() => {
+      expect(container.querySelectorAll('.btn-select-bl-song').length).toBe(1)
+    })
+
+    const selectBtn = container.querySelector('.btn-select-bl-song')
+    selectBtn.click()
+
+    // El modal debe haberse cerrado de inmediato
+    expect(container.classList.contains('is-open')).toBe(false)
+
+    // onSongReady debe haberse invocado inmediatamente con la canción preliminar y la promesa
+    expect(onSongReady).toHaveBeenCalledTimes(1)
+    const [initialSong, loadOptions] = onSongReady.mock.calls[0]
+    expect(initialSong.title).toBe('Speed Song')
+    expect(initialSong.artist).toBe('Fast Artist')
+    expect(initialSong.videos[0].url).toContain('abc12345')
+    expect(loadOptions.loadPromise).toBe(loadPromise)
+    expect(loadOptions.sourceName).toBe('BetterLyrics')
+
+    resolvePackage({ title: 'Speed Song', artist: 'Fast Artist' })
+  })
+
+  it('permite alternar a la pestaña de YouTube y renderiza su formulario', () => {
+    const modal = createOnlineLyricsModal({ containerElement: container })
+    modal.open()
+
+    const ytTab = container.querySelector('[data-provider="youtube"]')
+    expect(ytTab).not.toBeNull()
+    ytTab.click()
+
+    expect(container.querySelector('#youtube-input-url')).not.toBeNull()
+    expect(container.querySelector('#btn-do-youtube-extract')).not.toBeNull()
+    expect(container.querySelector('.youtube-empty-state')).not.toBeNull()
+  })
+
+  it('extrae un video individual de YouTube y permite cargarlo en el editor sin letras', async () => {
+    const onSongReady = vi.fn()
+    const modal = createOnlineLyricsModal({ containerElement: container, onSongReady })
+    modal.open()
+
+    container.querySelector('[data-provider="youtube"]').click()
+
+    vi.spyOn(youtubeImportService, 'fetchYouTubeVideoMeta').mockResolvedValueOnce({
+      videoId: 'dQw4w9WgXcQ',
+      title: 'Never Gonna Give You Up',
+      artist: 'Rick Astley',
+      thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+    })
+
+    const textarea = container.querySelector('#youtube-input-url')
+    textarea.value = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+    container.querySelector('#btn-do-youtube-extract').click()
+
+    await vi.waitFor(() => {
+      expect(container.querySelector('.youtube-single-preview')).not.toBeNull()
+    })
+
+    expect(container.querySelector('#yt-edit-title').value).toBe('Never Gonna Give You Up')
+    expect(container.querySelector('#yt-edit-artist').value).toBe('Rick Astley')
+
+    // Cargar en el editor
+    const loadEditorBtn = container.querySelector('#btn-yt-load-editor')
+    loadEditorBtn.click()
+
+    expect(container.classList.contains('is-open')).toBe(false)
+    expect(onSongReady).toHaveBeenCalledTimes(1)
+    const [songPackage] = onSongReady.mock.calls[0]
+    expect(songPackage.metadata.title).toBe('Never Gonna Give You Up')
+    expect(songPackage.metadata.artist).toBe('Rick Astley')
+    expect(songPackage.basic.languages[0].phrases).toEqual([])
+  })
+
+  it('extrae múltiples videos y permite importarlos directamente al catálogo', async () => {
+    const onImportSuccess = vi.fn()
+    const modal = createOnlineLyricsModal({ containerElement: container, onImportSuccess })
+    modal.open()
+
+    container.querySelector('[data-provider="youtube"]').click()
+
+    vi.spyOn(youtubeImportService, 'fetchMultipleYouTubeVideosMeta').mockResolvedValueOnce([
+      {
+        videoId: 'dQw4w9WgXcQ',
+        title: 'Song One',
+        artist: 'Artist One',
+        thumbnail: 'thumb1',
+        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+      },
+      {
+        videoId: '9bZkp7q19f0',
+        title: 'Song Two',
+        artist: 'Artist Two',
+        thumbnail: 'thumb2',
+        videoUrl: 'https://www.youtube.com/watch?v=9bZkp7q19f0'
+      }
+    ])
+
+    const textarea = container.querySelector('#youtube-input-url')
+    textarea.value = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ\nhttps://www.youtube.com/watch?v=9bZkp7q19f0'
+    container.querySelector('#btn-do-youtube-extract').click()
+
+    await vi.waitFor(() => {
+      expect(container.querySelector('.youtube-batch-container')).not.toBeNull()
+    })
+
+    const items = container.querySelectorAll('.youtube-batch-item')
+    expect(items.length).toBe(2)
+
+    const importBatchBtn = container.querySelector('#btn-yt-import-batch')
+    expect(importBatchBtn).not.toBeNull()
+    importBatchBtn.click()
+
+    await vi.waitFor(() => {
+      expect(onImportSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(container.classList.contains('is-open')).toBe(false)
   })
 })
