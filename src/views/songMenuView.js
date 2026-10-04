@@ -325,7 +325,8 @@ export function createSongMenuView({
 
         ${statusMessage ? `
           <div class="status-alert status-${statusType}">
-            ${escapeHtml(statusMessage)}
+            <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+            <button type="button" class="btn-close-alert" id="btn-close-menu-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
         ` : ''}
 
@@ -541,6 +542,16 @@ export function createSongMenuView({
   }
 
   function bindEvents() {
+    // Cerrar aviso de estado
+    const closeAlertBtn = containerElement.querySelector('#btn-close-menu-alert')
+    if (closeAlertBtn) {
+      closeAlertBtn.addEventListener('click', () => {
+        statusMessage = ''
+        const alertEl = containerElement.querySelector('.status-alert')
+        if (alertEl) alertEl.remove()
+      })
+    }
+
     // Alternar panel de importación
     const toggleImportBtn = containerElement.querySelector('.btn-toggle-import')
     if (toggleImportBtn) {
@@ -1095,6 +1106,11 @@ export function createSongMenuView({
     getActiveSongId: () => activeSongId,
     updateHighlight: updateActiveSongHighlight,
     showStatus: (msg, type = 'info') => showStatus(msg, type),
+    clearStatus: () => {
+      statusMessage = ''
+      const alertEl = containerElement?.querySelector('.status-alert')
+      if (alertEl) alertEl.remove()
+    },
     importFile: handleImportFile,
     setPlaylistCount: (count) => {
       playlistCount = Number(count) || 0

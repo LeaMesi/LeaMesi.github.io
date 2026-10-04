@@ -251,7 +251,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
 
         ${statusMessage ? `
           <div class="status-alert status-${statusType}" style="margin: 14px 22px 0;">
-            ${escapeHtml(statusMessage)}
+            <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+            <button type="button" class="btn-close-alert" id="btn-close-theme-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
         ` : ''}
 
@@ -541,6 +542,68 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               </div>
             </div>
           </div>
+
+          <!-- 4. Cuadros de Aviso y Notificaciones (Alertas de Estado) -->
+          <div class="theme-section">
+            <div class="theme-section-header">
+              <h3 class="theme-section-title">4. Cuadros de Aviso y Notificaciones</h3>
+              <p class="theme-section-desc">Personaliza el color de los mensajes de confirmación (éxito en respaldos, guardados e importaciones), notas informativas y alertas de error.</p>
+            </div>
+
+            <div class="theme-colors-grid">
+              <!-- Color Éxito -->
+              <div class="color-picker-card">
+                <div class="color-card-info">
+                  <span class="color-card-name">Aviso de Éxito</span>
+                  <span class="color-card-hint">Respaldos, guardado e importaciones</span>
+                </div>
+                <div class="color-picker-input-group">
+                  <input type="color" class="color-swatch-input" id="picker-alert-success" value="${currentSettings.alertSuccessColor || '#22c55e'}" />
+                  <input type="text" class="color-hex-input" id="hex-alert-success" value="${currentSettings.alertSuccessColor || '#22c55e'}" maxlength="7" />
+                </div>
+              </div>
+
+              <!-- Color Informativo -->
+              <div class="color-picker-card">
+                <div class="color-card-info">
+                  <span class="color-card-name">Aviso Informativo</span>
+                  <span class="color-card-hint">Notas de estado y avisos del sistema</span>
+                </div>
+                <div class="color-picker-input-group">
+                  <input type="color" class="color-swatch-input" id="picker-alert-info" value="${currentSettings.alertInfoColor || '#38bdf8'}" />
+                  <input type="text" class="color-hex-input" id="hex-alert-info" value="${currentSettings.alertInfoColor || '#38bdf8'}" maxlength="7" />
+                </div>
+              </div>
+
+              <!-- Color Error -->
+              <div class="color-picker-card">
+                <div class="color-card-info">
+                  <span class="color-card-name">Alerta de Error</span>
+                  <span class="color-card-hint">Advertencias y fallos de importación</span>
+                </div>
+                <div class="color-picker-input-group">
+                  <input type="color" class="color-swatch-input" id="picker-alert-error" value="${currentSettings.alertErrorColor || '#ef4444'}" />
+                  <input type="text" class="color-hex-input" id="hex-alert-error" value="${currentSettings.alertErrorColor || '#ef4444'}" maxlength="7" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Vista previa de los cuadros de aviso -->
+            <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="status-alert status-success" style="margin: 0;">
+                <span class="status-alert-text">✓ Respaldo completo exportado con éxito.</span>
+                <span class="btn-close-alert" title="Ejemplo de botón de cierre">${iconClose}</span>
+              </div>
+              <div class="status-alert status-info" style="margin: 0;">
+                <span class="status-alert-text">ℹ Importación de biblioteca completada.</span>
+                <span class="btn-close-alert" title="Ejemplo de botón de cierre">${iconClose}</span>
+              </div>
+              <div class="status-alert status-error" style="margin: 0;">
+                <span class="status-alert-text">⚠ Error al conectar con el motor online.</span>
+                <span class="btn-close-alert" title="Ejemplo de botón de cierre">${iconClose}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="modal-footer theme-modal-footer">
@@ -731,6 +794,15 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
       }
     }
 
+    // Cerrar aviso de estado
+    const alertCloseBtn = containerElement.querySelector('#btn-close-theme-alert')
+    if (alertCloseBtn) {
+      alertCloseBtn.addEventListener('click', () => {
+        statusMessage = ''
+        render()
+      })
+    }
+
     bindCheckbox('#check-orig-bold', 'originalBold')
     bindCheckbox('#check-orig-italic', 'originalItalic')
     bindCheckbox('#check-alt-bold', 'altBold')
@@ -742,6 +814,11 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     bindCheckbox('#check-active-glow', 'activeGlow')
     bindCheckbox('#check-completed-bold', 'completedBold')
     bindCheckbox('#check-completed-italic', 'completedItalic')
+
+    // Colores de Alertas de Estado
+    bindColorPair('#picker-alert-success', '#hex-alert-success', 'alertSuccessColor')
+    bindColorPair('#picker-alert-info', '#hex-alert-info', 'alertInfoColor')
+    bindColorPair('#picker-alert-error', '#hex-alert-error', 'alertErrorColor')
   }
 
   // Aplicar tema inicial inmediatamente

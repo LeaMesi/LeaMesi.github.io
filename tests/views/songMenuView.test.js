@@ -489,6 +489,27 @@ describe('views/songMenuView.js', () => {
     btnEnter.click()
     expect(onEnterLyricsMode).toHaveBeenCalledWith(activeSong.id)
   })
+
+  it('permite cerrar la alerta de estado con el botón X y con el método clearStatus', async () => {
+    const menu = createSongMenuView({ containerElement: container })
+    await menu.refresh()
+
+    menu.showStatus('Operación completada exitosamente', 'success')
+    expect(container.querySelector('.status-alert')).not.toBeNull()
+    expect(container.querySelector('.status-alert-text').textContent).toBe('Operación completada exitosamente')
+
+    const closeBtn = container.querySelector('#btn-close-menu-alert')
+    expect(closeBtn).not.toBeNull()
+    closeBtn.click()
+
+    expect(container.querySelector('.status-alert')).toBeNull()
+
+    // Probar clearStatus()
+    menu.showStatus('Otra alerta informativa', 'info')
+    expect(container.querySelector('.status-alert')).not.toBeNull()
+    menu.clearStatus()
+    expect(container.querySelector('.status-alert')).toBeNull()
+  })
 })
 
 

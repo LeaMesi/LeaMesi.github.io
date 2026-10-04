@@ -667,5 +667,33 @@ describe('views/songEditorView.js', () => {
       const finalScrollContainer = container.querySelector('.editor-content-scroll')
       expect(finalScrollContainer.scrollTop).toBe(450)
     })
+
+    it('permite cerrar la alerta de estado con el botón X y con el método clearStatus', async () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      // Simular alerta de estado en el editor exportando la canción
+      const exportBtn = container.querySelector('#btn-editor-export-json')
+      expect(exportBtn).not.toBeNull()
+      exportBtn.click()
+      await new Promise(r => setTimeout(r, 60))
+
+      const alertEl = container.querySelector('.status-alert')
+      expect(alertEl).not.toBeNull()
+      expect(alertEl.textContent).toContain('descargado con éxito')
+
+      const closeBtn = container.querySelector('#btn-close-editor-alert')
+      expect(closeBtn).not.toBeNull()
+      closeBtn.click()
+
+      expect(container.querySelector('.status-alert')).toBeNull()
+
+      // Probar clearStatus()
+      exportBtn.click()
+      await new Promise(r => setTimeout(r, 60))
+      expect(container.querySelector('.status-alert')).not.toBeNull()
+      editor.clearStatus()
+      expect(container.querySelector('.status-alert')).toBeNull()
+    })
   })
 })

@@ -552,8 +552,15 @@ async function initApp() {
     }
   }
 
+  function clearAllStatusAlerts() {
+    songMenuView?.clearStatus?.()
+    songEditorView?.clearStatus?.()
+    document.querySelectorAll('.status-alert').forEach(el => el.remove())
+  }
+
   // 10b. Alternar Pantallas (Menú vs Letra vs Editor)
   function showMenuScreen() {
+    clearAllStatusAlerts()
     exitFullscreenMode()
     currentScreen = 'menu'
     if (appContainer) appContainer.dataset.screen = 'menu'
@@ -589,6 +596,7 @@ async function initApp() {
   }
 
   function showLyricsScreen() {
+    clearAllStatusAlerts()
     currentScreen = 'lyrics'
     if (appContainer) appContainer.dataset.screen = 'lyrics'
     floatingPlayerView.setVisible(false)
@@ -607,6 +615,7 @@ async function initApp() {
   }
 
   function showEditorScreen(songToEdit = null) {
+    clearAllStatusAlerts()
     exitFullscreenMode()
     currentScreen = 'editor'
     if (appContainer) appContainer.dataset.screen = 'editor'

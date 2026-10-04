@@ -521,7 +521,8 @@ export function createSongEditorView({
       <div class="song-editor-view-container">
         ${statusMessage ? `
           <div class="status-alert status-${statusType}">
-            ${escapeHtml(statusMessage)}
+            <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+            <button type="button" class="btn-close-alert" id="btn-close-editor-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
         ` : ''}
 
@@ -963,6 +964,16 @@ export function createSongEditorView({
   }
 
   function bindEvents() {
+    // Cerrar aviso de estado
+    const alertCloseBtn = containerElement.querySelector('#btn-close-editor-alert')
+    if (alertCloseBtn) {
+      alertCloseBtn.addEventListener('click', () => {
+        statusMessage = ''
+        const alertEl = containerElement.querySelector('.status-alert')
+        if (alertEl) alertEl.remove()
+      })
+    }
+
     // 1. Botón Volver
     const backBtn = containerElement.querySelector('#btn-editor-back')
     if (backBtn) {
@@ -2162,6 +2173,11 @@ export function createSongEditorView({
     open,
     updateClock,
     setPlayingState,
-    flushAutoSave: triggerImmediateAutoSave
+    flushAutoSave: triggerImmediateAutoSave,
+    clearStatus: () => {
+      statusMessage = ''
+      const alertEl = containerElement?.querySelector('.status-alert')
+      if (alertEl) alertEl.remove()
+    }
   }
 }

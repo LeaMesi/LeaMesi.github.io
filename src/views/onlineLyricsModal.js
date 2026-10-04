@@ -863,7 +863,8 @@ export function createOnlineLyricsModal({
           <!-- Alerta de Estado -->
           ${statusMessage ? `
             <div class="status-alert status-${statusType}" style="margin: 10px 0;">
-              ${escapeHtml(statusMessage)}
+              <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+              <button type="button" class="btn-close-alert" id="btn-close-online-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
             </div>
           ` : ''}
 
@@ -944,6 +945,15 @@ export function createOnlineLyricsModal({
 
   function bindEvents() {
     if (!containerElement) return
+
+    // Cerrar aviso de estado
+    const alertCloseBtn = containerElement.querySelector('#btn-close-online-alert')
+    if (alertCloseBtn) {
+      alertCloseBtn.addEventListener('click', () => {
+        statusMessage = ''
+        render()
+      })
+    }
 
     // Cerrar modal
     const closeBtn = containerElement.querySelector('#btn-close-online-modal')

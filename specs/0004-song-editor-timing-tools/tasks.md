@@ -60,6 +60,9 @@
   - Captura y restauración automática e inmediata de `scrollTop` de `.editor-content-scroll`, `scrollLeft` de `.editor-lang-tabs-bar` y `window.scrollY` durante los ciclos de renderizado.
   - Al hacer clic en el botón "Sílabas" para mostrar o contraer el panel de sílabas de cualquier verso, la pantalla mantiene con total exactitud la posición en la que está sin saltos ni desplazamientos hacia arriba.
   - Supresión de `scroll-behavior: smooth` en `.editor-content-scroll` para evitar deslizamientos animados indeseados al alternar elementos dinámicos.
+- [x] **20.6. Botón de Cierre "X" en Alertas del Editor y Limpieza al Navegar:**
+  - Botón de descarte "X" (`#btn-close-editor-alert` / `.btn-close-alert`) para cerrar manualmente cualquier aviso de confirmación, guardado o exportación en el editor.
+  - Método `clearStatus()` expuesto en la API del editor y auto-cierre automático al salir o cambiar de pantalla en `main.js`.
 
 ---
 
