@@ -276,4 +276,43 @@ describe('views/onlineLyricsModal.js', () => {
     // Verificar orden contiguo en el DOM para evitar solapamientos
     expect(providersBar.nextElementSibling).toBe(inputsContainer)
   })
+
+  it('cierra el modal de inmediato y despacha la canción inicial para abrir el editor sin esperas', async () => {
+    const mockResults = [
+      { id: 'prog-1', song: 'Speed Song', artist: 'Fast Artist', videoId: 'abc12345', source: 'betterlyrics', sourceName: 'BetterLyrics', syncType: 'richsync' }
+    ]
+    vi.spyOn(onlineLyricsService, 'searchOnlineLyrics').mockResolvedValue(mockResults)
+    let resolvePackage
+    const loadPromise = new Promise((resolve) => { resolvePackage = resolve })
+    vi.spyOn(onlineLyricsService, 'buildSongPackageFromOnlineResult').mockReturnValue(loadPromise)
+
+    const onSongReady = vi.fn()
+    const modal = createOnlineLyricsModal({ containerElement: container, onSongReady })
+    modal.open()
+
+    const input = container.querySelector('#online-input-all')
+    input.value = 'speed'
+    container.querySelector('#btn-do-online-search').click()
+
+    await vi.waitFor(() => {
+      expect(container.querySelectorAll('.btn-select-bl-song').length).toBe(1)
+    })
+
+    const selectBtn = container.querySelector('.btn-select-bl-song')
+    selectBtn.click()
+
+    // El modal debe haberse cerrado de inmediato
+    expect(container.classList.contains('is-open')).toBe(false)
+
+    // onSongReady debe haberse invocado inmediatamente con la canción preliminar y la promesa
+    expect(onSongReady).toHaveBeenCalledTimes(1)
+    const [initialSong, loadOptions] = onSongReady.mock.calls[0]
+    expect(initialSong.title).toBe('Speed Song')
+    expect(initialSong.artist).toBe('Fast Artist')
+    expect(initialSong.videos[0].url).toContain('abc12345')
+    expect(loadOptions.loadPromise).toBe(loadPromise)
+    expect(loadOptions.sourceName).toBe('BetterLyrics')
+
+    resolvePackage({ title: 'Speed Song', artist: 'Fast Artist' })
+  })
 })

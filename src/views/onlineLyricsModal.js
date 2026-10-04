@@ -302,24 +302,80 @@ export function createOnlineLyricsModal({
     if (isImporting) return
     isImporting = true
     activeLoadingItemId = item.id
-    statusMessage = `Obteniendo letra desde ${item.sourceName || 'el proveedor'}...`
-    statusType = 'info'
-    render()
+
+    const translateTo = selectedTranslateLang !== 'none' ? selectedTranslateLang : null
+    const sourceName = item.sourceName || 'el proveedor'
+
+    const initialSong = {
+      title: item.song || '',
+      artist: item.artist || '',
+      metadata: {
+        title: item.song || '',
+        artist: item.artist || '',
+        album: item.album || '',
+        duration: item.duration || 0,
+        artwork: item.artwork || '',
+        source: item.sourceName || item.source || ''
+      },
+      videos: item.videoId ? [
+        {
+          id: `vid-${Date.now()}-0`,
+          name: 'Video Oficial',
+          url: `https://www.youtube.com/watch?v=${item.videoId}`,
+          offset: 0
+        }
+      ] : [],
+      lyrics_data: {
+        languages: [
+          {
+            code: 'es',
+            name: 'Principal',
+            isMain: true,
+            plain: '',
+            lines: []
+          }
+        ]
+      }
+    }
+
+    // Cerrar el modal inmediatamente para llevar al usuario al editor sin esperas
+    close()
+
+    let progressCallbacks = null
+
+    const loadPromise = buildSongPackageFromOnlineResult(item, {
+      translateTo,
+      onProgress: (msg) => {
+        if (progressCallbacks?.onProgress) {
+          progressCallbacks.onProgress(msg)
+        }
+      },
+      onLyricsReady: (basePkg) => {
+        if (progressCallbacks?.onLyricsReady) {
+          progressCallbacks.onLyricsReady(basePkg)
+        }
+      }
+    })
+
+    if (onSongReady) {
+      onSongReady(initialSong, {
+        loadPromise,
+        initialStatus: {
+          message: `Obteniendo letra desde ${sourceName}...`,
+          type: 'info'
+        },
+        sourceName,
+        translateTo,
+        registerProgressCallbacks: (cbs) => {
+          progressCallbacks = cbs
+        }
+      })
+    }
 
     try {
-      const translateTo = selectedTranslateLang !== 'none' ? selectedTranslateLang : null
-      const songPackage = await buildSongPackageFromOnlineResult(item, { translateTo })
-
-      close()
-
-      if (onSongReady) {
-        onSongReady(songPackage)
-      }
+      await loadPromise
     } catch (err) {
       console.error('Error al procesar letra seleccionada:', err)
-      statusMessage = 'No se pudo cargar la letra: ' + (err.message || err)
-      statusType = 'error'
-      render()
     } finally {
       isImporting = false
       activeLoadingItemId = null

@@ -148,32 +148,80 @@ export async function searchOnlineLyrics(options = {}) {
   }).slice(0, limit)
 }
 
+async function fetchDetailsBySource(source, item) {
+  if (source === 'betterlyrics') {
+    return await fetchBetterLyricsDetails(item.id, item.videoId, item.song, item.artist)
+  } else if (source === 'lrcred') {
+    return await fetchLrcRedDetails(item.rawId || item.isrc || item.id, item)
+  } else if (source === 'lrclib') {
+    return await fetchLrclibDetails(item.rawId || item.id, item)
+  } else if (source === 'genius') {
+    return await fetchGeniusDetails(item)
+  }
+  throw new Error(`Proveedor de letras desconocido: "${source}".`)
+}
+
+async function buildPackageBySource(source, details, opts) {
+  if (source === 'betterlyrics') {
+    return await buildSongPackageFromBetterLyrics(details, opts)
+  } else if (source === 'lrcred') {
+    return await buildSongPackageFromLrcRed(details, opts)
+  } else if (source === 'lrclib') {
+    return await buildSongPackageFromLrclib(details, opts)
+  } else if (source === 'genius') {
+    return await buildSongPackageFromGenius(details, opts)
+  }
+  throw new Error(`Proveedor de letras desconocido: "${source}".`)
+}
+
 /**
  * Obtiene los detalles de la canción y construye el paquete de SarangaBaranga
- * a partir de un resultado de cualquier proveedor.
+ * a partir de un resultado de cualquier proveedor con soporte progresivo.
  */
 export async function buildSongPackageFromOnlineResult(item, options = {}) {
+  const { onLyricsReady, onProgress, translateTo = null } = options
   const source = item.source || 'betterlyrics'
-  let rawPackage = null
 
-  if (source === 'betterlyrics') {
-    const details = await fetchBetterLyricsDetails(item.id, item.videoId, item.song, item.artist)
-    rawPackage = await buildSongPackageFromBetterLyrics(details, options)
-  } else if (source === 'lrcred') {
-    const details = await fetchLrcRedDetails(item.rawId || item.isrc || item.id, item)
-    rawPackage = await buildSongPackageFromLrcRed(details, options)
-  } else if (source === 'lrclib') {
-    const details = await fetchLrclibDetails(item.rawId || item.id, item)
-    rawPackage = await buildSongPackageFromLrclib(details, options)
-  } else if (source === 'genius') {
-    const details = await fetchGeniusDetails(item)
-    rawPackage = await buildSongPackageFromGenius(details, options)
-  } else {
-    throw new Error(`Proveedor de letras desconocido: "${source}".`)
+  if (onProgress) onProgress(`Descargando letra desde ${item.sourceName || source}...`)
+
+  const details = await fetchDetailsBySource(source, item)
+
+  // Si se solicita actualización progresiva con traducción:
+  if (onLyricsReady && translateTo && translateTo !== 'none') {
+    if (onProgress) onProgress('Letra obtenida. Procesando versos y sincronización...')
+    // 1. Construir paquete base original sin esperar a la traducción
+    const baseRaw = await buildPackageBySource(source, details, { ...options, translateTo: null })
+    const baseNormalized = normalizeSongPackage(baseRaw)
+    const baseEnriched = autoEnrichSongWithRomaji(baseNormalized)
+
+    // Emitir inmediatamente al editor para que muestre los versos y sílabas
+    onLyricsReady(baseEnriched)
+
+    // 2. Si el idioma principal ya es el de destino, no hace falta traducir
+    const mainLang = baseEnriched.lyrics_data?.languages?.find(l => l.isMain) || baseEnriched.lyrics_data?.languages?.[0]
+    if (mainLang && mainLang.code === translateTo) {
+      return baseEnriched
+    }
+
+    if (onProgress) onProgress(`Traduciendo frases a ${translateTo}...`)
+
+    // 3. Generar la traducción complementaria
+    try {
+      const fullRaw = await buildPackageBySource(source, details, options)
+      const fullNormalized = normalizeSongPackage(fullRaw)
+      return autoEnrichSongWithRomaji(fullNormalized)
+    } catch (transErr) {
+      console.warn('Error al traducir progresivamente:', transErr)
+      return baseEnriched
+    }
   }
 
-  // Normalizar y sanear el paquete garantizando compatibilidad con el esquema
+  // Flujo normal directo
+  const rawPackage = await buildPackageBySource(source, details, options)
   const normalized = normalizeSongPackage(rawPackage)
-  // Enriquecer automáticamente con Romaji si se detecta texto en japonés
-  return autoEnrichSongWithRomaji(normalized)
+  const enriched = autoEnrichSongWithRomaji(normalized)
+  if (onLyricsReady) {
+    onLyricsReady(enriched)
+  }
+  return enriched
 }

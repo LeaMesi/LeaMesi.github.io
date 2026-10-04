@@ -206,8 +206,8 @@ async function initApp() {
   // 5b. Inicializar Modal de Búsqueda Online (BetterLyrics / Genius / LRCLIB)
   const onlineLyricsModal = createOnlineLyricsModal({
     containerElement: betterlyricsModalEl,
-    onSongReady: (songPackage) => {
-      showEditorScreen(songPackage)
+    onSongReady: (songPackage, loadOptions = {}) => {
+      showEditorScreen(songPackage, loadOptions)
     },
     onCreateEmptySong: () => {
       showEditorScreen(null)
@@ -628,7 +628,7 @@ async function initApp() {
     controlsView.render()
   }
 
-  function showEditorScreen(songToEdit = null) {
+  function showEditorScreen(songToEdit = null, loadOptions = {}) {
     clearAllStatusAlerts()
     exitFullscreenMode()
     currentScreen = 'editor'
@@ -651,7 +651,7 @@ async function initApp() {
       headerArtistEl.textContent = songToEdit && songToEdit.artist ? `${songToEdit.artist}` : 'Herramienta de Creación'
     }
 
-    songEditorView.open(songToEdit)
+    songEditorView.open(songToEdit, loadOptions)
   }
 
   // 11. Botón de volver al menú desde el header y clic en el logo "SarangaBaranga"

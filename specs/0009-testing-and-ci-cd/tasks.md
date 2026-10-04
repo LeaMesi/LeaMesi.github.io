@@ -16,7 +16,7 @@
 - [x] **19.5. Pruebas de Vistas e Interfaz:**
   - Suites para `icons`, `basicViewer`, `controlsView`, `songMenuView`, `songEditorView`, `playlistModal`, `floatingPlayerView` y modales.
 - [x] **19.6. Verificación de Suites Integrales:**
-  - 26 suites de prueba y 282 pruebas automatizadas ejecutadas y pasando al 100%.
+  - 26 suites de prueba y 283 pruebas automatizadas ejecutadas y pasando al 100%.
 - [x] **25.1 - 25.3. Despliegue en GitHub Pages y Automatización CI/CD:**
   - `gh-pages` en `package.json`, workflow en `.github/workflows/deploy.yml` ejecutando tests, build y deploy automático.
 

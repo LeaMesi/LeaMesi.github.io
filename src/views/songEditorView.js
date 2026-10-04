@@ -50,6 +50,9 @@ export function createSongEditorView({
   let isSaving = false
   let pendingSave = false
   let resetScrollOnNextRender = false
+  let loadSessionCounter = 0
+  let isSongLoadingOnline = false
+  let onlineSourceName = ''
 
   try {
     const savedRefMode = localStorage.getItem(STORAGE_KEY_REF_MODE)
@@ -100,67 +103,152 @@ export function createSongEditorView({
     }
   }
 
-  function open(songToEdit = null) {
-    if (songToEdit) {
-      // Clonar profundamente para no alterar el objeto original hasta guardar
-      currentSong = JSON.parse(JSON.stringify(songToEdit))
+  function unpackSong(songToEdit) {
+    if (!songToEdit) return getBlankSongTemplate()
+    const song = JSON.parse(JSON.stringify(songToEdit))
 
-      // Desempaquetar si viene en formato package { metadata, basic, advanced }
-      if (currentSong.metadata) {
-        if (!currentSong.title && currentSong.metadata.title) currentSong.title = currentSong.metadata.title
-        if (!currentSong.artist && currentSong.metadata.artist) currentSong.artist = currentSong.metadata.artist
-        if ((!currentSong.videos || currentSong.videos.length === 0) && currentSong.metadata.videos) {
-          currentSong.videos = currentSong.metadata.videos
-        }
-        if ((!currentSong.genres || currentSong.genres.length === 0) && currentSong.metadata.genres) {
-          currentSong.genres = currentSong.metadata.genres
-        }
-        if ((!currentSong.tags || currentSong.tags.length === 0) && currentSong.metadata.tags) {
-          currentSong.tags = currentSong.metadata.tags
-        }
-        if (!currentSong.audio_path && currentSong.metadata.audioPath) {
-          currentSong.audio_path = currentSong.metadata.audioPath
-        }
+    // Desempaquetar si viene en formato package { metadata, basic, advanced }
+    if (song.metadata) {
+      if (!song.title && song.metadata.title) song.title = song.metadata.title
+      if (!song.artist && song.metadata.artist) song.artist = song.metadata.artist
+      if ((!song.videos || song.videos.length === 0) && song.metadata.videos) {
+        song.videos = song.metadata.videos
       }
+      if ((!song.genres || song.genres.length === 0) && song.metadata.genres) {
+        song.genres = song.metadata.genres
+      }
+      if ((!song.tags || song.tags.length === 0) && song.metadata.tags) {
+        song.tags = song.metadata.tags
+      }
+      if (!song.audio_path && song.metadata.audioPath) {
+        song.audio_path = song.metadata.audioPath
+      }
+    }
 
-      if (!currentSong.lyrics_data) {
-        currentSong.lyrics_data = currentSong.basic || {}
-      }
+    if (!song.lyrics_data) {
+      song.lyrics_data = song.basic || {}
+    }
 
-      // Normalizar estructura
-      if (!Array.isArray(currentSong.lyrics_data.languages) || currentSong.lyrics_data.languages.length === 0) {
-        if (currentSong.basic && Array.isArray(currentSong.basic.languages) && currentSong.basic.languages.length > 0) {
-          currentSong.lyrics_data.languages = currentSong.basic.languages
-        } else {
-          currentSong.lyrics_data.languages = [
-            {
-              code: 'es',
-              name: 'Español (Original)',
-              isMain: true,
-              plain: currentSong.lyrics_data.plain || '',
-              lines: currentSong.lyrics_data.lines || []
-            }
-          ]
-        }
-      }
-      if (!Array.isArray(currentSong.videos) || currentSong.videos.length === 0) {
-        currentSong.videos = [
+    // Normalizar estructura
+    if (!Array.isArray(song.lyrics_data.languages) || song.lyrics_data.languages.length === 0) {
+      if (song.basic && Array.isArray(song.basic.languages) && song.basic.languages.length > 0) {
+        song.lyrics_data.languages = song.basic.languages
+      } else {
+        song.lyrics_data.languages = [
           {
-            id: `vid-${Date.now()}-0`,
-            name: 'Video Oficial',
-            url: currentSong.metadata?.youtubeUrlFull || currentSong.lyrics_data.youtube?.full || '',
-            offset: 0
+            code: 'es',
+            name: 'Español (Original)',
+            isMain: true,
+            plain: song.lyrics_data.plain || '',
+            lines: song.lyrics_data.lines || []
           }
         ]
       }
+    }
+    if (!Array.isArray(song.videos) || song.videos.length === 0) {
+      song.videos = [
+        {
+          id: `vid-${Date.now()}-0`,
+          name: 'Video Oficial',
+          url: song.metadata?.youtubeUrlFull || song.lyrics_data.youtube?.full || '',
+          offset: 0
+        }
+      ]
+    }
+
+    return song
+  }
+
+  function applyLoadedData(newPackage, msg, type) {
+    if (!newPackage || !currentSong) return
+
+    const titleInput = containerElement?.querySelector('#editor-title-input')
+    const artistInput = containerElement?.querySelector('#editor-artist-input')
+    const userTitle = titleInput ? titleInput.value.trim() : null
+    const userArtist = artistInput ? artistInput.value.trim() : null
+
+    const unpacked = unpackSong(newPackage)
+
+    if (userTitle && userTitle !== currentSong.title) {
+      unpacked.title = userTitle
+    }
+    if (userArtist && userArtist !== currentSong.artist) {
+      unpacked.artist = userArtist
+    }
+
+    currentSong = unpacked
+    if (activeLangIndex >= currentSong.lyrics_data.languages.length) {
+      activeLangIndex = 0
+    }
+
+    statusMessage = msg || ''
+    statusType = type || 'info'
+    isSongLoadingOnline = false
+
+    const firstVideo = currentSong.videos?.find(v => v.url)
+    if (firstVideo && mediaPlayer) {
+      mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
+    }
+
+    render()
+    triggerImmediateAutoSave()
+  }
+
+  function setupBackgroundLoading(loadOptions, session) {
+    const { loadPromise, sourceName, translateTo, registerProgressCallbacks } = loadOptions
+
+    if (registerProgressCallbacks) {
+      registerProgressCallbacks({
+        onProgress: (msg) => {
+          if (session !== loadSessionCounter) return
+          statusMessage = msg
+          statusType = 'info'
+          render()
+        },
+        onLyricsReady: (basePkg) => {
+          if (session !== loadSessionCounter) return
+          isSongLoadingOnline = false
+          const msg = translateTo && translateTo !== 'none'
+            ? `Letra obtenida desde ${sourceName || 'el proveedor'}. Traduciendo frases a ${translateTo}...`
+            : `¡Letra cargada con éxito desde ${sourceName || 'el proveedor'}!`
+          applyLoadedData(basePkg, msg, 'info')
+        }
+      })
+    }
+
+    if (loadPromise) {
+      loadPromise
+        .then((fullPackage) => {
+          if (session !== loadSessionCounter) return
+          isSongLoadingOnline = false
+          applyLoadedData(fullPackage, `¡Letra cargada y lista${sourceName ? ` desde ${sourceName}` : ''}!`, 'success')
+        })
+        .catch((err) => {
+          if (session !== loadSessionCounter) return
+          isSongLoadingOnline = false
+          statusMessage = `No se pudo obtener la letra${sourceName ? ` desde ${sourceName}` : ''}: ` + (err.message || err)
+          statusType = 'error'
+          render()
+        })
+    }
+  }
+
+  function open(songToEdit = null, loadOptions = {}) {
+    const currentSession = ++loadSessionCounter
+
+    if (songToEdit) {
+      currentSong = unpackSong(songToEdit)
     } else {
       currentSong = getBlankSongTemplate()
     }
 
+    isSongLoadingOnline = Boolean(loadOptions.loadPromise)
+    onlineSourceName = loadOptions.sourceName || ''
+
     activeLangIndex = 0
     expandedLineIndices = new Set([0]) // Expandir la primera frase por defecto
-    statusMessage = ''
-    statusType = 'info'
+    statusMessage = loadOptions.initialStatus?.message || ''
+    statusType = loadOptions.initialStatus?.type || 'info'
     isMetadataOpen = !currentSong.title // Abrir metadatos si es una canción nueva
     isQuickImportModalOpen = false
     isAddLanguageModalOpen = false
@@ -182,6 +270,10 @@ export function createSongEditorView({
 
     resetScrollOnNextRender = true
     render()
+
+    if (loadOptions.loadPromise) {
+      setupBackgroundLoading(loadOptions, currentSession)
+    }
   }
 
   function showStatus(msg, type = 'info') {
@@ -235,19 +327,27 @@ export function createSongEditorView({
 
     // Lista de frases del idioma activo
     const linesListHtml = lines.length === 0
-      ? `
-        <div class="empty-lines-state">
-          <p class="empty-title">Este idioma aún no tiene frases añadidas.</p>
-          <p class="empty-desc">${isTranslation ? 'Podés traducir automáticamente toda la canción desde el original con tiempos sincronizados, o añadir frases una a una.' : 'Podés añadir frases una a una o pegar la letra completa con tiempos y sílabas automáticas.'}</p>
-          <div class="empty-actions">
-            ${isTranslation && (mainLang?.lines?.length || 0) > 0 ? `
-              <button class="btn btn-primary btn-auto-translate-all">${iconSparkles} Traducir Toda la Canción</button>
-            ` : ''}
-            <button class="btn btn-primary btn-add-first-line">${iconPlus} Añadir Primera Frase</button>
-            <button class="btn btn-outline btn-open-quick-import">${iconFileText} Pegar Letra Completa</button>
+      ? (isSongLoadingOnline
+        ? `
+          <div class="empty-lines-state">
+            <div class="translation-loading-spinner" style="margin: 1.5rem auto;"></div>
+            <p class="empty-title">Descargando letra y sincronización...</p>
+            <p class="empty-desc">Conectando con ${escapeHtml(onlineSourceName || 'el proveedor')} para obtener los versos, tiempos y sílabas.</p>
           </div>
-        </div>
-      `
+        `
+        : `
+          <div class="empty-lines-state">
+            <p class="empty-title">Este idioma aún no tiene frases añadidas.</p>
+            <p class="empty-desc">${isTranslation ? 'Podés traducir automáticamente toda la canción desde el original con tiempos sincronizados, o añadir frases una a una.' : 'Podés añadir frases una a una o pegar la letra completa con tiempos y sílabas automáticas.'}</p>
+            <div class="empty-actions">
+              ${isTranslation && (mainLang?.lines?.length || 0) > 0 ? `
+                <button class="btn btn-primary btn-auto-translate-all">${iconSparkles} Traducir Toda la Canción</button>
+              ` : ''}
+              <button class="btn btn-primary btn-add-first-line">${iconPlus} Añadir Primera Frase</button>
+              <button class="btn btn-outline btn-open-quick-import">${iconFileText} Pegar Letra Completa</button>
+            </div>
+          </div>
+        `)
       : lines.map((line, lineIdx) => {
         const isExpanded = !isTranslation && expandedLineIndices.has(lineIdx)
         const sylCount = line.syllables?.length || 0

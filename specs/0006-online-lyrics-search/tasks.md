@@ -21,6 +21,9 @@
   - Fijación con `flex-shrink: 0 !important`, altura mínima `min-height: 44px` y aislamiento con `z-index: 2` en `.online-providers-bar` y `.online-inputs-container`, evitando la compresión vertical por flexbox al cargar resultados en pantallas móviles.
 - [x] **29.2. Botón de Importación en Cabecera de Búsqueda Online:**
   - Integración del botón de importar (`#btn-modal-import`) a la izquierda del botón de creación vacía (`#btn-modal-create-empty`), provisto únicamente de icono SVG (`iconUpload`) sin texto, con input de archivo oculto para `.json`, `.yaml` y `.yml`, integrando `importUniversalFile` y cerrando el modal tras una importación exitosa.
+- [x] **29.3. Transición Inmediata al Editor y Carga Progresiva en Segundo Plano:**
+  - Cierre inmediato del modal al seleccionar una canción y navegación directa al editor con paquete preliminar (título, artista, álbum, video).
+  - Descarga progresiva de la letra en segundo plano con actualización en caliente de versos y sílabas (`onLyricsReady`) y de la traducción complementaria al finalizar, sin llamadas de red duplicadas y con estado interactivo visual en el editor.
 
 ---
 
