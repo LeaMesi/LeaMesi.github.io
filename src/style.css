@@ -650,6 +650,7 @@ input[type="number"] {
   backdrop-filter: blur(16px);
   padding: 12px 24px calc(16px + var(--safe-bottom));
   transition: transform 0.25s ease, opacity 0.2s ease, background 0.25s ease;
+  cursor: pointer;
 }
 
 .controls-dock.is-collapsed {
@@ -737,6 +738,8 @@ input[type="number"] {
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
   min-width: 44px;
+  cursor: default;
+  user-select: none;
 }
 
 .seek-slider {
@@ -838,6 +841,7 @@ input[type="number"] {
   min-width: 30px;
   text-align: right;
   user-select: none;
+  cursor: default;
 }
 
 .controls-main-row {

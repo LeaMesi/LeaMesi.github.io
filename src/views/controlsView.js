@@ -74,9 +74,11 @@ export function createControlsView({
   let hasAltText = false
   let currentMode = 'basic' // 'basic' | 'advanced'
   let isSettingsOpen = false
+  let isDockClickBound = false
 
   function render() {
     if (!containerElement) return
+    containerElement.title = 'Volver a la lista de canciones'
 
     const translations = availableLanguages.filter(l => !l.isMain)
     const translationsHtml = `
@@ -235,6 +237,21 @@ export function createControlsView({
   }
 
   function bindEvents() {
+    if (!isDockClickBound && containerElement) {
+      isDockClickBound = true
+      containerElement.addEventListener('click', (e) => {
+        if (e.target.closest('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .modal-dialog, .time-label, .volume-percent-label')) {
+          return
+        }
+        const selection = window.getSelection?.()
+        if (selection && selection.toString().trim().length > 0) {
+          return
+        }
+        if (onGoToMenu) onGoToMenu()
+        else if (onOpenLibrary) onOpenLibrary()
+      })
+    }
+
     const playBtn = containerElement.querySelector('.btn-play-pause')
     if (playBtn) playBtn.addEventListener('click', () => onPlayToggle && onPlayToggle())
 

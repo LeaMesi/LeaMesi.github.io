@@ -283,5 +283,33 @@ describe('views/controlsView.js', () => {
     expect(nextBtn.disabled).toBe(false)
     expect(countBadge.textContent).toBe('2')
   })
+
+  it('lleva a la lista de canciones al hacer clic en el fondo de los controles pero no al hacer clic en botones o sliders', () => {
+    const onGoToMenu = vi.fn()
+    const controls = createControlsView({
+      containerElement: container,
+      onGoToMenu
+    })
+    controls.render()
+
+    // 1. Clic en botón de reproducción no debe llamar onGoToMenu
+    const playBtn = container.querySelector('.btn-play-pause')
+    playBtn.click()
+    expect(onGoToMenu).not.toHaveBeenCalled()
+
+    // 2. Clic en el slider de búsqueda no debe llamar onGoToMenu
+    const seekSlider = container.querySelector('.seek-slider')
+    seekSlider.click()
+    expect(onGoToMenu).not.toHaveBeenCalled()
+
+    // 3. Clic en el slider de volumen no debe llamar onGoToMenu
+    const volumeSlider = container.querySelector('.volume-slider')
+    volumeSlider.click()
+    expect(onGoToMenu).not.toHaveBeenCalled()
+
+    // 4. Clic en el fondo del contenedor de controles sí debe llamar onGoToMenu
+    container.click()
+    expect(onGoToMenu).toHaveBeenCalledTimes(1)
+  })
 })
 

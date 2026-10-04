@@ -646,22 +646,7 @@ async function initApp() {
     }
   })
 
-  // 11c. Clic en el fondo del reproductor (Modo Letra) para volver a la lista de canciones
-  if (lyricsScreenEl) {
-    lyricsScreenEl.addEventListener('click', (e) => {
-      // Si se hace clic dentro del dock de controles, modales, botón de salir de pantalla completa, botones, inputs, selects, links, frases siguientes o frases anteriores (con acción de salto temporal), ignorar
-      if (e.target.closest('#controls-dock, .modal-dialog, #btn-exit-fullscreen, button, input, select, textarea, a, .upcoming-phrase-item, .past-phrase-item')) {
-        return
-      }
-      const selection = window.getSelection?.()
-      if (selection && selection.toString().trim().length > 0) {
-        return
-      }
-      showMenuScreen()
-    })
-  }
-
-  // 11. Cambio de Modo (Sencillo vs Avanzado)
+  // 12. Cambio de Modo (Sencillo vs Avanzado)
   function switchMode(newMode) {
     currentMode = newMode
     controlsView.setMode(newMode)

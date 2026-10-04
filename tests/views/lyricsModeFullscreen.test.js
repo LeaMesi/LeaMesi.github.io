@@ -82,15 +82,14 @@ describe('lyricsModeFullscreen and background navigation', () => {
     expect(appContainer.classList.contains('is-fullscreen-lyrics')).toBe(false)
   })
 
-  it('lleva al usuario a la lista de canciones al hacer clic en el fondo del reproductor', () => {
+  it('no lleva al menú al hacer clic en el fondo de las frases y sí lleva al menú al hacer clic en el fondo de los controles', () => {
     const onGoToMenu = vi.fn()
 
-    lyricsScreen.addEventListener('click', (e) => {
-      if (e.target.closest('#controls-dock, .modal-dialog, #btn-exit-fullscreen, button, input, select, textarea, a, .upcoming-phrase-item, .past-phrase-item')) {
-        return
-      }
-      onGoToMenu()
+    const controls = createControlsView({
+      containerElement: controlsDock,
+      onGoToMenu
     })
+    controls.render()
 
     const viewer = createBasicViewer(lyricsViewport, {
       initialPastCount: 1,
@@ -106,23 +105,34 @@ describe('lyricsModeFullscreen and background navigation', () => {
     })
     viewer.updateTime(7.0) // Activa línea dos, línea uno es pasada, línea tres es futura
 
-    // 1. Clic en el fondo del viewport
+    // 1. Clic en el fondo del viewport donde aparecen las frases NO debe ir al menú
     lyricsViewport.click()
-    expect(onGoToMenu).toHaveBeenCalledTimes(1)
+    expect(onGoToMenu).not.toHaveBeenCalled()
 
     // 2. Clic en una frase siguiente (upcoming-phrase-item) no debe ir al menú
     const upcoming = lyricsViewport.querySelector('.upcoming-phrase-item')
     expect(upcoming).not.toBeNull()
     upcoming.click()
-    expect(onGoToMenu).toHaveBeenCalledTimes(1)
+    expect(onGoToMenu).not.toHaveBeenCalled()
 
     // 3. Clic en una frase anterior (past-phrase-item) no debe ir al menú
     const past = lyricsViewport.querySelector('.past-phrase-item')
     expect(past).not.toBeNull()
     past.click()
-    expect(onGoToMenu).toHaveBeenCalledTimes(1)
+    expect(onGoToMenu).not.toHaveBeenCalled()
 
-    // 4. Clic dentro del dock de controles no debe ir al menú
+    // 4. Clic en botones o sliders dentro de controles no debe ir al menú
+    const playBtn = controlsDock.querySelector('.btn-play-pause')
+    expect(playBtn).not.toBeNull()
+    playBtn.click()
+    expect(onGoToMenu).not.toHaveBeenCalled()
+
+    const seekSlider = controlsDock.querySelector('.seek-slider')
+    expect(seekSlider).not.toBeNull()
+    seekSlider.click()
+    expect(onGoToMenu).not.toHaveBeenCalled()
+
+    // 5. Clic en el fondo de los controles del modo letra SÍ lleva a la lista de canciones
     controlsDock.click()
     expect(onGoToMenu).toHaveBeenCalledTimes(1)
   })
