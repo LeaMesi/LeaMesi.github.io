@@ -31,8 +31,7 @@ async function initApp() {
     <!-- Encabezado Global -->
     <header class="app-header">
       <div class="brand-section">
-        <h1 class="brand-title">SarangaBaranga</h1>
-        <span class="badge-mode" id="app-mode-badge">Modo Sencillo</span>
+        <h1 class="brand-title" id="brand-title" title="Ir a la lista de canciones" role="button" tabindex="0" aria-label="Ir a la lista de canciones">SarangaBaranga</h1>
       </div>
 
       <div class="song-header-info" id="song-header-info">
@@ -607,10 +606,23 @@ async function initApp() {
     songEditorView.open(songToEdit)
   }
 
-  // 11. Botón de volver al menú desde el header
+  // 11. Botón de volver al menú desde el header y clic en el logo "SarangaBaranga"
   if (btnHeaderBackMenu) {
     btnHeaderBackMenu.addEventListener('click', () => {
       showMenuScreen()
+    })
+  }
+
+  const brandTitleEl = document.querySelector('#brand-title')
+  if (brandTitleEl) {
+    brandTitleEl.addEventListener('click', () => {
+      showMenuScreen()
+    })
+    brandTitleEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        showMenuScreen()
+      }
     })
   }
 

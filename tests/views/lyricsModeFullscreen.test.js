@@ -126,4 +126,28 @@ describe('lyricsModeFullscreen and background navigation', () => {
     controlsDock.click()
     expect(onGoToMenu).toHaveBeenCalledTimes(1)
   })
+
+  it('lleva al usuario a la lista de canciones al hacer clic en SarangaBaranga (#brand-title)', () => {
+    const onGoToMenu = vi.fn()
+    const brandTitle = document.createElement('h1')
+    brandTitle.className = 'brand-title'
+    brandTitle.id = 'brand-title'
+    brandTitle.textContent = 'SarangaBaranga'
+    brandTitle.addEventListener('click', () => onGoToMenu())
+    brandTitle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        onGoToMenu()
+      }
+    })
+    header.appendChild(brandTitle)
+
+    // Clic en el logo/título
+    brandTitle.click()
+    expect(onGoToMenu).toHaveBeenCalledTimes(1)
+
+    // Pulsación de tecla Enter
+    brandTitle.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+    expect(onGoToMenu).toHaveBeenCalledTimes(2)
+  })
 })

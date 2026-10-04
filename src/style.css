@@ -122,6 +122,24 @@ input[type="number"] {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.brand-title:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.brand-title:active {
+  transform: translateY(0);
+}
+
+.brand-title:focus-visible {
+  outline: 2px solid var(--primary-color, #6366f1);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .song-header-info {

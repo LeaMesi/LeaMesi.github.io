@@ -152,10 +152,6 @@ export function createControlsView({
             <button class="btn btn-xs btn-outline btn-open-playlist" id="btn-controls-playlist" title="Abrir lista de reproducción (${playlistCount} canciones)">
               ${iconListMusic} <span class="playlist-badge-count ${playlistCount > 0 ? 'has-items' : ''}">${playlistCount}</span>
             </button>
-            <!-- Alternador de Modo: Sencillo vs Avanzado -->
-            <button class="btn btn-mode-toggle" title="Cambiar modo de visualización">
-              ${currentMode === 'basic' ? 'Modo Avanzado' : 'Modo Sencillo'}
-            </button>
 
             <!-- Editar Letra de esta Canción -->
             <button class="btn btn-outline" id="btn-controls-edit" title="Editar letra, frases, sílabas e idiomas de esta canción">
