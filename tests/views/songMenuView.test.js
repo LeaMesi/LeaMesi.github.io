@@ -385,14 +385,14 @@ describe('views/songMenuView.js', () => {
     expect(activeIndicator).not.toBeNull()
     expect(activeIndicator.style.display).not.toBe('none')
     expect(activeIndicator.querySelector('.now-playing-bars')).not.toBeNull()
-    expect(activeCard.querySelector('.btn-enter-lyrics').textContent).toContain('Ver')
+    expect(activeCard.querySelector('.btn-enter-lyrics').textContent).toContain('Modo Letra')
 
     // La tarjeta inactiva no tiene las clases ni las barras visibles
     expect(inactiveCard.classList.contains('is-active-song')).toBe(false)
     const inactiveIndicator = inactiveCard.querySelector('.card-now-playing-indicator')
     expect(inactiveIndicator).not.toBeNull()
     expect(inactiveIndicator.style.display).toBe('none')
-    expect(inactiveCard.querySelector('.btn-enter-lyrics').textContent).toContain('Entrar')
+    expect(inactiveCard.querySelector('.btn-enter-lyrics').textContent).toContain('Modo Letra')
   })
 
   it('actualiza reactivamente el resaltado entre canciones al llamar a setActiveSongId en cuadrícula y lista', async () => {
@@ -421,13 +421,13 @@ describe('views/songMenuView.js', () => {
     expect(card1.classList.contains('is-active-song')).toBe(false)
     expect(card1.classList.contains('is-playing')).toBe(false)
     expect(card1.querySelector('.card-now-playing-indicator').style.display).toBe('none')
-    expect(card1.querySelector('.btn-enter-lyrics').textContent).toContain('Entrar a Modo Letra')
+    expect(card1.querySelector('.btn-enter-lyrics').textContent).toContain('Modo Letra')
 
     expect(card2.classList.contains('is-active-song')).toBe(true)
     expect(card2.classList.contains('is-playing')).toBe(true)
     expect(card2.querySelector('.card-now-playing-indicator').style.display).not.toBe('none')
     expect(card2.querySelector('.card-now-playing-indicator .now-playing-bars')).not.toBeNull()
-    expect(card2.querySelector('.btn-enter-lyrics').textContent).toContain('Ver Modo Letra')
+    expect(card2.querySelector('.btn-enter-lyrics').textContent).toContain('Modo Letra')
 
     // Alternar a modo lista y verificar que el resaltado persiste y sustituye el icono de nota musical
     const listBtn = container.querySelector('#btn-view-list')

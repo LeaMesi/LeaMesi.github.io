@@ -539,9 +539,10 @@ describe('views/songEditorView.js', () => {
       const editor = createSongEditorView({ containerElement: container })
       editor.open(multiLangSong)
 
-      // Abrir modal de configuración del idioma activo (principal: Japonés)
-      const editBtn = container.querySelector('#btn-edit-active-lang')
-      editBtn.click()
+      // Abrir modal de configuración del idioma activo (principal: Japonés) haciendo clic en la pestaña activa
+      const activeTab = container.querySelector('.editor-lang-tab.active')
+      expect(activeTab).not.toBeNull()
+      activeTab.click()
 
       expect(container.querySelector('.modal-dialog')).not.toBeNull()
       const setMainBtn = container.querySelector('#btn-modal-set-lang-main')
@@ -562,9 +563,10 @@ describe('views/songEditorView.js', () => {
       const tabs = container.querySelectorAll('.editor-lang-tab')
       tabs[1].click()
 
-      // Abrir modal de configuración
-      const editBtn = container.querySelector('#btn-edit-active-lang')
-      editBtn.click()
+      // Abrir modal de configuración haciendo clic nuevamente en la pestaña activa
+      const activeTab = container.querySelector('.editor-lang-tab.active')
+      expect(activeTab).not.toBeNull()
+      activeTab.click()
 
       const setMainBtn = container.querySelector('#btn-modal-set-lang-main')
       expect(setMainBtn).not.toBeNull()
@@ -594,9 +596,10 @@ describe('views/songEditorView.js', () => {
       const tabs = container.querySelectorAll('.editor-lang-tab')
       tabs[1].click()
 
-      // Abrir modal de configuración
-      const editBtn = container.querySelector('#btn-edit-active-lang')
-      editBtn.click()
+      // Abrir modal de configuración haciendo clic nuevamente en la pestaña activa
+      const activeTab = container.querySelector('.editor-lang-tab.active')
+      expect(activeTab).not.toBeNull()
+      activeTab.click()
 
       const deleteBtn = container.querySelector('#btn-modal-delete-lang')
       deleteBtn.click()

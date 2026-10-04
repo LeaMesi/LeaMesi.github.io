@@ -41,3 +41,9 @@ Widget compacto fijado en la esquina inferior derecha del catálogo cuando hay u
 - Barra de control de tiempo (seek slider) con protección contra congelamiento `isUserSeeking`.
 - Deslizador de volumen y silenciado sincronizado con `mediaPlayer`.
 - Acceso directo `${iconMic} Letra` para volver instantáneamente a Modo Letra.
+
+---
+
+## 5. Botones de Acción en Canciones del Catálogo
+- **Vista Cuadrícula:** El botón principal de cada tarjeta de canción (`.btn-enter-lyrics`) mantiene de forma fija el texto `${iconMic} Modo Letra` tanto en el renderizado inicial como ante actualizaciones reactivas de estado (`updateActiveSongHighlight`).
+- **Vista Lista:** El botón compacto muestra `${iconMic} Ver` si la canción está activa en reproducción o `${iconMic} Entrar` si está inactiva.

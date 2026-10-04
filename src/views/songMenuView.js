@@ -262,7 +262,7 @@ export function createSongMenuView({
                 <p class="card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
               </div>
               <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                ${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}
+                ${iconMic} Modo Letra
               </button>
             </div>
 
@@ -1089,7 +1089,7 @@ export function createSongMenuView({
         if (card.classList.contains('song-menu-list-row')) {
           enterBtn.innerHTML = isActive ? `${iconMic} Ver` : `${iconMic} Entrar`
         } else {
-          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}`
+          enterBtn.innerHTML = `${iconMic} Modo Letra`
         }
       }
     })

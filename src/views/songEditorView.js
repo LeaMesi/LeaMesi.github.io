@@ -662,24 +662,6 @@ export function createSongEditorView({
               </button>
             </div>
 
-            <!-- Barra de estado y configuración del idioma activo -->
-            ${activeLang ? `
-              <div class="active-lang-settings-bar">
-                <div class="lang-info-group">
-                  <span class="lang-title-badge btn-trigger-edit-lang" title="Hacé clic para configurar este idioma">
-                    ${activeLang.isMain ? 'Idioma Principal (Voz del Artista)' : 'Traducción Sincronizada'}: <strong>${escapeHtml(activeLang.name)}</strong> <span class="lang-code-tag">[${escapeHtml(activeLang.code)}]</span> ${iconEdit}
-                  </span>
-                  <span class="lang-counter">Frases: <strong>${lines.length}</strong></span>
-                </div>
-
-                <div class="lang-controls-group">
-                  <button class="btn btn-xs btn-outline" id="btn-edit-active-lang" title="Cambiar nombre, código o gestionar este idioma">
-                    ${iconEdit} Configurar Idioma
-                  </button>
-                </div>
-              </div>
-            ` : ''}
-
             <!-- Barra de Herramientas de Frases -->
             <div class="phrases-toolbar">
               <div class="phrases-count">
