@@ -39,7 +39,7 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;')
 }
 
-export function createOnlineLyricsModal({ containerElement, onSongReady }) {
+export function createOnlineLyricsModal({ containerElement, onSongReady, onCreateEmptySong }) {
   let isOpen = false
 
   // Estado de navegación
@@ -816,9 +816,11 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
             <h2 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
               ${iconGlobe} Buscar Canción Online
             </h2>
-            <p class="subtitle">Buscador multilínea con BetterLyrics, LRC.red, Genius y LRCLIB para importar canciones sincronizadas al editor.</p>
           </div>
-          <button class="btn-close-modal" id="btn-close-online-modal" title="Cerrar modal">${iconClose}</button>
+          <div class="modal-header-actions">
+            <button type="button" class="btn btn-primary btn-modal-create-empty" id="btn-modal-create-empty" title="Crear canción vacía" aria-label="Crear canción vacía">${iconPlus}</button>
+            <button class="btn-close-modal" id="btn-close-online-modal" title="Cerrar modal">${iconClose}</button>
+          </div>
         </div>
 
         <div class="modal-body online-modal-body">
@@ -904,6 +906,15 @@ export function createOnlineLyricsModal({ containerElement, onSongReady }) {
     // Cerrar modal
     const closeBtn = containerElement.querySelector('#btn-close-online-modal')
     if (closeBtn) closeBtn.addEventListener('click', close)
+
+    // Crear canción vacía
+    const createEmptyBtn = containerElement.querySelector('#btn-modal-create-empty')
+    if (createEmptyBtn) {
+      createEmptyBtn.addEventListener('click', () => {
+        close()
+        if (onCreateEmptySong) onCreateEmptySong()
+      })
+    }
 
     const cancelBtn = containerElement.querySelector('#btn-cancel-online-modal')
     if (cancelBtn) cancelBtn.addEventListener('click', close)

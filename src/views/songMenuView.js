@@ -40,6 +40,7 @@ import {
 
 export function createSongMenuView({
   containerElement,
+  initialActiveSongId = null,
   onEnterLyricsMode,
   onManageVideos,
   onCreateNewSong,
@@ -53,6 +54,9 @@ export function createSongMenuView({
   let songs = []
   let libraries = []
   let activeLibraryId = 'all' // 'all' | number/string
+  let activeSongId = (initialActiveSongId !== null && initialActiveSongId !== undefined && initialActiveSongId !== '')
+    ? Number(initialActiveSongId)
+    : null
   let playlistCount = 0
   let filterQuery = ''
   let statusMessage = ''
@@ -159,10 +163,9 @@ export function createSongMenuView({
           <div class="empty-songs-state">
             <div class="empty-icon">${iconMusic}</div>
             <h3>Aún no hay canciones en tu biblioteca</h3>
-            <p>Crea una canción o importa tu primer paquete JSON o archivo .lyricsfile.yaml para comenzar a cantar.</p>
+            <p>Agrega canciones desde el buscador online o importa tu primer paquete JSON o archivo .lyricsfile.yaml para comenzar a cantar.</p>
             <div class="empty-btn-group">
-              <button class="btn btn-primary btn-create-empty-song">${iconPlus} Crear Primera Canción</button>
-              <button class="btn btn-secondary btn-search-bl-empty" title="Buscar canciones en BetterLyrics, Genius y LRCLIB">${iconGlobe} Buscar Canción Online</button>
+              <button class="btn btn-primary btn-search-bl-empty" title="Buscar canciones online en distintas fuentes">${iconPlus} Agregar Canción</button>
               <button class="btn btn-outline btn-open-import">${iconUpload} Importar Canción</button>
             </div>
           </div>
@@ -181,6 +184,13 @@ export function createSongMenuView({
         const videos = song.videos || []
         const langCount = song.lyrics_data?.languages?.length || 1
         const mainLang = song.lyrics_data?.languages?.find(l => l.isMain)?.name || 'Original'
+        const isActive = activeSongId !== null && Number(song.id) === activeSongId
+        const activeClass = isActive ? ' is-active-song is-playing' : ''
+        const nowPlayingBadgeHtml = `
+          <span class="badge badge-now-playing" style="${isActive ? 'display: inline-flex;' : 'display: none;'}">
+            <span class="now-playing-bars"><span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span></span> En reproducción
+          </span>
+        `
 
         const videosSummary = videos.length === 0
           ? '<span class="video-pill-empty">Sin videos asociados</span>'
@@ -196,9 +206,9 @@ export function createSongMenuView({
 
         if (viewMode === 'list') {
           return `
-            <article class="song-menu-card song-menu-list-row" data-song-id="${song.id}">
+            <article class="song-menu-card song-menu-list-row${activeClass}" data-song-id="${song.id}">
               <div class="list-col-main">
-                <div class="list-song-icon-wrap" title="Canción">
+                <div class="list-song-icon-wrap" title="${isActive ? 'En reproducción' : 'Canción'}">
                   ${iconMusic}
                 </div>
                 <div class="list-title-group">
@@ -208,16 +218,11 @@ export function createSongMenuView({
               </div>
 
               <div class="list-col-meta">
+                ${nowPlayingBadgeHtml}
                 <span class="badge badge-lang" title="Idiomas disponibles">${langCount} [${escapeHtml(mainLang)}]</span>
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
                 ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
-              </div>
-
-              <div class="list-col-videos">
-                <div class="videos-pill-list">
-                  ${videosSummary}
-                </div>
               </div>
 
               <div class="list-col-actions">
@@ -238,8 +243,8 @@ export function createSongMenuView({
                 <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
                   ${iconTrash}
                 </button>
-                <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="Entrar al modo letra y cantar">
-                  ${iconMic} Entrar
+                <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
+                  ${iconMic} ${isActive ? 'Ver' : 'Entrar'}
                 </button>
               </div>
             </article>
@@ -247,32 +252,24 @@ export function createSongMenuView({
         }
 
         return `
-          <article class="song-menu-card" data-song-id="${song.id}">
+          <article class="song-menu-card${activeClass}" data-song-id="${song.id}">
             <div class="card-header">
               <div class="card-title-group">
                 <h3 class="card-title">${escapeHtml(song.title)}</h3>
                 <p class="card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
               </div>
-              <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="Entrar al modo letra y cantar">
-                ${iconMic} Entrar a Modo Letra
+              <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
+                ${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}
               </button>
             </div>
 
             <div class="card-meta">
               <div class="meta-row">
+                ${nowPlayingBadgeHtml}
                 <span class="badge badge-lang" title="Idiomas disponibles">${langCount} idioma(s) [${escapeHtml(mainLang)}]</span>
                 ${libraryBadges}
                 ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
                 ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
-              </div>
-
-              <div class="card-videos-row">
-                <div class="videos-pill-list">
-                  ${videosSummary}
-                </div>
-                <button class="btn btn-outline btn-xs btn-manage-videos" data-song-id="${song.id}" title="Gestionar videos y configurar offsets">
-                  ${iconSettings} Videos (${videos.length})
-                </button>
               </div>
             </div>
 
@@ -304,27 +301,21 @@ export function createSongMenuView({
       <div class="song-menu-view-container">
         <!-- Barra de Título y Operaciones Principales -->
         <div class="menu-top-bar">
-          <div class="menu-titles">
-            <h2 class="menu-heading">Menú de Selección de Canciones</h2>
-            <p class="menu-subheading">Organiza tus canciones en bibliotecas, expórtalas en grupo y canta con letra sincronizada.</p>
-          </div>
 
           <div class="menu-actions">
-            <button class="btn btn-primary" id="btn-create-song" title="Crear una nueva canción desde cero">
-              ${iconPlus} Crear Canción
-            </button>
-            <button class="btn btn-secondary" id="btn-search-betterlyrics" title="Buscar canciones online en BetterLyrics, Genius y LRCLIB">
-              ${iconGlobe} Buscar Canción Online
-            </button>
-            <button class="btn btn-outline btn-toggle-import">
-              ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
-            </button>
-            <button class="btn btn-outline" id="btn-top-playlist" title="Ver lista de reproducción activa">
-              ${iconListMusic} Playlist (${playlistCount})
-            </button>
-            <button class="btn btn-outline" id="btn-menu-backup" title="Exportar respaldo de todas las canciones">
-              ${iconDownload} Respaldo Completo
-            </button>
+            <div>
+                <button class="btn btn-primary" id="btn-search-betterlyrics" title="Buscar canciones online en distintas fuentes">
+                  ${iconPlus} Agregar canción
+                </button>
+            </div>
+            <div class="menu-actions-right">
+                <button class="btn btn-outline btn-toggle-import">
+                  ${isImportOpen ? `${iconClose} Ocultar` : `${iconUpload} Importar`}
+                </button>
+                <button class="btn btn-outline" id="btn-menu-backup" title="Exportar respaldo de todas las canciones">
+                  ${iconDownload} Respaldo Completo
+                </button>
+          </div>
           </div>
         </div>
 
@@ -430,9 +421,6 @@ export function createSongMenuView({
             ${filterQuery ? `<button class="btn-clear-search" id="btn-clear-search">${iconClose}</button>` : ''}
           </div>
           <div class="menu-filter-right-controls">
-            <button class="btn btn-xs btn-outline btn-menu-open-playlist" id="btn-menu-open-playlist" title="Abrir lista de reproducción activa (${playlistCount} canciones)">
-              ${iconListMusic} Playlist <span class="playlist-badge-pill ${playlistCount > 0 ? 'has-items' : ''}">${playlistCount}</span>
-            </button>
             <div class="song-count-badge">
               ${filtered.length} de ${candidateSongs.length} canción(es)
             </div>
@@ -963,6 +951,7 @@ export function createSongMenuView({
         if (confirmed) {
           try {
             await deleteSong(songId)
+            if (activeSongId === songId) activeSongId = null
             showStatus('Canción eliminada correctamente.', 'info')
             await loadData()
           } catch (err) {
@@ -1065,6 +1054,45 @@ export function createSongMenuView({
       .replace(/'/g, '&#039;')
   }
 
+  function setActiveSongId(id) {
+    const parsed = (id !== null && id !== undefined && id !== '') ? Number(id) : null
+    if (activeSongId !== parsed) {
+      activeSongId = parsed
+      updateActiveSongHighlight()
+    }
+  }
+
+  function updateActiveSongHighlight() {
+    if (!containerElement) return
+    const cards = containerElement.querySelectorAll('.song-menu-card')
+    cards.forEach(card => {
+      const songId = Number(card.dataset.songId)
+      const isActive = activeSongId !== null && songId === activeSongId
+      card.classList.toggle('is-active-song', isActive)
+      card.classList.toggle('is-playing', isActive)
+
+      const badge = card.querySelector('.badge-now-playing')
+      if (badge) {
+        badge.style.display = isActive ? 'inline-flex' : 'none'
+      }
+
+      const iconWrap = card.querySelector('.list-song-icon-wrap')
+      if (iconWrap) {
+        iconWrap.title = isActive ? 'En reproducción' : 'Canción'
+      }
+
+      const enterBtn = card.querySelector('.btn-enter-lyrics')
+      if (enterBtn) {
+        enterBtn.title = isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'
+        if (card.classList.contains('song-menu-list-row')) {
+          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver' : 'Entrar'}`
+        } else {
+          enterBtn.innerHTML = `${iconMic} ${isActive ? 'Ver Modo Letra' : 'Entrar a Modo Letra'}`
+        }
+      }
+    })
+  }
+
   return {
     render,
     refresh: loadData,
@@ -1072,6 +1100,8 @@ export function createSongMenuView({
     getLibraries: () => libraries,
     getActiveLibraryId: () => activeLibraryId,
     setActiveLibraryId: (id) => { activeLibraryId = id; render() },
+    setActiveSongId,
+    getActiveSongId: () => activeSongId,
     setPlaylistCount: (count) => {
       playlistCount = Number(count) || 0
       const badge = containerElement?.querySelector('.playlist-badge-pill')

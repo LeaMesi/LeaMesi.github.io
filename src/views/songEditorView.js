@@ -409,11 +409,6 @@ export function createSongEditorView({
                 <button class="btn btn-xs btn-outline btn-toggle-syllables" data-line-idx="${lineIdx}" title="${isExpanded ? 'Contraer sílabas' : 'Editar sílabas y tiempos'}">
                   Sílabas (${sylCount}) ${isExpanded ? iconChevronUp : iconChevronDown}
                 </button>
-                ${sylCount > 0 ? `
-                  <button class="btn btn-xs btn-outline btn-danger-outline btn-clear-line-syllables" data-line-idx="${lineIdx}" title="Borrar todas las sílabas de este verso">
-                    ${iconTrash} Sílabas
-                  </button>
-                ` : ''}
                 <button class="btn btn-xs btn-outline btn-move-line-up" data-line-idx="${lineIdx}" title="Mover arriba" ${lineIdx === 0 ? 'disabled' : ''}>${iconChevronUp}</button>
                 <button class="btn btn-xs btn-outline btn-move-line-down" data-line-idx="${lineIdx}" title="Mover abajo" ${lineIdx === lines.length - 1 ? 'disabled' : ''}>${iconChevronDown}</button>
                 <button class="btn btn-xs btn-outline btn-delete-line" data-line-idx="${lineIdx}" title="Eliminar este verso">${iconTrash}</button>
@@ -505,9 +500,6 @@ export function createSongEditorView({
         <!-- Barra de Encabezado Superior -->
         <header class="editor-header-bar">
           <div class="editor-brand">
-            <button class="btn btn-outline btn-sm" id="btn-editor-back">
-              ${iconArrowLeft} Menú
-            </button>
             <div class="editor-title-block">
               <h2 class="editor-heading">${isNew ? 'Crear Nueva Canción' : `Edición`}</h2>
               <span class="editor-subheading">${isNew ? 'Añade metadatos, videos de YouTube / YouTube Music y letras multilingües con sílabas' : `${escapeHtml(currentSong.title || 'Sin Título')} - ${escapeHtml(currentSong.artist || 'Desconocido')}`}</span>
@@ -541,25 +533,19 @@ export function createSongEditorView({
 
         <!-- Asistente de Audio para Sincronización en Vivo -->
         <div class="editor-audio-assistant">
-          <div class="assistant-info">
-            <div class="assistant-text">
-              <strong>Asistente de Audio en Vivo:</strong>
-              <span>Reproducí o pausá el audio mientras editás para capturar los tiempos exactos con el botón de captura de tiempo en cada frase o sílaba.</span>
-            </div>
-          </div>
-
           <div class="assistant-controls">
             <button class="btn btn-primary btn-sm btn-assistant-play" id="btn-assistant-play">
-              ${mediaPlayer?.getIsPlaying() ? `${iconPause} Pausa` : `${iconPlay} Reproducir`}
+              ${mediaPlayer?.getIsPlaying() ? `${iconPause}` : `${iconPlay}`}
             </button>
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-5" title="Retroceder 5 segundos">-5s</button>
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-1" title="Retroceder 1 segundo">-1s</button>
+            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="-0.1" title="Retroceder 1 segundo">-1s</button>
             
             <div class="assistant-clock">
-              <span class="clock-label">Tiempo Actual (τ):</span>
               <span class="clock-time" id="assistant-clock-time">${formatTime(Math.max(0, mediaPlayer?.getCurrentTime() || 0), true)}</span>
             </div>
 
+            <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="0.1" title="Adelantar 1 segundo">+1s</button>
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="1" title="Adelantar 1 segundo">+1s</button>
             <button class="btn btn-outline btn-xs btn-seek-rel" data-seek="5" title="Adelantar 5 segundos">+5s</button>
           </div>
@@ -569,7 +555,7 @@ export function createSongEditorView({
           <!-- Acordeón de Metadatos y Videos de la Canción -->
           <details class="editor-section-card" ${isMetadataOpen ? 'open' : ''} id="editor-metadata-details">
             <summary class="editor-section-summary">
-              <span class="summary-title">1. Metadatos Generales y Videos Asociados</span>
+              <span class="summary-title">Metadatos Generales y Videos Asociados</span>
               <span class="summary-badge">${escapeHtml(currentSong.title || 'Completar datos')} (${videos.length} video(s))</span>
             </summary>
 
@@ -639,8 +625,7 @@ export function createSongEditorView({
           <section class="editor-section-card editor-lyrics-section">
             <div class="editor-lyrics-header">
               <div class="lyrics-section-titles">
-                <h3>2. Idiomas y Letras de la Canción</h3>
-                <p>Gestioná la versión original cantada y añade todas las traducciones que desees.</p>
+                <h3>Idiomas y Letras de la Canción</h3>
               </div>
 
               <div class="lang-actions-group">
@@ -1041,7 +1026,7 @@ export function createSongEditorView({
     if (assistantPlayBtn && mediaPlayer) {
       assistantPlayBtn.addEventListener('click', async () => {
         await mediaPlayer.togglePlay()
-        assistantPlayBtn.innerHTML = mediaPlayer.getIsPlaying() ? `${iconPause} Pausa` : `${iconPlay} Reproducir`
+        assistantPlayBtn.innerHTML = mediaPlayer.getIsPlaying() ? `${iconPause}` : `${iconPlay}`
       })
     }
 
@@ -1919,7 +1904,7 @@ export function createSongEditorView({
   function setPlayingState(playing) {
     const assistantPlayBtn = containerElement?.querySelector('#btn-assistant-play')
     if (assistantPlayBtn) {
-      assistantPlayBtn.innerHTML = playing ? `${iconPause} Pausa` : `${iconPlay} Reproducir`
+      assistantPlayBtn.innerHTML = playing ? `${iconPause}` : `${iconPlay}`
     }
   }
 

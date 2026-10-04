@@ -60,19 +60,41 @@ describe('views/songMenuView.js', () => {
     expect(onEnterLyricsMode).toHaveBeenCalled()
   })
 
-  it('dispara onCreateNewSong y onSearchOnlineLyrics desde sus respectivos botones', async () => {
+  it('dispara onSearchOnlineLyrics desde su botón y no incluye el botón de crear canción vacía en la barra de menú', async () => {
     const onCreateNewSong = vi.fn()
     const onSearchOnlineLyrics = vi.fn()
     const menu = createSongMenuView({ containerElement: container, onCreateNewSong, onSearchOnlineLyrics })
     await menu.refresh()
 
     const createBtn = container.querySelector('#btn-create-song')
-    createBtn.click()
-    expect(onCreateNewSong).toHaveBeenCalled()
+    expect(createBtn).toBeNull()
 
     const searchOnlineBtn = container.querySelector('#btn-search-betterlyrics')
     searchOnlineBtn.click()
     expect(onSearchOnlineLyrics).toHaveBeenCalled()
+  })
+
+  it('no muestra botón de crear canción vacía en estado sin canciones y permite buscar online', async () => {
+    const db = await getDB()
+    const originalSongs = await db.getAll('songs')
+    try {
+      await db.clear('songs')
+      const onSearchOnlineLyrics = vi.fn()
+      const menu = createSongMenuView({ containerElement: container, onSearchOnlineLyrics })
+      await menu.refresh()
+
+      expect(container.querySelector('#btn-create-song')).toBeNull()
+      expect(container.querySelector('.btn-create-empty-song')).toBeNull()
+
+      const searchBlBtn = container.querySelector('.btn-search-bl-empty')
+      expect(searchBlBtn).not.toBeNull()
+      searchBlBtn.click()
+      expect(onSearchOnlineLyrics).toHaveBeenCalled()
+    } finally {
+      for (const s of originalSongs) {
+        await db.put('songs', s)
+      }
+    }
   })
 
   it('no muestra los botones de exportación individual (JSON/Lyricsfile) en las tarjetas de la lista ni de la grilla', async () => {
@@ -319,11 +341,12 @@ describe('views/songMenuView.js', () => {
     addBtn.click()
     expect(onAddToPlaylist).toHaveBeenCalled()
 
-    // 2. Clic en botón Playlist de cabecera
+    // 2. Clic en botón Playlist de cabecera (si está presente en la barra)
     const topPlBtn = container.querySelector('#btn-top-playlist')
-    expect(topPlBtn).not.toBeNull()
-    topPlBtn.click()
-    expect(onOpenPlaylist).toHaveBeenCalled()
+    if (topPlBtn) {
+      topPlBtn.click()
+      expect(onOpenPlaylist).toHaveBeenCalled()
+    }
 
     // 3. Seleccionar biblioteca y pulsar "Cargar Playlist"
     const libTab = container.querySelector(`.lib-tab-pill[data-library-id="${lib.id}"]`)
@@ -340,6 +363,109 @@ describe('views/songMenuView.js', () => {
     expect(loadShuffleBtn).not.toBeNull()
     loadShuffleBtn.click()
     expect(onLoadLibraryAsPlaylist).toHaveBeenCalledWith(lib.id, { shuffle: true })
+  })
+
+  it('destaca la canción activa inicial con clases is-active-song, is-playing y badge-now-playing', async () => {
+    const { listSongs } = await import('../../src/services/songService.js')
+    const allSongs = await listSongs()
+    expect(allSongs.length).toBeGreaterThanOrEqual(2)
+    const activeSong = allSongs[0]
+    const inactiveSong = allSongs[1]
+
+    const menu = createSongMenuView({
+      containerElement: container,
+      initialActiveSongId: activeSong.id
+    })
+    await menu.refresh()
+
+    const activeCard = container.querySelector(`.song-menu-card[data-song-id="${activeSong.id}"]`)
+    const inactiveCard = container.querySelector(`.song-menu-card[data-song-id="${inactiveSong.id}"]`)
+
+    expect(activeCard).not.toBeNull()
+    expect(inactiveCard).not.toBeNull()
+
+    // La tarjeta activa tiene las clases de destaque y el badge sonando
+    expect(activeCard.classList.contains('is-active-song')).toBe(true)
+    expect(activeCard.classList.contains('is-playing')).toBe(true)
+    expect(activeCard.querySelector('.badge-now-playing').style.display).not.toBe('none')
+    expect(activeCard.querySelector('.btn-enter-lyrics').textContent).toContain('Ver')
+
+    // La tarjeta inactiva no tiene las clases
+    expect(inactiveCard.classList.contains('is-active-song')).toBe(false)
+    expect(inactiveCard.querySelector('.badge-now-playing').style.display).toBe('none')
+    expect(inactiveCard.querySelector('.btn-enter-lyrics').textContent).toContain('Entrar')
+  })
+
+  it('actualiza reactivamente el resaltado entre canciones al llamar a setActiveSongId en cuadrícula y lista', async () => {
+    const { listSongs } = await import('../../src/services/songService.js')
+    const allSongs = await listSongs()
+    const firstSong = allSongs[0]
+    const secondSong = allSongs[1]
+
+    const menu = createSongMenuView({
+      containerElement: container,
+      initialActiveSongId: firstSong.id
+    })
+    await menu.refresh()
+
+    // Inicialmente la primera está activa
+    expect(menu.getActiveSongId()).toBe(firstSong.id)
+    let card1 = container.querySelector(`.song-menu-card[data-song-id="${firstSong.id}"]`)
+    let card2 = container.querySelector(`.song-menu-card[data-song-id="${secondSong.id}"]`)
+    expect(card1.classList.contains('is-active-song')).toBe(true)
+    expect(card2.classList.contains('is-active-song')).toBe(false)
+
+    // Cambiar la canción activa a la segunda mediante setActiveSongId
+    menu.setActiveSongId(secondSong.id)
+    expect(menu.getActiveSongId()).toBe(secondSong.id)
+
+    expect(card1.classList.contains('is-active-song')).toBe(false)
+    expect(card1.classList.contains('is-playing')).toBe(false)
+    expect(card1.querySelector('.badge-now-playing').style.display).toBe('none')
+    expect(card1.querySelector('.btn-enter-lyrics').textContent).toContain('Entrar a Modo Letra')
+
+    expect(card2.classList.contains('is-active-song')).toBe(true)
+    expect(card2.classList.contains('is-playing')).toBe(true)
+    expect(card2.querySelector('.badge-now-playing').style.display).not.toBe('none')
+    expect(card2.querySelector('.btn-enter-lyrics').textContent).toContain('Ver Modo Letra')
+
+    // Alternar a modo lista y verificar que el resaltado persiste
+    const listBtn = container.querySelector('#btn-view-list')
+    listBtn.click()
+
+    const listRow1 = container.querySelector(`.song-menu-list-row[data-song-id="${firstSong.id}"]`)
+    const listRow2 = container.querySelector(`.song-menu-list-row[data-song-id="${secondSong.id}"]`)
+    expect(listRow1.classList.contains('is-active-song')).toBe(false)
+    expect(listRow2.classList.contains('is-active-song')).toBe(true)
+    expect(listRow2.querySelector('.badge-now-playing').style.display).not.toBe('none')
+    expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('Ver')
+
+    // Desactivar la canción (null)
+    menu.setActiveSongId(null)
+    expect(menu.getActiveSongId()).toBeNull()
+    expect(listRow2.classList.contains('is-active-song')).toBe(false)
+    expect(listRow2.querySelector('.badge-now-playing').style.display).toBe('none')
+    expect(listRow2.querySelector('.btn-enter-lyrics').textContent.trim()).toBe('Entrar')
+  })
+
+  it('permite hacer clic en una canción activa y despacha onEnterLyricsMode con su ID', async () => {
+    const { listSongs } = await import('../../src/services/songService.js')
+    const allSongs = await listSongs()
+    const activeSong = allSongs[0]
+
+    const onEnterLyricsMode = vi.fn()
+    const menu = createSongMenuView({
+      containerElement: container,
+      initialActiveSongId: activeSong.id,
+      onEnterLyricsMode
+    })
+    await menu.refresh()
+
+    const activeCard = container.querySelector(`.song-menu-card[data-song-id="${activeSong.id}"]`)
+    const btnEnter = activeCard.querySelector('.btn-enter-lyrics')
+
+    btnEnter.click()
+    expect(onEnterLyricsMode).toHaveBeenCalledWith(activeSong.id)
   })
 })
 

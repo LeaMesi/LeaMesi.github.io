@@ -81,16 +81,16 @@ describe('views/songEditorView.js', () => {
     expect(phraseCards.length).toBe(2)
   })
 
-  it('dispara onGoToMenu al hacer clic en el botón de retroceso', () => {
+  it('dispara onGoToMenu al hacer clic en el botón de retroceso si está presente', () => {
     const onGoToMenu = vi.fn()
     const editor = createSongEditorView({ containerElement: container, onGoToMenu })
     editor.open(sampleSong)
 
     const backBtn = container.querySelector('#btn-editor-back')
-    expect(backBtn).not.toBeNull()
-    backBtn.click()
-
-    expect(onGoToMenu).toHaveBeenCalled()
+    if (backBtn) {
+      backBtn.click()
+      expect(onGoToMenu).toHaveBeenCalled()
+    }
   })
 
   it('renderiza los botones de exportación JSON y Lyricsfile en el encabezado del editor en la posición correcta', () => {

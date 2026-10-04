@@ -18,6 +18,7 @@ describe('views/controlsView.js', () => {
     expect(container.querySelector('#video-select')).not.toBeNull()
     expect(container.querySelector('#script-select')).not.toBeNull()
     expect(container.querySelector('#trans-select')).not.toBeNull()
+    expect(container.querySelector('#past-lines-select')).not.toBeNull()
     expect(container.querySelector('#preview-lines-select')).not.toBeNull()
   })
 
@@ -72,22 +73,43 @@ describe('views/controlsView.js', () => {
     expect(localStorage.getItem('saranga_preview_lines')).toBe('0')
   })
 
-  it('permite colapsar y expandir el dock de controles (modo inmersivo)', () => {
-    const controls = createControlsView({ containerElement: container })
+  it('permite cambiar la cantidad de líneas anteriores (0 a 3) y persiste en localStorage', () => {
+    const onPastLinesChange = vi.fn()
+    const controls = createControlsView({
+      containerElement: container,
+      initialPastLines: 0,
+      onPastLinesChange
+    })
     controls.render()
 
-    const collapseBtn = container.querySelector('#btn-dock-collapse')
-    collapseBtn.click()
+    const pastSelect = container.querySelector('#past-lines-select')
+    expect(pastSelect.value).toBe('0')
 
-    expect(controls.getIsDockCollapsed()).toBe(true)
-    expect(container.classList.contains('is-collapsed')).toBe(true)
+    pastSelect.value = '2'
+    pastSelect.dispatchEvent(new Event('change'))
 
-    // Botón flotante de expansión aparece
-    const expandBtn = container.querySelector('#btn-dock-expand')
-    expect(expandBtn).not.toBeNull()
-    expandBtn.click()
+    expect(onPastLinesChange).toHaveBeenCalledWith(2)
+    expect(localStorage.getItem('saranga_past_lines')).toBe('2')
+    expect(controls.getPastLinesCount()).toBe(2)
 
-    expect(controls.getIsDockCollapsed()).toBe(false)
+    // Modificar vía método público setPastLinesCount
+    controls.setPastLinesCount(3)
+    expect(pastSelect.value).toBe('3')
+    expect(controls.getPastLinesCount()).toBe(3)
+  })
+
+  it('no incluye botones de esconder o expandir el dock y provee botón de pantalla completa', () => {
+    const onToggleFullscreen = vi.fn()
+    const controls = createControlsView({ containerElement: container, onToggleFullscreen })
+    controls.render()
+
+    expect(container.querySelector('#btn-dock-collapse')).toBeNull()
+    expect(container.querySelector('#btn-dock-expand')).toBeNull()
+
+    const fsBtn = container.querySelector('#btn-controls-fullscreen')
+    expect(fsBtn).not.toBeNull()
+    fsBtn.click()
+    expect(onToggleFullscreen).toHaveBeenCalled()
   })
 
   it('dispara onScriptDisplayModeChange al alternar el modo de texto', () => {
@@ -106,30 +128,52 @@ describe('views/controlsView.js', () => {
     expect(onScriptDisplayModeChange).toHaveBeenCalledWith('alt')
   })
 
-  it('posiciona el selector de frases siguientes en primer lugar y oculta texto/traducción cuando no aplican', () => {
+  it('ubica el botón de pantalla completa en el centro y organiza video, siguientes y traducción en el menú de configuración', () => {
     const controls = createControlsView({ containerElement: container })
     controls.render()
 
+    // 1. El botón de pantalla completa debe estar centrado en .center-controls
     const centerControls = container.querySelector('.center-controls')
-    const children = Array.from(centerControls.children)
+    expect(centerControls).not.toBeNull()
+    const fsBtn = centerControls.querySelector('#btn-controls-fullscreen')
+    expect(fsBtn).not.toBeNull()
+    expect(Array.from(centerControls.children)[0]).toBe(fsBtn)
 
-    // 1. Selector 'siguientes' debe ser el primer hijo
-    const previewGroup = container.querySelector('.preview-lines-group')
-    expect(children[0]).toBe(previewGroup)
+    // 2. Ruedita de configuración y popover deben existir en los controles
+    const settingsToggleBtn = container.querySelector('#btn-controls-settings-toggle')
+    const popover = container.querySelector('#controls-settings-popover')
+    expect(settingsToggleBtn).not.toBeNull()
+    expect(popover).not.toBeNull()
+    expect(popover.classList.contains('is-open')).toBe(false)
 
-    // 2. Sin altText ni traducciones por defecto, texto y traducción deben estar ocultos (display: none)
-    const scriptGroup = container.querySelector('.script-selector-group')
-    const transGroup = container.querySelector('.translation-group')
+    // Al hacer clic en la ruedita, el popover se abre
+    settingsToggleBtn.click()
+    expect(popover.classList.contains('is-open')).toBe(true)
 
+    // 3. Los selectores de video, anteriores, siguientes y traducción residen dentro del popover
+    const popoverContent = popover.querySelector('.settings-popover-content')
+    const pastGroup = popoverContent.querySelector('.past-lines-group')
+    const previewGroup = popoverContent.querySelector('.preview-lines-group')
+    const videoGroup = popoverContent.querySelector('.video-selector-group')
+    const scriptGroup = popoverContent.querySelector('.script-selector-group')
+    const transGroup = popoverContent.querySelector('.translation-group')
+
+    expect(pastGroup).not.toBeNull()
+    expect(previewGroup).not.toBeNull()
+    expect(videoGroup).not.toBeNull()
+    expect(scriptGroup).not.toBeNull()
+    expect(transGroup).not.toBeNull()
+
+    // 4. Sin altText ni traducciones por defecto, texto y traducción deben estar ocultos (display: none)
     expect(scriptGroup.style.display).toBe('none')
     expect(transGroup.style.display).toBe('none')
 
-    // 3. Al activar hasAltText, el selector de texto debe hacerse visible
+    // 5. Al activar hasAltText, el selector de texto debe hacerse visible
     controls.setScriptState({ hasAltText: true, mode: 'both' })
     const updatedScriptGroup = container.querySelector('.script-selector-group')
     expect(updatedScriptGroup.style.display).not.toBe('none')
 
-    // 4. Al proveer traducciones disponibles, el selector de traducción debe hacerse visible
+    // 6. Al proveer traducciones disponibles, el selector de traducción debe hacerse visible
     controls.setLanguagesState({
       languages: [
         { code: 'es', name: 'Español', isMain: true },
@@ -238,6 +282,34 @@ describe('views/controlsView.js', () => {
     expect(prevBtn.disabled).toBe(true)
     expect(nextBtn.disabled).toBe(false)
     expect(countBadge.textContent).toBe('2')
+  })
+
+  it('lleva a la lista de canciones al hacer clic en el fondo de los controles pero no al hacer clic en botones o sliders', () => {
+    const onGoToMenu = vi.fn()
+    const controls = createControlsView({
+      containerElement: container,
+      onGoToMenu
+    })
+    controls.render()
+
+    // 1. Clic en botón de reproducción no debe llamar onGoToMenu
+    const playBtn = container.querySelector('.btn-play-pause')
+    playBtn.click()
+    expect(onGoToMenu).not.toHaveBeenCalled()
+
+    // 2. Clic en el slider de búsqueda no debe llamar onGoToMenu
+    const seekSlider = container.querySelector('.seek-slider')
+    seekSlider.click()
+    expect(onGoToMenu).not.toHaveBeenCalled()
+
+    // 3. Clic en el slider de volumen no debe llamar onGoToMenu
+    const volumeSlider = container.querySelector('.volume-slider')
+    volumeSlider.click()
+    expect(onGoToMenu).not.toHaveBeenCalled()
+
+    // 4. Clic en el fondo del contenedor de controles sí debe llamar onGoToMenu
+    container.click()
+    expect(onGoToMenu).toHaveBeenCalledTimes(1)
   })
 })
 

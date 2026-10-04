@@ -15,7 +15,7 @@ import { createSongEditorView } from './views/songEditorView.js'
 import { createPlaylistService, loadLibraryIntoPlaylist } from './services/playlistService.js'
 import { createPlaylistModal } from './views/playlistModal.js'
 import { createFloatingPlayerView } from './views/floatingPlayerView.js'
-import { iconArrowLeft, iconPalette, iconListMusic, iconMic } from './views/icons.js'
+import { iconArrowLeft, iconPalette, iconListMusic, iconMic, iconMinimize } from './views/icons.js'
 
 async function initApp() {
   // Aplicar tema guardado inmediatamente
@@ -31,8 +31,7 @@ async function initApp() {
     <!-- Encabezado Global -->
     <header class="app-header">
       <div class="brand-section">
-        <h1 class="brand-title">SarangaBaranga</h1>
-        <span class="badge-mode" id="app-mode-badge">Modo Sencillo</span>
+        <h1 class="brand-title" id="brand-title" title="Ir a la lista de canciones" role="button" tabindex="0" aria-label="Ir a la lista de canciones">SarangaBaranga</h1>
       </div>
 
       <div class="song-header-info" id="song-header-info">
@@ -67,6 +66,11 @@ async function initApp() {
 
     <!-- Pantalla 2: Modo Letra (Visualización y Controles) -->
     <section class="screen-view screen-lyrics" id="lyrics-screen" style="display: none;">
+      <!-- Botón Flotante para Salir de Pantalla Completa -->
+      <button type="button" class="btn btn-outline btn-exit-fullscreen" id="btn-exit-fullscreen" title="Salir de pantalla completa" aria-label="Salir de pantalla completa">
+        ${iconMinimize} <span class="nav-text-full">Salir de pantalla completa</span><span class="nav-text-short">Salir</span>
+      </button>
+
       <main class="main-stage-container">
         <!-- Visor de Letras Sincronizadas -->
         <section class="lyrics-stage-viewport" id="lyrics-viewport"></section>
@@ -109,6 +113,7 @@ async function initApp() {
   const editorScreenEl = document.querySelector('#editor-screen')
   const lyricsViewportEl = document.querySelector('#lyrics-viewport')
   const controlsDockEl = document.querySelector('#controls-dock')
+  const btnExitFullscreen = document.querySelector('#btn-exit-fullscreen')
   const videoModalEl = document.querySelector('#video-modal')
   const betterlyricsModalEl = document.querySelector('#betterlyrics-modal')
   const themeModalEl = document.querySelector('#theme-modal')
@@ -126,12 +131,18 @@ async function initApp() {
     ? Math.max(0, Math.min(3, Number(savedPreviewLines)))
     : 2
 
+  const savedPastLines = localStorage.getItem('saranga_past_lines')
+  const initialPastLines = (savedPastLines !== null && !isNaN(Number(savedPastLines)))
+    ? Math.max(0, Math.min(3, Number(savedPastLines)))
+    : 0
+
   const savedScriptMode = localStorage.getItem('saranga_script_display')
   const initialScriptMode = (savedScriptMode === 'original' || savedScriptMode === 'alt') ? savedScriptMode : 'both'
 
   const languageManager = createLanguageManager([])
   const basicViewer = createBasicViewer(lyricsViewportEl, {
     initialPreviewCount: initialPreviewLines,
+    initialPastCount: initialPastLines,
     initialScriptDisplayMode: initialScriptMode,
     onSeekLine: (seconds) => mediaPlayer.seekLyricsTime(seconds)
   })
@@ -197,6 +208,9 @@ async function initApp() {
     containerElement: betterlyricsModalEl,
     onSongReady: (songPackage) => {
       showEditorScreen(songPackage)
+    },
+    onCreateEmptySong: () => {
+      showEditorScreen(null)
     }
   })
 
@@ -261,6 +275,7 @@ async function initApp() {
   const controlsView = createControlsView({
     containerElement: controlsDockEl,
     initialPreviewLines,
+    initialPastLines,
     initialVolume: mediaPlayer.getVolume(),
     initialScriptDisplayMode: initialScriptMode,
     onPlayToggle: () => mediaPlayer.togglePlay(),
@@ -289,6 +304,9 @@ async function initApp() {
     },
     onPreviewLinesChange: (count) => {
       basicViewer.setPreviewCount(count)
+    },
+    onPastLinesChange: (count) => {
+      basicViewer.setPastCount(count)
     },
     onModeToggle: (newMode) => switchMode(newMode),
     onGoToMenu: () => showMenuScreen(),
@@ -324,6 +342,9 @@ async function initApp() {
     },
     onOpenPlaylist: () => {
       playlistModal.open()
+    },
+    onToggleFullscreen: () => {
+      enterFullscreenMode()
     }
   })
 
@@ -369,7 +390,12 @@ async function initApp() {
   // 8. Inicializar Menú de Selección de Canciones
   const songMenuView = createSongMenuView({
     containerElement: menuScreenEl,
+    initialActiveSongId: currentSong ? currentSong.id : null,
     onEnterLyricsMode: async (songId) => {
+      if (currentSong && Number(currentSong.id) === Number(songId)) {
+        showLyricsScreen()
+        return
+      }
       await loadSongIntoApp(songId, { autoplay: true })
       showLyricsScreen()
     },
@@ -485,8 +511,36 @@ async function initApp() {
     }
   }
 
-  // 10. Alternar Pantallas (Menú vs Letra vs Editor)
+  // 10. Gestión de Pantalla Completa en Modo Letra
+  function enterFullscreenMode() {
+    if (appContainer) appContainer.classList.add('is-fullscreen-lyrics')
+    document.body.classList.add('is-fullscreen-lyrics')
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {})
+    } else if (document.documentElement.webkitRequestFullscreen) {
+      try {
+        document.documentElement.webkitRequestFullscreen()
+      } catch (_) {}
+    }
+  }
+
+  function exitFullscreenMode() {
+    if (appContainer) appContainer.classList.remove('is-fullscreen-lyrics')
+    document.body.classList.remove('is-fullscreen-lyrics')
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {})
+      } else if (document.webkitExitFullscreen) {
+        try {
+          document.webkitExitFullscreen()
+        } catch (_) {}
+      }
+    }
+  }
+
+  // 10b. Alternar Pantallas (Menú vs Letra vs Editor)
   function showMenuScreen() {
+    exitFullscreenMode()
     currentScreen = 'menu'
     if (appContainer) appContainer.dataset.screen = 'menu'
     // No pausamos mediaPlayer para que la música siga sonando de fondo mientras se edita la playlist o el menú
@@ -502,12 +556,14 @@ async function initApp() {
     updateHeaderPlaybackState()
 
     if (currentSong) {
+      songMenuView?.setActiveSongId(currentSong.id)
       floatingPlayerView.setSong(currentSong)
       floatingPlayerView.setPlayingState(mediaPlayer.getIsPlaying())
       floatingPlayerView.setDuration(mediaPlayer.getDuration())
       floatingPlayerView.setTime(mediaPlayer.getCurrentTime())
       floatingPlayerView.setVisible(true)
     } else {
+      songMenuView?.setActiveSongId(null)
       floatingPlayerView.setVisible(false)
     }
 
@@ -533,6 +589,7 @@ async function initApp() {
   }
 
   function showEditorScreen(songToEdit = null) {
+    exitFullscreenMode()
     currentScreen = 'editor'
     if (appContainer) appContainer.dataset.screen = 'editor'
     floatingPlayerView.setVisible(false)
@@ -556,14 +613,47 @@ async function initApp() {
     songEditorView.open(songToEdit)
   }
 
-  // 11. Botón de volver al menú desde el header
+  // 11. Botón de volver al menú desde el header y clic en el logo "SarangaBaranga"
   if (btnHeaderBackMenu) {
     btnHeaderBackMenu.addEventListener('click', () => {
       showMenuScreen()
     })
   }
 
-  // 11. Cambio de Modo (Sencillo vs Avanzado)
+  const brandTitleEl = document.querySelector('#brand-title')
+  if (brandTitleEl) {
+    brandTitleEl.addEventListener('click', () => {
+      showMenuScreen()
+    })
+    brandTitleEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        showMenuScreen()
+      }
+    })
+  }
+
+  // 11b. Botón salir de pantalla completa
+  if (btnExitFullscreen) {
+    btnExitFullscreen.addEventListener('click', (e) => {
+      e.stopPropagation()
+      exitFullscreenMode()
+    })
+  }
+
+  // Sincronizar salida de pantalla completa nativa del navegador (Esc o gesto)
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && (appContainer?.classList.contains('is-fullscreen-lyrics') || document.body.classList.contains('is-fullscreen-lyrics'))) {
+      exitFullscreenMode()
+    }
+  })
+  document.addEventListener('webkitfullscreenchange', () => {
+    if (!document.webkitFullscreenElement && (appContainer?.classList.contains('is-fullscreen-lyrics') || document.body.classList.contains('is-fullscreen-lyrics'))) {
+      exitFullscreenMode()
+    }
+  })
+
+  // 12. Cambio de Modo (Sencillo vs Avanzado)
   function switchMode(newMode) {
     currentMode = newMode
     controlsView.setMode(newMode)
@@ -589,6 +679,7 @@ async function initApp() {
     currentSong = song
     playlistService.setCurrentSong(song)
     updateHeaderPlaybackState()
+    songMenuView?.setActiveSongId(currentSong.id)
 
     const lyricsData = song.lyrics_data || {}
     const languages = Array.isArray(lyricsData.languages) ? lyricsData.languages : []

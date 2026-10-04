@@ -504,13 +504,13 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
 1. **Menú de Selección de Canciones (`songMenuView`):**
    * Pantalla inicial de bienvenida y catálogo general de canciones en IndexedDB.
    * **Modos de Vista Dual (Cuadrícula / Lista):** El usuario puede conmutar entre visualización en **Cuadrícula** (tarjetas amplias con cabecera y metadatos) y **Lista** (filas horizontales compactas tipo biblioteca multimedia), con persistencia de su preferencia en `localStorage` (`saranga_menu_view_mode`) y controles integrados en la barra de búsqueda mediante iconos SVG vectoriales (`iconGrid`, `iconList`).
-   * **Botón "Buscar Canción Online":** Ubicado junto al botón "Crear Canción", abre el modal unificado `onlineLyricsModal` para buscar y precargar canciones directamente desde BetterLyrics, Genius.com y LRCLIB.
+   * **Acciones Principales:** Botón "Agregar canción" que abre el modal unificado `onlineLyricsModal` para buscar y precargar canciones online (BetterLyrics, Genius, LRCLIB, LRC.red). El botón para "Crear Canción" vacía se ubica como un acceso directo con estilo primario e icono '+' en la cabecera de este modal a la izquierda del botón de cierre.
    * Permite gestionar los videos asociados a cada canción mediante un modal dedicado (`videoManagerModal`), importar nuevos paquetes JSON o Lyricsfile YAML y exportar respaldos.
    * Al seleccionar una canción ("🎤 Entrar a Modo Letra" o clic directo en la tarjeta/fila), la canción se carga y se realiza la transición a la vista de letras.
 
 2. **Modo Letra (`BasicModeViewer` / `lyricsViewport`):**
    * Pantalla dedicada a la visualización de la letra y el canto sincronizado sílaba a sílaba.
-   * Incorpora acceso rápido en el encabezado (`← Menú de Canciones`) y en los controles para regresar al menú en cualquier momento.
+   * Incorpora acceso rápido en el encabezado (`← Menú de Canciones`), navegación directa al catálogo al hacer clic en el fondo del reproductor, y botón de pantalla completa (`#btn-controls-fullscreen`) que oculta los controles y el encabezado, disponiendo de un botón flotante para salir (`#btn-exit-fullscreen`).
    * Barra de controles con barra de progreso, botón de reproducción/pausa, selector dinámico de videos asociados con offsets, **slider interactivo de volumen y botón de silenciado**, selector de traducciones y selector de líneas siguientes (0 a 3 frases).
    * Botón directo "✏️ Editar" para ingresar a ajustar la letra de la canción activa en cualquier momento.
 
@@ -652,10 +652,11 @@ SarangaBaranga implementa una arquitectura de visualización adaptable que garan
 ### 9.4. Tipografía Fluida en Escenario de Letras
 * **Escala con `clamp()`:** En lugar de tamaños fijos que provocan saltos de línea antiestéticos en frases largas, la frase activa utiliza `clamp(1.35rem, 5.5vw, 2.2rem)` en portrait y `clamp(1.15rem, 5.5vh, 1.85rem)` en landscape, adaptando suavemente el texto a cualquier resolución.
 
-### 9.5. Barra de Controles Móvil y Modo Inmersivo de Pantalla Completa
-* **Vertical (Portrait):** Distribución en 2 filas limpias: Fila 1 para la barra de avance y tiempos; Fila 2 para reproducción, volumen, selector de video y traducciones.
+### 9.5. Barra de Controles Móvil, Ergonomía y Modo Inmersivo de Pantalla Completa
+* **Distribución Limpia y Menú de Configuración:** Las opciones de selección de video, cantidad de frases siguientes visibles (0 a 3), modo de texto (original/romaji) y traducción se agrupan en un menú emergente de configuración accesible con una ruedita (`btn-controls-settings-toggle` / `controls-settings-popover`), manteniendo la barra de controles despejada y sin sobrecarga visual.
+* **Vertical (Portrait):** Distribución en 2 filas limpias: Fila 1 para la barra de avance y tiempos; Fila 2 para controles esenciales (playback, playlist, volumen, botón central de colapso, modo y rueda de configuración).
 * **Horizontal (Landscape - Desafío de Altura Corta):** Encabezado ultra-delgado ($38\text{px}$) y barra de controles ultra-slim ($48\text{px}$) en una sola fila compacta.
-* **Modo Inmersivo (Dock Colapsable):** Botón para ocultar/colapsar el dock (`btn-dock-collapse`), permitiendo que el escenario de letras ocupe el 100% de la pantalla para una experiencia pura de karaoke, con botón flotante discreto (`btn-dock-floating-expand`) para restaurarlo inmediatamente.
+* **Modo Inmersivo Simétrico (Dock Colapsable):** Botón para ocultar/colapsar el dock (`btn-dock-collapse`) ubicado en el centro de la barra (`.center-controls`), perfectamente alineado en el eje medio con el botón flotante de expansión (`btn-dock-floating-expand`), ofreciendo una experiencia simétrica y coherente para karaoke en pantalla completa.
 
 ### 9.6. Editor Móvil con Asistente Fijo Superior
 * El Asistente de Audio permanece compacto en la parte superior con reloj `mm:ss.mmm` y botones de captura accesibles, mientras la lista de frases se desplaza suavemente por debajo sin interferir con el teclado en pantalla.

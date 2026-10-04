@@ -9,8 +9,7 @@ import {
   iconVolume,
   iconVolumeMute,
   iconPalette,
-  iconChevronDown,
-  iconChevronUp,
+  iconMaximize,
   iconSkipBack,
   iconSkipForward,
   iconListMusic
@@ -19,6 +18,8 @@ import {
 export function createControlsView({
   containerElement,
   initialPreviewLines = 2,
+  initialPastLines = 0,
+  initialPreviousLines = undefined,
   initialVolume = 80,
   initialScriptDisplayMode = 'both',
   onPlayToggle,
@@ -32,6 +33,8 @@ export function createControlsView({
   onScriptDisplayModeChange,
   onBilingualToggle,
   onPreviewLinesChange,
+  onPastLinesChange,
+  onPreviousLinesChange,
   onOpenLibrary,
   onGoToMenu,
   onModeToggle,
@@ -39,7 +42,8 @@ export function createControlsView({
   onOpenTheme,
   onPrevSong,
   onNextSong,
-  onOpenPlaylist
+  onOpenPlaylist,
+  onToggleFullscreen
 }) {
   let isPlaying = false
   let duration = 0
@@ -60,27 +64,21 @@ export function createControlsView({
   let previewLinesCount = (initialPreviewLines !== undefined && initialPreviewLines !== null && !isNaN(Number(initialPreviewLines)))
     ? Math.max(0, Math.min(3, Number(initialPreviewLines)))
     : 2
+  const effectiveInitialPast = initialPreviousLines !== undefined ? initialPreviousLines : initialPastLines
+  let pastLinesCount = (effectiveInitialPast !== undefined && effectiveInitialPast !== null && !isNaN(Number(effectiveInitialPast)))
+    ? Math.max(0, Math.min(3, Number(effectiveInitialPast)))
+    : 0
   let scriptDisplayMode = (initialScriptDisplayMode === 'original' || initialScriptDisplayMode === 'alt')
     ? initialScriptDisplayMode
     : 'both'
   let hasAltText = false
   let currentMode = 'basic' // 'basic' | 'advanced'
-  let isDockCollapsed = false
+  let isSettingsOpen = false
+  let isDockClickBound = false
 
   function render() {
     if (!containerElement) return
-
-    if (isDockCollapsed) {
-      containerElement.classList.add('is-collapsed')
-      if (containerElement.parentElement) {
-        containerElement.parentElement.classList.add('has-collapsed-dock')
-      }
-    } else {
-      containerElement.classList.remove('is-collapsed')
-      if (containerElement.parentElement) {
-        containerElement.parentElement.classList.remove('has-collapsed-dock')
-      }
-    }
+    containerElement.title = 'Volver a la lista de canciones'
 
     const translations = availableLanguages.filter(l => !l.isMain)
     const translationsHtml = `
@@ -102,12 +100,7 @@ export function createControlsView({
       }).join('')
 
     containerElement.innerHTML = `
-      ${isDockCollapsed ? `
-        <button class="btn-dock-floating-expand" id="btn-dock-expand" title="Mostrar barra de controles">
-          ${iconChevronUp} <span>Controles</span>
-        </button>
-      ` : ''}
-      <div class="controls-wrapper ${isDockCollapsed ? 'is-hidden-dock' : ''}">
+      <div class="controls-wrapper">
         <!-- Barra de progreso superior -->
         <div class="progress-bar-row">
           <span class="time-label current-time">${formatTime(Math.max(0, currentTime))}</span>
@@ -124,17 +117,11 @@ export function createControlsView({
               </button>
               <button class="btn btn-primary btn-play-pause" title="${isPlaying ? 'Pausar' : 'Reproducir'}">
                 <span class="icon">${isPlaying ? iconPause : iconPlay}</span>
-                <span class="label">${isPlaying ? 'Pausa' : 'Cantar'}</span>
               </button>
               <button class="btn btn-xs btn-outline btn-next-song" id="btn-next-song" title="Siguiente canción de la playlist" ${!hasNextSong ? 'disabled' : ''}>
                 ${iconSkipForward}
               </button>
             </div>
-
-            <!-- Botón de Lista de Reproducción -->
-            <button class="btn btn-xs btn-outline btn-open-playlist" id="btn-controls-playlist" title="Abrir lista de reproducción (${playlistCount} canciones)">
-              ${iconListMusic} <span class="playlist-badge-count ${playlistCount > 0 ? 'has-items' : ''}">${playlistCount}</span>
-            </button>
 
             <!-- Control de Volumen -->
             <div class="volume-control-group" title="Volumen: ${currentVolume}%">
@@ -153,55 +140,19 @@ export function createControlsView({
               />
               <span class="volume-percent-label">${currentVolume}%</span>
             </div>
-
-            <!-- Selector dinámico de videos asociados con offset -->
-            <div class="video-selector-group" title="Seleccionar pista o video asociado">
-              <label for="video-select">Video:</label>
-              <select id="video-select" class="select-input select-video">
-                ${videosOptionsHtml}
-              </select>
-              <button class="btn btn-xs btn-outline btn-manage-song-videos" title="Gestionar videos y offsets de esta canción">
-                ${iconSettings}
-              </button>
-            </div>
           </div>
 
           <div class="center-controls">
-            <!-- Selector de Frases Siguientes (0 a 3) -->
-            <div class="selector-group preview-lines-group" title="Cantidad de frases siguientes visibles debajo de la actual">
-              <label for="preview-lines-select">Siguientes:</label>
-              <select id="preview-lines-select" class="select-input select-small">
-                <option value="0" ${previewLinesCount === 0 ? 'selected' : ''}>Ninguna (solo actual)</option>
-                <option value="1" ${previewLinesCount === 1 ? 'selected' : ''}>1 frase</option>
-                <option value="2" ${previewLinesCount === 2 ? 'selected' : ''}>2 frases</option>
-                <option value="3" ${previewLinesCount === 3 ? 'selected' : ''}>3 frases</option>
-              </select>
-            </div>
-
-            <!-- Selector de Escritura / Alternativo (Caracteres vs Romaji) -->
-            <div class="selector-group script-selector-group" title="Modo de visualización de texto original y alternativo (Romaji)" ${!hasAltText ? 'style="display: none;"' : ''}>
-              <label for="script-select">Texto:</label>
-              <select id="script-select" class="select-input select-small" ${!hasAltText ? 'disabled' : ''}>
-                <option value="both" ${scriptDisplayMode === 'both' ? 'selected' : ''}>Caracteres + Alternativo</option>
-                <option value="original" ${scriptDisplayMode === 'original' ? 'selected' : ''}>Solo Caracteres</option>
-                <option value="alt" ${scriptDisplayMode === 'alt' ? 'selected' : ''}>Solo Alternativo (Romaji)</option>
-              </select>
-            </div>
-
-            <!-- Selector de Traducción -->
-            <div class="selector-group translation-group" title="Seleccionar subtítulo de traducción en cursiva" ${translations.length === 0 ? 'style="display: none;"' : ''}>
-              <label for="trans-select">Traducción:</label>
-              <select id="trans-select" class="select-input select-small" ${translations.length === 0 ? 'disabled' : ''}>
-                ${translationsHtml}
-              </select>
-            </div>
+            <!-- Botón Pantalla Completa en el centro -->
+            <button class="btn btn-outline btn-controls-fullscreen" id="btn-controls-fullscreen" title="Pantalla completa">
+              ${iconMaximize} <span class="nav-text-full">Pantalla completa</span>
+            </button>
           </div>
 
           <div class="right-controls">
-
-            <!-- Alternador de Modo: Sencillo vs Avanzado -->
-            <button class="btn btn-mode-toggle" title="Cambiar modo de visualización">
-              ${currentMode === 'basic' ? 'Modo Avanzado' : 'Modo Sencillo'}
+            <!-- Botón de Lista de Reproducción -->
+            <button class="btn btn-xs btn-outline btn-open-playlist" id="btn-controls-playlist" title="Abrir lista de reproducción (${playlistCount} canciones)">
+              ${iconListMusic} <span class="playlist-badge-count ${playlistCount > 0 ? 'has-items' : ''}">${playlistCount}</span>
             </button>
 
             <!-- Editar Letra de esta Canción -->
@@ -209,10 +160,74 @@ export function createControlsView({
               ${iconEdit} Editar
             </button>
 
-            <!-- Botón Colapsar Barra de Controles (Modo Inmersivo) -->
-            <button class="btn btn-outline btn-dock-collapse" id="btn-dock-collapse" title="Ocultar controles para pantalla completa de letras">
-              ${iconChevronDown}
-            </button>
+            <!-- Menú de Configuración de Modo Letra (Ruedita) -->
+            <div class="controls-settings-wrapper">
+              <button class="btn btn-outline btn-controls-settings-toggle ${isSettingsOpen ? 'is-active' : ''}" id="btn-controls-settings-toggle" title="Configuración de pista, visualización y traducción" aria-expanded="${isSettingsOpen}">
+                ${iconSettings}
+              </button>
+
+              <div class="controls-settings-popover ${isSettingsOpen ? 'is-open' : ''}" id="controls-settings-popover">
+                <div class="settings-popover-header">
+                  <span class="settings-popover-title">Configuración</span>
+                  <button class="btn-close-popover" id="btn-close-popover" title="Cerrar menú">✕</button>
+                </div>
+
+                <div class="settings-popover-content">
+                  <!-- Selector dinámico de videos asociados con offset -->
+                  <div class="popover-item video-selector-group" title="Seleccionar pista o video asociado">
+                    <label for="video-select">Video:</label>
+                    <div class="video-select-actions">
+                      <select id="video-select" class="select-input select-video">
+                        ${videosOptionsHtml}
+                      </select>
+                      <button class="btn btn-xs btn-outline btn-manage-song-videos" title="Gestionar videos y offsets de esta canción">
+                        ${iconSettings}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Selector de Frases Anteriores (0 a 3) -->
+                  <div class="popover-item selector-group past-lines-group" title="Cantidad de frases anteriores visibles arriba de la actual">
+                    <label for="past-lines-select">Anteriores:</label>
+                    <select id="past-lines-select" class="select-input select-small">
+                      <option value="0" ${pastLinesCount === 0 ? 'selected' : ''}>Ninguna</option>
+                      <option value="1" ${pastLinesCount === 1 ? 'selected' : ''}>1 frase</option>
+                      <option value="2" ${pastLinesCount === 2 ? 'selected' : ''}>2 frases</option>
+                      <option value="3" ${pastLinesCount === 3 ? 'selected' : ''}>3 frases</option>
+                    </select>
+                  </div>
+
+                  <!-- Selector de Frases Siguientes (0 a 3) -->
+                  <div class="popover-item selector-group preview-lines-group" title="Cantidad de frases siguientes visibles debajo de la actual">
+                    <label for="preview-lines-select">Siguientes:</label>
+                    <select id="preview-lines-select" class="select-input select-small">
+                      <option value="0" ${previewLinesCount === 0 ? 'selected' : ''}>Ninguna (solo actual)</option>
+                      <option value="1" ${previewLinesCount === 1 ? 'selected' : ''}>1 frase</option>
+                      <option value="2" ${previewLinesCount === 2 ? 'selected' : ''}>2 frases</option>
+                      <option value="3" ${previewLinesCount === 3 ? 'selected' : ''}>3 frases</option>
+                    </select>
+                  </div>
+
+                  <!-- Selector de Escritura / Alternativo (Caracteres vs Romaji) -->
+                  <div class="popover-item selector-group script-selector-group" title="Modo de visualización de texto original y alternativo (Romaji)" ${!hasAltText ? 'style="display: none;"' : ''}>
+                    <label for="script-select">Texto:</label>
+                    <select id="script-select" class="select-input select-small" ${!hasAltText ? 'disabled' : ''}>
+                      <option value="both" ${scriptDisplayMode === 'both' ? 'selected' : ''}>Caracteres + Alternativo</option>
+                      <option value="original" ${scriptDisplayMode === 'original' ? 'selected' : ''}>Solo Caracteres</option>
+                      <option value="alt" ${scriptDisplayMode === 'alt' ? 'selected' : ''}>Solo Alternativo (Romaji)</option>
+                    </select>
+                  </div>
+
+                  <!-- Selector de Traducción -->
+                  <div class="popover-item selector-group translation-group" title="Seleccionar subtítulo de traducción en cursiva" ${translations.length === 0 ? 'style="display: none;"' : ''}>
+                    <label for="trans-select">Traducción:</label>
+                    <select id="trans-select" class="select-input select-small" ${translations.length === 0 ? 'disabled' : ''}>
+                      ${translationsHtml}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -222,6 +237,21 @@ export function createControlsView({
   }
 
   function bindEvents() {
+    if (!isDockClickBound && containerElement) {
+      isDockClickBound = true
+      containerElement.addEventListener('click', (e) => {
+        if (e.target.closest('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .modal-dialog, .time-label, .volume-percent-label')) {
+          return
+        }
+        const selection = window.getSelection?.()
+        if (selection && selection.toString().trim().length > 0) {
+          return
+        }
+        if (onGoToMenu) onGoToMenu()
+        else if (onOpenLibrary) onOpenLibrary()
+      })
+    }
+
     const playBtn = containerElement.querySelector('.btn-play-pause')
     if (playBtn) playBtn.addEventListener('click', () => onPlayToggle && onPlayToggle())
 
@@ -338,6 +368,18 @@ export function createControlsView({
       })
     }
 
+    const pastLinesSelect = containerElement.querySelector('#past-lines-select')
+    if (pastLinesSelect) {
+      pastLinesSelect.addEventListener('change', (e) => {
+        const val = Number(e.target.value)
+        const count = isNaN(val) ? 0 : Math.max(0, Math.min(3, val))
+        pastLinesCount = count
+        localStorage.setItem('saranga_past_lines', count)
+        if (onPastLinesChange) onPastLinesChange(count)
+        else if (onPreviousLinesChange) onPreviousLinesChange(count)
+      })
+    }
+
     const previewLinesSelect = containerElement.querySelector('#preview-lines-select')
     if (previewLinesSelect) {
       previewLinesSelect.addEventListener('change', (e) => {
@@ -379,21 +421,67 @@ export function createControlsView({
       })
     }
 
-    const collapseBtn = containerElement.querySelector('#btn-dock-collapse')
-    if (collapseBtn) {
-      collapseBtn.addEventListener('click', () => {
-        isDockCollapsed = true
-        render()
+    // Pantalla completa
+    const fullscreenBtn = containerElement.querySelector('#btn-controls-fullscreen')
+    if (fullscreenBtn) {
+      fullscreenBtn.addEventListener('click', () => {
+        isSettingsOpen = false
+        if (onToggleFullscreen) onToggleFullscreen()
       })
     }
 
-    const expandBtn = containerElement.querySelector('#btn-dock-expand')
-    if (expandBtn) {
-      expandBtn.addEventListener('click', () => {
-        isDockCollapsed = false
-        render()
+    const settingsToggleBtn = containerElement.querySelector('#btn-controls-settings-toggle')
+    const settingsPopover = containerElement.querySelector('#controls-settings-popover')
+    const closePopoverBtn = containerElement.querySelector('#btn-close-popover')
+
+    if (settingsToggleBtn) {
+      settingsToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        isSettingsOpen = !isSettingsOpen
+        if (settingsPopover) {
+          settingsPopover.classList.toggle('is-open', isSettingsOpen)
+        }
+        settingsToggleBtn.classList.toggle('is-active', isSettingsOpen)
+        settingsToggleBtn.setAttribute('aria-expanded', String(isSettingsOpen))
       })
     }
+
+    if (closePopoverBtn) {
+      closePopoverBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        isSettingsOpen = false
+        if (settingsPopover) {
+          settingsPopover.classList.remove('is-open')
+        }
+        if (settingsToggleBtn) {
+          settingsToggleBtn.classList.remove('is-active')
+          settingsToggleBtn.setAttribute('aria-expanded', 'false')
+        }
+      })
+    }
+
+    if (settingsPopover) {
+      settingsPopover.addEventListener('click', (e) => {
+        e.stopPropagation()
+      })
+    }
+
+    const onDocumentClick = (e) => {
+      if (!isSettingsOpen) return
+      const wrapper = containerElement.querySelector('.controls-settings-wrapper')
+      if (wrapper && !wrapper.contains(e.target)) {
+        isSettingsOpen = false
+        if (settingsPopover) {
+          settingsPopover.classList.remove('is-open')
+        }
+        if (settingsToggleBtn) {
+          settingsToggleBtn.classList.remove('is-active')
+          settingsToggleBtn.setAttribute('aria-expanded', 'false')
+        }
+      }
+    }
+
+    document.addEventListener('click', onDocumentClick)
   }
 
   function setPlayingState(playing) {
@@ -402,8 +490,10 @@ export function createControlsView({
       const playBtn = containerElement.querySelector('.btn-play-pause')
       if (playBtn) {
         playBtn.title = isPlaying ? 'Pausar' : 'Reproducir'
-        playBtn.querySelector('.icon').innerHTML = isPlaying ? iconPause : iconPlay
-        playBtn.querySelector('.label').textContent = isPlaying ? 'Pausa' : 'Cantar'
+        const iconEl = playBtn.querySelector('.icon')
+        if (iconEl) iconEl.innerHTML = isPlaying ? iconPause : iconPlay
+        const labelEl = playBtn.querySelector('.label')
+        if (labelEl) labelEl.textContent = isPlaying ? 'Pausa' : 'Cantar'
       }
     }
   }
@@ -455,6 +545,13 @@ export function createControlsView({
     previewLinesCount = isNaN(val) ? 2 : Math.max(0, Math.min(3, val))
     const sel = containerElement?.querySelector('#preview-lines-select')
     if (sel) sel.value = String(previewLinesCount)
+  }
+
+  function setPastLinesCount(count) {
+    const val = Number(count)
+    pastLinesCount = isNaN(val) ? 0 : Math.max(0, Math.min(3, val))
+    const sel = containerElement?.querySelector('#past-lines-select')
+    if (sel) sel.value = String(pastLinesCount)
   }
 
   function setScriptState({ hasAltText: hasAlt, mode }) {
@@ -529,16 +626,18 @@ export function createControlsView({
     setTrackType,
     setLanguagesState,
     setPreviewLinesCount,
+    getPreviewLinesCount: () => previewLinesCount,
+    setPastLinesCount,
+    getPastLinesCount: () => pastLinesCount,
+    setPreviousLinesCount: setPastLinesCount,
+    getPreviousLinesCount: () => pastLinesCount,
     setScriptState,
     setScriptDisplayMode,
     getScriptDisplayMode: () => scriptDisplayMode,
     setMode,
     setVolume,
     setPlaylistState,
-    getIsDockCollapsed: () => isDockCollapsed,
-    setDockCollapsed: (val) => {
-      isDockCollapsed = Boolean(val)
-      render()
-    }
+    getIsDockCollapsed: () => false,
+    setDockCollapsed: () => {}
   }
 }
