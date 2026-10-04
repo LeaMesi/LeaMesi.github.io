@@ -210,6 +210,8 @@ export function createControlsView({
                     </div>
                   </div>
 
+                  <hr style="border: none; border-top: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));">
+
                   <!-- Selector de Frases Anteriores (0 a 3) -->
                   <div class="popover-item selector-group past-lines-group" title="Cantidad de frases anteriores visibles arriba de la actual">
                     <label for="past-lines-select">Anteriores:</label>
@@ -608,7 +610,7 @@ export function createControlsView({
         const option = videoSelect.querySelector(`option[value="${activeVideo.id}"]`)
         if (option) {
           const off = activeVideo.offset
-          const offText = off !== 0 ? ` [Offset: ${off > 0 ? '+' : ''}[${off}s]` : ' [0s]'
+          const offText = ` [${off}s]`
           option.textContent = `${activeVideo.name}${offText}`
         }
       }

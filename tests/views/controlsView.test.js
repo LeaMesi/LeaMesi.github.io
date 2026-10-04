@@ -20,6 +20,7 @@ describe('views/controlsView.js', () => {
     expect(container.querySelector('#trans-select')).not.toBeNull()
     expect(container.querySelector('#past-lines-select')).not.toBeNull()
     expect(container.querySelector('#preview-lines-select')).not.toBeNull()
+    expect(container.querySelector('.settings-popover-content hr')).not.toBeNull()
   })
 
   it('dispara onPlayToggle al hacer clic en el botón de reproducción/pausa', () => {
@@ -354,15 +355,21 @@ describe('views/controlsView.js', () => {
       expect(badge.textContent).toBe('+0.1s')
       expect(controls.getOffset()).toBe(0.1)
 
+      const videoSelect = container.querySelector('#video-select')
+      const optV1 = videoSelect.querySelector('option[value="v1"]')
+      expect(optV1.textContent).toBe('Video 1 [0.1s]')
+
       // Clic en -0.1s dos veces
       btnDec.click()
       expect(onOffsetChange).toHaveBeenCalledWith(0.0, 'v1')
       expect(badge.textContent).toBe('0.0s')
+      expect(optV1.textContent).toBe('Video 1 [0s]')
 
       btnDec.click()
       expect(onOffsetChange).toHaveBeenCalledWith(-0.1, 'v1')
       expect(badge.textContent).toBe('-0.1s')
       expect(controls.getOffset()).toBe(-0.1)
+      expect(optV1.textContent).toBe('Video 1 [-0.1s]')
     })
 
     it('actualiza el badge del offset al cambiar de video en el selector', () => {
@@ -397,6 +404,7 @@ describe('views/controlsView.js', () => {
       const badge = container.querySelector('#controls-offset-value')
       expect(badge.textContent).toBe('+2.4s')
       expect(controls.getOffset()).toBe(2.4)
+      expect(container.querySelector('#video-select option[value="v1"]').textContent).toBe('Pista 1 [2.4s]')
     })
 
     it('deshabilita los botones de offset si no hay videos disponibles', () => {
