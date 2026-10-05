@@ -59,6 +59,13 @@
   - Aplicación automática del tema en Modo Letra (`showLyricsScreen`) y restauración del tema global del usuario al salir (`showMenuScreen`, `showEditorScreen`).
   - Conmutador en el modal de temas (`themeSettingsModal.js` y `themeService.js`) para activar o desactivar la aplicación de temas de canciones (`enableSongThemes`), habilitado por defecto (`true`).
 
+- [x] **16.14. Rediseño Suave y Redondeado de la Interfaz (Bordes Reducidos y Botones Píldora/Circulares):**
+  - Renovación integral de la escala de radios en `:root`: `--radius-sm` (14px), `--radius-md` (20px), `--radius-lg` (26px), `--radius-btn` (9999px) y `--panel-border` suavizado a `0.05` de opacidad.
+  - Transformación de todos los botones de acción (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-outline`, `.btn-play-pause`, `.btn-enter-lyrics`, `.btn-open-playlist`, etc.) a formato píldora (`border-radius: 9999px`) con padding ergonómico y sombras sutiles, eliminando el aspecto cuadrado y tosco.
+  - Botones de iconos (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`, `.btn-close-modal`, `.btn-close-alert`) transformados en botones circulares suaves (`border-radius: 50%`).
+  - Redondeo ergonómico del buscador (`.search-input`), selectores de pista (`.track-toggle-group`), badges/etiquetas (`.badge`), alertas de estado (`.status-alert`), tarjetas de catálogo (`.song-menu-card` a 24px y `.song-menu-list-row` a 16px) y modales (`.modal-dialog` a 26px).
+  - Optimización específica para móviles (vertical y horizontal): dock con botones circulares de tacto sedoso a 38px/32px, esquinas redondeadas en tarjetas y popovers sin bordes agresivos.
+
 ---
 
 ## Tareas Pendientes / Por Hacer

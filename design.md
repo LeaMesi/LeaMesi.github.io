@@ -619,6 +619,19 @@ Para reducir el ruido visual y ofrecer una interfaz limpia, moderna y profesiona
    * Los iconos son cadenas SVG vectoriales inline (`viewBox="0 0 24 24"`, `stroke="currentColor"`), adaptándose automáticamente al color de texto del botón o contenedor. Para el icono musical distintivo de Modo Letra (`iconMic`), se emplea un glifo vectorial estilizado de alta precisión (`viewBox="0 0 340 340"`, `fill="currentColor"`) y se enlaza la hoja de estilos de Font Awesome 6.5.2 en `index.html`.
    * Reglas CSS en [`src/style.css`](file:///home/hezztia/Documents/SarangaBaranga/src/style.css) (`.icon-svg`) garantizan alineación vertical perfecta y comportamiento responsive.
 
+### 7.3. Estética Redondeada, Botones Píldora/Circulares y Reducción de Bordes Duros
+Para erradicar aristas cuadradas toscas y ofrecer una interfaz fluida, moderna y agradable al tacto:
+1. **Geometría de Botones Orgánica:**
+   * **Botones de Acción (Pill Shape):** Todos los botones textuales (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-outline`, `.btn-play-pause`, `.btn-enter-lyrics`, `.btn-open-playlist`, etc.) adoptan `border-radius: var(--radius-btn, 9999px)`.
+   * **Botones de Icono Circulares:** Controles de navegación y transporte sin texto (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`, `.btn-close-modal`, `.btn-close-alert`) adoptan `border-radius: 50% !important`.
+2. **Atenuación de Bordes Duros:**
+   * Disminución de la opacidad de borde en toda la plataforma: `--panel-border` calibrado a `rgba(255, 255, 255, 0.05)` (y `0.08` en temas claros), sustituyendo líneas divisorias visibles por separaciones de tono sutiles y sombras de oclusión suaves (`--shadow-sm`, `--shadow-md`, `--shadow-lg`).
+3. **Escala de Radios en Componentes:**
+   * Tokens en `:root`: `--radius-sm: 14px;`, `--radius-md: 20px;`, `--radius-lg: 26px;`, `--radius-btn: 9999px;`.
+   * Tarjetas del catálogo (`.song-menu-card` a 24px, filas en lista a 16px), buscador tipo cápsula (`.search-input` a 9999px), modales (`.modal-dialog` a 26px) y diálogos personalizados (`.custom-prompt-dialog` a 26px).
+4. **Ergonomía Táctil en Móvil (Vertical y Horizontal):**
+   * En pantallas móviles ($\le 768\text{px}$ portrait y $\le 520\text{px}$ landscape), los botones del dock se estandarizan como círculos y cápsulas táctiles perfectas, previniendo esquinas afiladas y garantizando una interacción táctil sedosa.
+
 ---
 
 ## 8. Sistema de Configuración de Temas, Paletas de Interfaz y Personalización de Letras (`src/services/themeService.js` y `src/views/themeSettingsModal.js`)

@@ -370,7 +370,7 @@ export function applyTheme(theme = getThemeSettings()) {
   root.style.setProperty('--panel-bg', panelBg)
 
   const isLightPanel = getLuminance(panelBg) > 0.5
-  const panelBorder = isLightPanel ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.08)'
+  const panelBorder = isLightPanel ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.05)'
   root.style.setProperty('--panel-border', panelBorder)
 
   root.style.setProperty('--primary-color', primaryColor)

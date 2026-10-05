@@ -28,11 +28,18 @@
   --lyrics-active-font-style: normal;
   --lyrics-completed-font-weight: 700;
   --lyrics-completed-font-style: normal;
+  --panel-border: rgba(255, 255, 255, 0.05);
   --lyrics-active-glow: 0 0 16px rgba(251, 191, 36, 0.8), 0 0 32px rgba(251, 191, 36, 0.45);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --radius-xs: 8px;
+  --radius-sm: 14px;
+  --radius-md: 20px;
+  --radius-lg: 26px;
+  --radius-xl: 32px;
+  --radius-btn: 9999px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.5);
 
   /* Safe Area Insets para dispositivos móviles con notch o barra de gestos */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -902,13 +909,13 @@ input[type="number"] {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
+  padding: 8px 18px;
+  border-radius: var(--radius-btn, 9999px);
   font-size: 0.85rem;
   font-weight: 500;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
@@ -933,43 +940,51 @@ button svg {
 .btn-primary {
   background: var(--primary-color);
   color: var(--primary-contrast, #fff);
+  border: none;
+  box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.35);
 }
 
 .btn-primary:hover {
   background: var(--primary-hover);
+  box-shadow: 0 6px 20px -2px rgba(99, 102, 241, 0.5);
 }
 
 .btn-play-pause {
   font-size: 0.95rem;
-  padding: 8px 18px;
+  padding: 8px 20px;
+  border-radius: var(--radius-btn, 9999px);
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   color: var(--primary-contrast, #fff);
   border: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px -2px rgba(99, 102, 241, 0.45);
 }
 
 .btn-play-pause:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 22px -2px rgba(99, 102, 241, 0.65);
 }
 
 .btn-outline {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--text-main);
+  backdrop-filter: blur(8px);
 }
 
 .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .btn-sm {
-  padding: 5px 10px;
+  padding: 6px 14px;
   font-size: 0.78rem;
+  border-radius: var(--radius-btn, 9999px);
 }
 
 .btn-xs {
-  padding: 4px 8px;
+  padding: 4px 10px;
   font-size: 0.72rem;
+  border-radius: var(--radius-btn, 9999px);
 }
 
 /* Estandarización de botones en Dock de Controles (Modo Letra) */
@@ -984,42 +999,62 @@ button svg {
 .btn-controls-volume,
 .btn-controls-fullscreen,
 .btn-controls-settings-toggle {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   box-sizing: border-box;
 }
 
+.playback-btn-group .btn-prev-song:hover,
+.playback-btn-group .btn-next-song:hover,
+.btn-controls-volume:hover,
+.btn-controls-fullscreen:hover,
+.btn-controls-settings-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .btn-open-playlist {
-  height: 36px;
-  min-height: 36px;
-  padding: 0 10px;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: var(--radius-btn, 9999px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   box-sizing: border-box;
   gap: 6px;
 }
 
+.btn-open-playlist:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .btn-play-pause {
-  height: 36px;
-  min-height: 36px;
-  padding: 0 16px;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 20px;
   box-sizing: border-box;
 }
 
 /* Selector de Pista (Toggle Pill) */
 .track-toggle-group {
   display: inline-flex;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 9999px;
   padding: 3px;
-  border: 1px solid var(--panel-border);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .track-toggle-group .btn-toggle {
@@ -1027,14 +1062,14 @@ button svg {
   border: none;
   color: var(--text-muted);
   font-size: 0.8rem;
-  padding: 5px 10px;
-  border-radius: calc(var(--radius-sm) - 2px);
+  padding: 5px 12px;
+  border-radius: 9999px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .track-toggle-group .btn-toggle.active {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.14);
   color: var(--text-main);
   font-weight: 600;
 }
@@ -1049,19 +1084,26 @@ button svg {
 }
 
 .select-input {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
-  border: 1px solid var(--panel-border);
-  padding: 5px 10px;
-  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+  border-radius: 12px;
   font-size: 0.82rem;
   outline: none;
   cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.select-input:focus {
+  border-color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .select-small {
-  padding: 3px 6px;
+  padding: 4px 8px;
   font-size: 0.76rem;
+  border-radius: 10px;
 }
 
 .checkbox-label {
@@ -1075,26 +1117,29 @@ button svg {
 }
 
 .btn-mode-toggle {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-btn, 9999px);
   color: var(--text-main);
 }
 
 .btn-library-open {
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-btn, 9999px);
   color: #c7d2fe;
 }
 
 .btn-secondary {
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-btn, 9999px);
   color: #c7d2fe;
 }
 
 .btn-secondary:hover {
-  background: rgba(99, 102, 241, 0.28);
-  border-color: rgba(99, 102, 241, 0.6);
+  background: rgba(99, 102, 241, 0.22);
+  border-color: rgba(99, 102, 241, 0.35);
   color: #ffffff;
 }
 
@@ -1155,20 +1200,33 @@ button svg {
 
 .btn-modal-create-empty,
 .btn-modal-import {
-  padding: 6px 10px;
+  padding: 6px 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 32px;
+  min-height: 34px;
+  border-radius: var(--radius-btn, 9999px);
 }
 
 .btn-close-modal {
-  background: none;
+  background: transparent;
   border: none;
   color: var(--text-muted);
   font-size: 1.2rem;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
 }
 
 .modal-body {
@@ -1258,8 +1316,8 @@ button svg {
   font-size: 0.7rem;
   background: #22c55e;
   color: #052e16;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
   font-weight: 700;
 }
 
@@ -1278,9 +1336,9 @@ button svg {
 
 .badge {
   font-size: 0.72rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.07);
   color: var(--text-muted);
 }
 
@@ -1295,9 +1353,9 @@ button svg {
 }
 
 .status-alert {
-  padding: 10px 16px;
+  padding: 12px 18px;
   margin: 0 20px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md, 20px);
   font-size: 0.85rem;
   display: flex;
   align-items: center;
@@ -1316,18 +1374,20 @@ button svg {
   color: inherit;
   opacity: 0.7;
   cursor: pointer;
-  padding: 3px;
+  padding: 4px;
+  width: 24px;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 50%;
   flex-shrink: 0;
   transition: opacity 0.2s, background-color 0.2s;
 }
 
 .btn-close-alert:hover {
   opacity: 1;
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.14);
 }
 
 .btn-close-alert svg {
@@ -1688,10 +1748,10 @@ button svg {
 
 .search-input {
   width: 100%;
-  padding: 10px 36px 10px 36px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-sm);
+  padding: 10px 38px 10px 38px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 9999px;
   color: var(--text-main);
   font-size: 0.9rem;
   font-family: inherit;
@@ -1701,27 +1761,39 @@ button svg {
 
 .search-input:focus {
   border-color: var(--primary-color);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 .btn-clear-search {
   position: absolute;
   right: 12px;
-  background: none;
+  background: rgba(255, 255, 255, 0.06);
   border: none;
   color: var(--text-muted);
   cursor: pointer;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-clear-search:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
 }
 
 .song-count-badge {
   font-size: 0.82rem;
   color: var(--text-muted);
   background: rgba(255, 255, 255, 0.04);
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 9999px;
-  border: 1px solid var(--panel-border);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .menu-filter-right-controls {
@@ -1734,9 +1806,9 @@ button svg {
   display: inline-flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-sm);
-  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  padding: 3px;
   gap: 2px;
 }
 
@@ -1749,7 +1821,7 @@ button svg {
   border: none;
   background: transparent;
   color: var(--text-muted);
-  border-radius: 4px;
+  border-radius: 9999px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1784,15 +1856,18 @@ button svg {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 18px;
+  padding: 12px 20px;
   gap: 16px;
-  border-radius: var(--radius-sm);
-  transition: border-color 0.2s ease, background 0.2s ease;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.035);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .song-menu-card.song-menu-list-row:hover {
-  border-color: rgba(99, 102, 241, 0.45);
+  border-color: rgba(99, 102, 241, 0.35);
   background: rgba(255, 255, 255, 0.035);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .list-col-main {
@@ -1806,9 +1881,9 @@ button svg {
 .list-song-icon-wrap {
   width: 38px;
   height: 38px;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1866,22 +1941,24 @@ button svg {
 
 .list-col-actions .btn-enter-lyrics {
   font-size: 0.82rem;
-  padding: 6px 14px;
+  padding: 6px 16px;
+  border-radius: var(--radius-btn, 9999px);
 }
 
 .song-menu-card {
   background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-md);
-  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-lg, 24px);
+  padding: 22px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
   content-visibility: auto;
   contain-intrinsic-size: 180px;
 }
@@ -1891,8 +1968,8 @@ button svg {
 }
 
 .song-menu-card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.45);
 }
 
 /* Canción activa en reproducción destacada */
@@ -2076,10 +2153,10 @@ button svg {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  background: rgba(125, 125, 125, 0.08);
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .videos-pill-list {
@@ -2094,8 +2171,8 @@ button svg {
   font-weight: 500;
   background: rgba(99, 102, 241, 0.15);
   color: #a5b4fc;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  padding: 2px 8px;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  padding: 2px 10px;
   border-radius: 9999px;
 }
 
@@ -2132,14 +2209,15 @@ button svg {
   align-items: center;
   justify-content: center;
   text-align: center;
+  border-radius: var(--radius-btn, 9999px);
 }
 
 .empty-songs-state {
   text-align: center;
   padding: 60px 24px;
   background: var(--panel-bg);
-  border: 1px dashed var(--panel-border);
-  border-radius: var(--radius-md);
+  border: 1.5px dashed rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg, 24px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -5483,7 +5561,9 @@ button svg {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-radius: var(--radius-sm, 8px) !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
@@ -5498,15 +5578,16 @@ button svg {
   }
 
   .btn-play-pause {
-    min-width: 44px !important;
-    width: 44px !important;
+    min-width: 46px !important;
+    width: 46px !important;
     height: 38px !important;
     min-height: 38px !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-radius: var(--radius-sm, 8px) !important;
+    border-radius: 9999px !important;
+    border: none !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
@@ -5520,12 +5601,14 @@ button svg {
     height: 38px !important;
     min-height: 38px !important;
     min-width: 46px !important;
-    padding: 0 8px !important;
+    padding: 0 10px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 5px !important;
-    border-radius: var(--radius-sm, 8px) !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
@@ -5686,6 +5769,7 @@ button svg {
     height: 36px;
     min-width: 0;
     flex: 1;
+    border-radius: var(--radius-btn, 9999px) !important;
   }
 
   /* Listado de Canciones en Móvil */
@@ -6318,7 +6402,9 @@ button svg {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-radius: 6px !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
@@ -6333,15 +6419,16 @@ button svg {
   }
 
   .btn-play-pause {
-    min-width: 38px !important;
-    width: 38px !important;
+    min-width: 40px !important;
+    width: 40px !important;
     height: 32px !important;
     min-height: 32px !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-radius: 6px !important;
+    border-radius: 9999px !important;
+    border: none !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
@@ -6355,12 +6442,14 @@ button svg {
     height: 32px !important;
     min-height: 32px !important;
     min-width: 40px !important;
-    padding: 0 6px !important;
+    padding: 0 8px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 4px !important;
-    border-radius: 6px !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
@@ -6494,6 +6583,7 @@ button svg {
     min-width: 0 !important;
     padding: 0 !important;
     flex: 1 !important;
+    border-radius: var(--radius-btn, 9999px) !important;
   }
 
   .list-col-actions {
@@ -6706,10 +6796,10 @@ button svg {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-btn, 9999px);
   color: var(--text-main);
   font-size: 0.8rem;
   font-weight: 500;
@@ -6718,8 +6808,8 @@ button svg {
 }
 
 .btn-theme-preset:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .btn-theme-preset.is-selected {
@@ -7578,10 +7668,10 @@ button svg {
   width: 320px;
   max-width: calc(100vw - 32px);
   background: var(--panel-bg);
-  border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.12));
-  border-radius: var(--radius-lg, 14px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 22px;
   padding: 10px 14px 12px 14px;
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex;
@@ -7641,10 +7731,10 @@ button svg {
 
 .btn-floating-action.btn-floating-lyrics {
   background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border: 1px solid rgba(99, 102, 241, 0.25);
   color: #a5b4fc;
-  border-radius: var(--radius-sm, 6px);
-  padding: 3px 8px;
+  border-radius: var(--radius-btn, 9999px);
+  padding: 4px 10px;
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
@@ -7908,8 +7998,10 @@ button svg {
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 6px;
-  border-radius: var(--radius-sm);
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7943,10 +8035,10 @@ button svg {
 
 .custom-prompt-input {
   width: 100%;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9999px;
   color: var(--text-main);
   font-size: 0.95rem;
   font-family: inherit;
@@ -7957,8 +8049,8 @@ button svg {
 
 .custom-prompt-input:focus {
   border-color: var(--primary-color);
-  background: rgba(255, 255, 255, 0.09);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 .custom-prompt-footer {
@@ -7973,10 +8065,10 @@ button svg {
 
 .custom-prompt-footer .btn {
   min-width: 88px;
-  padding: 8px 16px;
+  padding: 8px 18px;
   font-size: 0.88rem;
   font-weight: 500;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-btn, 9999px);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
