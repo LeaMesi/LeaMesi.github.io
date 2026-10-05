@@ -34,6 +34,8 @@
   - Creación de diálogos modales custom (`showPrompt`, `showConfirm`, `showAlert`) adaptados a los temas de la aplicación (colores `--panel-bg`, `--primary-color`, etc.).
   - Sustitución de `window.prompt` y `window.confirm` en la creación de bibliotecas, renombrado, eliminación y desvinculación de canciones, eliminando las ventanas feas nativas de Javascript y el riesgo de bloqueo de mensajes del navegador.
   - Bloqueo completo al resto de la interfaz con backdrop (`position: fixed; inset: 0; z-index: 10000; backdrop-filter: blur(8px);`) y cierre con restauración del control al hacer clic fuera del prompt (backdrop) o presionar Escape.
+- [x] **26.7. Barra de Herramientas Minimalista en Modal de Playlist:**
+  - Optimización de los botones de acción superior en `src/views/playlistModal.js` (`.playlist-toolbar-left`): supresión de etiquetas de texto secundarias ("Añadir", "Aleatorio", "Cargar Biblioteca", "Guardar como Biblioteca"), mostrando exclusivamente sus iconos vectoriales SVG (`${iconPlus}`, `${iconShuffle}`, `${iconFolder}`, `${iconSave}`) junto con sus atributos `title` descriptivos, previniendo desbordamientos horizontales en dispositivos móviles y unificando la estética minimalista del proyecto.
 
 ---
 

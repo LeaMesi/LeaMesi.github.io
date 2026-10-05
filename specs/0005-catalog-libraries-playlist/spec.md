@@ -31,6 +31,7 @@
    - Detección de fin de reproducción (`PLAYER_STATE.ENDED`) que avanza automáticamente a la siguiente canción sin intervención del usuario.
    - Modo aleatorio (Shuffle con algoritmo Fisher-Yates) conservando el índice de la canción en curso.
 3. **Audio Continuo en Segundo Plano:** El usuario puede salir de Modo Letra hacia el catálogo o manipular la playlist mientras la música continúa reproduciéndose.
+4. **Barra de Herramientas Compacta (Toolbar):** Botones de acción rápida (`#btn-pl-toggle-add`, `#btn-pl-shuffle`, `#btn-pl-toggle-load-lib`, `#btn-pl-toggle-save-lib`) optimizados con solo iconos vectoriales SVG (`${iconPlus}`, `${iconShuffle}`, `${iconFolder}`, `${iconSave}`) y atributos `title` descriptivos, ofreciendo una apariencia minimalista y libre de desbordamientos en pantallas reducidas.
 
 ---
 

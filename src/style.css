@@ -142,16 +142,15 @@ input[type="number"] {
   letter-spacing: -0.5px;
   cursor: pointer;
   user-select: none;
-  transition: opacity 0.2s ease, transform 0.15s ease;
+  transition: opacity 0.2s ease;
 }
 
 .brand-title:hover {
   opacity: 0.88;
-  transform: translateY(-1px);
 }
 
 .brand-title:active {
-  transform: translateY(0);
+  opacity: 0.75;
 }
 
 .brand-title:focus-visible {
@@ -452,7 +451,6 @@ input[type="number"] {
   background: transparent;
   border: none;
   box-shadow: none;
-  transform: translateY(-1px);
 }
 
 .past-phrase-item:hover .lyric-line-main {
@@ -567,7 +565,6 @@ input[type="number"] {
   background: transparent;
   border: none;
   box-shadow: none;
-  transform: translateY(-1px);
 }
 
 .upcoming-phrase-item:hover .lyric-line-main {
@@ -734,7 +731,6 @@ input[type="number"] {
   background: rgba(30, 41, 59, 0.95);
   border-color: rgba(255, 255, 255, 0.25);
   color: var(--primary-contrast, #fff);
-  transform: translateY(-1px);
 }
 
 .is-fullscreen-lyrics .btn-exit-fullscreen {
@@ -953,7 +949,6 @@ button svg {
 }
 
 .btn-play-pause:hover {
-  transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 
@@ -1473,7 +1468,6 @@ button svg {
 .lib-tab-pill:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
 }
 
 .lib-tab-pill.is-active {
@@ -1793,11 +1787,10 @@ button svg {
   padding: 12px 18px;
   gap: 16px;
   border-radius: var(--radius-sm);
-  transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .song-menu-card.song-menu-list-row:hover {
-  transform: translateX(4px);
   border-color: rgba(99, 102, 241, 0.45);
   background: rgba(255, 255, 255, 0.035);
 }
@@ -1884,7 +1877,7 @@ button svg {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -1898,7 +1891,6 @@ button svg {
 }
 
 .song-menu-card:hover {
-  transform: translateY(-3px);
   border-color: rgba(99, 102, 241, 0.4);
   box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
 }
@@ -2057,7 +2049,6 @@ button svg {
 }
 
 .btn-enter-lyrics:hover {
-  transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 
@@ -2784,12 +2775,11 @@ button svg {
 }
 
 .btn-online-scroll-top:hover {
-  transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 16px rgba(99, 102, 241, 0.5);
 }
 
 .btn-online-scroll-top:active {
-  transform: translateY(0);
+  opacity: 0.85;
 }
 
 /* Selector de Proveedores Online (Pestañas Superiores) */
@@ -4052,12 +4042,11 @@ button svg {
   color: #fff;
   border: 1px solid #059669;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .btn-assistant-sing:hover {
   background: #059669;
-  transform: scale(1.06);
 }
 
 .btn-assistant-sing svg {
@@ -4326,11 +4315,11 @@ button svg {
   font-size: 0.75rem;
   opacity: 0.85;
   margin-left: 3px;
-  transition: transform 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .editor-lang-tab.active:hover .tab-edit-icon {
-  transform: scale(1.2);
+  opacity: 1;
 }
 
 .btn-add-lang-tab {
@@ -7480,7 +7469,6 @@ button svg {
   background: var(--primary-color, #6366f1);
   border-color: var(--primary-color, #6366f1);
   color: #fff;
-  transform: scale(1.06);
 }
 
 .badge-now-playing {
@@ -7825,7 +7813,6 @@ button svg {
 
 .btn-floating-icon.btn-floating-play:hover {
   background: var(--primary-hover, #4f46e5);
-  transform: scale(1.05);
   color: #fff;
 }
 
