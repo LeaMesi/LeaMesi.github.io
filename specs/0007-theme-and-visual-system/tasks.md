@@ -66,6 +66,10 @@
   - Redondeo ergonómico del buscador (`.search-input`), selectores de pista (`.track-toggle-group`), badges/etiquetas (`.badge`), alertas de estado (`.status-alert`), tarjetas de catálogo (`.song-menu-card` a 24px y `.song-menu-list-row` a 16px) y modales (`.modal-dialog` a 26px).
   - Optimización específica para móviles (vertical y horizontal): dock con botones circulares de tacto sedoso a 38px/32px, esquinas redondeadas en tarjetas y popovers sin bordes agresivos.
 
+- [x] **16.15. Unificación Visual de Puntos de Tiempo (Seek Sliders / Thumbs):**
+  - Homogeneización del punto indicador de posición temporal en los tres reproductores de la app: minireproductor (`.floating-seek-slider`), modo letra (`.seek-slider`) y selector de tiempo del editor (`.editor-progress-slider`).
+  - Adopción uniforme del estilo del minireproductor: punto circular de 11px con fondo dinámico del tema (`var(--primary-color, #6366f1)`), borde blanco puro de 1.5px (`1.5px solid #fff`), sombra sutil envolvente (`box-shadow: 0 0 6px rgba(0, 0, 0, 0.4)`), cursor pointer y micro-animación en hover (`scale(1.2)`), eliminando deformaciones en hover y discrepancias entre navegadores y dispositivos móviles.
+
 ---
 
 ## Tareas Pendientes / Por Hacer
