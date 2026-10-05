@@ -29,6 +29,9 @@
   - Posicionamiento fijo (`position: fixed`) de `.controls-settings-popover` en móvil vertical y apaisado, eliminando el recorte de visualización provocado por el `overflow-x: auto` del contenedor de controles.
   - Supresión del destello azul de tap (`-webkit-tap-highlight-color: transparent`) y selección involuntaria de texto (`user-select: none; -webkit-user-select: none; touch-action: manipulation`) en `.controls-dock` y botones.
   - Blindaje contra fuga de clics en el botón de reproducción/pausa mediante `e.stopPropagation()` y verificación con `e.composedPath()` en el fondo del dock.
+- [x] **16.9. Optimización de Controles de Modo Letra y Botones de Canciones en Móviles:**
+  - Configuración de Modo Letra (`.controls-settings-popover`): labels visibles arriba de la opción (`display: block; font-weight: 600`) y selectores ocupando el 100% del ancho disponible (`width: 100%`) en móvil sin alterar la versión de PC.
+  - Botones de acción en el catálogo de canciones (grilla y lista): unificación en una sola fila horizontal (`flex-direction: row; flex-wrap: nowrap`), ancho compacto ("aplastados") e iconos SVG rigurosamente centrados (`justify-content: center; align-items: center`), suprimiendo textos residuales en botones de lista.
 
 ---
 

@@ -235,11 +235,11 @@ export function createSongMenuView({
                 </button>
                 ${activeLibrary ? `
                   <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
-                    ${iconClose} Quitar
+                    ${iconClose}
                   </button>
                 ` : ''}
                 <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
-                  ${iconListPlus} +
+                  ${iconListPlus}
                 </button>
                 <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
                   ${iconEdit}
@@ -647,10 +647,10 @@ export function createSongMenuView({
         if (targetSong && onAddToPlaylist) {
           const added = onAddToPlaylist(targetSong)
           if (added !== false) {
-            btn.innerHTML = `${iconCheck} Añadida`
+            btn.innerHTML = `${iconCheck}`
             btn.classList.add('is-added')
             setTimeout(() => {
-              btn.innerHTML = `${iconListPlus} + Playlist`
+              btn.innerHTML = `${iconListPlus}`
               btn.classList.remove('is-added')
             }, 1400)
             showStatus(`"${targetSong.title}" añadida a la lista de reproducción.`, 'success')

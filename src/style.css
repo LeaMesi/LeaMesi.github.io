@@ -2051,6 +2051,14 @@ input[type="number"] {
   margin-left: auto;
 }
 
+.card-footer-btns .btn,
+.list-col-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .empty-songs-state {
   text-align: center;
   padding: 60px 24px;
@@ -5147,16 +5155,90 @@ input[type="number"] {
     display: none;
   }
 
-  .video-selector-group label,
-  .selector-group label {
-    display: none;
+  /* Configuración de Modo Letra (Popover en móvil): Label arriba y selector a ancho completo */
+  .controls-settings-popover .popover-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
   }
 
-  .select-input {
-    padding: 2px 6px;
-    font-size: 0.75rem;
-    height: 32px;
-    max-width: 105px;
+  .controls-settings-popover .popover-item label,
+  .controls-settings-popover .video-selector-group label,
+  .controls-settings-popover .selector-group label,
+  .controls-settings-popover .offset-adjust-group label {
+    display: block !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted, #94a3b8);
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 2px;
+    text-align: left;
+  }
+
+  .controls-settings-popover .select-input,
+  .controls-settings-popover select {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 38px;
+    font-size: 0.84rem;
+    padding: 6px 10px;
+    box-sizing: border-box;
+    border-radius: var(--radius-sm, 6px);
+  }
+
+  .controls-settings-popover .video-select-actions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .controls-settings-popover .video-select-actions select {
+    flex: 1;
+    min-width: 0;
+    width: auto !important;
+  }
+
+  .controls-settings-popover .video-select-actions .btn-manage-song-videos {
+    height: 38px;
+    width: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .controls-settings-popover .offset-adjust-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .controls-settings-popover .offset-adjust-controls .btn-offset-step {
+    flex: 1;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .controls-settings-popover .offset-value-badge {
+    min-width: 72px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    padding: 0 10px;
   }
 
   .volume-control-group {
@@ -5199,11 +5281,11 @@ input[type="number"] {
     position: fixed;
     bottom: calc(var(--safe-bottom) + 68px);
     right: max(12px, var(--safe-right));
-    width: min(310px, calc(100vw - 24px));
-    max-height: min(480px, calc(100dvh - 90px));
+    width: min(320px, calc(100vw - 24px));
+    max-height: min(520px, calc(100dvh - 84px));
     overflow-y: auto;
     z-index: 1000;
-    padding: 12px 14px;
+    padding: 14px 16px;
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
 
@@ -5288,28 +5370,41 @@ input[type="number"] {
 
   .card-footer-actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    flex-wrap: nowrap;
+    padding-top: 10px;
+    border-top: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));
   }
 
   .card-now-playing-indicator {
-    margin-bottom: 2px;
+    margin-bottom: 0;
+    flex-shrink: 0;
   }
 
   .card-footer-btns {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
     gap: 6px;
-    width: 100%;
+    flex-wrap: nowrap;
+    margin-left: auto;
   }
 
   .card-footer-actions .btn,
   .card-footer-btns .btn {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    font-size: 0.72rem;
-    padding: 6px 2px;
+    text-align: center;
+    font-size: 0.75rem;
+    padding: 0 8px;
+    height: 34px;
+    min-width: 36px;
+    flex-shrink: 0;
   }
 
   /* Listado de Canciones en Móvil */
@@ -5336,15 +5431,38 @@ input[type="number"] {
 
   .list-col-actions {
     flex: 1 1 100%;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
     gap: 6px;
+    flex-wrap: nowrap;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-top: 10px;
+    width: 100%;
+  }
+
+  .list-col-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.75rem;
+    padding: 0 8px;
+    height: 34px;
+    min-width: 36px;
+    flex: 1;
+    max-width: 48px;
   }
 
   .list-col-actions .btn-enter-lyrics {
-    grid-column: span 2;
+    grid-column: unset;
+    font-size: 0.85rem;
+    padding: 0 10px;
+    height: 34px;
+    min-width: 40px;
+    flex: 1.4;
+    max-width: 68px;
   }
 
   /* Editor de Canciones en Móvil */
@@ -5826,16 +5944,85 @@ input[type="number"] {
     min-height: 28px !important;
   }
 
-  .video-selector-group label,
-  .selector-group label {
-    display: none !important;
+  /* Configuración de Modo Letra en Landscape */
+  .controls-settings-popover .popover-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 4px !important;
+    width: 100% !important;
   }
 
-  .select-input {
-    padding: 2px 6px !important;
+  .controls-settings-popover .popover-item label,
+  .controls-settings-popover .video-selector-group label,
+  .controls-settings-popover .selector-group label,
+  .controls-settings-popover .offset-adjust-group label {
+    display: block !important;
     font-size: 0.75rem !important;
-    height: 28px !important;
-    max-width: 110px !important;
+    font-weight: 600 !important;
+    color: var(--text-muted, #94a3b8) !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    margin-bottom: 2px !important;
+    text-align: left !important;
+  }
+
+  .controls-settings-popover .select-input,
+  .controls-settings-popover select {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 32px !important;
+    font-size: 0.8rem !important;
+    padding: 4px 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  .controls-settings-popover .video-select-actions {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .controls-settings-popover .video-select-actions select {
+    flex: 1 !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+
+  .controls-settings-popover .video-select-actions .btn-manage-song-videos {
+    height: 32px !important;
+    width: 32px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .controls-settings-popover .offset-adjust-controls {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+  }
+
+  .controls-settings-popover .offset-adjust-controls .btn-offset-step {
+    flex: 1 !important;
+    height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.78rem !important;
+  }
+
+  .controls-settings-popover .offset-value-badge {
+    min-width: 64px !important;
+    height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.82rem !important;
   }
 
   .volume-control-group {
@@ -5943,6 +6130,34 @@ input[type="number"] {
     align-items: center !important;
     padding: 8px 12px !important;
     gap: 10px !important;
+  }
+
+  .card-footer-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .card-footer-btns,
+  .list-col-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+  }
+
+  .card-footer-btns .btn,
+  .list-col-actions .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    height: 30px !important;
+    min-width: 32px !important;
+    padding: 0 6px !important;
   }
 
   /* Editor en Landscape */
@@ -6644,6 +6859,7 @@ input[type="number"] {
 .btn-add-playlist {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   transition: all 0.2s ease;
 }
