@@ -64,6 +64,7 @@ export function createSongMenuView({
   let isImportOpen = false
   let conflictModalData = null // { existingName, proposedNewName, resolve }
   let editingSongLibraries = null // { song, selectedIds: Set<number>, newLibInput: string }
+  let lastHighlightedSongId = null
 
   const savedViewMode = typeof localStorage !== 'undefined' ? localStorage.getItem('saranga_menu_view_mode') : null
   let viewMode = (savedViewMode === 'list' || savedViewMode === 'grid') ? savedViewMode : 'grid'
@@ -124,6 +125,7 @@ export function createSongMenuView({
 
   function render() {
     if (!containerElement) return
+    lastHighlightedSongId = null
 
     // 1. Filtrar canciones por biblioteca activa
     let candidateSongs = songs
@@ -1088,38 +1090,70 @@ export function createSongMenuView({
     updateActiveSongHighlight()
   }
 
+  function setCardActiveState(card, isActive) {
+    if (!card) return
+    const wasActive = card.classList.contains('is-active-song')
+    if (wasActive === isActive) return
+
+    card.classList.toggle('is-active-song', isActive)
+    card.classList.toggle('is-playing', isActive)
+
+    const indicator = card.querySelector('.card-now-playing-indicator')
+    if (indicator) {
+      indicator.style.display = isActive ? 'inline-flex' : 'none'
+    }
+
+    const iconWrap = card.querySelector('.list-song-icon-wrap')
+    if (iconWrap) {
+      iconWrap.title = isActive ? 'En reproducción' : 'Canción'
+      iconWrap.innerHTML = isActive
+        ? '<span class="now-playing-bars" title="En reproducción"><span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span></span>'
+        : iconMusic
+    }
+
+    const enterBtn = card.querySelector('.btn-enter-lyrics')
+    if (enterBtn) {
+      enterBtn.title = isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'
+      if (card.classList.contains('song-menu-list-row')) {
+        enterBtn.innerHTML = `${iconMic}`
+      } else {
+        enterBtn.innerHTML = `${iconMic} Modo Letra`
+      }
+    }
+  }
+
   function updateActiveSongHighlight() {
     if (!containerElement) return
-    const cards = containerElement.querySelectorAll('.song-menu-card')
-    cards.forEach(card => {
-      const cardSongId = card.dataset.songId
-      const isActive = areSongIdsEqual(cardSongId, activeSongId)
-      card.classList.toggle('is-active-song', isActive)
-      card.classList.toggle('is-playing', isActive)
 
-      const indicator = card.querySelector('.card-now-playing-indicator')
-      if (indicator) {
-        indicator.style.display = isActive ? 'inline-flex' : 'none'
-      }
+    if (lastHighlightedSongId === null) {
+      const cards = containerElement.querySelectorAll('.song-menu-card')
+      cards.forEach(card => {
+        const cardSongId = card.dataset.songId
+        const isActive = areSongIdsEqual(cardSongId, activeSongId)
+        setCardActiveState(card, isActive)
+      })
+      lastHighlightedSongId = activeSongId
+      return
+    }
 
-      const iconWrap = card.querySelector('.list-song-icon-wrap')
-      if (iconWrap) {
-        iconWrap.title = isActive ? 'En reproducción' : 'Canción'
-        iconWrap.innerHTML = isActive
-          ? '<span class="now-playing-bars" title="En reproducción"><span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span></span>'
-          : iconMusic
-      }
+    if (areSongIdsEqual(lastHighlightedSongId, activeSongId)) return
 
-      const enterBtn = card.querySelector('.btn-enter-lyrics')
-      if (enterBtn) {
-        enterBtn.title = isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'
-        if (card.classList.contains('song-menu-list-row')) {
-          enterBtn.innerHTML = `${iconMic}`
-        } else {
-          enterBtn.innerHTML = `${iconMic} Modo Letra`
-        }
-      }
-    })
+    // Delta update: desactivar tarjeta anterior
+    if (lastHighlightedSongId !== null && lastHighlightedSongId !== undefined && lastHighlightedSongId !== '') {
+      const prevCard = containerElement.querySelector(`.song-menu-card[data-song-id="${lastHighlightedSongId}"]`)
+      if (prevCard) setCardActiveState(prevCard, false)
+    }
+
+    // Delta update: activar tarjeta nueva
+    if (activeSongId !== null && activeSongId !== undefined && activeSongId !== '') {
+      const newCard = containerElement.querySelector(`.song-menu-card[data-song-id="${activeSongId}"]`)
+      if (newCard) setCardActiveState(newCard, true)
+    } else {
+      const currentActives = containerElement.querySelectorAll('.song-menu-card.is-active-song')
+      currentActives.forEach(c => setCardActiveState(c, false))
+    }
+
+    lastHighlightedSongId = activeSongId
   }
 
   return {

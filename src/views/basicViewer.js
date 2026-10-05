@@ -23,6 +23,8 @@ export function createBasicViewer(containerElement, options = {}) {
     : 'both'
   let activeLineIndex = -1
   let renderedActiveIndex = -999
+  let cachedSyllableSpans = []
+  let previousSyllableStates = []
 
   function applyStyles(styles = {}) {
     if (!containerElement) return
@@ -73,6 +75,8 @@ export function createBasicViewer(containerElement, options = {}) {
     applyStyles(styles)
     activeLineIndex = -1
     renderedActiveIndex = -999
+    cachedSyllableSpans = []
+    previousSyllableStates = []
 
     if (currentLines.length > 0) {
       renderStage(0)
@@ -349,6 +353,15 @@ export function createBasicViewer(containerElement, options = {}) {
     `
 
     renderedActiveIndex = safeIdx
+    cachedSyllableSpans = []
+    previousSyllableStates = []
+
+    const activeBox = containerElement.querySelector('#active-phrase-box')
+    if (activeBox && Array.isArray(activeLine?.syllables) && activeLine.syllables.length > 0) {
+      for (let sIdx = 0; sIdx < activeLine.syllables.length; sIdx++) {
+        cachedSyllableSpans[sIdx] = activeBox.querySelectorAll(`[data-syl="${sIdx}"]`)
+      }
+    }
 
     // Permitir clic en frases para saltar/retroceder directamente en la reproducción
     if (onSeekLine) {
@@ -391,16 +404,21 @@ export function createBasicViewer(containerElement, options = {}) {
     const activeLine = currentLines[renderedActiveIndex]
     if (activeLine && Array.isArray(activeLine.syllables) && activeLine.syllables.length > 0) {
       const states = evaluateSyllablesState(activeLine.syllables, currentTime)
-      const activeBox = containerElement.querySelector('#active-phrase-box')
-      if (activeBox) {
-        states.forEach((sState, sIdx) => {
-          const spans = activeBox.querySelectorAll(`[data-syl="${sIdx}"]`)
-          spans.forEach(span => {
-            span.classList.toggle('is-active-syl', sState.state === 'active')
-            span.classList.toggle('is-completed-syl', sState.state === 'completed')
-            span.classList.toggle('is-upcoming-syl', sState.state === 'upcoming')
-          })
-        })
+      for (let sIdx = 0; sIdx < states.length; sIdx++) {
+        const stateName = states[sIdx].state
+        // Solo actualizar el DOM si el estado de esta sílaba cambió (dirty checking)
+        if (previousSyllableStates[sIdx] !== stateName) {
+          previousSyllableStates[sIdx] = stateName
+          const spans = cachedSyllableSpans[sIdx]
+          if (spans) {
+            for (let i = 0; i < spans.length; i++) {
+              const span = spans[i]
+              span.classList.toggle('is-active-syl', stateName === 'active')
+              span.classList.toggle('is-completed-syl', stateName === 'completed')
+              span.classList.toggle('is-upcoming-syl', stateName === 'upcoming')
+            }
+          }
+        }
       }
     }
   }

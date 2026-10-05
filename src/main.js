@@ -9,7 +9,6 @@ import { createAdvancedViewer } from './views/advancedViewer.js'
 import { createControlsView } from './views/controlsView.js'
 import { createSongMenuView } from './views/songMenuView.js'
 import { createVideoManagerModal } from './views/videoManagerModal.js'
-import { createOnlineLyricsModal } from './views/onlineLyricsModal.js'
 import { createThemeSettingsModal } from './views/themeSettingsModal.js'
 import { createPlaylistService, loadLibraryIntoPlaylist } from './services/playlistService.js'
 import { createPlaylistModal } from './views/playlistModal.js'
@@ -208,20 +207,34 @@ async function initApp() {
     }
   })
 
-  // 5b. Inicializar Modal de Búsqueda Online (BetterLyrics / Genius / LRCLIB)
-  const onlineLyricsModal = createOnlineLyricsModal({
-    containerElement: betterlyricsModalEl,
-    onSongReady: (songPackage, loadOptions = {}) => {
-      showEditorScreen(songPackage, loadOptions)
-    },
-    onCreateEmptySong: () => {
-      showEditorScreen(null)
-    },
-    onImportSuccess: async (msg) => {
-      await songMenuView?.refresh()
-      songMenuView?.showStatus(msg, 'success')
-    }
-  })
+  // 5b. Inicializar Modal de Búsqueda Online (Carga perezosa bajo demanda)
+  let onlineLyricsModalInstance = null
+  let onlineLyricsModalLoadingPromise = null
+
+  async function getOnlineLyricsModal() {
+    if (onlineLyricsModalInstance) return onlineLyricsModalInstance
+    if (onlineLyricsModalLoadingPromise) return onlineLyricsModalLoadingPromise
+
+    onlineLyricsModalLoadingPromise = (async () => {
+      const { createOnlineLyricsModal } = await import('./views/onlineLyricsModal.js')
+      onlineLyricsModalInstance = createOnlineLyricsModal({
+        containerElement: betterlyricsModalEl,
+        onSongReady: (songPackage, loadOptions = {}) => {
+          showEditorScreen(songPackage, loadOptions)
+        },
+        onCreateEmptySong: () => {
+          showEditorScreen(null)
+        },
+        onImportSuccess: async (msg) => {
+          await songMenuView?.refresh()
+          songMenuView?.showStatus(msg, 'success')
+        }
+      })
+      return onlineLyricsModalInstance
+    })()
+
+    return onlineLyricsModalLoadingPromise
+  }
 
   // 5c. Inicializar Modal de Configuración de Temas y Visualización
   const themeSettingsModal = createThemeSettingsModal({
@@ -490,11 +503,13 @@ async function initApp() {
     onCreateNewSong: () => {
       showEditorScreen(null)
     },
-    onSearchOnlineLyrics: () => {
-      onlineLyricsModal.open()
+    onSearchOnlineLyrics: async () => {
+      const modal = await getOnlineLyricsModal()
+      modal.open()
     },
-    onSearchBetterLyrics: () => {
-      onlineLyricsModal.open()
+    onSearchBetterLyrics: async () => {
+      const modal = await getOnlineLyricsModal()
+      modal.open()
     },
     onEditSong: (song) => {
       showEditorScreen(song)

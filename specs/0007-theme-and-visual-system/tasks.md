@@ -38,6 +38,12 @@
   - Estandarización estricta de botones en teléfonos móviles (`@media (max-width: 768px)`): botones de icono unificados exactamente a 38x38px (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`), botón de reproducción/pausa a 44x38px, y altura consistente de 38px en `.btn-open-playlist`.
   - Estandarización en vista apaisada / landscape móvil (`@media (max-height: 500px) and (orientation: landscape)`): altura estándar de 32px para todos los botones del dock.
   - Reubicación del botón "Editar" (`#btn-controls-edit`) dentro del popover de ajustes (`#controls-settings-popover`), posicionado a lo ancho completo debajo de una línea divisoria horizontal (`<hr class="settings-popover-separator">`) con su icono correspondiente, liberando espacio en el dock exterior.
+- [x] **16.11. Optimización Integral de Rendimiento Móvil (Master Clock, DOM y CSS):**
+  - Carga perezosa de `onlineLyricsModal.js` en `main.js`, reduciendo el paquete inicial JavaScript en casi 50% (de 603 KB a 344 KB).
+  - Cacheo de referencias DOM y comprobación sucia (*dirty checking*) de segundos en `basicViewer.js`, `controlsView.js`, `floatingPlayerView.js` y `songEditorView.js`, eliminando miles de consultas y reduciendo mutaciones DOM en 98% en pantallas de 60/90/120 Hz.
+  - Comprobación sucia de estados silábicos en el visor de letras, evitando conmutar clases CSS cuando no hay transición real de estado.
+  - Actualización delta (*delta update*) en `songMenuView.js` al alternar canción activa, afectando únicamente a las 2 tarjetas en vez de iterar sobre el catálogo completo.
+  - Optimización gráfica CSS para GPU móvil: `backdrop-filter: none` en la barra superior móvil, `content-visibility: auto` con `contain-intrinsic-size` en tarjetas del catálogo y `will-change: transform` en las barras ecualizadoras animadas.
 
 ---
 

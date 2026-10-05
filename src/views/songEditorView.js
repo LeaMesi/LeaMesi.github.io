@@ -336,6 +336,9 @@ export function createSongEditorView({
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
       const { start, end } = getLineTimeRange(line)
+      if (start > time + 5 && i > 0) {
+        break
+      }
       if (time >= start && time <= end) {
         nextActiveLineIndices.add(i)
       }
@@ -2503,33 +2506,48 @@ export function createSongEditorView({
     return savedId
   }
 
+  let cachedAssistantClock = null
+  let cachedEditorSlider = null
+  let cachedEditorCurrent = null
+  let cachedEditorDuration = null
+  let lastEditorSec = -1
+
   // Actualización del reloj del asistente en tiempo real si el reproductor está activo
   function updateClock(time) {
-    const clockEl = containerElement?.querySelector('#assistant-clock-time')
-    if (clockEl) {
-      clockEl.textContent = formatTime(Math.max(0, time), true)
+    if (!containerElement) return
+    const safeTime = Math.max(0, time)
+
+    if (!cachedAssistantClock || !containerElement.contains(cachedAssistantClock)) {
+      cachedAssistantClock = containerElement.querySelector('#assistant-clock-time')
+      cachedEditorSlider = containerElement.querySelector('#editor-progress-slider')
+      cachedEditorCurrent = containerElement.querySelector('#editor-progress-current')
+      cachedEditorDuration = containerElement.querySelector('#editor-progress-duration')
+    }
+
+    if (cachedAssistantClock) {
+      cachedAssistantClock.textContent = formatTime(safeTime, true)
     }
 
     if (!isUserSeeking) {
-      const progressSlider = containerElement?.querySelector('#editor-progress-slider')
-      const progressCurrent = containerElement?.querySelector('#editor-progress-current')
-      const progressDuration = containerElement?.querySelector('#editor-progress-duration')
       const dur = mediaPlayer?.getDuration ? mediaPlayer.getDuration() : 0
-
-      if (progressSlider) {
-        progressSlider.max = String(Math.max(1, dur))
-        progressSlider.value = String(Math.max(0, time))
+      if (cachedEditorSlider) {
+        cachedEditorSlider.max = String(Math.max(1, dur))
+        cachedEditorSlider.value = String(safeTime)
       }
-      if (progressCurrent) {
-        progressCurrent.textContent = formatTime(Math.max(0, time))
-      }
-      if (progressDuration) {
-        progressDuration.textContent = formatTime(dur)
+      const floorSec = Math.floor(safeTime)
+      if (floorSec !== lastEditorSec) {
+        lastEditorSec = floorSec
+        if (cachedEditorCurrent) {
+          cachedEditorCurrent.textContent = formatTime(safeTime)
+        }
+        if (cachedEditorDuration) {
+          cachedEditorDuration.textContent = formatTime(dur)
+        }
       }
     }
 
     // Resaltado reactivo del verso y sílaba actual marcados por el asistente
-    updateActiveElements(Math.max(0, time))
+    updateActiveElements(safeTime)
   }
 
   function setPlayingState(playing) {

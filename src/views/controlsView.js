@@ -78,6 +78,9 @@ export function createControlsView({
   let isVolumeOpen = false
   let isDockClickBound = false
   let documentClickListener = null
+  let cachedCurTimeEl = null
+  let cachedSeekSlider = null
+  let lastDisplayedTimeSec = -1
 
   function formatOffset(val) {
     const num = Number(val) || 0
@@ -341,7 +344,11 @@ export function createControlsView({
       })
     }
 
-    const seekSlider = containerElement.querySelector('.seek-slider')
+    cachedSeekSlider = containerElement.querySelector('.seek-slider')
+    cachedCurTimeEl = containerElement.querySelector('.current-time')
+    lastDisplayedTimeSec = -1
+
+    const seekSlider = cachedSeekSlider
     if (seekSlider) {
       const startSeek = () => {
         isUserSeeking = true
@@ -363,8 +370,10 @@ export function createControlsView({
         isUserSeeking = true
         const val = Number(e.target.value)
         currentTime = val
-        const curEl = containerElement.querySelector('.current-time')
-        if (curEl) curEl.textContent = formatTime(Math.max(0, val))
+        const safeVal = Math.max(0, val)
+        lastDisplayedTimeSec = Math.floor(safeVal)
+        const curEl = cachedCurTimeEl || containerElement.querySelector('.current-time')
+        if (curEl) curEl.textContent = formatTime(safeVal)
       })
       seekSlider.addEventListener('change', (e) => {
         isUserSeeking = false
@@ -696,18 +705,23 @@ export function createControlsView({
       duration = dur
       const durEl = containerElement.querySelector('.duration-time')
       if (durEl) durEl.textContent = formatTime(dur)
-      const seekSlider = containerElement.querySelector('.seek-slider')
+      const seekSlider = cachedSeekSlider || containerElement.querySelector('.seek-slider')
       if (seekSlider) seekSlider.max = Math.max(1, dur)
     }
   }
 
   function setTime(time) {
     currentTime = time
-    const curEl = containerElement.querySelector('.current-time')
-    if (curEl) curEl.textContent = formatTime(Math.max(0, time))
-    const seekSlider = containerElement.querySelector('.seek-slider')
+    const safeTime = Math.max(0, time)
+    const floorSec = Math.floor(safeTime)
+    if (floorSec !== lastDisplayedTimeSec) {
+      lastDisplayedTimeSec = floorSec
+      const curEl = cachedCurTimeEl || containerElement.querySelector('.current-time')
+      if (curEl) curEl.textContent = formatTime(safeTime)
+    }
+    const seekSlider = cachedSeekSlider || containerElement.querySelector('.seek-slider')
     if (seekSlider && !isUserSeeking) {
-      seekSlider.value = Math.max(0, time)
+      seekSlider.value = safeTime
     }
   }
 

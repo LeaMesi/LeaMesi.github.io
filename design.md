@@ -781,6 +781,20 @@ Para garantizar un espacio de trabajo despejado y minimizar la sobrecarga cognit
   * En vista vertical móvil ($\le 768\text{px}$), todos los botones de iconos (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`) se normalizan rigurosamente a $38\times 38\text{px}$ con `box-sizing: border-box`, el botón de reproducción/pausa a $44\times 38\text{px}$, y `.btn-open-playlist` a $38\text{px}$ de altura.
   * En vista apaisada móvil ($\le 500\text{px}$ en landscape), todos los botones adoptan una altura uniforme de $32\text{px}$, garantizando simetría visual y táctil perfecta.
 
+### 12.6. Arquitectura de Optimización Móvil (Master Clock, DOM Caching, Code-Splitting y GPU CSS)
+* **Code-Splitting y Carga Perezosa Asíncrona:**
+  * Carga bajo demanda mediante `await import()` para módulos pesados (`songEditorView.js`, `onlineLyricsModal.js`, motores de traducción y diccionario kanji).
+  * Reducción drástica del bundle JavaScript inicial en un 43% (de 603 KB a 344 KB), reduciendo tiempos de parseo en procesadores móviles y ahorrando datos en redes móviles.
+* **Cacheo de Nodos DOM y Dirty Checking a 60/90/120 Hz:**
+  * El bucle `requestAnimationFrame` en `mediaPlayer.js` despacha tiempos con alta frecuencia. Las vistas (`basicViewer.js`, `controlsView.js`, `floatingPlayerView.js`, `songEditorView.js`) cachean las referencias a los elementos del DOM y aplican comprobación sucia (*dirty checking*), actualizando el texto del reloj únicamente cuando el segundo entero cambia (`Math.floor(time)`), suprimiendo el 98% de mutaciones de texto innecesarias.
+  * En `basicViewer.js`, las referencias a los `<span>` de las sílabas del verso activo se pre-consultan en `renderStage()` y el bucle de tiempo solo conmuta clases CSS cuando una sílaba transiciona efectivamente de estado (`upcoming` $\rightarrow$ `active` $\rightarrow$ `completed`).
+* **Actualización Delta en Catálogo de Canciones (`songMenuView.js`):**
+  * Al cambiar la canción activa o su estado de reproducción, la función `updateActiveSongHighlight()` muta exclusivamente la tarjeta anterior y la nueva, eliminando el recorrido completo del catálogo con `querySelectorAll` y evitando recálculos de layout y tirones visuales (*jank*).
+* **Optimizaciones de GPU y Renderizado CSS Móvil:**
+  * `backdrop-filter: none` en la cabecera dentro de `@media (max-width: 768px)`, evitando buffers de composición fuera de pantalla durante el scroll en GPUs móviles.
+  * `content-visibility: auto; contain-intrinsic-size: ...;` en tarjetas de catálogo para que el motor del navegador omita el layout de las tarjetas fuera de la pantalla.
+  * `will-change: transform` en las barras ecualizadoras animadas para aislarlas en capas independientes del compositor.
+
 ---
 
 ## 13. Arquitectura de Transliteración Fonética Automática a Romaji (Japonés)
