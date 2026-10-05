@@ -152,6 +152,11 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
         },
         events: {
           onReady: () => {
+            if (currentVolume === 0 && ytPlayer.mute) {
+              ytPlayer.mute()
+            } else if (ytPlayer.unMute) {
+              ytPlayer.unMute()
+            }
             if (ytPlayer.setVolume) {
               ytPlayer.setVolume(currentVolume)
             }
@@ -457,11 +462,19 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     const v = Math.max(0, Math.min(100, Number(volume) || 0))
     currentVolume = v
     localStorage.setItem('saranga_player_volume', String(v))
-    if (ytPlayer && ytPlayer.setVolume) {
-      ytPlayer.setVolume(currentVolume)
+    if (ytPlayer) {
+      if (v === 0 && ytPlayer.mute) {
+        ytPlayer.mute()
+      } else if (ytPlayer.unMute) {
+        ytPlayer.unMute()
+      }
+      if (ytPlayer.setVolume) {
+        ytPlayer.setVolume(currentVolume)
+      }
     }
     if (audioElement) {
       audioElement.volume = currentVolume / 100
+      audioElement.muted = (v === 0)
     }
   }
 

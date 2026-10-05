@@ -43,6 +43,11 @@
   - Cacheo de referencias DOM y comprobación sucia (*dirty checking*) de segundos en `basicViewer.js`, `controlsView.js`, `floatingPlayerView.js` y `songEditorView.js`, eliminando miles de consultas y reduciendo mutaciones DOM en 98% en pantallas de 60/90/120 Hz.
   - Comprobación sucia de estados silábicos en el visor de letras, evitando conmutar clases CSS cuando no hay transición real de estado.
   - Actualización delta (*delta update*) en `songMenuView.js` al alternar canción activa, afectando únicamente a las 2 tarjetas en vez de iterar sobre el catálogo completo.
+- [x] **16.12. Eliminación Global de Destellos Azules de Tap y Funcionamiento del Volumen en Teléfonos Móviles:**
+  - Desactivación universal del cuadro/destello azul de tap (`-webkit-tap-highlight-color: transparent`) en toda la web aplicada a `*, *::before, *::after`, `html`, `body`, `a`, `button`, `input`, `select` y `textarea`, junto con `:focus:not(:focus-visible) { outline: none; }`.
+  - Corrección integral del popover de volumen (`#controls-volume-popover`) en móviles portrait y landscape: posicionamiento fijo (`position: fixed !important`) con cálculo dinámico centrado sobre el botón `#btn-controls-volume`, impidiendo que el `overflow-x: auto` de `.controls-main-row` recorte y oculte el control.
+  - Soporte táctil y de puntero interactivo en la pista vertical del slider de volumen (`.controls-volume-slider-track` con `touch-action: none`), permitiendo regular el volumen de 0 a 100% deslizando el dedo sin provocar scroll en la pantalla.
+  - Sincronización de `mute()` y `unMute()` en la YouTube IFrame API y silenciamiento nativo en audio HTML5 (`audioElement.muted`) para compatibilidad total de volumen en dispositivos móviles.
   - Optimización gráfica CSS para GPU móvil: `backdrop-filter: none` en la barra superior móvil, `content-visibility: auto` con `contain-intrinsic-size` en tarjetas del catálogo y `will-change: transform` en las barras ecualizadoras animadas.
 
 ---

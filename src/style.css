@@ -43,10 +43,27 @@
   --dock-height: 120px;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+a,
+button,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 body {
@@ -58,6 +75,7 @@ body {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Eliminación de flechas nativas y fondos blancos en inputs numéricos */
@@ -909,6 +927,11 @@ input[type="number"] {
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
+  pointer-events: none;
+}
+
+button svg {
+  pointer-events: none;
 }
 
 .btn-primary {
@@ -2421,8 +2444,12 @@ input[type="number"] {
   align-items: center;
   justify-content: center;
   height: 100px;
-  width: 28px;
+  width: 34px;
   padding: 4px 0;
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .controls-volume-slider {
@@ -2430,10 +2457,11 @@ input[type="number"] {
   direction: rtl;
   -webkit-appearance: slider-vertical;
   appearance: slider-vertical;
-  width: 8px;
+  width: 14px;
   height: 96px;
   cursor: pointer;
   accent-color: var(--primary-color, #6366f1);
+  touch-action: none;
 }
 
 .btn-volume-mute-action {
@@ -5519,8 +5547,10 @@ input[type="number"] {
   }
 
   .controls-volume-popover {
-    bottom: calc(100% + 10px) !important;
-    left: 50% !important;
+    position: fixed !important;
+    bottom: calc(var(--safe-bottom) + 68px) !important;
+    z-index: 1000 !important;
+    touch-action: none;
   }
 
   .controls-settings-popover {
@@ -6352,8 +6382,11 @@ input[type="number"] {
   }
 
   .controls-volume-popover {
-    bottom: calc(100% + 8px) !important;
+    position: fixed !important;
+    bottom: calc(var(--safe-bottom) + 52px) !important;
     padding: 6px !important;
+    z-index: 1000 !important;
+    touch-action: none;
   }
 
   .controls-volume-slider-track {

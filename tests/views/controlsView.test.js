@@ -480,6 +480,70 @@ describe('views/controlsView.js', () => {
       container.dispatchEvent(new MouseEvent('click', { bubbles: true }))
       expect(onGoToMenu).toHaveBeenCalledTimes(1)
     })
+
+    it('abre y cierra el menú de volumen al pulsar el botón y permite deslizar la pista con eventos de puntero/táctiles', () => {
+      const onVolumeChange = vi.fn()
+      const controls = createControlsView({
+        containerElement: container,
+        initialVolume: 60,
+        onVolumeChange
+      })
+      controls.render()
+
+      const volumeBtn = container.querySelector('#btn-controls-volume')
+      const volumePopover = container.querySelector('#controls-volume-popover')
+      const sliderTrack = container.querySelector('.controls-volume-slider-track')
+      const volumePercent = container.querySelector('.volume-percent-label')
+
+      expect(volumeBtn).not.toBeNull()
+      expect(volumePopover).not.toBeNull()
+      expect(volumePopover.classList.contains('is-open')).toBe(false)
+
+      // Simular getBoundingClientRect para emular entorno móvil
+      window.innerWidth = 375
+      window.innerHeight = 667
+      volumeBtn.getBoundingClientRect = () => ({
+        top: 600,
+        bottom: 638,
+        left: 120,
+        right: 158,
+        width: 38,
+        height: 38
+      })
+      sliderTrack.getBoundingClientRect = () => ({
+        top: 480,
+        bottom: 580,
+        left: 120,
+        right: 154,
+        width: 34,
+        height: 100
+      })
+
+      // Abrir popover de volumen
+      volumeBtn.click()
+      expect(volumePopover.classList.contains('is-open')).toBe(true)
+      expect(volumeBtn.classList.contains('is-active')).toBe(true)
+      expect(volumePopover.style.position).toBe('fixed')
+
+      // Interacción en la pista vertical (pointerdown en la mitad superior: clientY = 530 -> (580 - 530) / 100 = 50%)
+      sliderTrack.dispatchEvent(new MouseEvent('pointerdown', {
+        clientY: 530,
+        bubbles: true,
+        cancelable: true
+      }))
+      expect(onVolumeChange).toHaveBeenCalledWith(50)
+      expect(volumePercent.textContent).toBe('50%')
+
+      // Clic fuera para cerrar
+      const outsideEl = document.createElement('div')
+      document.body.appendChild(outsideEl)
+      outsideEl.click()
+
+      expect(volumePopover.classList.contains('is-open')).toBe(false)
+      expect(volumeBtn.classList.contains('is-active')).toBe(false)
+      expect(volumePopover.style.position).toBe('')
+      outsideEl.remove()
+    })
   })
 })
 
