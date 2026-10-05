@@ -21,6 +21,8 @@
   - Slider interactivo y botón de silenciado con iconos SVG vectoriales.
 - [x] **23.1. Corrección de Congelamiento en Barra de Progreso:**
   - Sustituir verificación de foco por bandera `isUserSeeking` y desenfoque automático (`seekSlider.blur()`).
+- [x] **23.2. Área Segura contra Missclics en la Barra de Progreso (`controlsView.js`):**
+  - Implementación de área segura (banda geométrica desde el borde superior del dock hasta la fila de botones y eventos de captura en `.progress-bar-row`) que previene navegaciones accidentales a la lista de canciones al adelantar o retroceder la pista, preservando al 100% los estilos visuales y calculando el salto temporal si el toque cae alineado al slider.
 - [x] **5.6. Ajuste Rápido de Offset en Caliente (-0.1s y +0.1s):**
   - Botones `-0.1s` y `+0.1s` con badge central del offset en el popover de configuración de `controlsView.js`.
   - Método `setActiveOffset` en `mediaPlayer.js` que actualiza `activeOffset` y sincroniza las letras en tiempo real sin pausar, reiniciar ni alterar la posición del reproductor de YouTube/audio.

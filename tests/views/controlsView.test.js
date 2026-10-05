@@ -468,7 +468,7 @@ describe('views/controlsView.js', () => {
       outsideEl.remove()
     })
 
-    it('navega al menú solo cuando se hace clic en el área vacía del dock', () => {
+    it('navega al menú solo cuando se hace clic en el área vacía del dock fuera del área segura', () => {
       const onGoToMenu = vi.fn()
       const controls = createControlsView({
         containerElement: container,
@@ -476,9 +476,140 @@ describe('views/controlsView.js', () => {
       })
       controls.render()
 
-      // Clic directo en el contenedor principal (área vacía)
+      // Clic directo en el contenedor principal sin coordenadas (fallback feliz sin layout)
       container.dispatchEvent(new MouseEvent('click', { bubbles: true }))
       expect(onGoToMenu).toHaveBeenCalledTimes(1)
+    })
+
+    it('no navega al menú al hacer clic dentro de la barra de progreso o en su área segura', () => {
+      const onGoToMenu = vi.fn()
+      const onSeek = vi.fn()
+      const controls = createControlsView({
+        containerElement: container,
+        onGoToMenu,
+        onSeek
+      })
+      controls.render()
+      controls.setDuration(100)
+
+      const progressRow = container.querySelector('.progress-bar-row')
+      const seekSlider = container.querySelector('.seek-slider')
+
+      // Mock de rectángulos para simular dock, fila y slider
+      container.getBoundingClientRect = () => ({
+        top: 600,
+        bottom: 700,
+        left: 0,
+        right: 400,
+        width: 400,
+        height: 100
+      })
+      progressRow.getBoundingClientRect = () => ({
+        top: 612,
+        bottom: 632,
+        left: 20,
+        right: 380,
+        width: 360,
+        height: 20
+      })
+      seekSlider.getBoundingClientRect = () => ({
+        top: 618,
+        bottom: 626,
+        left: 60,
+        right: 340,
+        width: 280,
+        height: 8
+      })
+
+      // 1. Clic dentro de progress-bar-row no navega al menú
+      progressRow.dispatchEvent(new MouseEvent('click', {
+        clientX: 200, // En el medio del slider -> 50%
+        clientY: 622,
+        bubbles: true
+      }))
+      expect(onGoToMenu).not.toHaveBeenCalled()
+      expect(onSeek).toHaveBeenCalledWith(50)
+
+      // 2. Clic en el área segura arriba del slider (en el padding superior del dock: clientY = 605)
+      container.dispatchEvent(new MouseEvent('click', {
+        clientX: 200,
+        clientY: 605,
+        bubbles: true
+      }))
+      expect(onGoToMenu).not.toHaveBeenCalled()
+      expect(onSeek).toHaveBeenCalledWith(50)
+
+      // 3. Clic fuera del área segura (en la zona de controles principales: clientY = 670)
+      container.dispatchEvent(new MouseEvent('click', {
+        clientX: 200,
+        clientY: 670,
+        bubbles: true
+      }))
+      expect(onGoToMenu).toHaveBeenCalledTimes(1)
+    })
+
+    it('abre y cierra el menú de volumen al pulsar el botón y permite deslizar la pista con eventos de puntero/táctiles', () => {
+      const onVolumeChange = vi.fn()
+      const controls = createControlsView({
+        containerElement: container,
+        initialVolume: 60,
+        onVolumeChange
+      })
+      controls.render()
+
+      const volumeBtn = container.querySelector('#btn-controls-volume')
+      const volumePopover = container.querySelector('#controls-volume-popover')
+      const sliderTrack = container.querySelector('.controls-volume-slider-track')
+      const volumePercent = container.querySelector('.volume-percent-label')
+
+      expect(volumeBtn).not.toBeNull()
+      expect(volumePopover).not.toBeNull()
+      expect(volumePopover.classList.contains('is-open')).toBe(false)
+
+      // Simular getBoundingClientRect para emular entorno móvil
+      window.innerWidth = 375
+      window.innerHeight = 667
+      volumeBtn.getBoundingClientRect = () => ({
+        top: 600,
+        bottom: 638,
+        left: 120,
+        right: 158,
+        width: 38,
+        height: 38
+      })
+      sliderTrack.getBoundingClientRect = () => ({
+        top: 480,
+        bottom: 580,
+        left: 120,
+        right: 154,
+        width: 34,
+        height: 100
+      })
+
+      // Abrir popover de volumen
+      volumeBtn.click()
+      expect(volumePopover.classList.contains('is-open')).toBe(true)
+      expect(volumeBtn.classList.contains('is-active')).toBe(true)
+      expect(volumePopover.style.position).toBe('fixed')
+
+      // Interacción en la pista vertical (pointerdown en la mitad superior: clientY = 530 -> (580 - 530) / 100 = 50%)
+      sliderTrack.dispatchEvent(new MouseEvent('pointerdown', {
+        clientY: 530,
+        bubbles: true,
+        cancelable: true
+      }))
+      expect(onVolumeChange).toHaveBeenCalledWith(50)
+      expect(volumePercent.textContent).toBe('50%')
+
+      // Clic fuera para cerrar
+      const outsideEl = document.createElement('div')
+      document.body.appendChild(outsideEl)
+      outsideEl.click()
+
+      expect(volumePopover.classList.contains('is-open')).toBe(false)
+      expect(volumeBtn.classList.contains('is-active')).toBe(false)
+      expect(volumePopover.style.position).toBe('')
+      outsideEl.remove()
     })
   })
 })

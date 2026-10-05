@@ -298,11 +298,46 @@ export function createControlsView({
         const path = e.composedPath ? e.composedPath() : []
         const isInteractive = path.some(el => {
           if (!el || !el.matches) return false
-          return el.matches('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')
+          return el.matches('button, input, select, textarea, a, .progress-bar-row, .progress-bar-row *, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')
         })
-        if (isInteractive || e.target.closest('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')) {
+        if (isInteractive || e.target.closest('button, input, select, textarea, a, .progress-bar-row, .progress-bar-row *, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')) {
           return
         }
+
+        // Área segura de la barra de progreso: protege de missclics al adelantar/retroceder
+        const progressRow = containerElement.querySelector('.progress-bar-row')
+        if (progressRow) {
+          const rowRect = progressRow.getBoundingClientRect ? progressRow.getBoundingClientRect() : null
+          const dockRect = containerElement.getBoundingClientRect ? containerElement.getBoundingClientRect() : null
+          if (rowRect && dockRect && dockRect.height > 0 && rowRect.height > 0) {
+            // Banda segura: desde el borde superior del dock hasta justo antes de los controles principales
+            const isInsideSafeZone = (
+              e.clientY >= dockRect.top &&
+              e.clientY <= rowRect.bottom + 8 &&
+              e.clientX >= dockRect.left &&
+              e.clientX <= dockRect.right
+            )
+            if (isInsideSafeZone) {
+              const slider = containerElement.querySelector('.seek-slider')
+              if (slider && slider.getBoundingClientRect) {
+                const sRect = slider.getBoundingClientRect()
+                if (sRect.width > 0 && e.clientX >= sRect.left && e.clientX <= sRect.right) {
+                  const frac = Math.max(0, Math.min(1, (e.clientX - sRect.left) / sRect.width))
+                  const targetTime = frac * duration
+                  slider.value = String(targetTime)
+                  currentTime = targetTime
+                  const safeVal = Math.max(0, targetTime)
+                  lastDisplayedTimeSec = Math.floor(safeVal)
+                  const curEl = cachedCurTimeEl || containerElement.querySelector('.current-time')
+                  if (curEl) curEl.textContent = formatTime(safeVal)
+                  if (onSeek) onSeek(targetTime)
+                }
+              }
+              return
+            }
+          }
+        }
+
         const selection = window.getSelection?.()
         if (selection && selection.toString().trim().length > 0) {
           return
@@ -386,11 +421,33 @@ export function createControlsView({
       seekSlider.addEventListener('touchend', endSeek)
     }
 
+    const progressRow = containerElement.querySelector('.progress-bar-row')
+    if (progressRow) {
+      progressRow.addEventListener('click', (e) => {
+        e.stopPropagation()
+        if (e.target !== seekSlider && seekSlider && seekSlider.getBoundingClientRect) {
+          const sRect = seekSlider.getBoundingClientRect()
+          if (sRect.width > 0 && e.clientX >= sRect.left && e.clientX <= sRect.right) {
+            const frac = Math.max(0, Math.min(1, (e.clientX - sRect.left) / sRect.width))
+            const targetTime = frac * duration
+            seekSlider.value = String(targetTime)
+            currentTime = targetTime
+            const safeVal = Math.max(0, targetTime)
+            lastDisplayedTimeSec = Math.floor(safeVal)
+            const curEl = cachedCurTimeEl || containerElement.querySelector('.current-time')
+            if (curEl) curEl.textContent = formatTime(safeVal)
+            if (onSeek) onSeek(targetTime)
+          }
+        }
+      })
+    }
+
     const volumeBtn = containerElement.querySelector('#btn-controls-volume')
     const volumePopover = containerElement.querySelector('#controls-volume-popover')
     const volumeSlider = containerElement.querySelector('.volume-slider')
     const volumeLabel = containerElement.querySelector('.volume-percent-label')
     const muteBtn = containerElement.querySelector('.btn-mute-toggle')
+    const sliderTrack = containerElement.querySelector('.controls-volume-slider-track')
 
     function updateVolumeDisplay(val) {
       const isMuted = val === 0
@@ -407,6 +464,25 @@ export function createControlsView({
       }
     }
 
+    function updateVolumePopoverPosition() {
+      if (!volumeBtn || !volumePopover || !isVolumeOpen) return
+      const isMobile = (typeof window !== 'undefined') && (window.innerWidth <= 768 || window.innerHeight <= 500)
+      if (isMobile && volumeBtn.getBoundingClientRect) {
+        const rect = volumeBtn.getBoundingClientRect()
+        volumePopover.style.setProperty('position', 'fixed', 'important')
+        volumePopover.style.setProperty('bottom', `${Math.max(10, Math.round(window.innerHeight - rect.top + 8))}px`, 'important')
+        volumePopover.style.setProperty('left', `${Math.round(rect.left + rect.width / 2)}px`, 'important')
+        volumePopover.style.setProperty('transform', 'translateX(-50%)', 'important')
+        volumePopover.style.setProperty('z-index', '1000', 'important')
+      } else {
+        volumePopover.style.removeProperty('position')
+        volumePopover.style.removeProperty('bottom')
+        volumePopover.style.removeProperty('left')
+        volumePopover.style.removeProperty('transform')
+        volumePopover.style.removeProperty('z-index')
+      }
+    }
+
     if (volumeBtn && volumePopover) {
       volumeBtn.addEventListener('click', (e) => {
         e.stopPropagation()
@@ -414,12 +490,92 @@ export function createControlsView({
         volumePopover.classList.toggle('is-open', isVolumeOpen)
         volumeBtn.classList.toggle('is-active', isVolumeOpen)
         volumeBtn.setAttribute('aria-expanded', String(isVolumeOpen))
+        if (isVolumeOpen) {
+          updateVolumePopoverPosition()
+        } else {
+          volumePopover.style.removeProperty('position')
+          volumePopover.style.removeProperty('bottom')
+          volumePopover.style.removeProperty('left')
+          volumePopover.style.removeProperty('transform')
+          volumePopover.style.removeProperty('z-index')
+        }
       })
+    }
+
+    const handleVolumeRelayout = () => {
+      if (isVolumeOpen) {
+        updateVolumePopoverPosition()
+      }
+    }
+    window.addEventListener('resize', handleVolumeRelayout)
+    window.addEventListener('orientationchange', handleVolumeRelayout)
+    const mainRow = containerElement.querySelector('.controls-main-row')
+    if (mainRow) {
+      mainRow.addEventListener('scroll', handleVolumeRelayout, { passive: true })
     }
 
     if (volumePopover) {
       volumePopover.addEventListener('click', (e) => {
         e.stopPropagation()
+      })
+    }
+
+    if (sliderTrack) {
+      let isDraggingTrack = false
+
+      function updateVolumeFromPointer(e) {
+        const rect = sliderTrack.getBoundingClientRect()
+        if (!rect || rect.height <= 0) return
+        const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0)
+        const relativeY = rect.bottom - clientY
+        const percent = Math.max(0, Math.min(100, Math.round((relativeY / rect.height) * 100)))
+        currentVolume = percent
+        if (percent > 0) previousVolume = percent
+        if (volumeSlider) volumeSlider.value = String(percent)
+        if (volumeLabel) volumeLabel.textContent = `${percent}%`
+        updateVolumeDisplay(percent)
+        if (onVolumeChange) onVolumeChange(percent)
+      }
+
+      sliderTrack.addEventListener('pointerdown', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        isDraggingTrack = true
+        try { sliderTrack.setPointerCapture(e.pointerId) } catch (_) {}
+        updateVolumeFromPointer(e)
+      })
+
+      sliderTrack.addEventListener('pointermove', (e) => {
+        if (!isDraggingTrack) return
+        e.preventDefault()
+        e.stopPropagation()
+        updateVolumeFromPointer(e)
+      })
+
+      const stopDraggingTrack = (e) => {
+        if (isDraggingTrack) {
+          isDraggingTrack = false
+          try { sliderTrack.releasePointerCapture(e.pointerId) } catch (_) {}
+        }
+      }
+
+      sliderTrack.addEventListener('pointerup', stopDraggingTrack)
+      sliderTrack.addEventListener('pointercancel', stopDraggingTrack)
+
+      sliderTrack.addEventListener('touchstart', (e) => {
+        e.stopPropagation()
+        isDraggingTrack = true
+        updateVolumeFromPointer(e)
+      }, { passive: true })
+
+      sliderTrack.addEventListener('touchmove', (e) => {
+        if (!isDraggingTrack) return
+        e.stopPropagation()
+        updateVolumeFromPointer(e)
+      }, { passive: true })
+
+      sliderTrack.addEventListener('touchend', () => {
+        isDraggingTrack = false
       })
     }
 
@@ -674,6 +830,11 @@ export function createControlsView({
           isVolumeOpen = false
           if (volumePopover) {
             volumePopover.classList.remove('is-open')
+            volumePopover.style.removeProperty('position')
+            volumePopover.style.removeProperty('bottom')
+            volumePopover.style.removeProperty('left')
+            volumePopover.style.removeProperty('transform')
+            volumePopover.style.removeProperty('z-index')
           }
           if (volumeBtn) {
             volumeBtn.classList.remove('is-active')

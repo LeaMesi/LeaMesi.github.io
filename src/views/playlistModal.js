@@ -159,16 +159,16 @@ export function createPlaylistModal({
           <div class="playlist-toolbar">
             <div class="playlist-toolbar-left">
               <button class="btn btn-xs btn-outline" id="btn-pl-toggle-add" title="Añadir canciones del catálogo">
-                ${iconPlus} Añadir
+                ${iconPlus}
               </button>
               <button class="btn btn-xs btn-outline" id="btn-pl-shuffle" title="Barajar canciones en orden aleatorio" ${count <= 1 ? 'disabled' : ''}>
-                ${iconShuffle} Aleatorio
+                ${iconShuffle}
               </button>
               <button class="btn btn-xs btn-outline" id="btn-pl-toggle-load-lib" title="Cargar canciones desde una biblioteca">
-                ${iconFolder} Cargar Biblioteca
+                ${iconFolder}
               </button>
               <button class="btn btn-xs btn-primary-outline" id="btn-pl-toggle-save-lib" title="Guardar la playlist actual como una nueva biblioteca" ${count === 0 ? 'disabled' : ''}>
-                ${iconSave} Guardar como Biblioteca
+                ${iconSave}
               </button>
             </div>
             <div class="playlist-toolbar-right">
