@@ -764,9 +764,14 @@ describe('views/songEditorView.js', () => {
       const exportBtn = container.querySelector('#btn-editor-export-json')
       expect(exportBtn).not.toBeNull()
       exportBtn.click()
-      await new Promise(r => setTimeout(r, 60))
 
-      const alertEl = container.querySelector('.status-alert')
+      let alertEl = null
+      for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, 25))
+        alertEl = container.querySelector('.status-alert')
+        if (alertEl && alertEl.textContent.includes('descargado con éxito')) break
+      }
+
       expect(alertEl).not.toBeNull()
       expect(alertEl.textContent).toContain('descargado con éxito')
 
@@ -778,7 +783,10 @@ describe('views/songEditorView.js', () => {
 
       // Probar clearStatus()
       exportBtn.click()
-      await new Promise(r => setTimeout(r, 60))
+      for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, 25))
+        if (container.querySelector('.status-alert')) break
+      }
       expect(container.querySelector('.status-alert')).not.toBeNull()
       editor.clearStatus()
       expect(container.querySelector('.status-alert')).toBeNull()

@@ -2295,7 +2295,7 @@ export function createSongEditorView({
     if (editorExportJsonBtn) {
       editorExportJsonBtn.addEventListener('click', async () => {
         try {
-          const songId = await handleSaveSong(false)
+          const songId = await handleSaveSong(false, false)
           if (!songId) return
           await exportSongPackage(songId)
           showStatus('Paquete de canción JSON descargado con éxito.', 'success')
@@ -2310,7 +2310,7 @@ export function createSongEditorView({
     if (editorExportYamlBtn) {
       editorExportYamlBtn.addEventListener('click', async () => {
         try {
-          const songId = await handleSaveSong(false)
+          const songId = await handleSaveSong(false, false)
           if (!songId) return
           const activeLang = getActiveLanguage()
           await exportLanguageToLyricsfile(songId, activeLang?.code || null)
@@ -2469,7 +2469,7 @@ export function createSongEditorView({
     return await performSave()
   }
 
-  async function handleSaveSong(enterLyricsAfter = false) {
+  async function handleSaveSong(enterLyricsAfter = false, showSuccessNotice = true) {
     if (autoSaveTimer) {
       clearTimeout(autoSaveTimer)
       autoSaveTimer = null
@@ -2492,7 +2492,9 @@ export function createSongEditorView({
     const savedId = await performSave()
     if (!savedId) return null
 
-    showStatus(`¡Canción "${currentSong.title}" guardada exitosamente!`, 'success')
+    if (showSuccessNotice) {
+      showStatus(`¡Canción "${currentSong.title}" guardada exitosamente!`, 'success')
+    }
 
     if (enterLyricsAfter && onEnterLyricsMode) {
       if (documentClickListener) {
