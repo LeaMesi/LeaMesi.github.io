@@ -773,6 +773,27 @@ Para garantizar un espacio de trabajo despejado y minimizar la sobrecarga cognit
 ### 12.4. Popover de Configuración y Calibración en Caliente (`controlsView.js`)
 * **Calibración de Pista y Offset:** Permite seleccionar la fuente de video activa mostrando el offset de forma compacta (`[${off}s]`) y ajustar la sincronización en vivo con botones `-0.1s` y `+0.1s` con badge central de valor.
 * **Separador Visual (`<hr>`):** Delimita de forma clara y limpia la zona superior de ajuste de audio/video de las preferencias inferiores de visualización de frases (frases anteriores de 0 a 3, frases siguientes de 0 a 3, modo de texto y subtítulos de traducción).
+* **Botón "Editar" Reubicado al Final:** El botón `#btn-controls-edit` se aloja al pie del popover de ajustes bajo un separador horizontal `<hr class="settings-popover-separator">`, presentado como un botón secundario a lo ancho completo (`.btn-popover-edit-song`) con icono y texto explicativo, aliviando la saturación de botones en el dock principal exterior.
+
+### 12.5. Popover Vertical de Volumen y Estandarización Móvil (`controlsView.js`, `style.css`)
+* **Control de Volumen Oculto en Popover:** El slider horizontal visible permanentemente en el dock se sustituye por un botón de volumen (`#btn-controls-volume`) que despliega verticalmente hacia arriba un popover flotante (`#controls-volume-popover`) semejante al del editor de canciones, conteniendo slider vertical, porcentaje numérico interactivo y botón de mute/unmute, cerrándose al hacer clic fuera del control.
+* **Estandarización de Tamaños en Teléfonos Móviles:**
+  * En vista vertical móvil ($\le 768\text{px}$), todos los botones de iconos (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`) se normalizan rigurosamente a $38\times 38\text{px}$ con `box-sizing: border-box`, el botón de reproducción/pausa a $44\times 38\text{px}$, y `.btn-open-playlist` a $38\text{px}$ de altura.
+  * En vista apaisada móvil ($\le 500\text{px}$ en landscape), todos los botones adoptan una altura uniforme de $32\text{px}$, garantizando simetría visual y táctil perfecta.
+
+### 12.6. Arquitectura de Optimización Móvil (Master Clock, DOM Caching, Code-Splitting y GPU CSS)
+* **Code-Splitting y Carga Perezosa Asíncrona:**
+  * Carga bajo demanda mediante `await import()` para módulos pesados (`songEditorView.js`, `onlineLyricsModal.js`, motores de traducción y diccionario kanji).
+  * Reducción drástica del bundle JavaScript inicial en un 43% (de 603 KB a 344 KB), reduciendo tiempos de parseo en procesadores móviles y ahorrando datos en redes móviles.
+* **Cacheo de Nodos DOM y Dirty Checking a 60/90/120 Hz:**
+  * El bucle `requestAnimationFrame` en `mediaPlayer.js` despacha tiempos con alta frecuencia. Las vistas (`basicViewer.js`, `controlsView.js`, `floatingPlayerView.js`, `songEditorView.js`) cachean las referencias a los elementos del DOM y aplican comprobación sucia (*dirty checking*), actualizando el texto del reloj únicamente cuando el segundo entero cambia (`Math.floor(time)`), suprimiendo el 98% de mutaciones de texto innecesarias.
+  * En `basicViewer.js`, las referencias a los `<span>` de las sílabas del verso activo se pre-consultan en `renderStage()` y el bucle de tiempo solo conmuta clases CSS cuando una sílaba transiciona efectivamente de estado (`upcoming` $\rightarrow$ `active` $\rightarrow$ `completed`).
+* **Actualización Delta en Catálogo de Canciones (`songMenuView.js`):**
+  * Al cambiar la canción activa o su estado de reproducción, la función `updateActiveSongHighlight()` muta exclusivamente la tarjeta anterior y la nueva, eliminando el recorrido completo del catálogo con `querySelectorAll` y evitando recálculos de layout y tirones visuales (*jank*).
+* **Optimizaciones de GPU y Renderizado CSS Móvil:**
+  * `backdrop-filter: none` en la cabecera dentro de `@media (max-width: 768px)`, evitando buffers de composición fuera de pantalla durante el scroll en GPUs móviles.
+  * `content-visibility: auto; contain-intrinsic-size: ...;` en tarjetas de catálogo para que el motor del navegador omita el layout de las tarjetas fuera de la pantalla.
+  * `will-change: transform` en las barras ecualizadoras animadas para aislarlas en capas independientes del compositor.
 
 ---
 
@@ -877,8 +898,21 @@ graph TD
     * **Siguiente Canción:** Botón `${iconSkipForward}` para avanzar a la siguiente pista de la playlist.
 * **Diseño Responsivo Móvil:** Adaptación para dispositivos móviles con `max-width: calc(100vw - 32px)`, anclaje a safe areas (`env(safe-area-inset-bottom)`) y botones táctiles optimizados.
 
+---
 
+## 15. Sistema de Diálogos y Prompts Personalizados (`src/views/customPrompt.js`)
 
+Para erradicar por completo la dependencia de diálogos nativos del navegador (`window.prompt`, `window.confirm`, `window.alert`), prevenir que los navegadores muestren advertencias de bloqueo de mensajes ("bloquear mensajes de la web") y asegurar una experiencia visual homogénea y reactiva a los temas de la aplicación, SarangaBaranga implementa un sistema unificado y asíncrono de diálogos modales.
 
+### 15.1. Componentes y Operaciones Principales
+* **`showPrompt({ title, message, defaultValue, placeholder, confirmText, cancelText })`**: Retorna una `Promise<string | null>`. Renderiza un campo de entrada estilizado con auto-enfoque y selección de texto, confirmación inmediata con la tecla `Enter`, cancelación con `Escape` o botón 'X', y retorno de `null` en caso de cancelación o cierre.
+* **`showConfirm({ title, message, confirmText, cancelText, isDestructive })`**: Retorna una `Promise<boolean>`. Si `isDestructive: true`, aplica estilo semántico de advertencia/peligro (`.btn-danger-subtle`). Resuelve `true` al aceptar o `false` al cancelar/cerrar.
+* **`showAlert({ title, message, confirmText })`**: Retorna una `Promise<void>` para notificaciones modales que requieren acuse de recibo.
 
+### 15.2. Bloqueo de Interfaz y Cierre por Clic Exterior
+* **Bloqueo Total con Backdrop Desenfocado:** El backdrop (`.custom-prompt-backdrop`) se posiciona de forma fija cubriendo el 100% del viewport (`inset: 0; z-index: 10000;`), aplicando oscurecimiento y filtro de desenfoque (`backdrop-filter: blur(8px)`), impidiendo clics, desplazamientos o manipulaciones en la interfaz subyacente.
+* **Cierre y Restauración Automática:** Si el usuario hace clic fuera del cuadro de diálogo (directamente sobre el backdrop) o pulsa la tecla `Escape`, el diálogo se destruye inmediatamente en el DOM, se liberan los escuchadores de teclado y se resuelve la promesa devolviendo `null` / `false`, restaurando el control normal de la página sin efectos secundarios.
+
+### 15.3. Integración con el Sistema de Temas
+* Todos los diálogos modales consumen directamente los tokens dinámicos de CSS definidos en `:root` (`--panel-bg`, `--panel-border`, `--text-main`, `--text-muted`, `--primary-color`, `--primary-hover`, `--radius-lg`, `--shadow-lg`), garantizando que se adapten instantáneamente a cualquier preset o personalización cromática seleccionada por el usuario.
 

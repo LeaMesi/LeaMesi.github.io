@@ -11,6 +11,7 @@ import {
   getNextUniqueLibraryName
 } from './libraryService.js'
 import { importLyricsfileAsNewSong } from './lyricsfileService.js'
+import { showConfirm } from '../views/customPrompt.js'
 
 function triggerDownload(content, filename, contentType = 'application/json') {
   const blob = new Blob([content], { type: contentType })
@@ -309,13 +310,13 @@ export async function importLibraryPackage(fileOrData, { onConflictChoice } = {}
         existingName: existingLibrary.name,
         proposedNewName
       })
-    } else if (typeof window !== 'undefined' && typeof window.confirm === 'function') {
-      const shouldCombine = window.confirm(
-        `Ya existe una biblioteca llamada "${existingLibrary.name}".\n\n` +
-        `¿Deseas combinar las canciones con la biblioteca existente?\n` +
-        `• Aceptar: Combinar en "${existingLibrary.name}".\n` +
-        `• Cancelar: Crear una nueva biblioteca "${proposedNewName}".`
-      )
+    } else if (typeof window !== 'undefined') {
+      const shouldCombine = await showConfirm({
+        title: 'Biblioteca Existente',
+        message: `Ya existe una biblioteca llamada "${existingLibrary.name}".\n\n¿Deseas combinar las canciones con la biblioteca existente?\n• Aceptar: Combinar en "${existingLibrary.name}".\n• Cancelar: Crear una nueva biblioteca "${proposedNewName}".`,
+        confirmText: 'Combinar',
+        cancelText: 'Crear nueva'
+      })
       choice = shouldCombine ? 'combine' : 'create_new'
     }
 

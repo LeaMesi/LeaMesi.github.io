@@ -75,8 +75,12 @@ export function createControlsView({
   let hasAltText = false
   let currentMode = 'basic' // 'basic' | 'advanced'
   let isSettingsOpen = false
+  let isVolumeOpen = false
   let isDockClickBound = false
   let documentClickListener = null
+  let cachedCurTimeEl = null
+  let cachedSeekSlider = null
+  let lastDisplayedTimeSec = -1
 
   function formatOffset(val) {
     const num = Number(val) || 0
@@ -134,41 +138,57 @@ export function createControlsView({
               </button>
             </div>
 
-            <!-- Control de Volumen -->
-            <div class="volume-control-group" title="Volumen: ${currentVolume}%">
-              <button class="btn btn-xs btn-outline btn-mute-toggle" title="${currentVolume === 0 ? 'Activar sonido' : 'Silenciar'}">
-                ${currentVolume === 0 ? iconVolumeMute : iconVolume}
-              </button>
-              <input
-                type="range"
-                class="volume-slider"
-                min="0"
-                max="100"
-                step="1"
-                value="${currentVolume}"
+            <!-- Control de Volumen (Popover vertical emergente) -->
+            <div class="controls-volume-wrapper" id="controls-volume-wrapper">
+              <button
+                type="button"
+                class="btn btn-outline btn-controls-volume ${isVolumeOpen ? 'is-active' : ''}"
+                id="btn-controls-volume"
                 title="Volumen: ${currentVolume}%"
                 aria-label="Volumen"
-              />
-              <span class="volume-percent-label">${currentVolume}%</span>
+                aria-expanded="${isVolumeOpen}"
+              >
+                ${currentVolume === 0 ? iconVolumeMute : iconVolume}
+              </button>
+              <div class="controls-volume-popover ${isVolumeOpen ? 'is-open' : ''}" id="controls-volume-popover">
+                <span class="controls-volume-percent volume-percent-label" id="controls-volume-percent">${currentVolume}%</span>
+                <div class="controls-volume-slider-track">
+                  <input
+                    type="range"
+                    class="controls-volume-slider volume-slider"
+                    id="controls-volume-slider"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="${currentVolume}"
+                    orient="vertical"
+                    aria-label="Nivel de volumen"
+                  />
+                </div>
+                <button
+                  type="button"
+                  class="btn-mute-toggle btn-volume-mute-action"
+                  id="btn-volume-mute-action"
+                  title="${currentVolume === 0 ? 'Activar sonido' : 'Silenciar'}"
+                  aria-label="${currentVolume === 0 ? 'Activar sonido' : 'Silenciar'}"
+                >
+                  ${currentVolume === 0 ? iconVolumeMute : iconVolume}
+                </button>
+              </div>
             </div>
           </div>
 
           <div class="center-controls">
             <!-- Botón Pantalla Completa en el centro -->
             <button class="btn btn-outline btn-controls-fullscreen" id="btn-controls-fullscreen" title="Pantalla completa">
-              ${iconMaximize} <span class="nav-text-full">Pantalla completa</span>
+              ${iconMaximize}
             </button>
           </div>
 
           <div class="right-controls">
             <!-- Botón de Lista de Reproducción -->
-            <button class="btn btn-xs btn-outline btn-open-playlist" id="btn-controls-playlist" title="Abrir lista de reproducción (${playlistCount} canciones)">
+            <button class="btn btn-outline btn-open-playlist" id="btn-controls-playlist" title="Abrir lista de reproducción (${playlistCount} canciones)">
               ${iconListMusic} <span class="playlist-badge-count ${playlistCount > 0 ? 'has-items' : ''}">${playlistCount}</span>
-            </button>
-
-            <!-- Editar Letra de esta Canción -->
-            <button class="btn btn-outline" id="btn-controls-edit" title="Editar letra, frases, sílabas e idiomas de esta canción">
-              ${iconEdit} Editar
             </button>
 
             <!-- Menú de Configuración de Modo Letra (Ruedita) -->
@@ -252,6 +272,14 @@ export function createControlsView({
                       ${translationsHtml}
                     </select>
                   </div>
+
+                  <!-- Separador y botón Editar a lo ancho -->
+                  <hr class="settings-popover-separator">
+                  <div class="settings-popover-actions">
+                    <button type="button" class="btn btn-outline btn-popover-edit-song" id="btn-controls-edit" title="Editar letra, frases, sílabas e idiomas de esta canción">
+                      ${iconEdit} <span>Editar</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -270,9 +298,9 @@ export function createControlsView({
         const path = e.composedPath ? e.composedPath() : []
         const isInteractive = path.some(el => {
           if (!el || !el.matches) return false
-          return el.matches('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .modal-dialog, .time-label, .volume-percent-label')
+          return el.matches('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')
         })
-        if (isInteractive || e.target.closest('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .modal-dialog, .time-label, .volume-percent-label')) {
+        if (isInteractive || e.target.closest('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')) {
           return
         }
         const selection = window.getSelection?.()
@@ -316,7 +344,11 @@ export function createControlsView({
       })
     }
 
-    const seekSlider = containerElement.querySelector('.seek-slider')
+    cachedSeekSlider = containerElement.querySelector('.seek-slider')
+    cachedCurTimeEl = containerElement.querySelector('.current-time')
+    lastDisplayedTimeSec = -1
+
+    const seekSlider = cachedSeekSlider
     if (seekSlider) {
       const startSeek = () => {
         isUserSeeking = true
@@ -338,8 +370,10 @@ export function createControlsView({
         isUserSeeking = true
         const val = Number(e.target.value)
         currentTime = val
-        const curEl = containerElement.querySelector('.current-time')
-        if (curEl) curEl.textContent = formatTime(Math.max(0, val))
+        const safeVal = Math.max(0, val)
+        lastDisplayedTimeSec = Math.floor(safeVal)
+        const curEl = cachedCurTimeEl || containerElement.querySelector('.current-time')
+        if (curEl) curEl.textContent = formatTime(safeVal)
       })
       seekSlider.addEventListener('change', (e) => {
         isUserSeeking = false
@@ -352,9 +386,42 @@ export function createControlsView({
       seekSlider.addEventListener('touchend', endSeek)
     }
 
+    const volumeBtn = containerElement.querySelector('#btn-controls-volume')
+    const volumePopover = containerElement.querySelector('#controls-volume-popover')
     const volumeSlider = containerElement.querySelector('.volume-slider')
     const volumeLabel = containerElement.querySelector('.volume-percent-label')
     const muteBtn = containerElement.querySelector('.btn-mute-toggle')
+
+    function updateVolumeDisplay(val) {
+      const isMuted = val === 0
+      const icon = isMuted ? iconVolumeMute : iconVolume
+      const text = isMuted ? 'Activar sonido' : 'Silenciar'
+      if (volumeBtn) {
+        volumeBtn.innerHTML = icon
+        volumeBtn.title = `Volumen: ${val}%`
+      }
+      if (muteBtn) {
+        muteBtn.innerHTML = icon
+        muteBtn.title = text
+        muteBtn.setAttribute('aria-label', text)
+      }
+    }
+
+    if (volumeBtn && volumePopover) {
+      volumeBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        isVolumeOpen = !isVolumeOpen
+        volumePopover.classList.toggle('is-open', isVolumeOpen)
+        volumeBtn.classList.toggle('is-active', isVolumeOpen)
+        volumeBtn.setAttribute('aria-expanded', String(isVolumeOpen))
+      })
+    }
+
+    if (volumePopover) {
+      volumePopover.addEventListener('click', (e) => {
+        e.stopPropagation()
+      })
+    }
 
     if (volumeSlider) {
       volumeSlider.addEventListener('input', (e) => {
@@ -362,10 +429,7 @@ export function createControlsView({
         currentVolume = val
         if (val > 0) previousVolume = val
         if (volumeLabel) volumeLabel.textContent = `${val}%`
-        if (muteBtn) {
-          muteBtn.innerHTML = val === 0 ? iconVolumeMute : iconVolume
-          muteBtn.title = val === 0 ? 'Activar sonido' : 'Silenciar'
-        }
+        updateVolumeDisplay(val)
         if (onVolumeChange) onVolumeChange(val)
       })
     }
@@ -379,10 +443,9 @@ export function createControlsView({
         } else {
           currentVolume = previousVolume > 0 ? previousVolume : 80
         }
-        if (volumeSlider) volumeSlider.value = currentVolume
+        if (volumeSlider) volumeSlider.value = String(currentVolume)
         if (volumeLabel) volumeLabel.textContent = `${currentVolume}%`
-        muteBtn.innerHTML = currentVolume === 0 ? iconVolumeMute : iconVolume
-        muteBtn.title = currentVolume === 0 ? 'Activar sonido' : 'Silenciar'
+        updateVolumeDisplay(currentVolume)
         if (onVolumeChange) onVolumeChange(currentVolume)
       })
     }
@@ -505,6 +568,14 @@ export function createControlsView({
     if (editBtn) {
       editBtn.addEventListener('click', (e) => {
         e.stopPropagation()
+        isSettingsOpen = false
+        if (settingsPopover) {
+          settingsPopover.classList.remove('is-open')
+        }
+        if (settingsToggleBtn) {
+          settingsToggleBtn.classList.remove('is-active')
+          settingsToggleBtn.setAttribute('aria-expanded', 'false')
+        }
         if (onEditSong) onEditSong()
       })
     }
@@ -577,18 +648,37 @@ export function createControlsView({
     }
 
     documentClickListener = (e) => {
-      if (!isSettingsOpen) return
-      const wrapper = containerElement.querySelector('.controls-settings-wrapper')
-      const popover = containerElement.querySelector('#controls-settings-popover')
-      const isInside = (wrapper && wrapper.contains(e.target)) || (popover && popover.contains(e.target))
-      if (!isInside) {
-        isSettingsOpen = false
-        if (settingsPopover) {
-          settingsPopover.classList.remove('is-open')
+      // Cerrar menú de configuración si está abierto y se hace clic afuera
+      if (isSettingsOpen) {
+        const wrapper = containerElement.querySelector('.controls-settings-wrapper')
+        const popover = containerElement.querySelector('#controls-settings-popover')
+        const isInside = (wrapper && wrapper.contains(e.target)) || (popover && popover.contains(e.target))
+        if (!isInside) {
+          isSettingsOpen = false
+          if (settingsPopover) {
+            settingsPopover.classList.remove('is-open')
+          }
+          if (settingsToggleBtn) {
+            settingsToggleBtn.classList.remove('is-active')
+            settingsToggleBtn.setAttribute('aria-expanded', 'false')
+          }
         }
-        if (settingsToggleBtn) {
-          settingsToggleBtn.classList.remove('is-active')
-          settingsToggleBtn.setAttribute('aria-expanded', 'false')
+      }
+
+      // Cerrar menú de volumen si está abierto y se hace clic afuera
+      if (isVolumeOpen) {
+        const volWrapper = containerElement.querySelector('#controls-volume-wrapper')
+        const volPopover = containerElement.querySelector('#controls-volume-popover')
+        const isInsideVol = (volWrapper && volWrapper.contains(e.target)) || (volPopover && volPopover.contains(e.target))
+        if (!isInsideVol) {
+          isVolumeOpen = false
+          if (volumePopover) {
+            volumePopover.classList.remove('is-open')
+          }
+          if (volumeBtn) {
+            volumeBtn.classList.remove('is-active')
+            volumeBtn.setAttribute('aria-expanded', 'false')
+          }
         }
       }
     }
@@ -615,18 +705,23 @@ export function createControlsView({
       duration = dur
       const durEl = containerElement.querySelector('.duration-time')
       if (durEl) durEl.textContent = formatTime(dur)
-      const seekSlider = containerElement.querySelector('.seek-slider')
+      const seekSlider = cachedSeekSlider || containerElement.querySelector('.seek-slider')
       if (seekSlider) seekSlider.max = Math.max(1, dur)
     }
   }
 
   function setTime(time) {
     currentTime = time
-    const curEl = containerElement.querySelector('.current-time')
-    if (curEl) curEl.textContent = formatTime(Math.max(0, time))
-    const seekSlider = containerElement.querySelector('.seek-slider')
+    const safeTime = Math.max(0, time)
+    const floorSec = Math.floor(safeTime)
+    if (floorSec !== lastDisplayedTimeSec) {
+      lastDisplayedTimeSec = floorSec
+      const curEl = cachedCurTimeEl || containerElement.querySelector('.current-time')
+      if (curEl) curEl.textContent = formatTime(safeTime)
+    }
+    const seekSlider = cachedSeekSlider || containerElement.querySelector('.seek-slider')
     if (seekSlider && !isUserSeeking) {
-      seekSlider.value = Math.max(0, time)
+      seekSlider.value = safeTime
     }
   }
 
@@ -719,11 +814,20 @@ export function createControlsView({
     const volumeSlider = containerElement?.querySelector('.volume-slider')
     const volumeLabel = containerElement?.querySelector('.volume-percent-label')
     const muteBtn = containerElement?.querySelector('.btn-mute-toggle')
+    const volBtn = containerElement?.querySelector('#btn-controls-volume')
     if (volumeSlider) volumeSlider.value = String(v)
     if (volumeLabel) volumeLabel.textContent = `${v}%`
+    const isMuted = v === 0
+    const icon = isMuted ? iconVolumeMute : iconVolume
+    const text = isMuted ? 'Activar sonido' : 'Silenciar'
     if (muteBtn) {
-      muteBtn.innerHTML = v === 0 ? iconVolumeMute : iconVolume
-      muteBtn.title = v === 0 ? 'Activar sonido' : 'Silenciar'
+      muteBtn.innerHTML = icon
+      muteBtn.title = text
+      muteBtn.setAttribute('aria-label', text)
+    }
+    if (volBtn) {
+      volBtn.innerHTML = icon
+      volBtn.title = `Volumen: ${v}%`
     }
   }
 

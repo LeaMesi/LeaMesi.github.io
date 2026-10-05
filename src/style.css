@@ -728,6 +728,18 @@ input[type="number"] {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  /* Fuerza el centrado en la pantalla */
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+/* En pantallas pequeñas, vuelve al flujo normal para evitar superposiciones */
+@media (max-width: 768px) {
+	.btn-controls-fullscreen {
+		position: static;
+		transform: none;
+	}
 }
 
 .controls-wrapper {
@@ -940,6 +952,47 @@ input[type="number"] {
 .btn-xs {
   padding: 4px 8px;
   font-size: 0.72rem;
+}
+
+/* Estandarización de botones en Dock de Controles (Modo Letra) */
+.playback-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.playback-btn-group .btn-prev-song,
+.playback-btn-group .btn-next-song,
+.btn-controls-volume,
+.btn-controls-fullscreen,
+.btn-controls-settings-toggle {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.btn-open-playlist {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  gap: 6px;
+}
+
+.btn-play-pause {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 /* Selector de Pista (Toggle Pill) */
@@ -1494,6 +1547,7 @@ input[type="number"] {
 }
 
 .btn-danger-subtle {
+  background: rgba(136, 30, 30, 0.15);
   color: #fca5a5;
   border-color: rgba(239, 68, 68, 0.3);
 }
@@ -1812,6 +1866,12 @@ input[type="number"] {
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+  content-visibility: auto;
+  contain-intrinsic-size: 180px;
+}
+
+.song-menu-card.song-menu-list-row {
+  contain-intrinsic-size: 64px;
 }
 
 .song-menu-card:hover {
@@ -1871,6 +1931,7 @@ input[type="number"] {
   background: var(--now-playing-bar-color, var(--primary-color, #38bdf8));
   border-radius: 1px;
   animation: soundBarPulse 0.9s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 .card-now-playing-indicator {
@@ -2049,6 +2110,14 @@ input[type="number"] {
   justify-content: flex-end;
   gap: 8px;
   margin-left: auto;
+}
+
+.card-footer-btns .btn,
+.list-col-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .empty-songs-state {
@@ -2281,6 +2350,144 @@ input[type="number"] {
 .btn-menu-return:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Control de Volumen Emergente Vertical (Modo Letra) */
+.controls-volume-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.btn-controls-volume {
+  padding: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-controls-volume.is-active,
+.btn-controls-volume:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--primary-color, #6366f1);
+}
+
+.controls-volume-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-bg, #0f172a);
+  border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.15));
+  border-radius: var(--radius-md, 12px);
+  padding: 10px 8px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 70;
+  animation: controlsVolumeFadeIn 0.16s ease-out;
+  min-width: 44px;
+}
+
+.controls-volume-popover.is-open {
+  display: flex;
+}
+
+@keyframes controlsVolumeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.controls-volume-percent {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--lyrics-active-color, var(--text-active, #fbbf24));
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  user-select: none;
+}
+
+.controls-volume-slider-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  width: 28px;
+  padding: 4px 0;
+}
+
+.controls-volume-slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 8px;
+  height: 96px;
+  cursor: pointer;
+  accent-color: var(--primary-color, #6366f1);
+}
+
+.btn-volume-mute-action {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.btn-volume-mute-action:hover {
+  color: var(--text-main, #ffffff);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Acciones en Popover de Configuración (Editar a lo ancho) */
+.settings-popover-separator {
+  border: none;
+  border-top: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));
+  margin: 4px 0;
+}
+
+.settings-popover-actions {
+  width: 100%;
+}
+
+.btn-popover-edit-song {
+  width: 100%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm, 6px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border, rgba(255, 255, 255, 0.12));
+  color: var(--text-main, #f8fafc);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-popover-edit-song:hover {
+  background: var(--primary-color, #6366f1);
+  color: var(--primary-contrast, #ffffff);
+  border-color: var(--primary-color, #6366f1);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
 /* ==========================================================================
@@ -5051,6 +5258,12 @@ input[type="number"] {
     --dock-height: 88px;
   }
 
+  /* Optimización GPU móvil: Desactivar backdrop-filter costoso en cabecera */
+  .app-header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   /* Escenario de Letras con Tipografía Fluida */
   .lyrics-stage-viewport {
     padding: 16px max(14px, var(--safe-right)) calc(var(--dock-height) + var(--safe-bottom) + 12px) max(14px, var(--safe-left));
@@ -5147,63 +5360,178 @@ input[type="number"] {
     display: none;
   }
 
-  .video-selector-group label,
-  .selector-group label {
-    display: none;
+  /* Configuración de Modo Letra (Popover en móvil): Label arriba y selector a ancho completo */
+  .controls-settings-popover .popover-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
   }
 
-  .select-input {
-    padding: 2px 6px;
-    font-size: 0.75rem;
-    height: 32px;
-    max-width: 105px;
+  .controls-settings-popover .popover-item label,
+  .controls-settings-popover .video-selector-group label,
+  .controls-settings-popover .selector-group label,
+  .controls-settings-popover .offset-adjust-group label {
+    display: block !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted, #94a3b8);
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 2px;
+    text-align: left;
   }
 
-  .volume-control-group {
-    order: unset;
-    width: auto;
-    margin-top: 0;
-    padding: 2px 6px;
+  .controls-settings-popover .select-input,
+  .controls-settings-popover select {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 38px;
+    font-size: 0.84rem;
+    padding: 6px 10px;
+    box-sizing: border-box;
+    border-radius: var(--radius-sm, 6px);
+  }
+
+  .controls-settings-popover .video-select-actions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .controls-settings-popover .video-select-actions select {
+    flex: 1;
+    min-width: 0;
+    width: auto !important;
+  }
+
+  .controls-settings-popover .video-select-actions .btn-manage-song-videos {
+    height: 38px;
+    width: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  .controls-settings-popover .offset-adjust-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .controls-settings-popover .offset-adjust-controls .btn-offset-step {
+    flex: 1;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .controls-settings-popover .offset-value-badge {
+    min-width: 72px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    padding: 0 10px;
+  }
+
+  /* Estandarización de botones de controles en Móvil (todos a 38px de altura) */
+  .playback-btn-group {
+    display: inline-flex;
+    align-items: center;
     gap: 4px;
   }
 
-  .volume-slider {
-    width: 48px;
-  }
-
-  .volume-percent-label {
-    display: none;
-  }
-
-  .btn-mode-toggle {
-    display: none;
-  }
-
-  #btn-controls-edit {
-    padding: 4px 8px;
-    font-size: 0.75rem;
-    min-height: 32px;
-  }
-
-  .btn-controls-fullscreen {
-    padding: 4px 8px;
-    min-height: 32px;
-  }
-
+  .btn-prev-song,
+  .btn-next-song,
+  .btn-controls-volume,
+  .btn-controls-fullscreen,
   .btn-controls-settings-toggle {
-    padding: 4px 8px;
-    min-height: 32px;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: var(--radius-sm, 8px) !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-prev-song svg,
+  .btn-next-song svg,
+  .btn-controls-volume svg,
+  .btn-controls-fullscreen svg,
+  .btn-controls-settings-toggle svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .btn-play-pause {
+    min-width: 44px !important;
+    width: 44px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: var(--radius-sm, 8px) !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-play-pause .icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .btn-open-playlist {
+    height: 38px !important;
+    min-height: 38px !important;
+    min-width: 46px !important;
+    padding: 0 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    border-radius: var(--radius-sm, 8px) !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-open-playlist svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .controls-volume-popover {
+    bottom: calc(100% + 10px) !important;
+    left: 50% !important;
   }
 
   .controls-settings-popover {
     position: fixed;
     bottom: calc(var(--safe-bottom) + 68px);
     right: max(12px, var(--safe-right));
-    width: min(310px, calc(100vw - 24px));
-    max-height: min(480px, calc(100dvh - 90px));
+    width: min(320px, calc(100vw - 24px));
+    max-height: min(520px, calc(100dvh - 84px));
     overflow-y: auto;
     z-index: 1000;
-    padding: 12px 14px;
+    padding: 14px 16px;
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
 
@@ -5213,7 +5541,7 @@ input[type="number"] {
 
   /* Menú de Canciones en Móvil */
   .song-menu-view-container {
-    padding: 16px 12px calc(24px + var(--safe-bottom));
+    padding: 16px 12px calc(150px + var(--safe-bottom));
     gap: 16px;
   }
 
@@ -5270,46 +5598,75 @@ input[type="number"] {
 
   .song-menu-card {
     padding: 14px;
+    gap: 12px;
   }
 
   .card-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    justify-content: flex-start;
+    height: auto;
+    gap: 8px;
+  }
+
+  .card-title-group {
+    flex: 0 0 auto;
+    min-height: auto;
+  }
+
+  .card-artist {
+    margin-top: 2px;
+    margin-bottom: 0;
   }
 
   .btn-enter-lyrics {
     text-align: center;
     justify-content: center;
     width: 100%;
-    min-height: 42px;
-    font-size: 0.95rem;
+    min-height: 40px;
+    font-size: 0.92rem;
   }
 
   .card-footer-actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    flex-wrap: nowrap;
+    padding-top: 10px;
+    border-top: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));
+    width: 100%;
   }
 
   .card-now-playing-indicator {
-    margin-bottom: 2px;
+    margin-bottom: 0;
+    flex-shrink: 0;
   }
 
   .card-footer-btns {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 6px;
+    flex-wrap: nowrap;
+    flex: 1;
     width: 100%;
+    min-width: 0;
   }
 
   .card-footer-actions .btn,
   .card-footer-btns .btn {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    font-size: 0.72rem;
-    padding: 6px 2px;
+    text-align: center;
+    font-size: 0.78rem;
+    padding: 0;
+    height: 36px;
+    min-width: 0;
+    flex: 1;
   }
 
   /* Listado de Canciones en Móvil */
@@ -5336,15 +5693,36 @@ input[type="number"] {
 
   .list-col-actions {
     flex: 1 1 100%;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 6px;
+    flex-wrap: nowrap;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding-top: 10px;
+    width: 100%;
+  }
+
+  .list-col-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.78rem;
+    padding: 0;
+    height: 36px;
+    min-width: 0;
+    flex: 1;
   }
 
   .list-col-actions .btn-enter-lyrics {
-    grid-column: span 2;
+    grid-column: unset;
+    font-size: 0.85rem;
+    padding: 0;
+    height: 36px;
+    min-width: 0;
+    flex: 1.3;
   }
 
   /* Editor de Canciones en Móvil */
@@ -5826,43 +6204,164 @@ input[type="number"] {
     min-height: 28px !important;
   }
 
-  .video-selector-group label,
-  .selector-group label {
-    display: none !important;
+  /* Configuración de Modo Letra en Landscape */
+  .controls-settings-popover .popover-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 4px !important;
+    width: 100% !important;
   }
 
-  .select-input {
-    padding: 2px 6px !important;
+  .controls-settings-popover .popover-item label,
+  .controls-settings-popover .video-selector-group label,
+  .controls-settings-popover .selector-group label,
+  .controls-settings-popover .offset-adjust-group label {
+    display: block !important;
     font-size: 0.75rem !important;
-    height: 28px !important;
-    max-width: 110px !important;
+    font-weight: 600 !important;
+    color: var(--text-muted, #94a3b8) !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    margin-bottom: 2px !important;
+    text-align: left !important;
   }
 
-  .volume-control-group {
-    order: unset !important;
+  .controls-settings-popover .select-input,
+  .controls-settings-popover select {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 32px !important;
+    font-size: 0.8rem !important;
+    padding: 4px 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  .controls-settings-popover .video-select-actions {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .controls-settings-popover .video-select-actions select {
+    flex: 1 !important;
+    min-width: 0 !important;
     width: auto !important;
-    margin-top: 0 !important;
-    padding: 2px 6px !important;
   }
 
-  .volume-slider {
-    width: 48px !important;
+  .controls-settings-popover .video-select-actions .btn-manage-song-videos {
+    height: 32px !important;
+    width: 32px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
-  .volume-percent-label {
-    display: none !important;
+  .controls-settings-popover .offset-adjust-controls {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
   }
 
-  .btn-mode-toggle {
-    display: none !important;
+  .controls-settings-popover .offset-adjust-controls .btn-offset-step {
+    flex: 1 !important;
+    height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.78rem !important;
   }
 
-  #btn-controls-edit,
+  .controls-settings-popover .offset-value-badge {
+    min-width: 64px !important;
+    height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.82rem !important;
+  }
+
+  /* Estandarización de botones en Landscape (32px de altura) */
+  .btn-prev-song,
+  .btn-next-song,
+  .btn-controls-volume,
   .btn-controls-fullscreen,
   .btn-controls-settings-toggle {
-    padding: 3px 8px !important;
-    font-size: 0.75rem !important;
-    min-height: 28px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-prev-song svg,
+  .btn-next-song svg,
+  .btn-controls-volume svg,
+  .btn-controls-fullscreen svg,
+  .btn-controls-settings-toggle svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .btn-play-pause {
+    min-width: 38px !important;
+    width: 38px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-play-pause .icon svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .btn-open-playlist {
+    height: 32px !important;
+    min-height: 32px !important;
+    min-width: 40px !important;
+    padding: 0 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-open-playlist svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .controls-volume-popover {
+    bottom: calc(100% + 8px) !important;
+    padding: 6px !important;
+  }
+
+  .controls-volume-slider-track {
+    height: 76px !important;
+  }
+
+  .controls-volume-slider {
+    height: 72px !important;
   }
 
   .controls-settings-popover {
@@ -5878,7 +6377,7 @@ input[type="number"] {
 
   /* Menú de Canciones en Landscape */
   .song-menu-view-container {
-    padding: 10px 16px calc(16px + var(--safe-bottom)) !important;
+    padding: 10px 16px calc(110px + var(--safe-bottom)) !important;
     gap: 10px !important;
   }
 
@@ -5943,6 +6442,55 @@ input[type="number"] {
     align-items: center !important;
     padding: 8px 12px !important;
     gap: 10px !important;
+  }
+
+  .card-footer-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .card-footer-btns {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex: 1 !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+
+  .card-footer-btns .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    height: 30px !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    flex: 1 !important;
+  }
+
+  .list-col-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+  }
+
+  .list-col-actions .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    height: 30px !important;
+    min-width: 32px !important;
+    padding: 0 6px !important;
   }
 
   /* Editor en Landscape */
@@ -6644,6 +7192,7 @@ input[type="number"] {
 .btn-add-playlist {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   transition: all 0.2s ease;
 }
@@ -7267,6 +7816,163 @@ input[type="number"] {
   }
 }
 
+/* ==========================================================================
+   Prompts y Diálogos Modales Personalizados (Temas, Bloqueo & Backdrop)
+   ========================================================================== */
 
+.custom-prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: promptBackdropFadeIn 0.16s ease-out;
+  user-select: none;
+}
 
+@keyframes promptBackdropFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
+.custom-prompt-dialog {
+  width: 100%;
+  max-width: 440px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg), 0 8px 32px rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: promptDialogZoomIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text-main);
+  user-select: text;
+}
+
+@keyframes promptDialogZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.custom-prompt-header {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--panel-border);
+  gap: 12px;
+}
+
+.custom-prompt-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.btn-close-custom-prompt {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.btn-close-custom-prompt:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.custom-prompt-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.custom-prompt-message {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0;
+  word-break: break-word;
+}
+
+.custom-prompt-input-group {
+  width: 100%;
+}
+
+.custom-prompt-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-sizing: border-box;
+}
+
+.custom-prompt-input:focus {
+  border-color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.custom-prompt-footer {
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--panel-border);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.custom-prompt-footer .btn {
+  min-width: 88px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+@media (max-width: 480px) {
+  .custom-prompt-dialog {
+    max-width: 95vw;
+  }
+  .custom-prompt-footer {
+    padding: 10px 14px;
+  }
+  .custom-prompt-footer .btn {
+    flex: 1;
+    min-width: 0;
+  }
+}

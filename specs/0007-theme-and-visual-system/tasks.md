@@ -29,6 +29,21 @@
   - Posicionamiento fijo (`position: fixed`) de `.controls-settings-popover` en móvil vertical y apaisado, eliminando el recorte de visualización provocado por el `overflow-x: auto` del contenedor de controles.
   - Supresión del destello azul de tap (`-webkit-tap-highlight-color: transparent`) y selección involuntaria de texto (`user-select: none; -webkit-user-select: none; touch-action: manipulation`) en `.controls-dock` y botones.
   - Blindaje contra fuga de clics en el botón de reproducción/pausa mediante `e.stopPropagation()` y verificación con `e.composedPath()` en el fondo del dock.
+- [x] **16.9. Optimización de Controles de Modo Letra y Botones de Canciones en Móviles:**
+  - Configuración de Modo Letra (`.controls-settings-popover`): labels visibles arriba de la opción (`display: block; font-weight: 600`) y selectores ocupando el 100% del ancho disponible (`width: 100%`) en móvil sin alterar la versión de PC.
+  - Supresión del espacio en blanco en tarjetas de grilla móvil: ajuste de `.card-header` a `height: auto`, `justify-content: flex-start` y `.card-title-group` a `flex: 0 0 auto`, manteniendo el botón "Modo letra" directamente adyacente al título sin afectar PC.
+  - Botones de acción en catálogo de canciones (grilla y lista): unificación en una sola fila horizontal (`flex-direction: row; flex-wrap: nowrap`), expansión al 100% del ancho del contenedor (`flex: 1; width: 100%`) para mayor área táctil e iconos SVG centrados (`justify-content: center; align-items: center`).
+  - Compensación inferior de scroll para el minireproductor en móviles: ampliación del padding inferior en `.song-menu-view-container` (`calc(150px + var(--safe-bottom))` en vertical y `calc(110px + var(--safe-bottom))` en apaisado) para que el último elemento del catálogo quede 100% visible por encima del reproductor flotante sin solapamientos.
+- [x] **16.10. Estandarización de Tamaños de Botones en Móvil y Reubicación de Botón 'Editar':**
+  - Estandarización estricta de botones en teléfonos móviles (`@media (max-width: 768px)`): botones de icono unificados exactamente a 38x38px (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`), botón de reproducción/pausa a 44x38px, y altura consistente de 38px en `.btn-open-playlist`.
+  - Estandarización en vista apaisada / landscape móvil (`@media (max-height: 500px) and (orientation: landscape)`): altura estándar de 32px para todos los botones del dock.
+  - Reubicación del botón "Editar" (`#btn-controls-edit`) dentro del popover de ajustes (`#controls-settings-popover`), posicionado a lo ancho completo debajo de una línea divisoria horizontal (`<hr class="settings-popover-separator">`) con su icono correspondiente, liberando espacio en el dock exterior.
+- [x] **16.11. Optimización Integral de Rendimiento Móvil (Master Clock, DOM y CSS):**
+  - Carga perezosa de `onlineLyricsModal.js` en `main.js`, reduciendo el paquete inicial JavaScript en casi 50% (de 603 KB a 344 KB).
+  - Cacheo de referencias DOM y comprobación sucia (*dirty checking*) de segundos en `basicViewer.js`, `controlsView.js`, `floatingPlayerView.js` y `songEditorView.js`, eliminando miles de consultas y reduciendo mutaciones DOM en 98% en pantallas de 60/90/120 Hz.
+  - Comprobación sucia de estados silábicos en el visor de letras, evitando conmutar clases CSS cuando no hay transición real de estado.
+  - Actualización delta (*delta update*) en `songMenuView.js` al alternar canción activa, afectando únicamente a las 2 tarjetas en vez de iterar sobre el catálogo completo.
+  - Optimización gráfica CSS para GPU móvil: `backdrop-filter: none` en la barra superior móvil, `content-visibility: auto` con `contain-intrinsic-size` en tarjetas del catálogo y `will-change: transform` en las barras ecualizadoras animadas.
 
 ---
 

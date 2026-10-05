@@ -27,6 +27,9 @@
 - [x] **3.4. Optimización de Master Clock Bridge y Ahorro de CPU Móvil:**
   - Despacho condicional de eventos en bucle de 60fps (`onTimeUpdate` y `onStateChange`) en `main.js` restringido estrictamente a la pantalla activa (`currentScreen` igual a `lyrics`, `menu` o `editor`).
   - Evita el sondeo y recálculos innecesarios en vistas ocultas, reduciendo drásticamente el consumo de CPU y batería en dispositivos móviles.
+- [x] **9.3. Menú Popover Vertical de Volumen en Modo Letra (`controlsView.js`):**
+  - Ocultamiento del slider horizontal en el dock y sustitución por botón de parlante (`#btn-controls-volume`) que despliega un popover vertical hacia arriba (`#controls-volume-popover`) idéntico al del editor de canciones.
+  - Integra slider vertical (`.volume-slider`), etiqueta de porcentaje (`.volume-percent-label`), botón de activación/silenciado (`.btn-mute-toggle`) y cierre automático ante clics exteriores.
 
 ---
 

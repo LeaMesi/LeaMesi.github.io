@@ -31,6 +31,10 @@ export function createFloatingPlayerView({
   let hasNextSong = false
   let hasPrevSong = false
   let isVisible = false
+  let cachedSeekSlider = null
+  let cachedCurTimeEl = null
+  let cachedDurTimeEl = null
+  let lastDisplayedTimeSec = -1
 
   function render() {
     if (!containerElement) return
@@ -190,8 +194,13 @@ export function createFloatingPlayerView({
     }
 
     // Barra de tiempo / Seek
-    const seekSlider = containerElement.querySelector('#floating-seek-slider')
-    const curTimeEl = containerElement.querySelector('#floating-time-current')
+    cachedSeekSlider = containerElement.querySelector('#floating-seek-slider')
+    cachedCurTimeEl = containerElement.querySelector('#floating-time-current')
+    cachedDurTimeEl = containerElement.querySelector('#floating-time-duration')
+    lastDisplayedTimeSec = -1
+
+    const seekSlider = cachedSeekSlider
+    const curTimeEl = cachedCurTimeEl
     if (seekSlider) {
       const startSeek = () => {
         isUserSeeking = true
@@ -213,7 +222,9 @@ export function createFloatingPlayerView({
         isUserSeeking = true
         const val = Number(e.target.value)
         currentTime = val
-        if (curTimeEl) curTimeEl.textContent = formatTime(Math.max(0, val))
+        const safeVal = Math.max(0, val)
+        lastDisplayedTimeSec = Math.floor(safeVal)
+        if (curTimeEl) curTimeEl.textContent = formatTime(safeVal)
       })
 
       seekSlider.addEventListener('change', (e) => {
@@ -281,18 +292,23 @@ export function createFloatingPlayerView({
   function setTime(timeInSeconds) {
     currentTime = Number(timeInSeconds) || 0
     if (!isUserSeeking && containerElement) {
-      const seekSlider = containerElement.querySelector('#floating-seek-slider')
-      const curTimeEl = containerElement.querySelector('#floating-time-current')
-      if (seekSlider) seekSlider.value = currentTime
-      if (curTimeEl) curTimeEl.textContent = formatTime(Math.max(0, currentTime))
+      const safeTime = Math.max(0, currentTime)
+      const floorSec = Math.floor(safeTime)
+      if (floorSec !== lastDisplayedTimeSec) {
+        lastDisplayedTimeSec = floorSec
+        const curTimeEl = cachedCurTimeEl || containerElement.querySelector('#floating-time-current')
+        if (curTimeEl) curTimeEl.textContent = formatTime(safeTime)
+      }
+      const seekSlider = cachedSeekSlider || containerElement.querySelector('#floating-seek-slider')
+      if (seekSlider) seekSlider.value = safeTime
     }
   }
 
   function setDuration(durInSeconds) {
     duration = Number(durInSeconds) || 0
     if (containerElement) {
-      const seekSlider = containerElement.querySelector('#floating-seek-slider')
-      const durTimeEl = containerElement.querySelector('#floating-time-duration')
+      const seekSlider = cachedSeekSlider || containerElement.querySelector('#floating-seek-slider')
+      const durTimeEl = cachedDurTimeEl || containerElement.querySelector('#floating-time-duration')
       if (seekSlider) seekSlider.max = Math.max(1, duration)
       if (durTimeEl) durTimeEl.textContent = formatTime(duration)
     }
