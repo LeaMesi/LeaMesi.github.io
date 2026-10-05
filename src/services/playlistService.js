@@ -407,9 +407,22 @@ export function createPlaylistService({ initialSongs = [], storageKey = 'saranga
       return currentIndex > 0
     },
 
-    clear() {
-      songs = []
-      currentIndex = -1
+    /**
+     * Vacía la lista de reproducción.
+     * Si `keepCurrent` es true y hay una canción sonando/activa, se conserva como único elemento en la lista.
+     *
+     * @param {object} [options]
+     * @param {boolean} [options.keepCurrent=false]
+     */
+    clear({ keepCurrent = false } = {}) {
+      if (keepCurrent && currentIndex >= 0 && currentIndex < songs.length) {
+        const currentPlayingSong = songs[currentIndex]
+        songs = [currentPlayingSong]
+        currentIndex = 0
+      } else {
+        songs = []
+        currentIndex = -1
+      }
       notify()
     },
 

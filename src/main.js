@@ -469,12 +469,11 @@ async function initApp() {
 
     // 2. Si la canción eliminada o retirada es la que está sonando o cargada actualmente
     if (currentSong && Number(currentSong.id) === Number(evictedSongId)) {
-      const wasPlaying = mediaPlayer.getIsPlaying()
       mediaPlayer.stop()
 
       const nextSong = playlistService.getCurrentSong()
       if (nextSong) {
-        await loadSongIntoApp(nextSong.id, { autoplay: wasPlaying })
+        await loadSongIntoApp(nextSong.id, { autoplay: true })
         if (currentScreen === 'lyrics') {
           showLyricsScreen()
         }

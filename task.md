@@ -17,7 +17,7 @@
 | **0006-online-lyrics-search** | Búsqueda simultánea en BetterLyrics, LRC.red, LRCLIB y Genius con tope de 6 por fuente, layout adaptativo móvil/PC y pestaña dedicada de importación desde YouTube / YouTube Music (videos y playlists sin letras y sin API keys). | [`specs/0006-online-lyrics-search/tasks.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/0006-online-lyrics-search/tasks.md) | 🟢 Operativo |
 | **0007-theme-and-visual-system** | Catálogo de iconos SVG (cero emojis), personalización de 4 colores de UI, colores de sílabas cantadas, escala de fuentes, temas visuales por canción (con toggle global y editor integrado) y adaptación responsive móvil/desktop. | [`specs/0007-theme-and-visual-system/tasks.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/0007-theme-and-visual-system/tasks.md) | 🟢 Operativo |
 | **0008-advanced-visual-mode** | Escenario gráfico aislado con Pixi.js/WebGL y despachador de eventos visuales (segunda etapa). | [`specs/0008-advanced-visual-mode/tasks.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/0008-advanced-visual-mode/tasks.md) | 🟡 En Desarrollo |
-| **0009-testing-and-ci-cd** | Suite de pruebas unitarias y de integración con Vitest (30 suites, 346 tests al 100%) y pipeline automatizado en GitHub Actions. | [`specs/0009-testing-and-ci-cd/tasks.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/0009-testing-and-ci-cd/tasks.md) | 🟢 Operativo |
+| **0009-testing-and-ci-cd** | Suite de pruebas unitarias y de integración con Vitest (30 suites, 350 tests al 100%) y pipeline automatizado en GitHub Actions. | [`specs/0009-testing-and-ci-cd/tasks.md`](file:///home/hezztia/Documents/SarangaBaranga/specs/0009-testing-and-ci-cd/tasks.md) | 🟢 Operativo |
 
 ---
 

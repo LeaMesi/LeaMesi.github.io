@@ -923,6 +923,9 @@ graph TD
   * Al mover una canción hacia arriba (`moveUp`) o hacia abajo (`moveDown`), el puntero `currentIndex` se reajusta automáticamente rastreando el ID de la canción que está sonando (`currentPlayingId`), evitando saltos involuntarios de pista.
   * Al activar el modo aleatorio (`shuffle()`), se aplica el algoritmo Fisher-Yates preservando la posición de la canción que está sonando y recalculando el nuevo índice de forma determinista.
 * **Navegación Secuencial:** Métodos `next()`, `prev()`, `hasNext()` y `hasPrev()` que orquestan el avance seguro sin errores de límites.
+* **Vaciado Selectivo (`clear({ keepCurrent = false })`):** Al invocar el vaciado con `keepCurrent: true`, se purgan todos los elementos de la cola conservando de forma transparente la pista activa en reproducción como único elemento en la posición `0`, sin provocar detenciones ni recargas del reproductor de audio/video.
+* **Desalojo Manual de la Pista en Reproducción:** Si el usuario retira manualmente la canción que se encuentra sonando en la playlist modal, el sistema transiciona inmediatamente a la siguiente pista disponible con reproducción fluida (`autoplay: true`). Si era la única canción en la cola, invoca `clearActivePlayback()`, deteniendo el audio/video por completo y reseteando los visores a estado inactivo (silencio).
+* **Alertas de Estado Homogéneas:** Las notificaciones emergentes de operaciones en la playlist ("añadida a la lista", "eliminada de la lista", etc.) emplean el diseño del sistema (`.status-alert` con `.btn-close-alert` y padding de 12px 18px), sustituyendo controles nativos del navegador.
 * **Persistencia Transparente:** La cola y el índice se serializan automáticamente en `localStorage` (`saranga_playlist`) para sobrevivir a recargas de página.
 
 ### 14.3. Avance Automático al Finalizar Canción (`PLAYER_STATE.ENDED`)

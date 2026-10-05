@@ -7365,6 +7365,12 @@ button svg {
   max-height: calc(88vh - 75px);
 }
 
+.playlist-modal-body .status-alert {
+  margin: 0;
+  padding: 12px 18px;
+  flex-shrink: 0;
+}
+
 /* Barra de herramientas superior de la playlist */
 .playlist-toolbar {
   display: flex;

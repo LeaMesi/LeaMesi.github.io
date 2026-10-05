@@ -149,9 +149,9 @@ export function createPlaylistModal({
 
         <div class="modal-body playlist-modal-body">
           ${statusMessage ? `
-            <div class="status-banner status-${statusType}">
-              <span>${escapeHtml(statusMessage)}</span>
-              <button class="btn-close-status" id="btn-close-status">${iconClose}</button>
+            <div class="status-alert status-${statusType}">
+              <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+              <button type="button" class="btn-close-alert" id="btn-close-playlist-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
             </div>
           ` : ''}
 
@@ -364,8 +364,8 @@ export function createPlaylistModal({
     const backdrop = containerElement.querySelector('.modal-backdrop')
     if (backdrop) backdrop.addEventListener('click', close)
 
-    // Cerrar status
-    const closeStatus = containerElement.querySelector('#btn-close-status')
+    // Cerrar status / alert
+    const closeStatus = containerElement.querySelector('#btn-close-playlist-alert, #btn-close-status, .btn-close-alert')
     if (closeStatus) closeStatus.addEventListener('click', () => {
       statusMessage = ''
       render()
@@ -553,15 +553,31 @@ export function createPlaylistModal({
     const btnClear = containerElement.querySelector('#btn-pl-clear')
     if (btnClear) {
       btnClear.addEventListener('click', async () => {
+        const state = playlistService ? playlistService.getState() : { songs: [], currentIndex: -1 }
+        const currentSong = state.currentSong
+        const count = (state.songs || []).length
+
+        if (currentSong && count <= 1) {
+          showStatus('La lista de reproducción ya contiene únicamente la canción actual.', 'info')
+          return
+        }
+
         const confirmed = await showConfirm({
           title: 'Vaciar Lista de Reproducción',
-          message: '¿Seguro que deseas vaciar la lista de reproducción?',
+          message: currentSong
+            ? '¿Seguro que deseas vaciar las demás canciones de la lista? Se conservará la canción en reproducción.'
+            : '¿Seguro que deseas vaciar la lista de reproducción?',
           confirmText: 'Vaciar',
           isDestructive: true
         })
         if (confirmed) {
-          playlistService.clear()
-          showStatus('Lista de reproducción vaciada.', 'info')
+          if (currentSong) {
+            playlistService.clear({ keepCurrent: true })
+            showStatus('Se vació la lista, conservando la canción en reproducción.', 'info')
+          } else {
+            playlistService.clear()
+            showStatus('Lista de reproducción vaciada.', 'info')
+          }
         }
       })
     }
@@ -595,13 +611,17 @@ export function createPlaylistModal({
 
     // Quitar de la lista
     containerElement.querySelectorAll('.btn-delete-item').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const idx = Number(btn.dataset.index)
         const songsList = playlistService.getSongs()
         const targetSong = songsList[idx]
+        if (!targetSong) return
+
         playlistService.removeSongByIndex(idx)
-        if (onRemoveSong && targetSong) {
-          onRemoveSong(targetSong)
+        showStatus(`"${targetSong.title}" eliminada de la lista.`, 'info')
+
+        if (onRemoveSong) {
+          await onRemoveSong(targetSong)
         }
       })
     })
@@ -611,6 +631,12 @@ export function createPlaylistModal({
     open,
     close,
     render,
-    isOpen: () => isOpen
+    isOpen: () => isOpen,
+    showStatus,
+    clearStatus: () => {
+      statusMessage = ''
+      const alertEl = containerElement?.querySelector('.status-alert')
+      if (alertEl) alertEl.remove()
+    }
   }
 }
