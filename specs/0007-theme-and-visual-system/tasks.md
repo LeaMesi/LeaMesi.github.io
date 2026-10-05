@@ -31,7 +31,8 @@
   - Blindaje contra fuga de clics en el botón de reproducción/pausa mediante `e.stopPropagation()` y verificación con `e.composedPath()` en el fondo del dock.
 - [x] **16.9. Optimización de Controles de Modo Letra y Botones de Canciones en Móviles:**
   - Configuración de Modo Letra (`.controls-settings-popover`): labels visibles arriba de la opción (`display: block; font-weight: 600`) y selectores ocupando el 100% del ancho disponible (`width: 100%`) en móvil sin alterar la versión de PC.
-  - Botones de acción en el catálogo de canciones (grilla y lista): unificación en una sola fila horizontal (`flex-direction: row; flex-wrap: nowrap`), ancho compacto ("aplastados") e iconos SVG rigurosamente centrados (`justify-content: center; align-items: center`), suprimiendo textos residuales en botones de lista.
+  - Supresión del espacio en blanco en tarjetas de grilla móvil: ajuste de `.card-header` a `height: auto`, `justify-content: flex-start` y `.card-title-group` a `flex: 0 0 auto`, manteniendo el botón "Modo letra" directamente adyacente al título sin afectar PC.
+  - Botones de acción en catálogo de canciones (grilla y lista): unificación en una sola fila horizontal (`flex-direction: row; flex-wrap: nowrap`), expansión al 100% del ancho del contenedor (`flex: 1; width: 100%`) para mayor área táctil e iconos SVG centrados (`justify-content: center; align-items: center`).
 
 ---
 

@@ -5352,20 +5352,33 @@ input[type="number"] {
 
   .song-menu-card {
     padding: 14px;
+    gap: 12px;
   }
 
   .card-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    justify-content: flex-start;
+    height: auto;
+    gap: 8px;
+  }
+
+  .card-title-group {
+    flex: 0 0 auto;
+    min-height: auto;
+  }
+
+  .card-artist {
+    margin-top: 2px;
+    margin-bottom: 0;
   }
 
   .btn-enter-lyrics {
     text-align: center;
     justify-content: center;
     width: 100%;
-    min-height: 42px;
-    font-size: 0.95rem;
+    min-height: 40px;
+    font-size: 0.92rem;
   }
 
   .card-footer-actions {
@@ -5377,6 +5390,7 @@ input[type="number"] {
     flex-wrap: nowrap;
     padding-top: 10px;
     border-top: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));
+    width: 100%;
   }
 
   .card-now-playing-indicator {
@@ -5388,10 +5402,12 @@ input[type="number"] {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 6px;
     flex-wrap: nowrap;
-    margin-left: auto;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
   }
 
   .card-footer-actions .btn,
@@ -5400,11 +5416,11 @@ input[type="number"] {
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 0.75rem;
-    padding: 0 8px;
-    height: 34px;
-    min-width: 36px;
-    flex-shrink: 0;
+    font-size: 0.78rem;
+    padding: 0;
+    height: 36px;
+    min-width: 0;
+    flex: 1;
   }
 
   /* Listado de Canciones en Móvil */
@@ -5434,7 +5450,7 @@ input[type="number"] {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 6px;
     flex-wrap: nowrap;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -5447,22 +5463,20 @@ input[type="number"] {
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 0.75rem;
-    padding: 0 8px;
-    height: 34px;
-    min-width: 36px;
+    font-size: 0.78rem;
+    padding: 0;
+    height: 36px;
+    min-width: 0;
     flex: 1;
-    max-width: 48px;
   }
 
   .list-col-actions .btn-enter-lyrics {
     grid-column: unset;
     font-size: 0.85rem;
-    padding: 0 10px;
-    height: 34px;
-    min-width: 40px;
-    flex: 1.4;
-    max-width: 68px;
+    padding: 0;
+    height: 36px;
+    min-width: 0;
+    flex: 1.3;
   }
 
   /* Editor de Canciones en Móvil */
@@ -6140,16 +6154,37 @@ input[type="number"] {
     flex-wrap: nowrap !important;
   }
 
-  .card-footer-btns,
+  .card-footer-btns {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex: 1 !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+
+  .card-footer-btns .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    height: 30px !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    flex: 1 !important;
+  }
+
   .list-col-actions {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: flex-end !important;
+    gap: 6px !important;
   }
 
-  .card-footer-btns .btn,
   .list-col-actions .btn {
     display: inline-flex !important;
     align-items: center !important;
