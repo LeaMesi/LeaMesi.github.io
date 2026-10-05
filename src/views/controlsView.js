@@ -298,11 +298,46 @@ export function createControlsView({
         const path = e.composedPath ? e.composedPath() : []
         const isInteractive = path.some(el => {
           if (!el || !el.matches) return false
-          return el.matches('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')
+          return el.matches('button, input, select, textarea, a, .progress-bar-row, .progress-bar-row *, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')
         })
-        if (isInteractive || e.target.closest('button, input, select, textarea, a, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')) {
+        if (isInteractive || e.target.closest('button, input, select, textarea, a, .progress-bar-row, .progress-bar-row *, .controls-settings-popover, .controls-settings-wrapper, .controls-volume-wrapper, .controls-volume-popover, .modal-dialog, .time-label, .volume-percent-label')) {
           return
         }
+
+        // Área segura de la barra de progreso: protege de missclics al adelantar/retroceder
+        const progressRow = containerElement.querySelector('.progress-bar-row')
+        if (progressRow) {
+          const rowRect = progressRow.getBoundingClientRect ? progressRow.getBoundingClientRect() : null
+          const dockRect = containerElement.getBoundingClientRect ? containerElement.getBoundingClientRect() : null
+          if (rowRect && dockRect && dockRect.height > 0 && rowRect.height > 0) {
+            // Banda segura: desde el borde superior del dock hasta justo antes de los controles principales
+            const isInsideSafeZone = (
+              e.clientY >= dockRect.top &&
+              e.clientY <= rowRect.bottom + 8 &&
+              e.clientX >= dockRect.left &&
+              e.clientX <= dockRect.right
+            )
+            if (isInsideSafeZone) {
+              const slider = containerElement.querySelector('.seek-slider')
+              if (slider && slider.getBoundingClientRect) {
+                const sRect = slider.getBoundingClientRect()
+                if (sRect.width > 0 && e.clientX >= sRect.left && e.clientX <= sRect.right) {
+                  const frac = Math.max(0, Math.min(1, (e.clientX - sRect.left) / sRect.width))
+                  const targetTime = frac * duration
+                  slider.value = String(targetTime)
+                  currentTime = targetTime
+                  const safeVal = Math.max(0, targetTime)
+                  lastDisplayedTimeSec = Math.floor(safeVal)
+                  const curEl = cachedCurTimeEl || containerElement.querySelector('.current-time')
+                  if (curEl) curEl.textContent = formatTime(safeVal)
+                  if (onSeek) onSeek(targetTime)
+                }
+              }
+              return
+            }
+          }
+        }
+
         const selection = window.getSelection?.()
         if (selection && selection.toString().trim().length > 0) {
           return
@@ -384,6 +419,27 @@ export function createControlsView({
       seekSlider.addEventListener('pointerup', endSeek)
       seekSlider.addEventListener('mouseup', endSeek)
       seekSlider.addEventListener('touchend', endSeek)
+    }
+
+    const progressRow = containerElement.querySelector('.progress-bar-row')
+    if (progressRow) {
+      progressRow.addEventListener('click', (e) => {
+        e.stopPropagation()
+        if (e.target !== seekSlider && seekSlider && seekSlider.getBoundingClientRect) {
+          const sRect = seekSlider.getBoundingClientRect()
+          if (sRect.width > 0 && e.clientX >= sRect.left && e.clientX <= sRect.right) {
+            const frac = Math.max(0, Math.min(1, (e.clientX - sRect.left) / sRect.width))
+            const targetTime = frac * duration
+            seekSlider.value = String(targetTime)
+            currentTime = targetTime
+            const safeVal = Math.max(0, targetTime)
+            lastDisplayedTimeSec = Math.floor(safeVal)
+            const curEl = cachedCurTimeEl || containerElement.querySelector('.current-time')
+            if (curEl) curEl.textContent = formatTime(safeVal)
+            if (onSeek) onSeek(targetTime)
+          }
+        }
+      })
     }
 
     const volumeBtn = containerElement.querySelector('#btn-controls-volume')
