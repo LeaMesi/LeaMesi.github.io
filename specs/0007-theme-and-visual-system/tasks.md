@@ -33,6 +33,7 @@
   - Configuración de Modo Letra (`.controls-settings-popover`): labels visibles arriba de la opción (`display: block; font-weight: 600`) y selectores ocupando el 100% del ancho disponible (`width: 100%`) en móvil sin alterar la versión de PC.
   - Supresión del espacio en blanco en tarjetas de grilla móvil: ajuste de `.card-header` a `height: auto`, `justify-content: flex-start` y `.card-title-group` a `flex: 0 0 auto`, manteniendo el botón "Modo letra" directamente adyacente al título sin afectar PC.
   - Botones de acción en catálogo de canciones (grilla y lista): unificación en una sola fila horizontal (`flex-direction: row; flex-wrap: nowrap`), expansión al 100% del ancho del contenedor (`flex: 1; width: 100%`) para mayor área táctil e iconos SVG centrados (`justify-content: center; align-items: center`).
+  - Compensación inferior de scroll para el minireproductor en móviles: ampliación del padding inferior en `.song-menu-view-container` (`calc(150px + var(--safe-bottom))` en vertical y `calc(110px + var(--safe-bottom))` en apaisado) para que el último elemento del catálogo quede 100% visible por encima del reproductor flotante sin solapamientos.
 
 ---
 

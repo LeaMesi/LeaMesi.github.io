@@ -5295,7 +5295,7 @@ input[type="number"] {
 
   /* Menú de Canciones en Móvil */
   .song-menu-view-container {
-    padding: 16px 12px calc(24px + var(--safe-bottom));
+    padding: 16px 12px calc(150px + var(--safe-bottom));
     gap: 16px;
   }
 
@@ -6079,7 +6079,7 @@ input[type="number"] {
 
   /* Menú de Canciones en Landscape */
   .song-menu-view-container {
-    padding: 10px 16px calc(16px + var(--safe-bottom)) !important;
+    padding: 10px 16px calc(110px + var(--safe-bottom)) !important;
     gap: 10px !important;
   }
 
