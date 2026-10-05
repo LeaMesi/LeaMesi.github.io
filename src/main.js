@@ -1,7 +1,7 @@
 import './style.css'
 import { getDB } from './services/db.js'
 import { listSongs, fetchSongById, updateSongVideos } from './services/songService.js'
-import { applyTheme, subscribeTheme } from './services/themeService.js'
+import { applyTheme, subscribeTheme, applySongTheme, restoreGlobalTheme } from './services/themeService.js'
 import { createMediaPlayer, PLAYER_STATE } from './player/mediaPlayer.js'
 import { createLanguageManager } from './lyrics/languageManager.js'
 import { createBasicViewer } from './views/basicViewer.js'
@@ -553,9 +553,21 @@ async function initApp() {
     }
   })
 
-  // 8c. Suscribir a cambios de tema visual para reactualizar el menú
+  function updateLyricsTheme() {
+    const songTheme = currentSong?.lyrics_data?.customTheme || currentSong?.customTheme
+    if (songTheme) {
+      applySongTheme(songTheme)
+    } else {
+      restoreGlobalTheme()
+    }
+  }
+
+  // 8c. Suscribir a cambios de tema visual para reactualizar el menú y el visor
   subscribeTheme(() => {
     songMenuView?.updateHighlight?.()
+    if (currentScreen === 'lyrics') {
+      updateLyricsTheme()
+    }
   })
 
   function checkHasAltText(language) {
@@ -588,7 +600,8 @@ async function initApp() {
         lines: activeLanguage.lines,
         translations: transLines,
         isTranslationActive: isBilingual,
-        styles: currentSong.lyrics_data?.styles || {}
+        styles: currentSong.lyrics_data?.styles || {},
+        customTheme: currentSong.lyrics_data?.customTheme || currentSong.customTheme || null
       })
     }
   })
@@ -660,6 +673,7 @@ async function initApp() {
   function showMenuScreen() {
     clearAllStatusAlerts()
     exitFullscreenMode()
+    restoreGlobalTheme()
     currentScreen = 'menu'
     if (appContainer) appContainer.dataset.screen = 'menu'
     // No pausamos mediaPlayer para que la música siga sonando de fondo mientras se edita la playlist o el menú
@@ -695,6 +709,7 @@ async function initApp() {
 
   function showLyricsScreen() {
     clearAllStatusAlerts()
+    updateLyricsTheme()
     currentScreen = 'lyrics'
     if (appContainer) appContainer.dataset.screen = 'lyrics'
     floatingPlayerView.setVisible(false)
@@ -715,6 +730,7 @@ async function initApp() {
   async function showEditorScreen(songToEdit = null, loadOptions = {}) {
     clearAllStatusAlerts()
     exitFullscreenMode()
+    restoreGlobalTheme()
     currentScreen = 'editor'
     if (appContainer) appContainer.dataset.screen = 'editor'
     floatingPlayerView.setVisible(false)
@@ -849,6 +865,10 @@ async function initApp() {
 
     if (autoplay) {
       mediaPlayer.play()
+    }
+
+    if (currentScreen === 'lyrics') {
+      updateLyricsTheme()
     }
   }
 

@@ -134,6 +134,21 @@ Los datos de cada canción se desacoplan en **tres estructuras conceptuales**, f
     "full": "https://www.youtube.com/watch?v=abc123xyz",
     "instrumental": "https://www.youtube.com/watch?v=inst123xyz"
   },
+  "customTheme": {
+    "bgColor": "#0d1117",
+    "panelBg": "#161b22",
+    "primaryColor": "#58a6ff",
+    "textMain": "#c9d1d9",
+    "lyricsScale": 1.1,
+    "translationScale": 1.0,
+    "altScale": 1.0,
+    "originalColor": "#f0f6fc",
+    "activeColor": "#58a6ff",
+    "completedColor": "#8b949e",
+    "translationColor": "#79c0ff",
+    "altColor": "#d2a8ff",
+    "activeGlow": true
+  },
   "languages": [
     {
       "code": "es",
@@ -638,6 +653,23 @@ Control deslizante independiente para regular la escala de visualización sin ro
 ### 8.5. Importación y Exportación de Paquetes de Tema (`saranga-theme-settings.json`)
 * **Exportación (`exportThemePackage`):** Empaqueta la totalidad de los 4 colores de interfaz, escalas de texto, colores y configuraciones tipográficas (incluyendo `completedColor`, `completedBold`, `completedItalic`) en un archivo JSON portable (`saranga-theme-settings.json`), desencadenando la descarga en el navegador con `Blob` (`application/json`).
 * **Importación (`importThemePackage`):** Admite la carga de archivos `.json` mediante input file o string. Realiza validación de campos, sanea escalas entre 50% y 200%, fusiona con `DEFAULT_THEME` para asegurar robustez, persiste en `localStorage` y actualiza inmediatamente todas las variables CSS de `:root` y la previsualización activa.
+
+### 8.6. Temas Visuales Personalizados por Canción (`lyrics_data.customTheme`)
+Para permitir que canciones individuales cuenten con una atmósfera estética o cromática única (por ejemplo, colores acordes a la portada, paletas temáticas o tipografía diferenciada) sin desconfigurar las preferencias del usuario:
+* **Conmutador Maestro Global (`enableSongThemes`):**
+  * Configurable en la Sección 5 del Modal de Temas (`#check-enable-song-themes`), activo por defecto (`true`).
+  * Si se desactiva, la aplicación ignora cualquier tema individual y utiliza incondicionalmente el tema global del usuario. Si un tema de canción estaba en pantalla al desactivarlo, se restaura inmediatamente el tema global (`restoreGlobalTheme()`).
+* **Editor Integrado en `songEditorView.js` (`#editor-theme-details`):**
+  * Posicionado estratégicamente como un acordeón plegable entre los Metadatos y la Letra.
+  * Selector toggle para activar/desactivar tema personalizado en la canción (`#check-enable-song-custom-theme`).
+  * Controles completos idénticos a los del modal de temas: 5 presets temáticos rápidos, botón "Copiar Tema Global", botón "Restablecer", caja de previsualización en vivo (`#editor-theme-live-preview-box`), 4 colores de interfaz (`bgColor`, `panelBg`, `primaryColor`, `textMain`), 3 sliders de escala (letra, traducción, fonética alternativo de 50% a 200%), 5 selectores cromáticos y tipográficos (original, altText, traducción, activa con glow, completadas) y 3 colores de alerta (`alertSuccessColor`, `alertInfoColor`, `alertErrorColor`).
+  * Sincronizado en tiempo real con el auto-guardado en segundo plano (debounce de 400ms).
+* **Persistencia Transparente e Interoperabilidad:**
+  * Almacenado en `lyrics_data.customTheme` dentro del store IndexedDB `songs`, sin requerir migraciones de base de datos.
+  * Incluido automáticamente en las exportaciones e importaciones de paquetes JSON (`song-package.json`, bibliotecas y respaldos completos).
+* **Ciclo de Vida de Aplicación en Tiempo Real (`main.js`):**
+  * Al transicionar a **Modo Letra** (`showLyricsScreen`), la aplicación evalúa si la canción activa cuenta con `customTheme` y si `enableSongThemes` está activo, llamando a `applySongTheme(customTheme)`.
+  * Al salir de Modo Letra (navegando al **Menú de Canciones** o al **Editor**), el sistema invoca de forma determinista `restoreGlobalTheme()`, garantizando que la navegación general preserve el tema global del usuario.
 
 ---
 

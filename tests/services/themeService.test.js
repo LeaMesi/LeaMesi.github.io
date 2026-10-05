@@ -13,7 +13,9 @@ import {
   applyTheme,
   subscribeTheme,
   exportThemePackage,
-  importThemePackage
+  importThemePackage,
+  applySongTheme,
+  restoreGlobalTheme
 } from '../../src/services/themeService.js'
 
 describe('services/themeService.js', () => {
@@ -138,6 +140,53 @@ describe('services/themeService.js', () => {
     it('rechaza archivos que no contienen configuración de tema válida', async () => {
       await expect(importThemePackage('{"foo": "bar"}')).rejects.toThrow('El archivo no contiene una configuración de tema válida')
       await expect(importThemePackage('not-json')).rejects.toThrow('El archivo seleccionado no es un formato JSON válido')
+    })
+  })
+
+  describe('temas personalizados por canción', () => {
+    it('enableSongThemes está activado por defecto', () => {
+      const settings = getThemeSettings()
+      expect(settings.enableSongThemes).toBe(true)
+    })
+
+    it('aplica el tema de la canción cuando enableSongThemes es true', () => {
+      const customSongTheme = {
+        bgColor: '#1a0033',
+        primaryColor: '#ff00ff',
+        originalColor: '#00ffff'
+      }
+
+      applySongTheme(customSongTheme)
+      const rootStyle = document.documentElement.style
+      expect(rootStyle.getPropertyValue('--bg-color')).toBe('#1a0033')
+      expect(rootStyle.getPropertyValue('--primary-color')).toBe('#ff00ff')
+      expect(rootStyle.getPropertyValue('--lyrics-original-color')).toBe('#00ffff')
+    })
+
+    it('ignora el tema de la canción y aplica el global si enableSongThemes es false', () => {
+      saveThemeSettings({
+        bgColor: '#0b0f19',
+        enableSongThemes: false
+      })
+
+      const customSongTheme = {
+        bgColor: '#990000',
+        primaryColor: '#ff00ff'
+      }
+
+      applySongTheme(customSongTheme)
+      const rootStyle = document.documentElement.style
+      expect(rootStyle.getPropertyValue('--bg-color')).toBe('#0b0f19')
+    })
+
+    it('restoreGlobalTheme restablece los colores globales del usuario', () => {
+      saveThemeSettings({ bgColor: '#0b0f19' })
+
+      applySongTheme({ bgColor: '#332211' })
+      expect(document.documentElement.style.getPropertyValue('--bg-color')).toBe('#332211')
+
+      restoreGlobalTheme()
+      expect(document.documentElement.style.getPropertyValue('--bg-color')).toBe('#0b0f19')
     })
   })
 })

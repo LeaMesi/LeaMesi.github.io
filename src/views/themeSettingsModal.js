@@ -59,7 +59,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
   function applyPreset(presetId) {
     const preset = THEME_PRESETS.find(p => p.id === presetId)
     if (!preset) return
-    currentSettings = { ...DEFAULT_THEME, ...preset.settings }
+    const currentEnableSongThemes = currentSettings.enableSongThemes
+    currentSettings = { ...DEFAULT_THEME, ...preset.settings, enableSongThemes: currentEnableSongThemes !== false }
     saveThemeSettings(currentSettings)
     render()
     if (onThemeChanged) {
@@ -611,6 +612,27 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               </div>
             </div>
           </div>
+
+          <!-- 5. Temas Personalizados por Canción -->
+          <div class="theme-section">
+            <div class="theme-section-header">
+              <h3 class="theme-section-title">5. Temas Personalizados por Canción</h3>
+              <p class="theme-section-desc">Controla si las canciones pueden definir y aplicar su propia combinación visual al reproducirse.</p>
+            </div>
+
+            <div class="color-picker-card" style="padding: 14px 16px; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;">
+              <div class="color-card-info" style="flex: 1;">
+                <span class="color-card-name" style="font-size: 0.95rem;">Activar temas propios de canciones</span>
+                <span class="color-card-hint" style="font-size: 0.8rem; line-height: 1.4;">
+                  Cuando está activado, si una canción tiene configurado un tema personalizado en el editor, se aplicará automáticamente al reproducirla en Modo Letra. Si se desactiva, se usará siempre este tema global.
+                </span>
+              </div>
+              <label class="theme-toggle-chip" style="padding: 8px 14px; font-size: 0.88rem; flex-shrink: 0; cursor: pointer;">
+                <input type="checkbox" id="check-enable-song-themes" ${currentSettings.enableSongThemes !== false ? 'checked' : ''} />
+                <span>Activado</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div class="modal-footer theme-modal-footer">
@@ -826,6 +848,9 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     bindColorPair('#picker-alert-success', '#hex-alert-success', 'alertSuccessColor')
     bindColorPair('#picker-alert-info', '#hex-alert-info', 'alertInfoColor')
     bindColorPair('#picker-alert-error', '#hex-alert-error', 'alertErrorColor')
+
+    // Temas Personalizados por Canción
+    bindCheckbox('#check-enable-song-themes', 'enableSongThemes')
   }
 
   // Aplicar tema inicial inmediatamente

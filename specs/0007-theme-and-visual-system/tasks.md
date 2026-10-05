@@ -52,6 +52,13 @@
   - Eliminación integral de traslaciones (`translateY`, `translateX`) y escalados (`scale`) en estados `:hover` y `:active` a lo largo de toda la interfaz (`src/style.css`): título del encabezado global (`.brand-title`), versos anteriores y siguientes del visor de letras (`.past-phrase-item`, `.upcoming-phrase-item`), botón de salida de pantalla completa (`.btn-exit-fullscreen`), botón de reproducción/pausa (`.btn-play-pause`), pastillas de bibliotecas (`.lib-tab-pill`), tarjetas y filas del catálogo de canciones (`.song-menu-card`, `.song-menu-list-row`), botón para entrar a la letra (`.btn-enter-lyrics`), botón flotante de retorno arriba (`.btn-online-scroll-top`), botón de cantar del asistente del editor (`.btn-assistant-sing`), icono de edición de pestañas (`.tab-edit-icon`), botones de reproducción en listas (`.btn-play-item`) y botón play del minireproductor flotante (`.btn-floating-icon.btn-floating-play`).
   - Preservación íntegra de la retroalimentación visual no disruptiva (cambios de color, brillo, fondo y sombras), eliminando la inestabilidad física o desplazamientos involuntarios al interactuar y hacer clic.
 
+- [x] **12.9. Temas Visuales Personalizados por Canción:**
+  - Nuevo apartado interactivo en el editor de canciones (`songEditorView.js`), ubicado estratégicamente abajo de metadatos y arriba de las letras (`#editor-theme-details`).
+  - Permite configurar todos los atributos de un tema: 4 colores de interfaz (`bgColor`, `panelBg`, `primaryColor`, `textMain`), 3 sliders de escala tipográfica (letra original, traducción y Romaji), estilos y colores de versos (original, alt, traducción, activa con efecto de brillo, completadas), 3 colores de alertas de estado (`alertSuccessColor`, `alertInfoColor`, `alertErrorColor`), presets rápidos, botón de copia rápida del tema global actual y restablecimiento a valores por defecto.
+  - Previsualización en vivo en tiempo real (`#editor-theme-live-preview-box`) y guardado automático integrado en segundo plano en `currentSong.lyrics_data.customTheme`.
+  - Aplicación automática del tema en Modo Letra (`showLyricsScreen`) y restauración del tema global del usuario al salir (`showMenuScreen`, `showEditorScreen`).
+  - Conmutador en el modal de temas (`themeSettingsModal.js` y `themeService.js`) para activar o desactivar la aplicación de temas de canciones (`enableSongThemes`), habilitado por defecto (`true`).
+
 ---
 
 ## Tareas Pendientes / Por Hacer
