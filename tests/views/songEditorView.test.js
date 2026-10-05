@@ -851,5 +851,67 @@ describe('views/songEditorView.js', () => {
       expect(line0.classList.contains('is-active-phrase')).toBe(false)
       expect(syl0.classList.contains('is-active-syllable')).toBe(false)
     })
+
+    it('no reinicia el reproductor ni detiene la reproducción si la canción ya está cargada en mediaPlayer y adapta el estado', () => {
+      const mockMediaPlayer = {
+        getCurrentSong: vi.fn(() => sampleSong),
+        getIsPlaying: vi.fn(() => true),
+        getCurrentTime: vi.fn(() => 2.5),
+        getDuration: vi.fn(() => 100),
+        getVolume: vi.fn(() => 80),
+        loadSong: vi.fn()
+      }
+
+      const editor = createSongEditorView({
+        containerElement: container,
+        mediaPlayer: mockMediaPlayer
+      })
+
+      editor.open(sampleSong)
+
+      // 1. loadSong no debe ser llamado porque ya está cargada
+      expect(mockMediaPlayer.loadSong).not.toHaveBeenCalled()
+
+      // 2. El botón de reproducción debe reflejar el estado actual (reproduciendo -> Pausar)
+      const playBtn = container.querySelector('#btn-assistant-play')
+      expect(playBtn).not.toBeNull()
+      expect(playBtn.title).toBe('Pausar')
+
+      // 3. El reloj debe reflejar el tiempo actual (2.5s)
+      const clockEl = container.querySelector('#assistant-clock-time')
+      expect(clockEl).not.toBeNull()
+      expect(clockEl.textContent).toBe('00:02.500')
+
+      // 4. El slider de progreso debe reflejar el tiempo actual
+      const slider = container.querySelector('#editor-progress-slider')
+      expect(slider).not.toBeNull()
+      expect(slider.value).toBe('2.5')
+
+      // 5. La frase que cae en 2.5s debe estar activa
+      const line0 = container.querySelector('.phrase-editor-card[data-line-idx="0"]')
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+    })
+
+    it('llama a loadSong en mediaPlayer si la canción a editar es diferente a la cargada actualmente', () => {
+      const otherSong = { id: 999, title: 'Otra', artist: 'Otro' }
+      const mockMediaPlayer = {
+        getCurrentSong: vi.fn(() => otherSong),
+        getIsPlaying: vi.fn(() => false),
+        getCurrentTime: vi.fn(() => 0),
+        getDuration: vi.fn(() => 0),
+        getVolume: vi.fn(() => 80),
+        loadSong: vi.fn(() => Promise.resolve())
+      }
+
+      const editor = createSongEditorView({
+        containerElement: container,
+        mediaPlayer: mockMediaPlayer
+      })
+
+      editor.open(sampleSong)
+
+      // Debe llamar a loadSong para cargar la nueva canción
+      expect(mockMediaPlayer.loadSong).toHaveBeenCalled()
+    })
   })
 })

@@ -489,6 +489,12 @@ La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj M
 * **Gestión de Interacción sin Congelamiento:** Para evitar que el thumb de la barra de progreso quede estático tras hacer clic o arrastrar en la línea de tiempo (problema causado por la retención persistente de foco en navegadores sobre elementos `<input type="range">`), `controlsView.js` gestiona la barra con la bandera de interacción activa `isUserSeeking`.
 * **Ciclo de Eventos:** Eventos `pointerdown`, `mousedown`, `touchstart` e `input` activan `isUserSeeking = true`. Al soltar el control (`change`, `pointerup`, `mouseup`, `touchend`), se apaga la bandera y se desenfoca el elemento (`seekSlider.blur()`), permitiendo que el Master Clock continúe actualizando `seekSlider.value` en cada fotograma (`requestAnimationFrame`) de forma ininterrumpida sin necesidad de pausar.
 
+### 4.3. Navegación Temporal por Teclado y Control de Reproducción Global
+* **Atajos de Flechas (`ArrowLeft` / `ArrowRight`):** Se interceptan para navegar en la línea temporal por un salto discreto de segundos configurable (`seekStep`). Se omiten cuando el foco está sobre campos de texto editables (`<input>`, `<textarea>`, `contenteditable`).
+* **Atajo Global de Barra Espaciadora (`Space`):** Permite pausar y reanudar la reproducción (`mediaPlayer.togglePlay()`) de forma universal en cualquier pantalla, menú o modal abierto (menú de canciones, modal de playlist, gestión de videos, configuración de temas, editor de canciones, popovers).
+* **Detección de Contexto de Tipeo (`isTypingContext`):** Si el foco se encuentra en un campo de texto editable (`<input type="text|search|url|number">`, `<textarea>` o elemento con `contenteditable`), la barra espaciadora no interfiere ni pausa la música, permitiendo tipear espacios normalmente. Al no estar en un campo de texto, se ejecuta `preventDefault()` para evitar el desplazamiento vertical de la ventana y la pulsación accidental de botones previamente enfocados.
+* **Configuración del Salto:** Selector configurable integrado en el menú de configuración de Modo Letra (`controls-settings-popover` en `controlsView.js`), con opciones de 1s, 2s, 3s, 5s, 10s, 15s y 30s (5s por defecto). Persiste en `localStorage` (`saranga_seek_step`).
+
 ### 3.8. Servicio de Traducción Automática Gratuita (Zero-Backend): Unison & MyMemory (`src/services/translationService.js`)
 Para posibilitar la traducción instantánea de canciones completas y versos individuales sin costos operativos ni servidores intermediarios, SarangaBaranga implementa una arquitectura de traducción en cascada:
 1. **Traducción por Lotes con Unison API (`POST https://unison.boidu.dev/translate`):** Envía las líneas con contenido en una única solicitud HTTP JSON (`{ lines: string[], to: targetLang }`), traduciendo decenas de versos de forma instantánea y detectando el idioma de origen automáticamente.
@@ -534,6 +540,8 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
      - Opción de traducción automática al dar de alta un nuevo idioma ("Traducir automáticamente todas las frases desde el original") en el modal de idiomas.
 
 
+
+    * **Transición Continua y Adaptación al Estado de Reproducción:** Al abrir el editor desde Modo Letra o Menú para editar la canción activa, el flujo de reproducción no se interrumpe ni se pausa (`mediaPlayer.pause()` omitido y recarga de pista prevenida). El editor adapta inmediatamente sus controles al estado activo: botón de reproducción con icono de pausa, reloj de asistente en vivo (`mm:ss.mmm`), slider posicionado en el tiempo actual, expansión automática de la frase en canto y scroll centrado hacia ella.
 
 ### 5.1. Modo Sencillo / Básico (`BasicModeViewer`)
 * **Datos fuente:** `songs.lyrics_data` (con soporte para colección `languages`).

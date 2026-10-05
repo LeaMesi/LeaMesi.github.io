@@ -32,6 +32,15 @@
 - [x] **9.3. Menú Popover Vertical de Volumen en Modo Letra (`controlsView.js`):**
   - Ocultamiento del slider horizontal en el dock y sustitución por botón de parlante (`#btn-controls-volume`) que despliega un popover vertical hacia arriba (`#controls-volume-popover`) idéntico al del editor de canciones.
   - Integra slider vertical (`.volume-slider`), etiqueta de porcentaje (`.volume-percent-label`), botón de activación/silenciado (`.btn-mute-toggle`) y cierre automático ante clics exteriores.
+- [x] **9.4. Navegación con Flechas del Teclado y Selector de Salto Temporal (`seekStep`):**
+  - Manejo global de teclas `ArrowLeft` y `ArrowRight` en `src/main.js` para retroceder y adelantar la canción en reproducción, con exclusión inteligente en campos de tipeo o combinaciones con modificadores (Alt, Ctrl, Meta).
+  - Selector "Salto flechas" en el menú popover de configuración del reproductor (`controlsView.js`) con opciones de 1s, 2s, 3s, 5s, 10s, 15s y 30s (5s por defecto), con persistencia en `localStorage` (`saranga_seek_step`) y métodos públicos `getSeekStep` y `setSeekStep`.
+- [x] **9.5. Atajo Global de Barra Espaciadora para Pausar/Reanudar en Cualquier Menú:**
+  - Control de reproducción con tecla Espacio (` ` / `Spacebar` / `Space`) a nivel de ventana global en `src/main.js` llamando a `mediaPlayer.togglePlay()`.
+  - Operatividad sin importar qué menú, diálogo o modal esté abierto (menú de canciones, modal de playlist, gestión de videos, configuración de temas, editor de canciones, popovers).
+  - Detección precisa de contexto de tipeo (`isTypingContext`): si el usuario está enfocado en `<input>` de texto/búsqueda/url/número, `<textarea>` o `contenteditable`, el atajo no interfiere para permitir escribir espacios con naturalidad.
+  - Supresión de comportamiento nativo (`preventDefault`) al no estar escribiendo para evitar scroll vertical en la página o pulsación no intencionada de botones previamente enfocados.
+  - Prevención de rebote continuo (`e.repeat`).
 
 ---
 

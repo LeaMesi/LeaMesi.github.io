@@ -507,6 +507,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     getLyricsTime,
     getRawVideoTime,
     getDuration,
+    getCurrentSong: () => currentSong,
     getVideos: () => currentVideos,
     getActiveVideo: () => activeVideo,
     getActiveVideoId: () => activeVideoId,

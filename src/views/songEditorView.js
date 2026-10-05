@@ -253,7 +253,29 @@ export function createSongEditorView({
     onlineSourceName = loadOptions.sourceName || ''
 
     activeLangIndex = 0
-    expandedLineIndices = new Set([0]) // Expandir la primera frase por defecto
+    let initialActiveLine = 0
+    const curTime = mediaPlayer?.getCurrentTime ? Math.max(0, mediaPlayer.getCurrentTime() || 0) : 0
+    const activeLang = currentSong?.lyrics_data?.languages?.[0]
+    const lines = activeLang?.lines || []
+
+    if (curTime > 0 && lines.length > 0) {
+      const activeIdx = lines.findIndex(l => {
+        const { start, end } = getLineTimeRange(l)
+        return curTime >= start && curTime <= end
+      })
+      if (activeIdx !== -1) {
+        initialActiveLine = activeIdx
+      } else {
+        const nextIdx = lines.findIndex(l => {
+          const { start } = getLineTimeRange(l)
+          return start > curTime
+        })
+        if (nextIdx > 0) initialActiveLine = nextIdx - 1
+        else if (nextIdx === -1) initialActiveLine = lines.length - 1
+      }
+    }
+    expandedLineIndices = new Set([initialActiveLine])
+
     statusMessage = loadOptions.initialStatus?.message || ''
     statusType = loadOptions.initialStatus?.type || 'info'
     isMetadataOpen = !currentSong.title // Abrir metadatos si es una canción nueva
@@ -269,9 +291,15 @@ export function createSongEditorView({
     isSaving = false
     pendingSave = false
 
-    // Si tiene video con URL, opcionalmente cargarlo en el reproductor multimedia
+    // Si no está ya cargada en el reproductor y tiene video con URL, cargarla
+    const loadedMediaSong = mediaPlayer?.getCurrentSong ? mediaPlayer.getCurrentSong() : null
+    const isSameSongLoaded = loadedMediaSong && currentSong && (
+      (currentSong.id !== undefined && currentSong.id !== null && loadedMediaSong.id !== undefined && loadedMediaSong.id !== null && String(currentSong.id) === String(loadedMediaSong.id)) ||
+      (currentSong.title && loadedMediaSong.title && currentSong.title === loadedMediaSong.title && currentSong.artist === loadedMediaSong.artist)
+    )
+
     const firstVideo = currentSong.videos?.find(v => v.url)
-    if (firstVideo && typeof mediaPlayer?.loadSong === 'function') {
+    if (!isSameSongLoaded && firstVideo && typeof mediaPlayer?.loadSong === 'function') {
       mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
     }
 
@@ -1199,8 +1227,18 @@ export function createSongEditorView({
     `
 
     const newScrollEl = containerElement.querySelector('.editor-content-scroll')
-    if (newScrollEl && previousScrollTop > 0) {
-      newScrollEl.scrollTop = previousScrollTop
+    if (newScrollEl) {
+      if (previousScrollTop > 0) {
+        newScrollEl.scrollTop = previousScrollTop
+      } else if (expandedLineIndices && expandedLineIndices.size === 1) {
+        const activeIdx = Array.from(expandedLineIndices)[0]
+        if (activeIdx > 0) {
+          const activeCard = newScrollEl.querySelector(`.phrase-editor-card[data-line-idx="${activeIdx}"]`)
+          if (activeCard && typeof activeCard.scrollIntoView === 'function') {
+            activeCard.scrollIntoView({ block: 'center' })
+          }
+        }
+      }
     }
     const newTabsEl = containerElement.querySelector('.editor-lang-tabs-bar')
     if (newTabsEl && previousTabsScrollLeft > 0) {

@@ -45,3 +45,19 @@ Cada canción puede tener N videos asociados en su metadato (`videos: [{ id, nam
 Para erradicar el congelamiento del thumb del `<input type="range">` por retención de foco en el navegador, `controlsView.js` y `floatingPlayerView.js` implementan la bandera de interacción `isUserSeeking`:
 - Al interactuar (`pointerdown`, `touchstart`, `input`), `isUserSeeking = true`.
 - Al soltar (`change`, `pointerup`, `touchend`), se ejecuta el salto temporal, se apaga la bandera y se desenfoca el slider (`seekSlider.blur()`), permitiendo que el Master Clock retome la actualización sin interrupciones ni pausas.
+
+---
+
+## 7. Navegación Temporal con Teclado y Configuración de Salto (`seekStep`)
+- **Atajos de teclado:** Las flechas izquierda (`ArrowLeft`) y derecha (`ArrowRight`) retroceden y adelantan la reproducción por un intervalo configurable de segundos.
+- **Detección de contexto:** Se omiten automáticamente cuando el foco está en campos de texto editables (`<input>`, `<textarea>`, `contenteditable`) o diálogos modales activos, permitiendo la edición normal sin saltos de tiempo accidentales.
+- **Configuración del reproductor:** Selector integrado en el menú de configuración de Modo Letra (`controls-settings-popover` en `src/views/controlsView.js`), permitiendo elegir entre 1s, 2s, 3s, 5s, 10s, 15s o 30s (con 5s por defecto).
+- **Persistencia local:** Se almacena en `localStorage` (`saranga_seek_step`) para mantenerse constante entre sesiones.
+
+---
+
+## 8. Atajo Global de Barra Espaciadora para Pausar/Reanudar
+- **Atajo global:** La tecla Espacio (` ` / `Spacebar` / `Space`) invoca `mediaPlayer.togglePlay()` para alternar entre reproducción y pausa.
+- **Acceso universal:** Funciona en cualquier pantalla o estado de la aplicación, incluyendo menús y modales abiertos (menú de selección de canciones, modal de playlist, modal de videos, popovers de configuración, etc.).
+- **Detección de contexto de escritura (`isTypingContext`):** No se intercepta el evento si el usuario está interactuando con `<input type="text|search|url|number...">`, `<textarea>` o contenedores con `contenteditable`, permitiendo escribir espacios sin interferencia en la reproducción.
+- **Prevención de efectos colaterales:** En contextos no interactivos de texto, se ejecuta `e.preventDefault()` para evitar el desplazamiento vertical de la ventana y la activación accidental por teclado de botones enfocados. Además se descarta la repetición sostenida (`e.repeat`).
