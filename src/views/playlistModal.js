@@ -1,6 +1,7 @@
 import { listSongs } from '../services/songService.js'
 import { listLibraries, getLibrarySongs } from '../services/libraryService.js'
 import { savePlaylistAsLibrary, loadLibraryIntoPlaylist } from '../services/playlistService.js'
+import { showConfirm } from './customPrompt.js'
 import {
   iconListMusic,
   iconClose,
@@ -551,8 +552,14 @@ export function createPlaylistModal({
     // Vaciar playlist
     const btnClear = containerElement.querySelector('#btn-pl-clear')
     if (btnClear) {
-      btnClear.addEventListener('click', () => {
-        if (typeof window !== 'undefined' && window.confirm('¿Seguro que deseas vaciar la lista de reproducción?')) {
+      btnClear.addEventListener('click', async () => {
+        const confirmed = await showConfirm({
+          title: 'Vaciar Lista de Reproducción',
+          message: '¿Seguro que deseas vaciar la lista de reproducción?',
+          confirmText: 'Vaciar',
+          isDestructive: true
+        })
+        if (confirmed) {
           playlistService.clear()
           showStatus('Lista de reproducción vaciada.', 'info')
         }

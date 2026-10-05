@@ -34,6 +34,10 @@
   - Supresión del espacio en blanco en tarjetas de grilla móvil: ajuste de `.card-header` a `height: auto`, `justify-content: flex-start` y `.card-title-group` a `flex: 0 0 auto`, manteniendo el botón "Modo letra" directamente adyacente al título sin afectar PC.
   - Botones de acción en catálogo de canciones (grilla y lista): unificación en una sola fila horizontal (`flex-direction: row; flex-wrap: nowrap`), expansión al 100% del ancho del contenedor (`flex: 1; width: 100%`) para mayor área táctil e iconos SVG centrados (`justify-content: center; align-items: center`).
   - Compensación inferior de scroll para el minireproductor en móviles: ampliación del padding inferior en `.song-menu-view-container` (`calc(150px + var(--safe-bottom))` en vertical y `calc(110px + var(--safe-bottom))` en apaisado) para que el último elemento del catálogo quede 100% visible por encima del reproductor flotante sin solapamientos.
+- [x] **16.10. Estandarización de Tamaños de Botones en Móvil y Reubicación de Botón 'Editar':**
+  - Estandarización estricta de botones en teléfonos móviles (`@media (max-width: 768px)`): botones de icono unificados exactamente a 38x38px (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`), botón de reproducción/pausa a 44x38px, y altura consistente de 38px en `.btn-open-playlist`.
+  - Estandarización en vista apaisada / landscape móvil (`@media (max-height: 500px) and (orientation: landscape)`): altura estándar de 32px para todos los botones del dock.
+  - Reubicación del botón "Editar" (`#btn-controls-edit`) dentro del popover de ajustes (`#controls-settings-popover`), posicionado a lo ancho completo debajo de una línea divisoria horizontal (`<hr class="settings-popover-separator">`) con su icono correspondiente, liberando espacio en el dock exterior.
 
 ---
 

@@ -21,6 +21,7 @@ import {
   iconDownload,
   iconUpload
 } from './icons.js'
+import { showConfirm } from './customPrompt.js'
 
 export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
   let isOpen = false
@@ -66,8 +67,14 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     }
   }
 
-  function handleReset() {
-    if (window.confirm('¿Deseas restablecer todos los colores, tamaños y estilos a sus valores predeterminados?')) {
+  async function handleReset() {
+    const confirmed = await showConfirm({
+      title: 'Restablecer Tema',
+      message: '¿Deseas restablecer todos los colores, tamaños y estilos a sus valores predeterminados?',
+      confirmText: 'Restablecer',
+      isDestructive: true
+    })
+    if (confirmed) {
       currentSettings = resetThemeSettings()
       render()
       if (onThemeChanged) {

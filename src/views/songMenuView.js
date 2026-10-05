@@ -13,6 +13,7 @@ import {
   removeSongFromLibrary
 } from '../services/libraryService.js'
 import { importLyricsfileAsNewSong } from '../services/lyricsfileService.js'
+import { showPrompt, showConfirm } from './customPrompt.js'
 import {
   iconPlus,
   iconEdit,
@@ -593,7 +594,12 @@ export function createSongMenuView({
     const createLibBtn = containerElement.querySelector('#btn-create-library')
     if (createLibBtn) {
       createLibBtn.addEventListener('click', async () => {
-        const name = window.prompt('Introduce el nombre de la nueva biblioteca:')
+        const name = await showPrompt({
+          title: 'Nueva Biblioteca',
+          message: 'Introduce el nombre de la nueva biblioteca:',
+          placeholder: 'Ej. Favoritos, Anime, Rock 80s...',
+          confirmText: 'Crear'
+        })
         if (name && name.trim()) {
           try {
             const newLib = await createLibrary(name.trim())
@@ -667,7 +673,12 @@ export function createSongMenuView({
       renameLibBtn.addEventListener('click', async () => {
         const targetLib = libraries.find(l => Number(l.id) === Number(activeLibraryId))
         if (!targetLib) return
-        const newName = window.prompt('Nuevo nombre para la biblioteca:', targetLib.name)
+        const newName = await showPrompt({
+          title: 'Renombrar Biblioteca',
+          message: 'Introduce el nuevo nombre para la biblioteca:',
+          defaultValue: targetLib.name,
+          confirmText: 'Guardar'
+        })
         if (newName && newName.trim() && newName.trim() !== targetLib.name) {
           try {
             await renameLibrary(targetLib.id, newName.trim())
@@ -701,10 +712,12 @@ export function createSongMenuView({
       deleteLibBtn.addEventListener('click', async () => {
         const targetLib = libraries.find(l => Number(l.id) === Number(activeLibraryId))
         if (!targetLib) return
-        const confirmed = window.confirm(
-          `¿Seguro que deseas eliminar la biblioteca "${targetLib.name}"?\n\n` +
-          `Nota: Las canciones NO se eliminarán del catálogo general, sólo la biblioteca.`
-        )
+        const confirmed = await showConfirm({
+          title: 'Eliminar Biblioteca',
+          message: `¿Seguro que deseas eliminar la biblioteca "${targetLib.name}"?\n\nNota: Las canciones NO se eliminarán del catálogo general, sólo la biblioteca.`,
+          confirmText: 'Eliminar',
+          isDestructive: true
+        })
         if (confirmed) {
           try {
             await deleteLibrary(targetLib.id)
@@ -728,7 +741,12 @@ export function createSongMenuView({
         const targetLib = libraries.find(l => Number(l.id) === Number(activeLibraryId))
         if (!targetSong || !targetLib) return
 
-        const confirmed = window.confirm(`¿Quitar "${targetSong.title}" de la biblioteca "${targetLib.name}"?`)
+        const confirmed = await showConfirm({
+          title: 'Quitar Canción de Biblioteca',
+          message: `¿Quitar "${targetSong.title}" de la biblioteca "${targetLib.name}"?`,
+          confirmText: 'Quitar',
+          isDestructive: true
+        })
         if (confirmed) {
           try {
             await removeSongFromLibrary(songId, targetLib.id)
@@ -964,7 +982,12 @@ export function createSongMenuView({
         e.stopPropagation()
         const songId = Number(btn.dataset.songId)
         const target = songs.find(s => Number(s.id) === songId)
-        const confirmed = window.confirm(`¿Seguro que deseas eliminar "${target ? target.title : 'esta canción'}" de tu base de datos local?`)
+        const confirmed = await showConfirm({
+          title: 'Eliminar Canción',
+          message: `¿Seguro que deseas eliminar "${target ? target.title : 'esta canción'}" de tu base de datos local?`,
+          confirmText: 'Eliminar',
+          isDestructive: true
+        })
         if (confirmed) {
           try {
             await deleteSong(songId)

@@ -9,6 +9,7 @@ import {
   iconUpload,
   iconPlus
 } from './icons.js'
+import { showConfirm } from './customPrompt.js'
 
 export function createLibraryView({
   modalElement,
@@ -216,7 +217,12 @@ export function createLibraryView({
         e.stopPropagation()
         const id = Number(btn.dataset.songId)
         const target = songs.find(s => Number(s.id) === id)
-        const confirmDelete = window.confirm(`¿Seguro que deseas eliminar "${target ? target.title : 'esta canción'}" de tu biblioteca local?`)
+        const confirmDelete = await showConfirm({
+          title: 'Eliminar Canción',
+          message: `¿Seguro que deseas eliminar "${target ? target.title : 'esta canción'}" de tu biblioteca local?`,
+          confirmText: 'Eliminar',
+          isDestructive: true
+        })
         if (confirmDelete) {
           try {
             await deleteSong(id)

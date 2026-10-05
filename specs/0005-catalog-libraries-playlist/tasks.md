@@ -30,6 +30,10 @@
   - Incorporación de callback `onDeleteSong` en `createSongMenuView` y `onRemoveSong` en `createPlaylistModal`, orquestados mediante `handleSongEviction` y `clearActivePlayback` en `src/main.js`.
   - Al eliminar una canción de la base de datos o retirarla de la lista de reproducción, se remueve automáticamente de la playlist activa (`playlistService.removeSongById`).
   - Si la canción eliminada o retirada es la que está sonando o cargada en ese momento, el reproductor multimedia detiene la reproducción y libera el canal de audio de inmediato (`mediaPlayer.stop()`), transicionando fluidamente a la siguiente canción de la cola (si existe) o reseteando por completo el estado del reproductor flotante, controles y visor si no quedan más canciones.
+- [x] **29.4. Diálogos y Prompts Personalizados de Interfaz (`src/views/customPrompt.js`):**
+  - Creación de diálogos modales custom (`showPrompt`, `showConfirm`, `showAlert`) adaptados a los temas de la aplicación (colores `--panel-bg`, `--primary-color`, etc.).
+  - Sustitución de `window.prompt` y `window.confirm` en la creación de bibliotecas, renombrado, eliminación y desvinculación de canciones, eliminando las ventanas feas nativas de Javascript y el riesgo de bloqueo de mensajes del navegador.
+  - Bloqueo completo al resto de la interfaz con backdrop (`position: fixed; inset: 0; z-index: 10000; backdrop-filter: blur(8px);`) y cierre con restauración del control al hacer clic fuera del prompt (backdrop) o presionar Escape.
 
 ---
 
