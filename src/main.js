@@ -159,7 +159,8 @@ async function initApp() {
       } else if (currentScreen === 'menu') {
         floatingPlayerView?.setTime(currentTime)
       } else if (currentScreen === 'editor') {
-        songEditorInstance?.updateClock(currentTime)
+        const timeToUse = lyricsTime !== undefined ? lyricsTime : (mediaPlayer.getLyricsTime ? mediaPlayer.getLyricsTime() : currentTime)
+        songEditorInstance?.updateClock(timeToUse)
       }
     },
     onStateChange: async (state) => {

@@ -1008,4 +1008,120 @@ describe('views/songEditorView.js', () => {
       expect(mockMediaPlayer.loadSong).toHaveBeenCalled()
     })
   })
+
+  describe('Gestión de Offset de Videos y Sincronización en Tiempo Real', () => {
+    it('renderiza botones -0.1 y +0.1 a los lados del input de offset para cada video', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      const decBtn = container.querySelector('.btn-vid-offset-dec[data-video-idx="0"]')
+      const offsetInput = container.querySelector('.input-vid-offset[data-video-idx="0"]')
+      const incBtn = container.querySelector('.btn-vid-offset-inc[data-video-idx="0"]')
+
+      expect(decBtn).not.toBeNull()
+      expect(decBtn.textContent.trim()).toBe('-0.1')
+      expect(offsetInput).not.toBeNull()
+      expect(incBtn).not.toBeNull()
+      expect(incBtn.textContent.trim()).toBe('+0.1')
+
+      // Verificar orden en el DOM: decBtn -> offsetInput -> incBtn
+      expect(decBtn.compareDocumentPosition(offsetInput) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(offsetInput.compareDocumentPosition(incBtn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
+    it('actualiza el offset en mediaPlayer y el verso/sílaba activa en tiempo real al usar los botones de paso', () => {
+      let currentOffset = 0
+      const setActiveOffsetSpy = vi.fn((newOff) => {
+        currentOffset = newOff
+      })
+
+      const mockMediaPlayer = {
+        getCurrentSong: () => sampleSong,
+        getIsPlaying: () => false,
+        getCurrentTime: () => 2.5, // Video time en 2.5s
+        getLyricsTime: () => 2.5 - currentOffset,
+        getActiveVideoId: () => 'v1',
+        setActiveOffset: setActiveOffsetSpy,
+        getDuration: () => 100,
+        getVolume: () => 80
+      }
+
+      const editor = createSongEditorView({
+        containerElement: container,
+        mediaPlayer: mockMediaPlayer
+      })
+      editor.open(sampleSong)
+
+      // Expandir panel de sílabas de la frase 0 para inspeccionar chips
+      const toggleSylBtn = container.querySelector('.btn-toggle-syllables[data-line-idx="0"]')
+      if (toggleSylBtn) toggleSylBtn.click()
+
+      // Con offset 0, lyricsTime = 2.5s (dentro de verso 0: 2.0s-5.0s, sílaba 0 "Fra": 2.0s-3.5s)
+      const line0 = container.querySelector('.phrase-editor-card[data-line-idx="0"]')
+      const syl0 = container.querySelector('.syllable-edit-chip[data-line-idx="0"][data-syl-idx="0"]')
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(true)
+
+      // Clic en +0.1 repetido varias veces hasta offset = 1.0s (lyricsTime = 2.5 - 1.0 = 1.5s, antes de 2.0s)
+      const incBtn = container.querySelector('.btn-vid-offset-inc[data-video-idx="0"]')
+      for (let i = 0; i < 10; i++) {
+        incBtn.click()
+      }
+
+      expect(setActiveOffsetSpy).toHaveBeenCalled()
+      const offsetInput = container.querySelector('.input-vid-offset[data-video-idx="0"]')
+      expect(Number(offsetInput.value)).toBe(1.0)
+      expect(editor.getCurrentSong().videos[0].offset).toBe(1.0)
+
+      // Al ser lyricsTime = 1.5s, está antes del verso 0 (inicia a 2.0s), debe desactivarse
+      expect(line0.classList.contains('is-active-phrase')).toBe(false)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(false)
+
+      // Ahora retroceder con -0.1 diez veces para volver a offset = 0.0s
+      const decBtn = container.querySelector('.btn-vid-offset-dec[data-video-idx="0"]')
+      for (let i = 0; i < 10; i++) {
+        decBtn.click()
+      }
+
+      expect(Number(offsetInput.value)).toBe(0)
+      // Debe reactivarse el verso 0 y la sílaba 0
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+      expect(syl0.classList.contains('is-active-syllable')).toBe(true)
+    })
+
+    it('actualiza el offset y el marcado activo al modificar manualmente el input de offset', () => {
+      let currentOffset = 0
+      const setActiveOffsetSpy = vi.fn((newOff) => {
+        currentOffset = newOff
+      })
+
+      const mockMediaPlayer = {
+        getCurrentSong: () => sampleSong,
+        getIsPlaying: () => false,
+        getCurrentTime: () => 2.5,
+        getLyricsTime: () => 2.5 - currentOffset,
+        getActiveVideoId: () => 'v1',
+        setActiveOffset: setActiveOffsetSpy,
+        getDuration: () => 100,
+        getVolume: () => 80
+      }
+
+      const editor = createSongEditorView({
+        containerElement: container,
+        mediaPlayer: mockMediaPlayer
+      })
+      editor.open(sampleSong)
+
+      const line0 = container.querySelector('.phrase-editor-card[data-line-idx="0"]')
+      expect(line0.classList.contains('is-active-phrase')).toBe(true)
+
+      const offsetInput = container.querySelector('.input-vid-offset[data-video-idx="0"]')
+      offsetInput.value = '2.0'
+      offsetInput.dispatchEvent(new Event('input'))
+
+      expect(setActiveOffsetSpy).toHaveBeenCalledWith(2.0)
+      // Con offset 2.0, lyricsTime = 2.5 - 2.0 = 0.5s (antes del verso 0), no debe estar activo
+      expect(line0.classList.contains('is-active-phrase')).toBe(false)
+    })
+  })
 })

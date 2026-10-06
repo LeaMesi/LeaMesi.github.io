@@ -269,7 +269,9 @@ export function createSongEditorView({
 
     activeLangIndex = 0
     let initialActiveLine = 0
-    const curTime = mediaPlayer?.getCurrentTime ? Math.max(0, mediaPlayer.getCurrentTime() || 0) : 0
+    const curTime = (mediaPlayer && typeof mediaPlayer.getLyricsTime === 'function')
+      ? mediaPlayer.getLyricsTime()
+      : ((mediaPlayer && typeof mediaPlayer.getCurrentTime === 'function') ? Math.max(0, mediaPlayer.getCurrentTime() || 0) : 0)
     const activeLang = currentSong?.lyrics_data?.languages?.[0]
     const lines = activeLang?.lines || []
 
@@ -318,6 +320,12 @@ export function createSongEditorView({
     const firstVideo = currentSong.videos?.find(v => v.url)
     if (!isSameSongLoaded && firstVideo && typeof mediaPlayer?.loadSong === 'function') {
       mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
+    } else if (isSameSongLoaded && mediaPlayer && typeof mediaPlayer.setActiveOffset === 'function') {
+      const activeVidId = mediaPlayer.getActiveVideoId ? mediaPlayer.getActiveVideoId() : null
+      const matchedVid = currentSong.videos?.find(v => String(v.id) === String(activeVidId)) || firstVideo
+      if (matchedVid && matchedVid.offset !== undefined) {
+        mediaPlayer.setActiveOffset(matchedVid.offset)
+      }
     }
 
     clearActiveElements()
@@ -878,13 +886,29 @@ export function createSongEditorView({
         />
         <div class="video-offset-wrapper">
           <label>Offset (s):</label>
-          <input
-            type="number"
-            step="0.1"
-            class="input-vid-offset"
-            value="${vid.offset || 0}"
-            data-video-idx="${vIdx}"
-          />
+          <div class="video-offset-controls">
+            <button
+              type="button"
+              class="btn btn-xs btn-outline btn-vid-offset-step btn-vid-offset-dec"
+              data-video-idx="${vIdx}"
+              data-delta="-0.1"
+              title="Restar 0.1s de offset (la letra empezará 0.1s más tarde)"
+            >-0.1</button>
+            <input
+              type="number"
+              step="0.1"
+              class="input-vid-offset"
+              value="${vid.offset || 0}"
+              data-video-idx="${vIdx}"
+            />
+            <button
+              type="button"
+              class="btn btn-xs btn-outline btn-vid-offset-step btn-vid-offset-inc"
+              data-video-idx="${vIdx}"
+              data-delta="0.1"
+              title="Sumar 0.1s de offset (la letra empezará 0.1s más temprano)"
+            >+0.1</button>
+          </div>
         </div>
         <button class="btn btn-xs btn-outline btn-test-video-audio" data-video-idx="${vIdx}" title="Probar audio de este video">${iconPlay} Cargar</button>
         ${videos.length > 1 ? `
@@ -893,7 +917,9 @@ export function createSongEditorView({
       </div>
     `).join('')
 
-    const currentTime = mediaPlayer?.getCurrentTime ? Math.max(0, mediaPlayer.getCurrentTime() || 0) : 0
+    const currentTime = (mediaPlayer && typeof mediaPlayer.getLyricsTime === 'function')
+      ? mediaPlayer.getLyricsTime()
+      : ((mediaPlayer && typeof mediaPlayer.getCurrentTime === 'function') ? Math.max(0, mediaPlayer.getCurrentTime() || 0) : 0)
     const duration = mediaPlayer?.getDuration ? Math.max(0, mediaPlayer.getDuration() || 0) : 0
     const currentVolume = mediaPlayer?.getVolume ? Math.max(0, Math.min(100, Math.round(mediaPlayer.getVolume() ?? 100))) : 100
 
@@ -1700,9 +1726,9 @@ export function createSongEditorView({
     bindEvents()
     updateEditorThemePreview()
 
-    const curTime = (mediaPlayer && typeof mediaPlayer.getCurrentTime === 'function')
-      ? Math.max(0, mediaPlayer.getCurrentTime())
-      : 0
+    const curTime = (mediaPlayer && typeof mediaPlayer.getLyricsTime === 'function')
+      ? mediaPlayer.getLyricsTime()
+      : ((mediaPlayer && typeof mediaPlayer.getCurrentTime === 'function') ? Math.max(0, mediaPlayer.getCurrentTime()) : 0)
     updateActiveElements(curTime)
   }
 
@@ -1816,15 +1842,59 @@ export function createSongEditorView({
           triggerImmediateAutoSave()
         })
       }
+      const applyVideoOffset = (newOffsetVal) => {
+        const off = Math.round((Number(newOffsetVal) || 0) * 10) / 10
+        if (currentSong.videos[vIdx]) {
+          currentSong.videos[vIdx].offset = off
+        }
+        if (offsetInput && Number(offsetInput.value) !== off) {
+          offsetInput.value = String(off)
+        }
+
+        // Si este video es el que está activo en mediaPlayer (o no hay otro video activo explícito)
+        const activeVidId = mediaPlayer?.getActiveVideoId ? mediaPlayer.getActiveVideoId() : null
+        const thisVid = currentSong.videos[vIdx]
+        const isThisVideoActive = !activeVidId ||
+          (thisVid && String(thisVid.id) === String(activeVidId)) ||
+          (!currentSong.videos.some(v => String(v.id) === String(activeVidId)) && vIdx === 0)
+
+        if (isThisVideoActive && typeof mediaPlayer?.setActiveOffset === 'function') {
+          mediaPlayer.setActiveOffset(off)
+        }
+
+        // Actualizar en tiempo real el reloj, la barra y el resaltado activo de verso y sílaba
+        const videoRawTime = (typeof mediaPlayer?.getCurrentTime === 'function')
+          ? mediaPlayer.getCurrentTime()
+          : 0
+        const curLyricsTime = isThisVideoActive
+          ? (videoRawTime - off)
+          : ((typeof mediaPlayer?.getLyricsTime === 'function') ? mediaPlayer.getLyricsTime() : (videoRawTime - off))
+
+        updateClock(curLyricsTime)
+      }
+
       if (offsetInput) {
         offsetInput.addEventListener('input', (e) => {
-          if (currentSong.videos[vIdx]) currentSong.videos[vIdx].offset = Number(e.target.value) || 0
+          applyVideoOffset(e.target.value)
           scheduleAutoSave(400)
         })
-        offsetInput.addEventListener('change', () => {
+        offsetInput.addEventListener('change', (e) => {
+          applyVideoOffset(e.target.value)
           triggerImmediateAutoSave()
         })
       }
+
+      const offsetStepBtns = row.querySelectorAll('.btn-vid-offset-step')
+      offsetStepBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault()
+          const delta = Number(btn.dataset.delta) || 0
+          const currentOff = Number(currentSong.videos[vIdx]?.offset) || 0
+          const newOff = Math.round((currentOff + delta) * 10) / 10
+          applyVideoOffset(newOff)
+          triggerImmediateAutoSave()
+        })
+      })
       if (testBtn) {
         testBtn.addEventListener('click', async () => {
           const vid = currentSong.videos[vIdx]
@@ -1878,8 +1948,13 @@ export function createSongEditorView({
       btn.addEventListener('click', () => {
         const delta = Number(btn.dataset.seek)
         if (mediaPlayer) {
-          const cur = mediaPlayer.getCurrentTime()
-          mediaPlayer.seek(Math.max(0, cur + delta))
+          if (typeof mediaPlayer.seekLyricsTime === 'function' && typeof mediaPlayer.getLyricsTime === 'function') {
+            const cur = mediaPlayer.getLyricsTime()
+            mediaPlayer.seekLyricsTime(cur + delta)
+          } else if (typeof mediaPlayer.getCurrentTime === 'function') {
+            const cur = mediaPlayer.getCurrentTime()
+            mediaPlayer.seek(Math.max(0, cur + delta))
+          }
         }
       })
     })
@@ -2017,7 +2092,9 @@ export function createSongEditorView({
 
       progressSlider.addEventListener('change', (e) => {
         const val = Number(e.target.value)
-        if (mediaPlayer?.seek) {
+        if (typeof mediaPlayer?.seekLyricsTime === 'function') {
+          mediaPlayer.seekLyricsTime(val)
+        } else if (typeof mediaPlayer?.seek === 'function') {
           mediaPlayer.seek(val)
         }
         isUserSeeking = false

@@ -4344,7 +4344,7 @@ button svg {
 
 .video-config-row {
   display: grid;
-  grid-template-columns: 180px 1fr 140px auto auto;
+  grid-template-columns: 180px 1fr auto auto auto;
   gap: 10px;
   align-items: center;
   background: rgba(255, 255, 255, 0.02);
@@ -4370,8 +4370,27 @@ button svg {
   color: var(--text-muted);
 }
 
+.video-offset-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-vid-offset-step {
+  padding: 3px 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  height: 28px;
+  min-width: 32px;
+  border-radius: var(--radius-sm, 14px);
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .video-offset-wrapper input {
-  width: 70px;
+  width: 65px;
   text-align: center;
 }
 

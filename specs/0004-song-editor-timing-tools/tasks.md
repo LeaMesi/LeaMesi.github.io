@@ -79,6 +79,10 @@
   - Al ingresar al editor desde el Modo Letra o Menú para editar la canción activa, se suprime la pausa automática (`mediaPlayer.pause()`) y se evita la recarga/reinicio de la pista en `mediaPlayer.loadSong(...)`.
   - El editor adapta su interfaz al estado activo: botón de reproducción con icono de pausa, reloj de asistente en vivo (`mm:ss.mmm`), slider posicionado en el tiempo actual y scroll centrado hacia la frase activa.
   - Al entrar al editor, las frases inician con la edición de sílabas cerrada por defecto (`phrase-syllables-panel` colapsado en todas las frases), eliminando ruido visual en pantalla y permitiendo al usuario expandir las sílabas de cualquier verso solo cuando lo desee mediante `.btn-toggle-syllables`.
+- [x] **20.11. Aplicación Fiel de Offset en Videos y Botones de Paso en el Editor:**
+  - Integración completa de `lyricsTime` (`currentTime - offset`) en el reloj maestro del editor, reloj digital del asistente, slider y marcado reactivo de versos y sílabas.
+  - Incorporación de botones de paso fino `-0.1` (`.btn-vid-offset-dec`) y `+0.1` (`.btn-vid-offset-inc`) a la izquierda y derecha de cada input de offset de video en la lista de configuración.
+  - Sincronización bidireccional instantánea: al modificar el offset (tipeando en el input o pulsando los botones `-0.1` / `+0.1`), se invoca `mediaPlayer.setActiveOffset(off)` y se actualizan al vuelo la sílaba y el verso activo marcados en el editor tanto durante la reproducción como en pausa.
 
 ---
 
