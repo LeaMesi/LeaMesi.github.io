@@ -46,6 +46,7 @@ export function createSongEditorView({
   let currentSong = null
   let activeLangIndex = 0
   let expandedLineIndices = new Set()
+  let initialScrollLineIndex = -1
   let statusMessage = ''
   let statusType = 'info' // 'info' | 'success' | 'error'
   let isMetadataOpen = true
@@ -288,7 +289,8 @@ export function createSongEditorView({
         else if (nextIdx === -1) initialActiveLine = lines.length - 1
       }
     }
-    expandedLineIndices = new Set([initialActiveLine])
+    initialScrollLineIndex = initialActiveLine
+    expandedLineIndices = new Set()
 
     statusMessage = loadOptions.initialStatus?.message || ''
     statusType = loadOptions.initialStatus?.type || 'info'
@@ -831,10 +833,10 @@ export function createSongEditorView({
                       ${iconClock} Distribuir Tiempos
                     </button>
                     <button class="btn btn-xs btn-primary btn-add-syllable" data-line-idx="${lineIdx}">
-                      ${iconPlus} Añadir Sílaba
+                      ${iconPlus}
                     </button>
                     <button class="btn btn-xs btn-outline btn-danger-outline btn-clear-line-syllables" data-line-idx="${lineIdx}" title="Borrar todas las sílabas de este verso" ${sylCount === 0 ? 'disabled' : ''}>
-                      ${iconTrash} Borrar Sílabas
+                      ${iconTrash}
                     </button>
                   </div>
                 </div>
@@ -897,13 +899,6 @@ export function createSongEditorView({
 
     containerElement.innerHTML = `
       <div class="song-editor-view-container">
-        ${statusMessage ? `
-          <div class="status-alert status-${statusType}">
-            <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
-            <button type="button" class="btn-close-alert" id="btn-close-editor-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
-          </div>
-        ` : ''}
-
         <!-- Asistente de Audio para Sincronización en Vivo -->
         <div class="editor-audio-assistant">
           <div class="assistant-controls">
@@ -984,6 +979,13 @@ export function createSongEditorView({
             </div>
           </div>
         </div>
+
+        ${statusMessage ? `
+          <div class="status-alert status-${statusType}">
+            <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
+            <button type="button" class="btn-close-alert" id="btn-close-editor-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
+          </div>
+        ` : ''}
 
         <div class="editor-content-scroll">
           <!-- Acordeón de Metadatos y Videos de la Canción -->
@@ -1671,6 +1673,12 @@ export function createSongEditorView({
     if (newScrollEl) {
       if (previousScrollTop > 0) {
         newScrollEl.scrollTop = previousScrollTop
+      } else if (initialScrollLineIndex > 0) {
+        const activeCard = newScrollEl.querySelector(`.phrase-editor-card[data-line-idx="${initialScrollLineIndex}"]`)
+        if (activeCard && typeof activeCard.scrollIntoView === 'function') {
+          activeCard.scrollIntoView({ block: 'center' })
+        }
+        initialScrollLineIndex = -1
       } else if (expandedLineIndices && expandedLineIndices.size === 1) {
         const activeIdx = Array.from(expandedLineIndices)[0]
         if (activeIdx > 0) {
@@ -2648,7 +2656,7 @@ export function createSongEditorView({
 
         activeLang.lines = generatedLines
         activeLang.plain = text
-        expandedLineIndices = new Set([0])
+        expandedLineIndices = new Set()
         isQuickImportModalOpen = false
         render()
         showStatus(`¡Se generaron ${generatedLines.length} versos exitosamente para "${activeLang.name}"!`, 'success')

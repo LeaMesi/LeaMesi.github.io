@@ -842,12 +842,51 @@ describe('views/songEditorView.js', () => {
       editor.clearStatus()
       expect(container.querySelector('.status-alert')).toBeNull()
     })
+
+    it('ubica el cuadro de alerta de estado debajo del controlador de tiempo y antes del contenido con scroll en el header', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong, {
+        initialStatus: { message: 'Mensaje de prueba en cabecera', type: 'info' }
+      })
+
+      const alertEl = container.querySelector('.status-alert')
+      const timeControllerEl = container.querySelector('.editor-audio-assistant')
+      const scrollEl = container.querySelector('.editor-content-scroll')
+
+      expect(alertEl).not.toBeNull()
+      expect(timeControllerEl).not.toBeNull()
+      expect(scrollEl).not.toBeNull()
+
+      // alertEl debe estar posicionado después de timeControllerEl
+      expect(timeControllerEl.compareDocumentPosition(alertEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      // alertEl debe estar posicionado antes de scrollEl (fuera del scroll, en el header fijo)
+      expect(alertEl.compareDocumentPosition(scrollEl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
   })
 
   describe('Resaltado reactivo de verso y sílaba activa en el editor', () => {
+    it('al entrar al editor, las frases tienen la edición de sílabas cerrada por defecto para evitar ruido en pantalla', () => {
+      const editor = createSongEditorView({ containerElement: container })
+      editor.open(sampleSong)
+
+      expect(container.querySelector('.phrase-syllables-panel')).toBeNull()
+      expect(container.querySelectorAll('.syllable-edit-chip').length).toBe(0)
+
+      const toggleBtn = container.querySelector('.btn-toggle-syllables[data-line-idx="0"]')
+      expect(toggleBtn).not.toBeNull()
+      toggleBtn.click()
+
+      expect(container.querySelector('.phrase-syllables-panel')).not.toBeNull()
+      expect(container.querySelectorAll('.syllable-edit-chip').length).toBeGreaterThan(0)
+    })
+
     it('resalta el contenedor del verso y la sílaba actual según el tiempo del asistente', () => {
       const editor = createSongEditorView({ containerElement: container })
       editor.open(sampleSong)
+
+      // Expandir panel de sílabas de la frase 0 para inspeccionar chips
+      const toggleSylBtn = container.querySelector('.btn-toggle-syllables[data-line-idx="0"]')
+      if (toggleSylBtn) toggleSylBtn.click()
 
       const line0 = container.querySelector('.phrase-editor-card[data-line-idx="0"]')
       expect(line0).not.toBeNull()
@@ -880,6 +919,10 @@ describe('views/songEditorView.js', () => {
     it('actualiza el verso y sílaba activa al deslizar la barra de progreso del asistente', () => {
       const editor = createSongEditorView({ containerElement: container })
       editor.open(sampleSong)
+
+      // Expandir panel de sílabas de la frase 0 para inspeccionar chips
+      const toggleSylBtn = container.querySelector('.btn-toggle-syllables[data-line-idx="0"]')
+      if (toggleSylBtn) toggleSylBtn.click()
 
       const progressSlider = container.querySelector('#editor-progress-slider')
       expect(progressSlider).not.toBeNull()

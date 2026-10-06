@@ -3836,6 +3836,11 @@ button svg {
   overflow: hidden;
 }
 
+.song-editor-view-container > .status-alert {
+  margin: 10px 20px 0;
+  flex-shrink: 0;
+}
+
 .editor-header-bar {
   display: flex;
   justify-content: space-between;
@@ -5934,6 +5939,10 @@ button svg {
     order: 3;
     flex: 0 0 auto;
     margin-left: auto;
+  }
+
+  .song-editor-view-container > .status-alert {
+    margin: 8px 10px 0;
   }
 
   .editor-content-scroll {
