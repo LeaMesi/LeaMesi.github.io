@@ -998,7 +998,7 @@ export function createSongEditorView({
 
             <!-- Derecha: Indicador de guardado pegado al extremo derecho -->
             <div class="assistant-right-group">
-              <span class="editor-autosave-badge ${isSaving ? 'is-saving' : ''}" id="editor-autosave-badge" title="Guardado automático activado">
+              <span class="editor-autosave-badge ${isSaving ? 'is-saving' : ''}" id="editor-autosave-badge" title="${isSaving ? 'Guardando...' : 'Guardado'}">
                 <span class="autosave-dot"></span>
                 <span class="autosave-text">${isSaving ? 'Guardando...' : 'Guardado'}</span>
               </span>
@@ -3114,11 +3114,14 @@ export function createSongEditorView({
     badge.classList.remove('is-saving', 'is-error')
     if (state === 'saving') {
       badge.classList.add('is-saving')
+      badge.title = 'Guardando...'
       if (textEl) textEl.textContent = 'Guardando...'
     } else if (state === 'error') {
       badge.classList.add('is-error')
+      badge.title = 'Error al guardar'
       if (textEl) textEl.textContent = 'Error al guardar'
     } else {
+      badge.title = 'Guardado'
       if (textEl) textEl.textContent = 'Guardado'
     }
   }

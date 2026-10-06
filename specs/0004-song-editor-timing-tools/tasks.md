@@ -83,6 +83,10 @@
   - Integración completa de `lyricsTime` (`currentTime - offset`) en el reloj maestro del editor, reloj digital del asistente, slider y marcado reactivo de versos y sílabas.
   - Incorporación de botones de paso fino `-0.1` (`.btn-vid-offset-dec`) y `+0.1` (`.btn-vid-offset-inc`) a la izquierda y derecha de cada input de offset de video en la lista de configuración.
   - Sincronización bidireccional instantánea: al modificar el offset (tipeando en el input o pulsando los botones `-0.1` / `+0.1`), se invoca `mediaPlayer.setActiveOffset(off)` y se actualizan al vuelo la sílaba y el verso activo marcados en el editor tanto durante la reproducción como en pausa.
+- [x] **20.12. Adaptación Responsiva del Asistente de Audio en Pantallas Verticales y Reducidas:**
+  - Corrección de la superposición de elementos en pantallas verticales (`orientation: portrait` o ancho <= 1150px) eliminando el posicionamiento absoluto flotante desbordado de los controles de tiempo.
+  - Reorganización en dos filas fluidas: controles de tiempo (reproducción, saltos relativos, reloj de precisión y botón de prueba en Modo Letra) permanecen arriba en la fila 1 centrados con `position: static`, mientras que la barra de tiempo (volumen y slider interactivo) y el badge de guardado pasan ordenadamente hacia abajo en la fila 2.
+  - En espacios reducidos (ancho <= 520px), ocultamiento dinámico del texto "Guardado" mediante CSS (`display: none`), preservando el punto circular de color del estado (`.autosave-dot`) y tooltip explicativo para garantizar que la barra de progreso cuente con el máximo espacio disponible.
 
 ---
 

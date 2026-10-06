@@ -3913,6 +3913,8 @@ button svg {
   border-bottom: 1px solid var(--panel-border);
   z-index: 10;
   position: relative;
+  container-type: inline-size;
+  container-name: editorAssistant;
 }
 
 .assistant-info {
@@ -3938,6 +3940,7 @@ button svg {
   justify-content: space-between;
   width: 100%;
   gap: 14px;
+  position: relative;
 }
 
 /* Grupo Izquierdo: Volumen (parlante) + Barra de progreso con tiempo */
@@ -3945,9 +3948,9 @@ button svg {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: 1 1 300px;
+  flex: 1 1 260px;
   min-width: 0;
-  max-width: 380px;
+  max-width: 320px;
 }
 
 .editor-volume-wrapper {
@@ -4219,6 +4222,8 @@ button svg {
   user-select: none;
   white-space: nowrap;
   margin-left: auto;
+  border-radius: var(--radius-btn, 9999px);
+  flex-shrink: 0;
   transition: opacity 0.2s ease, color 0.2s ease;
 }
 
@@ -4227,6 +4232,7 @@ button svg {
   height: 7px;
   border-radius: 50%;
   background: #10b981;
+  flex-shrink: 0;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -4250,6 +4256,116 @@ button svg {
 @keyframes autosave-pulse {
   from { opacity: 0.4; transform: scale(0.85); }
   to { opacity: 1; transform: scale(1.15); }
+}
+
+/* ==========================================================================
+   Adaptación Responsiva del Asistente de Audio en Pantallas Verticales / Estrechas
+   Cuando los elementos están por sobreponerse (pantalla vertical o ancho <= 1150px):
+   - Controles de tiempo (botones de reproducción, saltos, reloj y modo letra) se quedan arriba (fila 1, centrados)
+   - Barra de tiempo (volumen + slider + tiempos) y estado de guardado pasan hacia abajo (fila 2)
+   - Si el espacio de abajo es muy pequeño (<= 520px), se esconde el texto "Guardado" y queda solo el punto con color
+   ========================================================================== */
+@media (max-width: 1150px), (orientation: portrait) {
+  .editor-audio-assistant {
+    padding: 8px 16px;
+  }
+
+  .assistant-controls {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 12px;
+  }
+
+  .assistant-center-group {
+    order: 1;
+    width: 100%;
+    position: static;
+    left: auto;
+    transform: none;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .assistant-left-group {
+    order: 2;
+    flex: 1 1 auto;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .assistant-right-group {
+    order: 3;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+}
+
+@container editorAssistant (max-width: 1150px) {
+  .editor-audio-assistant {
+    padding: 8px 16px;
+  }
+
+  .assistant-controls {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 12px;
+  }
+
+  .assistant-center-group {
+    order: 1;
+    width: 100%;
+    position: static;
+    left: auto;
+    transform: none;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .assistant-left-group {
+    order: 2;
+    flex: 1 1 auto;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .assistant-right-group {
+    order: 3;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+}
+
+/* Espacio inferior reducido (<= 520px): ocultar texto de guardado y preservar punto de color */
+@media (max-width: 520px) {
+  .editor-autosave-badge {
+    gap: 0;
+    padding: 4px;
+  }
+
+  .editor-autosave-badge .autosave-text {
+    display: none;
+  }
+
+  .editor-autosave-badge .autosave-dot {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+@container editorAssistant (max-width: 520px) {
+  .editor-autosave-badge {
+    gap: 0;
+    padding: 4px;
+  }
+
+  .editor-autosave-badge .autosave-text {
+    display: none;
+  }
+
+  .editor-autosave-badge .autosave-dot {
+    width: 8px;
+    height: 8px;
+  }
 }
 
 /* Scroll Principal del Editor */
@@ -5944,14 +6060,19 @@ button svg {
 
   .assistant-left-group {
     order: 2;
-    flex: 1 1 200px;
-    max-width: 100%;
+    flex: 1 1 auto;
+    max-width: none;
+    min-width: 0;
   }
 
   .assistant-center-group {
     order: 1;
     width: 100%;
+    position: static;
+    left: auto;
+    transform: none;
     justify-content: center;
+    margin: 0 auto;
   }
 
   .assistant-right-group {
@@ -7740,6 +7861,40 @@ button svg {
     justify-content: center;
     padding: 6px 4px;
     font-size: 0.72rem;
+  }
+
+  /* Asistente de audio del editor compacto en pantallas pequeñas */
+  .assistant-center-group {
+    gap: 4px;
+  }
+
+  .assistant-center-group .btn-seek-rel {
+    padding: 3px 6px;
+    font-size: 0.68rem;
+  }
+
+  .assistant-clock {
+    padding: 3px 6px;
+  }
+
+  .assistant-clock .clock-time {
+    font-size: 0.85rem;
+    min-width: 70px;
+  }
+
+  .btn-assistant-sing {
+    margin-left: 2px;
+    min-width: 28px;
+    padding: 0 6px;
+  }
+
+  .editor-progress-group {
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .editor-time-label {
+    font-size: 0.70rem;
   }
 }
 

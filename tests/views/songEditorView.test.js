@@ -530,13 +530,18 @@ describe('views/songEditorView.js', () => {
   })
 
   describe('Guardado automático en tiempo real', () => {
-    it('muestra el badge de guardado automático en la barra de control', () => {
+    it('muestra el badge de guardado automático en la barra de control con punto, texto y tooltip', () => {
       const editor = createSongEditorView({ containerElement: container })
       editor.open(sampleSong)
 
       const badge = container.querySelector('#editor-autosave-badge')
       expect(badge).not.toBeNull()
-      expect(badge.textContent).toContain('Guardado')
+      expect(badge.getAttribute('title')).toBe('Guardado')
+      const dot = badge.querySelector('.autosave-dot')
+      const text = badge.querySelector('.autosave-text')
+      expect(dot).not.toBeNull()
+      expect(text).not.toBeNull()
+      expect(text.textContent).toBe('Guardado')
     })
 
     it('guarda automáticamente al añadir una frase y llama onSongSaved', async () => {

@@ -848,6 +848,15 @@ Para garantizar un espacio de trabajo despejado y minimizar la sobrecarga cognit
   * `content-visibility: auto; contain-intrinsic-size: ...;` en tarjetas de catálogo para que el motor del navegador omita el layout de las tarjetas fuera de la pantalla.
   * `will-change: transform` en las barras ecualizadoras animadas para aislarlas en capas independientes del compositor.
 
+### 12.7. Adaptación Responsiva del Asistente de Audio del Editor (Pantallas Verticales y Estrechas)
+* **Eliminación de Superposición Absoluta:**
+  * En monitores panorámicos de escritorio (ancho $> 1150\text{px}$ en horizontal), los controles de tiempo se ubican en el centro mediante posicionamiento coordinado sin interferir con la barra de tiempo izquierda ni el estado de guardado derecho.
+  * Al ingresar a pantallas verticales (`orientation: portrait`), ventanas estrechas o anchos $\le 1150\text{px}$, el contenedor `.assistant-controls` activa un layout en dos filas continuas mediante Flexbox y Container Queries (`@container editorAssistant`):
+    1. **Fila Superior (Fila 1):** `.assistant-center-group` adopta `order: 1; width: 100%; position: static; transform: none;`, situando los botones de transporte, saltos temporales (`-5s` a `+5s`), reloj digital `mm:ss.mmm` y botón 'Probar en Modo Letra' en la parte superior perfectamente centrados en flujo normal.
+    2. **Fila Inferior (Fila 2):** `.assistant-left-group` (`order: 2; flex: 1 1 auto;`) y `.assistant-right-group` (`order: 3; margin-left: auto;`) descienden hacia abajo, distribuyendo el botón de volumen y el control deslizante de la barra de progreso a la izquierda, y el badge de guardado a la derecha.
+* **Ocultamiento Progresivo de Texto en Espacios Reducidos:**
+  * Cuando el espacio horizontal de la fila inferior es muy reducido ($\le 520\text{px}$), el texto `'Guardado'` se oculta automáticamente vía CSS (`display: none;`), conservando de manera visible y nítida el punto circular coloreado del estado (`.autosave-dot`) junto a su tooltip (`title`), permitiendo que el control deslizante de tiempo aproveche prácticamente todo el ancho disponible.
+
 ---
 
 ## 13. Arquitectura de Transliteración Fonética Automática a Romaji (Japonés)
