@@ -1,5 +1,4 @@
 import { openDB } from 'idb'
-import { defaultSongs } from '../data/defaultSongs.js'
 import { validateSongPackage } from './schemaValidator.js'
 
 const DB_NAME = 'SarangaDB'
@@ -192,7 +191,8 @@ export async function seedDefaultSongs(dbInstance, { force = false } = {}) {
   // Eliminar canciones por defecto heredadas si estuvieran presentes
   await removeLegacyDefaultSongs(db)
 
-  // Sembrar las nuevas canciones por defecto ("Still Alive" e "Idol")
+  // Sembrar las nuevas canciones por defecto ("Still Alive" e "Idol") de forma perezosa
+  const { defaultSongs } = await import('../data/defaultSongs.js')
   for (const songPkg of defaultSongs) {
     await insertSongPackage(db, songPkg)
   }

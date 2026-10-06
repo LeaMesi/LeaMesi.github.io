@@ -119,7 +119,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
     const loop = () => {
       if (!isPlaying) return
       const currentTime = getCurrentTime()
-      const lyricsTime = getLyricsTime()
+      const lyricsTime = currentTime - activeOffset
       if (onTimeUpdate) onTimeUpdate(currentTime, lyricsTime)
       rafId = requestAnimationFrame(loop)
     }
@@ -419,7 +419,7 @@ export function createMediaPlayer({ containerId, onTimeUpdate, onStateChange, on
       activeVideo.offset = off
     }
     const curTime = getCurrentTime()
-    const lyricsTime = getLyricsTime()
+    const lyricsTime = curTime - activeOffset
     if (onTimeUpdate) {
       onTimeUpdate(curTime, lyricsTime)
     }

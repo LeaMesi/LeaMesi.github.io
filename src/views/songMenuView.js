@@ -12,7 +12,6 @@ import {
   setSongLibraries,
   removeSongFromLibrary
 } from '../services/libraryService.js'
-import { importLyricsfileAsNewSong } from '../services/lyricsfileService.js'
 import { showPrompt, showConfirm } from './customPrompt.js'
 import {
   iconPlus,
@@ -123,11 +122,7 @@ export function createSongMenuView({
     })
   }
 
-  function render() {
-    if (!containerElement) return
-    lastHighlightedSongId = null
-
-    // 1. Filtrar canciones por biblioteca activa
+  function getFilteredSongsData() {
     let candidateSongs = songs
     let activeLibrary = null
 
@@ -140,7 +135,6 @@ export function createSongMenuView({
       }
     }
 
-    // 2. Filtrar por término de búsqueda
     const filtered = candidateSongs.filter(song => {
       if (!filterQuery) return true
       const q = filterQuery.toLowerCase()
@@ -152,11 +146,13 @@ export function createSongMenuView({
       return titleMatch || artistMatch || genreMatch || tagMatch || libMatch
     })
 
-    // 3. Renderizar listado o estado vacío
-    let songsCardsHtml = ''
+    return { candidateSongs, activeLibrary, filtered }
+  }
+
+  function generateSongsCardsHtml(candidateSongs, activeLibrary, filtered) {
     if (filtered.length === 0) {
       if (activeLibraryId !== 'all' && candidateSongs.length === 0 && activeLibrary) {
-        songsCardsHtml = `
+        return `
           <div class="empty-songs-state">
             <div class="empty-icon">${iconFolder}</div>
             <h3>Esta biblioteca aún no tiene canciones</h3>
@@ -167,7 +163,7 @@ export function createSongMenuView({
           </div>
         `
       } else if (songs.length === 0) {
-        songsCardsHtml = `
+        return `
           <div class="empty-songs-state">
             <div class="empty-icon">${iconMusic}</div>
             <h3>Aún no hay canciones en tu biblioteca</h3>
@@ -179,7 +175,7 @@ export function createSongMenuView({
           </div>
         `
       } else {
-        songsCardsHtml = `
+        return `
           <div class="empty-songs-state">
             <div class="empty-icon">${iconSearch}</div>
             <h3>No se encontraron canciones</h3>
@@ -187,126 +183,134 @@ export function createSongMenuView({
           </div>
         `
       }
-    } else {
-      songsCardsHtml = filtered.map(song => {
-        const videos = song.videos || []
-        const langCount = song.lyrics_data?.languages?.length || 1
-        const mainLang = song.lyrics_data?.languages?.find(l => l.isMain)?.name || 'Original'
-        const isActive = areSongIdsEqual(song.id, activeSongId)
-        const activeClass = isActive ? ' is-active-song is-playing' : ''
-        const videosSummary = videos.length === 0
-          ? '<span class="video-pill-empty">Sin videos asociados</span>'
-          : videos.map(v => {
-            const off = Number(v.offset) || 0
-            const offStr = off !== 0 ? ` (${off > 0 ? '+' : ''}${off}s)` : ''
-            return `<span class="video-pill" title="Offset: ${off}s">${escapeHtml(v.name)}${offStr}</span>`
-          }).join('')
+    }
 
-        const libraryBadges = (song.libraries || []).map(l =>
-          `<span class="badge badge-library" title="En biblioteca: ${escapeHtml(l.name)}">${iconFolder} ${escapeHtml(l.name)}</span>`
-        ).join('')
+    return filtered.map(song => {
+      const videos = song.videos || []
+      const langCount = song.lyrics_data?.languages?.length || 1
+      const mainLang = song.lyrics_data?.languages?.find(l => l.isMain)?.name || 'Original'
+      const isActive = areSongIdsEqual(song.id, activeSongId)
+      const activeClass = isActive ? ' is-active-song is-playing' : ''
+      const videosSummary = videos.length === 0
+        ? '<span class="video-pill-empty">Sin videos asociados</span>'
+        : videos.map(v => {
+          const off = Number(v.offset) || 0
+          const offStr = off !== 0 ? ` (${off > 0 ? '+' : ''}${off}s)` : ''
+          return `<span class="video-pill" title="Offset: ${off}s">${escapeHtml(v.name)}${offStr}</span>`
+        }).join('')
 
-        const nowPlayingBarsHtml = `
-          <span class="now-playing-bars" title="En reproducción">
-            <span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span>
-          </span>
-        `
+      const libraryBadges = (song.libraries || []).map(l =>
+        `<span class="badge badge-library" title="En biblioteca: ${escapeHtml(l.name)}">${iconFolder} ${escapeHtml(l.name)}</span>`
+      ).join('')
 
-        if (viewMode === 'list') {
-          return `
-            <article class="song-menu-card song-menu-list-row${activeClass}" data-song-id="${song.id}">
-              <div class="list-col-main">
-                <div class="list-song-icon-wrap" title="${isActive ? 'En reproducción' : 'Canción'}">
-                  ${isActive ? nowPlayingBarsHtml : iconMusic}
-                </div>
-                <div class="list-title-group">
-                  <h3 class="card-title list-card-title">${escapeHtml(song.title)}</h3>
-                  <p class="card-artist list-card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
-                </div>
-              </div>
+      const nowPlayingBarsHtml = `
+        <span class="now-playing-bars" title="En reproducción">
+          <span class="bar bar-1"></span><span class="bar bar-2"></span><span class="bar bar-3"></span>
+        </span>
+      `
 
-              <div class="list-col-meta">
-                <span class="badge badge-lang" title="Idiomas disponibles">${langCount} [${escapeHtml(mainLang)}]</span>
-                ${libraryBadges}
-                ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
-                ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
-              </div>
-
-              <div class="list-col-actions">
-                <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
-                  ${iconFolder}
-                </button>
-                ${activeLibrary ? `
-                  <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
-                    ${iconClose}
-                  </button>
-                ` : ''}
-                <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
-                  ${iconListPlus}
-                </button>
-                <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
-                  ${iconEdit}
-                </button>
-                <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
-                  ${iconTrash}
-                </button>
-                <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                  ${iconMic}
-                </button>
-              </div>
-            </article>
-          `
-        }
-
+      if (viewMode === 'list') {
         return `
-          <article class="song-menu-card${activeClass}" data-song-id="${song.id}">
-            <div class="card-header">
-              <div class="card-title-group">
-                <h3 class="card-title">${escapeHtml(song.title)}</h3>
-                <p class="card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
+          <article class="song-menu-card song-menu-list-row${activeClass}" data-song-id="${song.id}">
+            <div class="list-col-main">
+              <div class="list-song-icon-wrap" title="${isActive ? 'En reproducción' : 'Canción'}">
+                ${isActive ? nowPlayingBarsHtml : iconMusic}
               </div>
-              <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
-                ${iconMic} Modo Letra
+              <div class="list-title-group">
+                <h3 class="card-title list-card-title">${escapeHtml(song.title)}</h3>
+                <p class="card-artist list-card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
+              </div>
+            </div>
+
+            <div class="list-col-meta">
+              <span class="badge badge-lang" title="Idiomas disponibles">${langCount} [${escapeHtml(mainLang)}]</span>
+              ${libraryBadges}
+              ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
+              ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+
+            <div class="list-col-actions">
+              <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
+                ${iconFolder}
               </button>
-            </div>
-
-            <div class="card-meta">
-              <div class="meta-row">
-                <span class="badge badge-lang" title="Idiomas disponibles">${langCount} idioma(s) [${escapeHtml(mainLang)}]</span>
-                ${libraryBadges}
-                ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
-                ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
-              </div>
-            </div>
-
-            <div class="card-footer-actions">
-              <div class="card-now-playing-indicator" style="${isActive ? 'display: inline-flex;' : 'display: none;'}" title="En reproducción">
-                ${nowPlayingBarsHtml}
-              </div>
-              <div class="card-footer-btns">
-                <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
-                  ${iconFolder}
+              ${activeLibrary ? `
+                <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
+                  ${iconClose}
                 </button>
-                ${activeLibrary ? `
-                  <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
-                    ${iconClose}
-                  </button>
-                ` : ''}
-                <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
-                  ${iconListPlus}
-                </button>
-                <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
-                  ${iconEdit}
-                </button>
-                <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
-                  ${iconTrash}
-                </button>
-              </div>
+              ` : ''}
+              <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
+                ${iconListPlus}
+              </button>
+              <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
+                ${iconEdit}
+              </button>
+              <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
+                ${iconTrash}
+              </button>
+              <button class="btn btn-primary btn-sm btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
+                ${iconMic}
+              </button>
             </div>
           </article>
         `
-      }).join('')
-    }
+      }
+
+      return `
+        <article class="song-menu-card${activeClass}" data-song-id="${song.id}">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">${escapeHtml(song.title)}</h3>
+              <p class="card-artist">${escapeHtml(song.artist || 'Artista Desconocido')}</p>
+            </div>
+            <button class="btn btn-primary btn-enter-lyrics" data-song-id="${song.id}" title="${isActive ? 'Ver modo letra de la canción que está sonando' : 'Entrar al modo letra y cantar'}">
+              ${iconMic} Modo Letra
+            </button>
+          </div>
+
+          <div class="card-meta">
+            <div class="meta-row">
+              <span class="badge badge-lang" title="Idiomas disponibles">${langCount} idioma(s) [${escapeHtml(mainLang)}]</span>
+              ${libraryBadges}
+              ${(song.genres || []).slice(0, 2).map(g => `<span class="badge badge-genre">${escapeHtml(g)}</span>`).join('')}
+              ${(song.tags || []).slice(0, 2).map(t => `<span class="badge badge-tag">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="card-footer-actions">
+            <div class="card-now-playing-indicator" style="${isActive ? 'display: inline-flex;' : 'display: none;'}" title="En reproducción">
+              ${nowPlayingBarsHtml}
+            </div>
+            <div class="card-footer-btns">
+              <button class="btn btn-xs btn-outline btn-song-libraries" data-song-id="${song.id}" title="Organizar en bibliotecas">
+                ${iconFolder}
+              </button>
+              ${activeLibrary ? `
+                <button class="btn btn-xs btn-outline btn-remove-from-active-lib" data-song-id="${song.id}" title="Quitar de esta biblioteca">
+                  ${iconClose}
+                </button>
+              ` : ''}
+              <button class="btn btn-xs btn-outline btn-add-playlist" data-song-id="${song.id}" title="Añadir a la lista de reproducción">
+                ${iconListPlus}
+              </button>
+              <button class="btn btn-xs btn-primary-outline btn-edit-song" data-song-id="${song.id}" title="Crear o editar letras, frases, sílabas e idiomas">
+                ${iconEdit}
+              </button>
+              <button class="btn btn-xs btn-outline btn-delete-song" data-song-id="${song.id}" title="Eliminar canción de la base de datos local">
+                ${iconTrash}
+              </button>
+            </div>
+          </div>
+        </article>
+      `
+    }).join('')
+  }
+
+  function render() {
+    if (!containerElement) return
+    lastHighlightedSongId = null
+
+    const { candidateSongs, activeLibrary, filtered } = getFilteredSongsData()
+    const songsCardsHtml = generateSongsCardsHtml(candidateSongs, activeLibrary, filtered)
 
     containerElement.innerHTML = `
       <div class="song-menu-view-container">
@@ -545,6 +549,224 @@ export function createSongMenuView({
     bindEvents()
   }
 
+  function bindSongCardEvents(rootEl) {
+    if (!rootEl) return
+
+    // Botones de estado vacío
+    const viewAllBtn = rootEl.querySelector('.btn-view-all-songs')
+    if (viewAllBtn) {
+      viewAllBtn.addEventListener('click', () => {
+        activeLibraryId = 'all'
+        render()
+      })
+    }
+
+    const searchBlEmptyBtn = rootEl.querySelector('.btn-search-bl-empty')
+    if (searchBlEmptyBtn) {
+      searchBlEmptyBtn.addEventListener('click', () => {
+        const onOnlineSearch = onSearchOnlineLyrics || onSearchBetterLyrics
+        if (onOnlineSearch) onOnlineSearch()
+      })
+    }
+
+    const openImportBtn = rootEl.querySelector('.btn-open-import')
+    if (openImportBtn) {
+      openImportBtn.addEventListener('click', () => {
+        isImportOpen = true
+        render()
+      })
+    }
+
+    // Botones + Playlist en cada tarjeta / fila de canción
+    const addPlBtns = rootEl.querySelectorAll('.btn-add-playlist')
+    addPlBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const songId = Number(btn.dataset.songId)
+        const targetSong = songs.find(s => Number(s.id) === songId)
+        if (targetSong && onAddToPlaylist) {
+          const added = onAddToPlaylist(targetSong)
+          if (added !== false) {
+            btn.innerHTML = `${iconCheck}`
+            btn.classList.add('is-added')
+            setTimeout(() => {
+              btn.innerHTML = `${iconListPlus}`
+              btn.classList.remove('is-added')
+            }, 1400)
+            showStatus(`"${targetSong.title}" añadida a la lista de reproducción.`, 'success')
+          } else {
+            showStatus(`"${targetSong.title}" ya está en la lista de reproducción.`, 'info')
+          }
+        }
+      })
+    })
+
+    // Quitar de biblioteca activa directamente desde la tarjeta
+    const removeFromLibButtons = rootEl.querySelectorAll('.btn-remove-from-active-lib')
+    removeFromLibButtons.forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation()
+        const songId = Number(btn.dataset.songId)
+        const targetSong = songs.find(s => Number(s.id) === songId)
+        const targetLib = libraries.find(l => Number(l.id) === Number(activeLibraryId))
+        if (!targetSong || !targetLib) return
+
+        const confirmed = await showConfirm({
+          title: 'Quitar Canción de Biblioteca',
+          message: `¿Quitar "${targetSong.title}" de la biblioteca "${targetLib.name}"?`,
+          confirmText: 'Quitar',
+          isDestructive: true
+        })
+        if (confirmed) {
+          try {
+            await removeSongFromLibrary(songId, targetLib.id)
+            showStatus(`Canción quitada de "${targetLib.name}".`, 'info')
+            await loadData()
+          } catch (err) {
+            showStatus('Error al quitar de biblioteca: ' + err.message, 'error')
+          }
+        }
+      })
+    })
+
+    // Abrir Modal de Organizar en Bibliotecas
+    const songLibsButtons = rootEl.querySelectorAll('.btn-song-libraries')
+    songLibsButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const songId = Number(btn.dataset.songId)
+        const targetSong = songs.find(s => Number(s.id) === songId)
+        if (targetSong) {
+          const currentIds = (targetSong.libraries || []).map(l => Number(l.id))
+          editingSongLibraries = {
+            song: targetSong,
+            selectedIds: new Set(currentIds)
+          }
+          render()
+        }
+      })
+    })
+
+    // Entrar a Modo Letra
+    const enterButtons = rootEl.querySelectorAll('.btn-enter-lyrics')
+    enterButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const songId = Number(btn.dataset.songId)
+        if (onEnterLyricsMode) onEnterLyricsMode(songId)
+      })
+    })
+
+    // Click en la tarjeta para entrar a Modo Letra
+    const cards = rootEl.querySelectorAll('.song-menu-card')
+    cards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('button') || e.target.closest('input')) return
+        const songId = Number(card.dataset.songId)
+        if (onEnterLyricsMode) onEnterLyricsMode(songId)
+      })
+    })
+
+    // Editar letra y canción
+    const editButtons = rootEl.querySelectorAll('.btn-edit-song')
+    editButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const songId = Number(btn.dataset.songId)
+        const target = songs.find(s => Number(s.id) === songId)
+        if (target && onEditSong) {
+          onEditSong(target)
+        }
+      })
+    })
+
+    // Gestionar videos
+    const manageButtons = rootEl.querySelectorAll('.btn-manage-videos')
+    manageButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const songId = Number(btn.dataset.songId)
+        const target = songs.find(s => Number(s.id) === songId)
+        if (target && onManageVideos) {
+          onManageVideos(target)
+        }
+      })
+    })
+
+    // Eliminar canción
+    const deleteButtons = rootEl.querySelectorAll('.btn-delete-song')
+    deleteButtons.forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation()
+        const songId = Number(btn.dataset.songId)
+        const target = songs.find(s => Number(s.id) === songId)
+        const confirmed = await showConfirm({
+          title: 'Eliminar Canción',
+          message: `¿Seguro que deseas eliminar "${target ? target.title : 'esta canción'}" de tu base de datos local?`,
+          confirmText: 'Eliminar',
+          isDestructive: true
+        })
+        if (confirmed) {
+          try {
+            await deleteSong(songId)
+            if (activeSongId === songId) activeSongId = null
+            if (onDeleteSong) {
+              await onDeleteSong(songId)
+            }
+            showStatus('Canción eliminada correctamente.', 'info')
+            await loadData()
+          } catch (err) {
+            showStatus('Error al eliminar canción: ' + err.message, 'error')
+          }
+        }
+      })
+    })
+  }
+
+  function renderSongCardsOnly() {
+    if (!containerElement) return
+    const gridEl = containerElement.querySelector('.song-cards-grid')
+    if (!gridEl) {
+      render()
+      return
+    }
+
+    const { candidateSongs, activeLibrary, filtered } = getFilteredSongsData()
+    const songsCardsHtml = generateSongsCardsHtml(candidateSongs, activeLibrary, filtered)
+    gridEl.innerHTML = songsCardsHtml
+
+    const countBadge = containerElement.querySelector('.song-count-badge')
+    if (countBadge) {
+      countBadge.textContent = `${filtered.length} de ${candidateSongs.length} canción(es)`
+    }
+
+    const inputWrapper = containerElement.querySelector('.search-input-wrapper')
+    let clearBtn = containerElement.querySelector('#btn-clear-search')
+    if (filterQuery) {
+      if (!clearBtn && inputWrapper) {
+        clearBtn = document.createElement('button')
+        clearBtn.className = 'btn-clear-search'
+        clearBtn.id = 'btn-clear-search'
+        clearBtn.innerHTML = iconClose
+        clearBtn.addEventListener('click', () => {
+          filterQuery = ''
+          const sInput = containerElement.querySelector('#song-search-input')
+          if (sInput) {
+            sInput.value = ''
+            sInput.focus()
+          }
+          renderSongCardsOnly()
+        })
+        inputWrapper.appendChild(clearBtn)
+      }
+    } else if (clearBtn) {
+      clearBtn.remove()
+    }
+
+    bindSongCardEvents(gridEl)
+    updateActiveSongHighlight()
+  }
+
   function bindEvents() {
     // Cerrar aviso de estado
     const closeAlertBtn = containerElement.querySelector('#btn-close-menu-alert')
@@ -645,29 +867,6 @@ export function createSongMenuView({
       })
     })
 
-    // Botones + Playlist en cada tarjeta / fila de canción
-    const addPlBtns = containerElement.querySelectorAll('.btn-add-playlist')
-    addPlBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        const targetSong = songs.find(s => Number(s.id) === songId)
-        if (targetSong && onAddToPlaylist) {
-          const added = onAddToPlaylist(targetSong)
-          if (added !== false) {
-            btn.innerHTML = `${iconCheck}`
-            btn.classList.add('is-added')
-            setTimeout(() => {
-              btn.innerHTML = `${iconListPlus}`
-              btn.classList.remove('is-added')
-            }, 1400)
-            showStatus(`"${targetSong.title}" añadida a la lista de reproducción.`, 'success')
-          } else {
-            showStatus(`"${targetSong.title}" ya está en la lista de reproducción.`, 'info')
-          }
-        }
-      })
-    })
 
     // Renombrar Biblioteca Activa
     const renameLibBtn = containerElement.querySelector('#btn-rename-active-library')
@@ -733,51 +932,6 @@ export function createSongMenuView({
       })
     }
 
-    // Quitar de biblioteca activa directamente desde la tarjeta
-    const removeFromLibButtons = containerElement.querySelectorAll('.btn-remove-from-active-lib')
-    removeFromLibButtons.forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        const targetSong = songs.find(s => Number(s.id) === songId)
-        const targetLib = libraries.find(l => Number(l.id) === Number(activeLibraryId))
-        if (!targetSong || !targetLib) return
-
-        const confirmed = await showConfirm({
-          title: 'Quitar Canción de Biblioteca',
-          message: `¿Quitar "${targetSong.title}" de la biblioteca "${targetLib.name}"?`,
-          confirmText: 'Quitar',
-          isDestructive: true
-        })
-        if (confirmed) {
-          try {
-            await removeSongFromLibrary(songId, targetLib.id)
-            showStatus(`Canción quitada de "${targetLib.name}".`, 'info')
-            await loadData()
-          } catch (err) {
-            showStatus('Error al quitar de biblioteca: ' + err.message, 'error')
-          }
-        }
-      })
-    })
-
-    // Abrir Modal de Organizar en Bibliotecas
-    const songLibsButtons = containerElement.querySelectorAll('.btn-song-libraries')
-    songLibsButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        const targetSong = songs.find(s => Number(s.id) === songId)
-        if (targetSong) {
-          const currentIds = (targetSong.libraries || []).map(l => Number(l.id))
-          editingSongLibraries = {
-            song: targetSong,
-            selectedIds: new Set(currentIds)
-          }
-          render()
-        }
-      })
-    })
 
     // Eventos dentro del Modal de Organizar en Bibliotecas
     if (editingSongLibraries) {
@@ -898,17 +1052,12 @@ export function createSongMenuView({
       })
     }
 
-    // Buscador
+    // Buscador interactivo optimizado: actualiza únicamente las tarjetas sin destruir el input ni el DOM
     const searchInput = containerElement.querySelector('#song-search-input')
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         filterQuery = e.target.value
-        render()
-        const newSearch = containerElement.querySelector('#song-search-input')
-        if (newSearch) {
-          newSearch.focus()
-          newSearch.selectionStart = newSearch.selectionEnd = newSearch.value.length
-        }
+        renderSongCardsOnly()
       })
     }
 
@@ -916,7 +1065,12 @@ export function createSongMenuView({
     if (clearSearchBtn) {
       clearSearchBtn.addEventListener('click', () => {
         filterQuery = ''
-        render()
+        const sInput = containerElement.querySelector('#song-search-input')
+        if (sInput) {
+          sInput.value = ''
+          sInput.focus()
+        }
+        renderSongCardsOnly()
       })
     }
 
@@ -931,80 +1085,8 @@ export function createSongMenuView({
       btnList.addEventListener('click', () => setViewMode('list'))
     }
 
-    // Entrar a Modo Letra
-    const enterButtons = containerElement.querySelectorAll('.btn-enter-lyrics')
-    enterButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        if (onEnterLyricsMode) onEnterLyricsMode(songId)
-      })
-    })
-
-    // Click en la tarjeta para entrar a Modo Letra
-    const cards = containerElement.querySelectorAll('.song-menu-card')
-    cards.forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('button') || e.target.closest('input')) return
-        const songId = Number(card.dataset.songId)
-        if (onEnterLyricsMode) onEnterLyricsMode(songId)
-      })
-    })
-
-    // Editar letra y canción
-    const editButtons = containerElement.querySelectorAll('.btn-edit-song')
-    editButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        const target = songs.find(s => Number(s.id) === songId)
-        if (target && onEditSong) {
-          onEditSong(target)
-        }
-      })
-    })
-
-    // Gestionar videos
-    const manageButtons = containerElement.querySelectorAll('.btn-manage-videos')
-    manageButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        const target = songs.find(s => Number(s.id) === songId)
-        if (target && onManageVideos) {
-          onManageVideos(target)
-        }
-      })
-    })
-
-    // Eliminar canción
-    const deleteButtons = containerElement.querySelectorAll('.btn-delete-song')
-    deleteButtons.forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation()
-        const songId = Number(btn.dataset.songId)
-        const target = songs.find(s => Number(s.id) === songId)
-        const confirmed = await showConfirm({
-          title: 'Eliminar Canción',
-          message: `¿Seguro que deseas eliminar "${target ? target.title : 'esta canción'}" de tu base de datos local?`,
-          confirmText: 'Eliminar',
-          isDestructive: true
-        })
-        if (confirmed) {
-          try {
-            await deleteSong(songId)
-            if (activeSongId === songId) activeSongId = null
-            if (onDeleteSong) {
-              await onDeleteSong(songId)
-            }
-            showStatus('Canción eliminada correctamente.', 'info')
-            await loadData()
-          } catch (err) {
-            showStatus('Error al eliminar canción: ' + err.message, 'error')
-          }
-        }
-      })
-    })
+    // Vincular eventos de las tarjetas de canciones
+    bindSongCardEvents(containerElement.querySelector('.song-cards-grid'))
 
     // Respaldo completo
     const backupBtn = containerElement.querySelector('#btn-menu-backup')

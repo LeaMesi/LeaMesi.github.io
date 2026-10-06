@@ -1,4 +1,4 @@
-import { findActiveLineIndex, evaluateSyllablesState, findMatchingTranslationLine } from '../lyrics/sync.js'
+import { findActiveLineIndex, findMatchingTranslationLine } from '../lyrics/sync.js'
 import { applyTheme, applySongTheme, isCustomSongThemeActive } from '../services/themeService.js'
 
 export function createBasicViewer(containerElement, options = {}) {
@@ -404,12 +404,18 @@ export function createBasicViewer(containerElement, options = {}) {
       renderStage(newIndex)
     }
 
-    // Actualizar resaltado de sílabas en tiempo real en todos los elementos del verso activo
+    // Actualizar resaltado de sílabas en tiempo real en todos los elementos del verso activo (cero asignaciones para evitar GC churn)
     const activeLine = currentLines[renderedActiveIndex]
     if (activeLine && Array.isArray(activeLine.syllables) && activeLine.syllables.length > 0) {
-      const states = evaluateSyllablesState(activeLine.syllables, currentTime)
-      for (let sIdx = 0; sIdx < states.length; sIdx++) {
-        const stateName = states[sIdx].state
+      const syls = activeLine.syllables
+      for (let sIdx = 0; sIdx < syls.length; sIdx++) {
+        const syl = syls[sIdx]
+        const start = syl.startTime
+        const end = start + syl.duration
+        const stateName = (currentTime >= end)
+          ? 'completed'
+          : (currentTime >= start ? 'active' : 'upcoming')
+
         // Solo actualizar el DOM si el estado de esta sílaba cambió (dirty checking)
         if (previousSyllableStates[sIdx] !== stateName) {
           previousSyllableStates[sIdx] = stateName

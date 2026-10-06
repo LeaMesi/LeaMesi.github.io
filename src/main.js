@@ -150,6 +150,9 @@ async function initApp() {
   const playlistService = createPlaylistService()
 
   // 4. Inicializar Reproductor Multimedia (Master Clock)
+  let lastMenuClockUpdate = 0
+  let lastMenuClockTime = -1
+
   const mediaPlayer = createMediaPlayer({
     containerId: 'youtube-player-container',
     onTimeUpdate: (currentTime, lyricsTime) => {
@@ -157,7 +160,12 @@ async function initApp() {
         controlsView?.setTime(currentTime)
         basicViewer.updateTime(lyricsTime !== undefined ? lyricsTime : mediaPlayer.getLyricsTime())
       } else if (currentScreen === 'menu') {
-        floatingPlayerView?.setTime(currentTime)
+        const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()
+        if (now - lastMenuClockUpdate >= 200 || Math.abs(currentTime - lastMenuClockTime) >= 0.5) {
+          lastMenuClockUpdate = now
+          lastMenuClockTime = currentTime
+          floatingPlayerView?.setTime(currentTime)
+        }
       } else if (currentScreen === 'editor') {
         const timeToUse = lyricsTime !== undefined ? lyricsTime : (mediaPlayer.getLyricsTime ? mediaPlayer.getLyricsTime() : currentTime)
         songEditorInstance?.updateClock(timeToUse)
