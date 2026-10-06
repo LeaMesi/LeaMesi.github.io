@@ -142,7 +142,6 @@ export function createPlaylistModal({
               ${iconListMusic} Lista de Reproducción
               <span class="playlist-count-pill">${count} ${count === 1 ? 'canción' : 'canciones'}</span>
             </h2>
-            <p class="subtitle">Gestiona la cola de reproducción sin interrumpir la música actual.</p>
           </div>
           <button class="btn-close-modal" id="btn-close-playlist-modal" title="Cerrar lista de reproducción">${iconClose}</button>
         </header>

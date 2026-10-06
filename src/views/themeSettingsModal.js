@@ -306,7 +306,6 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <div class="color-picker-card">
                 <div class="color-card-info">
                   <span class="color-card-name">Color de fondo</span>
-                  <span class="color-card-hint">Fondo general y visor</span>
                 </div>
                 <div class="color-picker-input-group">
                   <input type="color" class="color-swatch-input" id="picker-bg-color" value="${currentSettings.bgColor}" />
@@ -318,7 +317,6 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <div class="color-picker-card">
                 <div class="color-card-info">
                   <span class="color-card-name">Barras y paneles</span>
-                  <span class="color-card-hint">Encabezado, dock y tarjetas</span>
                 </div>
                 <div class="color-picker-input-group">
                   <input type="color" class="color-swatch-input" id="picker-panel-bg" value="${currentSettings.panelBg}" />
@@ -330,7 +328,6 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <div class="color-picker-card">
                 <div class="color-card-info">
                   <span class="color-card-name">Botones y acentos</span>
-                  <span class="color-card-hint">Botones principales y foco</span>
                 </div>
                 <div class="color-picker-input-group">
                   <input type="color" class="color-swatch-input" id="picker-primary-color" value="${currentSettings.primaryColor}" />
@@ -342,7 +339,6 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <div class="color-picker-card">
                 <div class="color-card-info">
                   <span class="color-card-name">Texto de interfaz</span>
-                  <span class="color-card-hint">Títulos, etiquetas y menús</span>
                 </div>
                 <div class="color-picker-input-group">
                   <input type="color" class="color-swatch-input" id="picker-text-main" value="${currentSettings.textMain}" />
@@ -434,8 +430,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Fila 1: Letra Original -->
               <div class="lyric-style-card">
                 <div class="lyric-style-title-col">
-                  <strong>Letra Original</strong>
-                  <span class="lyric-style-desc">Texto cantado en la frase</span>
+                  <strong>Letra original</strong>
                 </div>
                 <div class="lyric-style-color-col">
                   <input type="color" class="color-swatch-input" id="picker-orig-color" value="${currentSettings.originalColor}" />
@@ -456,8 +451,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Fila 2: Texto Alternativo (Romaji/Fonetismo) -->
               <div class="lyric-style-card">
                 <div class="lyric-style-title-col">
-                  <strong>Texto Alternativo (Romaji)</strong>
-                  <span class="lyric-style-desc">Transcripción fonética sincronizada</span>
+                  <strong>Texto alternativo (romaji)</strong>
                 </div>
                 <div class="lyric-style-color-col">
                   <input type="color" class="color-swatch-input" id="picker-alt-color" value="${currentSettings.altColor || '#a5f3fc'}" />
@@ -479,7 +473,6 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <div class="lyric-style-card">
                 <div class="lyric-style-title-col">
                   <strong>Traducción</strong>
-                  <span class="lyric-style-desc">Subtítulo secundario sincronizado</span>
                 </div>
                 <div class="lyric-style-color-col">
                   <input type="color" class="color-swatch-input" id="picker-trans-color" value="${currentSettings.translationColor}" />
@@ -500,8 +493,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Fila 3: Sílaba Activa (Resaltada) -->
               <div class="lyric-style-card is-highlight-card">
                 <div class="lyric-style-title-col">
-                  <strong>Sílaba Activa (Resaltada)</strong>
-                  <span class="lyric-style-desc">Color y resplandor al cantar</span>
+                  <strong>Sílaba activa (resaltada)</strong>
                 </div>
                 <div class="lyric-style-color-col">
                   <input type="color" class="color-swatch-input" id="picker-active-color" value="${currentSettings.activeColor}" />
@@ -526,8 +518,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Fila 4: Sílabas Anteriores (Cantadas) -->
               <div class="lyric-style-card">
                 <div class="lyric-style-title-col">
-                  <strong>Sílabas Anteriores</strong>
-                  <span class="lyric-style-desc">Color de las sílabas ya cantadas</span>
+                  <strong>Sílabas anteriores</strong>
                 </div>
                 <div class="lyric-style-color-col">
                   <input type="color" class="color-swatch-input" id="picker-completed-color" value="${currentSettings.completedColor || '#f59e0b'}" />
@@ -558,7 +549,6 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <div class="color-picker-card">
                 <div class="color-card-info">
                   <span class="color-card-name">Aviso de éxito</span>
-                  <span class="color-card-hint">Respaldos, guardado e importaciones</span>
                 </div>
                 <div class="color-picker-input-group">
                   <input type="color" class="color-swatch-input" id="picker-alert-success" value="${currentSettings.alertSuccessColor || '#22c55e'}" />
@@ -570,7 +560,6 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <div class="color-picker-card">
                 <div class="color-card-info">
                   <span class="color-card-name">Aviso informativo</span>
-                  <span class="color-card-hint">Notas de estado y avisos del sistema</span>
                 </div>
                 <div class="color-picker-input-group">
                   <input type="color" class="color-swatch-input" id="picker-alert-info" value="${currentSettings.alertInfoColor || '#38bdf8'}" />
@@ -582,7 +571,6 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <div class="color-picker-card">
                 <div class="color-card-info">
                   <span class="color-card-name">Alerta de error</span>
-                  <span class="color-card-hint">Advertencias y fallos de importación</span>
                 </div>
                 <div class="color-picker-input-group">
                   <input type="color" class="color-swatch-input" id="picker-alert-error" value="${currentSettings.alertErrorColor || '#ef4444'}" />

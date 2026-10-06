@@ -1,7 +1,7 @@
 # Diseño Técnico y Arquitectura: SarangaBaranga (`proy-letras`)
 
 > **Arquitectura del Sistema y Patrones de Software**  
-> **Versión:** 2.8.0  
+> **Versión:** 2.8.1  
 > **Plataforma:** SPA Estática (GitHub Pages / `usuario.github.io`) + Persistencia Local en Navegador (IndexedDB), Sistema de Bibliotecas y Playlists, Intercambio JSON & Compatibilidad con Estándar Abierto `lyricsfile` (.lyricsfile.yaml)
 
 ---
@@ -510,12 +510,18 @@ La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj M
 * **Detección de Contexto de Tipeo (`isTypingContext`):** Si el foco se encuentra en un campo de texto editable (`<input type="text|search|url|number">`, `<textarea>` o elemento con `contenteditable`), la barra espaciadora no interfiere ni pausa la música, permitiendo tipear espacios normalmente. Al no estar en un campo de texto, se ejecuta `preventDefault()` para evitar el desplazamiento vertical de la ventana y la pulsación accidental de botones previamente enfocados.
 * **Configuración del Salto:** Selector configurable integrado en el menú de configuración de Modo Letra (`controls-settings-popover` en `controlsView.js`), con opciones de 1s, 2s, 3s, 5s, 10s, 15s y 30s (5s por defecto). Persiste en `localStorage` (`saranga_seek_step`).
 
-### 3.8. Servicio de Traducción Automática Gratuita (Zero-Backend): Unison & MyMemory (`src/services/translationService.js`)
+### 4.4. Servicio de Traducción Automática Gratuita (Zero-Backend): Unison & MyMemory (`src/services/translationService.js`)
 Para posibilitar la traducción instantánea de canciones completas y versos individuales sin costos operativos ni servidores intermediarios, SarangaBaranga implementa una arquitectura de traducción en cascada:
 1. **Traducción por Lotes con Unison API (`POST https://unison.boidu.dev/translate`):** Envía las líneas con contenido en una única solicitud HTTP JSON (`{ lines: string[], to: targetLang }`), traduciendo decenas de versos de forma instantánea y detectando el idioma de origen automáticamente.
 2. **Fallback Neuronal con MyMemory API (`https://api.mymemory.translated.net/get`):** Si Unison responde con error (ej. HTTP 502) o se traducen idiomas como japonés (`ja`), el servicio recurre de forma transparente a la API neuronal de MyMemory, procesando las frases en paralelo controlado (bloques de 4 líneas) con clave de cortesía para una cuota de hasta 50,000 palabras diarias gratuitas.
 3. **Preservación Estricta de Pausas Instrumentales:** Las líneas en blanco o instrumentales no se envían a las APIs de traducción (evitando errores 502 y consumo innecesario de cuota) y se reinsertan vacías en sus posiciones originales exactas, blindando la sincronización de compases.
 4. **Decodificación de Entidades HTML:** Saneamiento universal (`decodeHtmlEntities`) para eliminar caracteres codificados devueltos por traductores automáticos (`&#39;`, `&quot;`, `&amp;`, etc.).
+
+### 4.5. Optimización del Master Clock y Rendimiento Móvil
+Para garantizar fluidez y maximizar la duración de batería en dispositivos móviles:
+* **Throttling en Pantalla de Catálogo:** Cuando la vista activa es el menú de canciones (`currentScreen === 'menu'`), las emisiones de tiempo hacia el minireproductor flotante se limitan a 5 Hz (cada 200ms o saltos $\ge 0.5\text{s}$), evitando recalcular y manipular el DOM a 60/120 Hz mientras el usuario explora su música.
+* **Cálculo Directo de Tiempo Lírico:** En el bucle `requestAnimationFrame` de `mediaPlayer.js`, el cálculo se realiza directamente como `lyricsTime = currentTime - activeOffset`, erradicando llamadas redundantes a métodos de consulta en cada frame.
+* **Evaluación Silábica Zero-GC en `basicViewer.js`:** La actualización visual de sílabas activas y cantadas se ejecuta mediante bucle numérico con *dirty checking* contra los estados previos (`previousSyllableStates`), prescindiendo de instanciar nuevos objetos y eliminando el trabajo del Garbage Collector.
 
 En ambos orígenes de audio, el **Sincronizador de Letras** consume un único valor normalizado: `currentTime` en segundos.
 
@@ -683,6 +689,9 @@ Para permitir que canciones individuales cuenten con una atmósfera estética o 
 * **Ciclo de Vida de Aplicación en Tiempo Real (`main.js`):**
   * Al transicionar a **Modo Letra** (`showLyricsScreen`), la aplicación evalúa si la canción activa cuenta con `customTheme` y si `enableSongThemes` está activo, llamando a `applySongTheme(customTheme)`.
   * Al salir de Modo Letra (navegando al **Menú de Canciones** o al **Editor**), el sistema invoca de forma determinista `restoreGlobalTheme()`, garantizando que la navegación general preserve el tema global del usuario.
+
+### 8.7. Depuración Visual y Jerarquía Tipográfica (*Sentence Casing*)
+Tanto en el modal de temas globales (`themeSettingsModal.js`) como en la sección de temas propios de la canción en el editor (`songEditorView.js`), la interfaz prescinde de textos explicativos y descripciones redundantes (`.color-card-hint`, `.lyric-style-desc`), optimizando la altura y legibilidad. Las etiquetas adoptan una capitalización estándar en minúsculas (*sentence casing*: "Letra original", "Texto alternativo (romaji)", "Sílaba activa (resaltada)", "Sílabas anteriores", "Aviso de éxito", "Aviso informativo", "Alerta de error").
 
 ---
 

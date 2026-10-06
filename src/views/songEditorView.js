@@ -1074,7 +1074,7 @@ export function createSongEditorView({
               <div class="videos-management-block">
                 <div class="block-header">
                   <h4>Videos de YouTube / YouTube Music y Offsets</h4>
-                  <button class="btn btn-xs btn-outline" id="btn-add-new-video">${iconPlus} Asociar Otro Video</button>
+                  <button class="btn btn-xs btn-outline" id="btn-add-new-video">${iconPlus} Agregar fuente</button>
                 </div>
                 <div class="videos-list-container">
                   ${videosListHtml}
@@ -1157,14 +1157,12 @@ export function createSongEditorView({
                 <!-- 2. Colores de la Interfaz (4 Colores Base) -->
                 <div class="theme-section" style="margin-bottom: 18px;">
                   <div class="theme-section-header" style="margin-bottom: 10px;">
-                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">1. Colores de la Interfaz (4 Colores Base)</h4>
-                    <p class="theme-section-desc" style="font-size: 0.78rem; margin: 0;">Colores para fondo, barras, botones y textos en esta canción.</p>
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">Colores de la interfaz (4 Colores Base)</h4>
                   </div>
                   <div class="theme-colors-grid">
                     <div class="color-picker-card">
                       <div class="color-card-info">
-                        <span class="color-card-name">Color de Fondo</span>
-                        <span class="color-card-hint">Fondo del visor</span>
+                        <span class="color-card-name">Color de fondo</span>
                       </div>
                       <div class="color-picker-input-group">
                         <input type="color" class="color-swatch-input" id="picker-song-bg-color" value="${effectiveSongTheme.bgColor}" />
@@ -1173,8 +1171,7 @@ export function createSongEditorView({
                     </div>
                     <div class="color-picker-card">
                       <div class="color-card-info">
-                        <span class="color-card-name">Barras y Paneles</span>
-                        <span class="color-card-hint">Encabezado y dock</span>
+                        <span class="color-card-name">Barras y paneles</span>
                       </div>
                       <div class="color-picker-input-group">
                         <input type="color" class="color-swatch-input" id="picker-song-panel-bg" value="${effectiveSongTheme.panelBg}" />
@@ -1183,8 +1180,7 @@ export function createSongEditorView({
                     </div>
                     <div class="color-picker-card">
                       <div class="color-card-info">
-                        <span class="color-card-name">Botones y Acentos</span>
-                        <span class="color-card-hint">Botones y foco</span>
+                        <span class="color-card-name">Botones y acentos</span>
                       </div>
                       <div class="color-picker-input-group">
                         <input type="color" class="color-swatch-input" id="picker-song-primary-color" value="${effectiveSongTheme.primaryColor}" />
@@ -1194,7 +1190,6 @@ export function createSongEditorView({
                     <div class="color-picker-card">
                       <div class="color-card-info">
                         <span class="color-card-name">Texto de Interfaz</span>
-                        <span class="color-card-hint">Títulos y menús</span>
                       </div>
                       <div class="color-picker-input-group">
                         <input type="color" class="color-swatch-input" id="picker-song-text-main" value="${effectiveSongTheme.textMain}" />
@@ -1207,13 +1202,12 @@ export function createSongEditorView({
                 <!-- 3. Tamaño de Letras en Modo Canción -->
                 <div class="theme-section" style="margin-bottom: 18px;">
                   <div class="theme-section-header" style="margin-bottom: 10px;">
-                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">2. Tamaño de Letras en Modo Canción (50% a 200%)</h4>
-                    <p class="theme-section-desc" style="font-size: 0.78rem; margin: 0;">Escala visual de la letra original, traducciones y Romaji.</p>
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">Tamaño de letras en modo canción</h4>
                   </div>
                   <div class="sliders-grid">
                     <div class="slider-control-card">
                       <div class="slider-header-row">
-                        <label for="slider-song-lyrics-scale" class="slider-label">Letra Original:</label>
+                        <label for="slider-song-lyrics-scale" class="slider-label">Letra original:</label>
                         <span class="slider-value-badge" id="badge-song-lyrics-scale">${effectiveSongTheme.lyricsScale}%</span>
                       </div>
                       <div class="slider-input-wrapper">
@@ -1235,7 +1229,7 @@ export function createSongEditorView({
                     </div>
                     <div class="slider-control-card">
                       <div class="slider-header-row">
-                        <label for="slider-song-alt-scale" class="slider-label">Texto Alternativo (Romaji):</label>
+                        <label for="slider-song-alt-scale" class="slider-label">Texto alternativo (romaji):</label>
                         <span class="slider-value-badge" id="badge-song-alt-scale">${effectiveSongTheme.altScale || 100}%</span>
                       </div>
                       <div class="slider-input-wrapper">
@@ -1250,14 +1244,12 @@ export function createSongEditorView({
                 <!-- 4. Colores y Estilos Tipográficos de Letras -->
                 <div class="theme-section" style="margin-bottom: 18px;">
                   <div class="theme-section-header" style="margin-bottom: 10px;">
-                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">3. Colores y Efectos de la Letra y Canto</h4>
-                    <p class="theme-section-desc" style="font-size: 0.78rem; margin: 0;">Colores, pesos, cursivas y efectos de resplandor para las letras.</p>
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">Colores y efectos de la letra y canto</h4>
                   </div>
                   <div class="lyrics-style-cards-grid">
                     <div class="lyric-style-card">
                       <div class="lyric-style-title-col">
                         <strong>Letra Original</strong>
-                        <span class="lyric-style-desc">Texto cantado principal</span>
                       </div>
                       <div class="lyric-style-color-col">
                         <input type="color" class="color-swatch-input" id="picker-song-orig-color" value="${effectiveSongTheme.originalColor}" />
@@ -1277,8 +1269,7 @@ export function createSongEditorView({
 
                     <div class="lyric-style-card">
                       <div class="lyric-style-title-col">
-                        <strong>Texto Alternativo (Romaji)</strong>
-                        <span class="lyric-style-desc">Transcripción fonética</span>
+                        <strong>Texto alternativo (romaji)</strong>
                       </div>
                       <div class="lyric-style-color-col">
                         <input type="color" class="color-swatch-input" id="picker-song-alt-color" value="${effectiveSongTheme.altColor || '#a5f3fc'}" />
@@ -1299,7 +1290,6 @@ export function createSongEditorView({
                     <div class="lyric-style-card">
                       <div class="lyric-style-title-col">
                         <strong>Traducción</strong>
-                        <span class="lyric-style-desc">Subtítulo secundario</span>
                       </div>
                       <div class="lyric-style-color-col">
                         <input type="color" class="color-swatch-input" id="picker-song-trans-color" value="${effectiveSongTheme.translationColor}" />
@@ -1319,8 +1309,7 @@ export function createSongEditorView({
 
                     <div class="lyric-style-card is-highlight-card">
                       <div class="lyric-style-title-col">
-                        <strong>Sílaba Activa (Resaltada)</strong>
-                        <span class="lyric-style-desc">Color y resplandor al cantar</span>
+                        <strong>Sílaba activa (resaltada)</strong>
                       </div>
                       <div class="lyric-style-color-col">
                         <input type="color" class="color-swatch-input" id="picker-song-active-color" value="${effectiveSongTheme.activeColor}" />
@@ -1344,8 +1333,7 @@ export function createSongEditorView({
 
                     <div class="lyric-style-card">
                       <div class="lyric-style-title-col">
-                        <strong>Sílabas Anteriores</strong>
-                        <span class="lyric-style-desc">Sílabas ya cantadas</span>
+                        <strong>Sílabas anteriores</strong>
                       </div>
                       <div class="lyric-style-color-col">
                         <input type="color" class="color-swatch-input" id="picker-song-completed-color" value="${effectiveSongTheme.completedColor || '#f59e0b'}" />
@@ -1368,13 +1356,12 @@ export function createSongEditorView({
                 <!-- 5. Cuadros de Aviso y Notificaciones -->
                 <div class="theme-section">
                   <div class="theme-section-header" style="margin-bottom: 10px;">
-                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">4. Cuadros de Aviso y Notificaciones</h4>
-                    <p class="theme-section-desc" style="font-size: 0.78rem; margin: 0;">Colores para mensajes de éxito, información y error.</p>
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">Cuadros de aviso y notificaciones</h4>
                   </div>
                   <div class="theme-colors-grid">
                     <div class="color-picker-card">
                       <div class="color-card-info">
-                        <span class="color-card-name">Aviso de Éxito</span>
+                        <span class="color-card-name">Aviso de éxito</span>
                       </div>
                       <div class="color-picker-input-group">
                         <input type="color" class="color-swatch-input" id="picker-song-alert-success" value="${effectiveSongTheme.alertSuccessColor || '#22c55e'}" />
@@ -1383,7 +1370,7 @@ export function createSongEditorView({
                     </div>
                     <div class="color-picker-card">
                       <div class="color-card-info">
-                        <span class="color-card-name">Aviso Informativo</span>
+                        <span class="color-card-name">Aviso informativo</span>
                       </div>
                       <div class="color-picker-input-group">
                         <input type="color" class="color-swatch-input" id="picker-song-alert-info" value="${effectiveSongTheme.alertInfoColor || '#38bdf8'}" />
@@ -1392,7 +1379,7 @@ export function createSongEditorView({
                     </div>
                     <div class="color-picker-card">
                       <div class="color-card-info">
-                        <span class="color-card-name">Alerta de Error</span>
+                        <span class="color-card-name">Alerta de error</span>
                       </div>
                       <div class="color-picker-input-group">
                         <input type="color" class="color-swatch-input" id="picker-song-alert-error" value="${effectiveSongTheme.alertErrorColor || '#ef4444'}" />

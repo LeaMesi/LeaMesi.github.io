@@ -46,6 +46,9 @@
   - Adopción uniforme del estilo del minireproductor: punto circular de 9px con color de texto principal (`var(--text-main, #f8fafc)`), pista limpia de 3px (`rgba(255, 255, 255, 0.15)`) con radio de 2px, eliminando overrides de 18px en pantallas táctiles y estilos nativos dispares (`appearance: slider-vertical`).
   - Preservación íntegra de la funcionalidad de despliegue vertical (popovers emergentes que se abren con el icono de parlante y se cierran al hacer clic afuera en modo letra y en el editor de canciones) y soporte de arrastre por puntero en ambas pistas.
   - Corrección de la animación de despliegue (`@keyframes editorVolumeFadeIn`): preservación estricta de `translateX(-50%)` tanto en `from` como en `to`, evitando que el menú emergente de volumen en el editor aparezca desplazado hacia la derecha durante la transición y salte de posición.
+- [x] **3.5. Optimización Móvil y Throttling del Reloj en Pantalla de Menú (`mediaPlayer.js` y `main.js`):**
+  - Throttling de actualizaciones en el minireproductor flotante a 5 Hz (cada 200ms o saltos >= 0.5s) al estar en la pantalla de catálogo (`currentScreen === 'menu'`), mitigando el gasto de batería en teléfonos.
+  - Eliminación de la doble consulta interna a `getLyricsTime()` en el bucle rAF y en `setActiveOffset` de `mediaPlayer.js`, calculando `lyricsTime = currentTime - activeOffset` directamente para aligerar la ejecución continua por frame.
 
 ---
 
