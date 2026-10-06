@@ -34,8 +34,13 @@ export function createVideoManagerModal({ containerElement, onVideosUpdated }) {
   }
 
   function showStatus(msg, type = 'info') {
+    if (type !== 'error') {
+      statusMessage = ''
+      statusType = 'info'
+      return
+    }
     statusMessage = msg
-    statusType = type
+    statusType = 'error'
     render()
   }
 
@@ -85,8 +90,8 @@ export function createVideoManagerModal({ containerElement, onVideosUpdated }) {
           <button class="btn-close-modal" aria-label="Cerrar">${iconClose}</button>
         </header>
 
-        ${statusMessage ? `
-          <div class="status-alert status-${statusType}">
+        ${statusMessage && statusType === 'error' ? `
+          <div class="status-alert status-error">
             <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
             <button type="button" class="btn-close-alert" id="btn-close-video-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
@@ -229,7 +234,6 @@ export function createVideoManagerModal({ containerElement, onVideosUpdated }) {
           offset
         })
 
-        showStatus(`Video "${name}" añadido a la lista. Recuerda hacer clic en "Guardar Cambios".`, 'info')
         render()
       })
     }
@@ -249,10 +253,7 @@ export function createVideoManagerModal({ containerElement, onVideosUpdated }) {
             onVideosUpdated(currentSong.id, updatedVideos)
           }
 
-          showStatus('Videos guardados exitosamente.', 'success')
-          setTimeout(() => {
-            close()
-          }, 600)
+          close()
         } catch (err) {
           console.error('Error al guardar videos:', err)
           showStatus('Error al guardar: ' + err.message, 'error')

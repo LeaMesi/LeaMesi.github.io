@@ -73,7 +73,9 @@
   - Supresión de subtítulos y textos explicativos redundantes (`.color-card-hint`, `.lyric-style-desc`) en los paneles de color general, estilos de letra y avisos, optimizando la altura útil del modal.
   - Normalización de mayúsculas a *sentence casing* ("Letra original", "Texto alternativo (romaji)", "Sílaba activa (resaltada)", "Sílabas anteriores", "Aviso de éxito", "Aviso informativo", "Alerta de error").
   - Estilización y mejora de tarjetas de selección de temas en CSS (`293fd22`).
-  - Supresión definitiva del enlace CDN externo de Font Awesome en `index.html` (`02d42e3`), asegurando carga 100% autónoma y sin dependencias externas de red.
+- [x] **12.11. Eliminación de Avisos No Críticos y Simplificación de Alertas en Temas:**
+  - Supresión integral de notificaciones informativas y de éxito al crear, editar, eliminar, copiar, traducir o exportar en toda la aplicación (`songMenuView.js`, `songEditorView.js`, `playlistModal.js`, `videoManagerModal.js`, `themeSettingsModal.js`), manteniendo activas únicamente las alertas críticas de error (`type === 'error'`).
+  - Simplificación del apartado de temas globales (`themeSettingsModal.js`) y temas por canción (`songEditorView.js`), removiendo la configuración de colores de avisos de éxito e informativos y conservando únicamente la personalización de la alerta de error (`alertErrorColor`).
 
 ---
 

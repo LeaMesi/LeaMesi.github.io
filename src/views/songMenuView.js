@@ -106,8 +106,13 @@ export function createSongMenuView({
   }
 
   function showStatus(msg, type = 'info') {
+    if (type !== 'error') {
+      statusMessage = ''
+      statusType = 'info'
+      return
+    }
     statusMessage = msg
-    statusType = type
+    statusType = 'error'
     render()
   }
 
@@ -331,8 +336,8 @@ export function createSongMenuView({
           </div>
         </div>
 
-        ${statusMessage ? `
-          <div class="status-alert status-${statusType}">
+        ${statusMessage && statusType === 'error' ? `
+          <div class="status-alert status-error">
             <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
             <button type="button" class="btn-close-alert" id="btn-close-menu-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
@@ -593,9 +598,6 @@ export function createSongMenuView({
               btn.innerHTML = `${iconListPlus}`
               btn.classList.remove('is-added')
             }, 1400)
-            showStatus(`"${targetSong.title}" añadida a la lista de reproducción.`, 'success')
-          } else {
-            showStatus(`"${targetSong.title}" ya está en la lista de reproducción.`, 'info')
           }
         }
       })
@@ -620,7 +622,6 @@ export function createSongMenuView({
         if (confirmed) {
           try {
             await removeSongFromLibrary(songId, targetLib.id)
-            showStatus(`Canción quitada de "${targetLib.name}".`, 'info')
             await loadData()
           } catch (err) {
             showStatus('Error al quitar de biblioteca: ' + err.message, 'error')
@@ -713,7 +714,6 @@ export function createSongMenuView({
             if (onDeleteSong) {
               await onDeleteSong(songId)
             }
-            showStatus('Canción eliminada correctamente.', 'info')
             await loadData()
           } catch (err) {
             showStatus('Error al eliminar canción: ' + err.message, 'error')
@@ -828,7 +828,6 @@ export function createSongMenuView({
           try {
             const newLib = await createLibrary(name.trim())
             activeLibraryId = newLib.id
-            showStatus(`Biblioteca "${newLib.name}" creada con éxito.`, 'success')
             await loadData()
           } catch (err) {
             showStatus('Error al crear biblioteca: ' + err.message, 'error')
@@ -842,8 +841,7 @@ export function createSongMenuView({
     if (loadLibPlaylistBtn && activeLibraryId !== 'all') {
       loadLibPlaylistBtn.addEventListener('click', async () => {
         if (onLoadLibraryAsPlaylist) {
-          const loaded = await onLoadLibraryAsPlaylist(activeLibraryId, { shuffle: false })
-          showStatus(`¡Se cargaron ${loaded} canciones de la biblioteca en la playlist!`, 'success')
+          await onLoadLibraryAsPlaylist(activeLibraryId, { shuffle: false })
         }
       })
     }
@@ -853,8 +851,7 @@ export function createSongMenuView({
     if (loadLibShuffleBtn && activeLibraryId !== 'all') {
       loadLibShuffleBtn.addEventListener('click', async () => {
         if (onLoadLibraryAsPlaylist) {
-          const loaded = await onLoadLibraryAsPlaylist(activeLibraryId, { shuffle: true })
-          showStatus(`¡Se cargaron ${loaded} canciones de la biblioteca en orden aleatorio (shuffle)!`, 'success')
+          await onLoadLibraryAsPlaylist(activeLibraryId, { shuffle: true })
         }
       })
     }
@@ -883,7 +880,6 @@ export function createSongMenuView({
         if (newName && newName.trim() && newName.trim() !== targetLib.name) {
           try {
             await renameLibrary(targetLib.id, newName.trim())
-            showStatus(`Biblioteca renombrada a "${newName.trim()}".`, 'success')
             await loadData()
           } catch (err) {
             showStatus('Error al renombrar biblioteca: ' + err.message, 'error')
@@ -900,7 +896,6 @@ export function createSongMenuView({
           const targetLib = libraries.find(l => Number(l.id) === Number(activeLibraryId))
           if (!targetLib) return
           await exportLibraryPackage(targetLib.id)
-          showStatus(`Biblioteca "${targetLib.name}" exportada con éxito.`, 'success')
         } catch (err) {
           showStatus('Error al exportar biblioteca: ' + err.message, 'error')
         }
@@ -923,7 +918,6 @@ export function createSongMenuView({
           try {
             await deleteLibrary(targetLib.id)
             activeLibraryId = 'all'
-            showStatus('Biblioteca eliminada correctamente.', 'info')
             await loadData()
           } catch (err) {
             showStatus('Error al eliminar biblioteca: ' + err.message, 'error')
@@ -982,7 +976,6 @@ export function createSongMenuView({
           try {
             const arrIds = Array.from(editingSongLibraries.selectedIds)
             await setSongLibraries(editingSongLibraries.song.id, arrIds)
-            showStatus(`Bibliotecas actualizadas para "${editingSongLibraries.song.title}".`, 'success')
             editingSongLibraries = null
             await loadData()
           } catch (err) {
@@ -1094,7 +1087,6 @@ export function createSongMenuView({
       backupBtn.addEventListener('click', async () => {
         try {
           await exportLibraryBackup()
-          showStatus('Respaldo completo exportado con éxito.', 'success')
         } catch (err) {
           showStatus('Error al exportar respaldo: ' + err.message, 'error')
         }
@@ -1136,8 +1128,6 @@ export function createSongMenuView({
       })
 
       if (result.type === 'cancelled') {
-        showStatus('Importación de biblioteca cancelada.', 'info')
-        render()
         return
       }
 
@@ -1145,7 +1135,6 @@ export function createSongMenuView({
         activeLibraryId = result.libraryId
       }
 
-      showStatus(result.message, 'success')
       await loadData()
       isImportOpen = false
     } catch (err) {

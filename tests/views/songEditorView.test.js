@@ -570,8 +570,8 @@ describe('views/songEditorView.js', () => {
       // Verso 2 (pausa original en blanco) debe permanecer vacío
       expect(phraseInputs[1].value).toBe('')
 
-      const statusAlert = container.querySelector('.status-alert')
-      expect(statusAlert.textContent).toContain('Canción traducida con éxito')
+      // No debe mostrar avisos de éxito intrusivos
+      expect(container.querySelector('.status-alert')).toBeNull()
 
       // No debe generar sílabas automáticamente
       const sylChips = container.querySelectorAll('.syllable-edit-chip')
@@ -906,24 +906,27 @@ describe('views/songEditorView.js', () => {
       expect(finalScrollContainer.scrollTop).toBe(450)
     })
 
-    it('permite cerrar la alerta de estado con el botón X y con el método clearStatus', async () => {
+    it('permite cerrar la alerta de error con el botón X y con el método clearStatus, y no muestra alertas de éxito al exportar', async () => {
       const editor = createSongEditorView({ containerElement: container })
       editor.open(sampleSong)
 
-      // Simular alerta de estado en el editor exportando la canción
+      // Exportar la canción no debe mostrar avisos de éxito
       const exportBtn = container.querySelector('#btn-editor-export-json')
       expect(exportBtn).not.toBeNull()
       exportBtn.click()
+      await new Promise(r => setTimeout(r, 50))
+      expect(container.querySelector('.status-alert')).toBeNull()
 
-      let alertEl = null
-      for (let i = 0; i < 20; i++) {
-        await new Promise(r => setTimeout(r, 25))
-        alertEl = container.querySelector('.status-alert')
-        if (alertEl && alertEl.textContent.includes('descargado con éxito')) break
-      }
+      // Si ocurre un error, sí se muestra la alerta
+      const titleInput = container.querySelector('#input-song-title')
+      titleInput.value = ''
+      const saveBtn = container.querySelector('#btn-save-and-sing')
+      saveBtn.click()
+      await new Promise(r => setTimeout(r, 20))
 
+      const alertEl = container.querySelector('.status-alert')
       expect(alertEl).not.toBeNull()
-      expect(alertEl.textContent).toContain('descargado con éxito')
+      expect(alertEl.textContent).toContain('La canción debe tener un título obligatorio')
 
       const closeBtn = container.querySelector('#btn-close-editor-alert')
       expect(closeBtn).not.toBeNull()
@@ -932,20 +935,17 @@ describe('views/songEditorView.js', () => {
       expect(container.querySelector('.status-alert')).toBeNull()
 
       // Probar clearStatus()
-      exportBtn.click()
-      for (let i = 0; i < 20; i++) {
-        await new Promise(r => setTimeout(r, 25))
-        if (container.querySelector('.status-alert')) break
-      }
+      saveBtn.click()
+      await new Promise(r => setTimeout(r, 20))
       expect(container.querySelector('.status-alert')).not.toBeNull()
       editor.clearStatus()
       expect(container.querySelector('.status-alert')).toBeNull()
     })
 
-    it('ubica el cuadro de alerta de estado debajo del controlador de tiempo y antes del contenido con scroll en el header', () => {
+    it('ubica el cuadro de alerta de error debajo del controlador de tiempo y antes del contenido con scroll en el header', () => {
       const editor = createSongEditorView({ containerElement: container })
       editor.open(sampleSong, {
-        initialStatus: { message: 'Mensaje de prueba en cabecera', type: 'info' }
+        initialStatus: { message: 'Mensaje de error en cabecera', type: 'error' }
       })
 
       const alertEl = container.querySelector('.status-alert')

@@ -256,8 +256,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
           <button class="btn-close-modal" id="btn-close-theme-modal" title="Cerrar configuración">${iconClose}</button>
         </div>
 
-        ${statusMessage ? `
-          <div class="status-alert status-${statusType}" style="margin: 14px 22px 0;">
+        ${statusMessage && statusType === 'error' ? `
+          <div class="status-alert status-error" style="margin: 14px 22px 0;">
             <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
             <button type="button" class="btn-close-alert" id="btn-close-theme-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
@@ -538,35 +538,13 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
             </div>
           </div>
 
-          <!-- 4. Cuadros de Aviso y Notificaciones (Alertas de Estado) -->
+          <!-- 4. Alertas de Estado (Error) -->
           <div class="theme-section">
             <div class="theme-section-header">
-              <h3 class="theme-section-title">Cuadros de aviso</h3>
+              <h3 class="theme-section-title">Alerta de error</h3>
             </div>
 
             <div class="theme-colors-grid">
-              <!-- Color Éxito -->
-              <div class="color-picker-card">
-                <div class="color-card-info">
-                  <span class="color-card-name">Aviso de éxito</span>
-                </div>
-                <div class="color-picker-input-group">
-                  <input type="color" class="color-swatch-input" id="picker-alert-success" value="${currentSettings.alertSuccessColor || '#22c55e'}" />
-                  <input type="text" class="color-hex-input" id="hex-alert-success" value="${currentSettings.alertSuccessColor || '#22c55e'}" maxlength="7" />
-                </div>
-              </div>
-
-              <!-- Color Informativo -->
-              <div class="color-picker-card">
-                <div class="color-card-info">
-                  <span class="color-card-name">Aviso informativo</span>
-                </div>
-                <div class="color-picker-input-group">
-                  <input type="color" class="color-swatch-input" id="picker-alert-info" value="${currentSettings.alertInfoColor || '#38bdf8'}" />
-                  <input type="text" class="color-hex-input" id="hex-alert-info" value="${currentSettings.alertInfoColor || '#38bdf8'}" maxlength="7" />
-                </div>
-              </div>
-
               <!-- Color Error -->
               <div class="color-picker-card">
                 <div class="color-card-info">
@@ -579,16 +557,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               </div>
             </div>
 
-            <!-- Vista previa de los cuadros de aviso -->
+            <!-- Vista previa de la alerta de error -->
             <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
-              <div class="status-alert status-success" style="margin: 0;">
-                <span class="status-alert-text">✓ Respaldo completo exportado con éxito.</span>
-                <span class="btn-close-alert" title="Ejemplo de botón de cierre">${iconClose}</span>
-              </div>
-              <div class="status-alert status-info" style="margin: 0;">
-                <span class="status-alert-text">ℹ Importación de biblioteca completada.</span>
-                <span class="btn-close-alert" title="Ejemplo de botón de cierre">${iconClose}</span>
-              </div>
               <div class="status-alert status-error" style="margin: 0;">
                 <span class="status-alert-text">⚠ Error al conectar con el motor online.</span>
                 <span class="btn-close-alert" title="Ejemplo de botón de cierre">${iconClose}</span>
@@ -671,8 +641,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     function handleExport() {
       try {
         exportThemePackage()
-        statusMessage = 'Tema exportado exitosamente como saranga-theme-settings.json'
-        statusType = 'success'
+        statusMessage = ''
         render()
       } catch (err) {
         statusMessage = 'Error al exportar tema: ' + err.message
@@ -693,8 +662,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
       try {
         const imported = await importThemePackage(file)
         currentSettings = imported
-        statusMessage = '¡Tema importado y aplicado correctamente!'
-        statusType = 'success'
+        statusMessage = ''
         render()
         if (onThemeChanged) {
           onThemeChanged(currentSettings)
@@ -826,9 +794,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     bindCheckbox('#check-completed-bold', 'completedBold')
     bindCheckbox('#check-completed-italic', 'completedItalic')
 
-    // Colores de Alertas de Estado
-    bindColorPair('#picker-alert-success', '#hex-alert-success', 'alertSuccessColor')
-    bindColorPair('#picker-alert-info', '#hex-alert-info', 'alertInfoColor')
+    // Alertas de Error
     bindColorPair('#picker-alert-error', '#hex-alert-error', 'alertErrorColor')
 
     // Temas Personalizados por Canción

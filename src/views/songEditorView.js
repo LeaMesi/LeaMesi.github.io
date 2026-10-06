@@ -295,8 +295,8 @@ export function createSongEditorView({
     initialScrollLineIndex = initialActiveLine
     expandedLineIndices = new Set()
 
-    statusMessage = loadOptions.initialStatus?.message || ''
-    statusType = loadOptions.initialStatus?.type || 'info'
+    statusMessage = loadOptions.initialStatus?.type === 'error' ? (loadOptions.initialStatus?.message || '') : ''
+    statusType = statusMessage ? 'error' : 'info'
     isMetadataOpen = !currentSong.title // Abrir metadatos si es una canción nueva
     isThemeSectionOpen = Boolean(currentSong.lyrics_data?.customTheme)
     isQuickImportModalOpen = false
@@ -339,8 +339,13 @@ export function createSongEditorView({
   }
 
   function showStatus(msg, type = 'info') {
+    if (type !== 'error') {
+      statusMessage = ''
+      statusType = 'info'
+      return
+    }
     statusMessage = msg
-    statusType = type
+    statusType = 'error'
     render()
   }
 
@@ -1008,8 +1013,8 @@ export function createSongEditorView({
           </div>
         </div>
 
-        ${statusMessage ? `
-          <div class="status-alert status-${statusType}">
+        ${statusMessage && statusType === 'error' ? `
+          <div class="status-alert status-error">
             <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
             <button type="button" class="btn-close-alert" id="btn-close-editor-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
           </div>
@@ -1355,30 +1360,12 @@ export function createSongEditorView({
                   </div>
                 </div>
 
-                <!-- 5. Cuadros de Aviso y Notificaciones -->
+                <!-- 5. Alerta de Error -->
                 <div class="theme-section">
                   <div class="theme-section-header" style="margin-bottom: 10px;">
-                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">Cuadros de aviso y notificaciones</h4>
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">Alerta de error</h4>
                   </div>
                   <div class="theme-colors-grid">
-                    <div class="color-picker-card">
-                      <div class="color-card-info">
-                        <span class="color-card-name">Aviso de éxito</span>
-                      </div>
-                      <div class="color-picker-input-group">
-                        <input type="color" class="color-swatch-input" id="picker-song-alert-success" value="${effectiveSongTheme.alertSuccessColor || '#22c55e'}" />
-                        <input type="text" class="color-hex-input" id="hex-song-alert-success" value="${effectiveSongTheme.alertSuccessColor || '#22c55e'}" maxlength="7" />
-                      </div>
-                    </div>
-                    <div class="color-picker-card">
-                      <div class="color-card-info">
-                        <span class="color-card-name">Aviso informativo</span>
-                      </div>
-                      <div class="color-picker-input-group">
-                        <input type="color" class="color-swatch-input" id="picker-song-alert-info" value="${effectiveSongTheme.alertInfoColor || '#38bdf8'}" />
-                        <input type="text" class="color-hex-input" id="hex-song-alert-info" value="${effectiveSongTheme.alertInfoColor || '#38bdf8'}" maxlength="7" />
-                      </div>
-                    </div>
                     <div class="color-picker-card">
                       <div class="color-card-info">
                         <span class="color-card-name">Alerta de error</span>
@@ -1890,7 +1877,6 @@ export function createSongEditorView({
           if (vid && vid.url && mediaPlayer) {
             try {
               await mediaPlayer.loadSong(currentSong, vid.id)
-              showStatus(`Audio cargado para probar: "${vid.name}"`, 'success')
             } catch (err) {
               showStatus('Error al cargar video: ' + err.message, 'error')
             }
@@ -2155,7 +2141,7 @@ export function createSongEditorView({
         langs.forEach((l, idx) => {
           l.isMain = idx === activeLangIndex
         })
-        showStatus(`"${langs[activeLangIndex].name}" establecido como Idioma Principal.`, 'success')
+        render()
         triggerImmediateAutoSave()
       })
     }
@@ -2169,7 +2155,7 @@ export function createSongEditorView({
           currentSong.lyrics_data.languages.splice(activeLangIndex, 1)
           activeLangIndex = 0
           isEditLanguageModalOpen = false
-          showStatus('Idioma eliminado.', 'info')
+          render()
           triggerImmediateAutoSave()
         }
       })
@@ -2300,7 +2286,6 @@ export function createSongEditorView({
       expandedLineIndices = nextExpanded
 
       render()
-      showStatus(`Frase #${lIdx + 1} copiada correctamente como frase #${lIdx + 2}.`, 'success')
       triggerImmediateAutoSave()
     }
 
@@ -2345,7 +2330,6 @@ export function createSongEditorView({
               line.altText = refLine.altText
             }
             render()
-            showStatus(`Texto original copiado al verso #${lIdx + 1}.`, 'info')
             triggerImmediateAutoSave()
           }
         })
@@ -2356,7 +2340,6 @@ export function createSongEditorView({
         translateRefBtn.addEventListener('click', async () => {
           const refLine = mainLang?.lines?.[lIdx]
           if (!refLine || !refLine.text || !refLine.text.trim()) {
-            showStatus('El verso original está vacío o es una pausa instrumental.', 'info')
             return
           }
 
@@ -2372,7 +2355,6 @@ export function createSongEditorView({
               line.text = translatedText
               line.syllables = []
               render()
-              showStatus(`Verso #${lIdx + 1} traducido automáticamente a "${activeLang.name}".`, 'success')
               triggerImmediateAutoSave()
             } else {
               showStatus(`No se pudo traducir el verso #${lIdx + 1}.`, 'error')
@@ -2529,7 +2511,7 @@ export function createSongEditorView({
           }
           const rawSyllables = splitPhraseIntoSyllables(line.text)
           line.syllables = autoDistributeSyllables(rawSyllables, line.startTime, line.endTime)
-          showStatus(`Frase #${lIdx + 1} dividida en ${line.syllables.length} sílaba(s) con ponderación fonética.`, 'success')
+          render()
           triggerImmediateAutoSave()
         })
       }
@@ -2542,7 +2524,7 @@ export function createSongEditorView({
           }
           const rawWords = splitPhraseIntoWords(line.text)
           line.syllables = autoDistributeSyllables(rawWords, line.startTime, line.endTime)
-          showStatus(`Frase #${lIdx + 1} dividida en ${line.syllables.length} palabra(s) con ponderación fonética.`, 'success')
+          render()
           triggerImmediateAutoSave()
         })
       }
@@ -2554,7 +2536,7 @@ export function createSongEditorView({
             return
           }
           line.syllables = autoDistributeSyllables(line.syllables, line.startTime, line.endTime)
-          showStatus(`Tiempos calculados con ponderación fonética para el verso #${lIdx + 1}.`, 'success')
+          render()
           triggerImmediateAutoSave()
         })
       }
@@ -2583,7 +2565,6 @@ export function createSongEditorView({
           if (!line.syllables || line.syllables.length === 0) return
           line.syllables = []
           render()
-          showStatus(`Sílabas borradas del verso #${lIdx + 1}.`, 'info')
           triggerImmediateAutoSave()
         })
       })
@@ -2662,7 +2643,6 @@ export function createSongEditorView({
     const handleClearAllSyllables = () => {
       const currentTotal = lines.reduce((acc, l) => acc + (l.syllables?.length || 0), 0)
       if (currentTotal === 0) {
-        showStatus('No hay sílabas configuradas en ninguna frase de este idioma.', 'info')
         return
       }
 
@@ -2674,7 +2654,6 @@ export function createSongEditorView({
           line.syllables = []
         })
         render()
-        showStatus(`Se han borrado todas las sílabas de los ${lines.length} versos en "${langName}".`, 'success')
         triggerImmediateAutoSave()
       }
     }
@@ -2690,7 +2669,6 @@ export function createSongEditorView({
     if (autoRomajiBtn) {
       autoRomajiBtn.addEventListener('click', () => {
         if (!lines || lines.length === 0) {
-          showStatus('No hay frases para transliterar en este idioma.', 'info')
           return
         }
 
@@ -2703,7 +2681,6 @@ export function createSongEditorView({
           }
         }
         render()
-        showStatus('Texto alternativo y fonemas en Romaji generados con éxito para todas las frases y sílabas.', 'success')
         triggerImmediateAutoSave()
       })
     }
@@ -2711,7 +2688,6 @@ export function createSongEditorView({
     // Auto-traducir toda la canción desde el idioma principal al idioma activo
     const handleAutoTranslateAll = async () => {
       if (!mainLang || !mainLang.lines || mainLang.lines.length === 0) {
-        showStatus('No hay versos originales en el idioma principal para traducir.', 'info')
         return
       }
 
@@ -2731,12 +2707,8 @@ export function createSongEditorView({
 
         const { translatedLines } = await translateLines(originalTexts, targetLang, sourceLang)
 
-        let translatedCount = 0
         activeLang.lines = mainLang.lines.map((origL, idx) => {
           const transText = translatedLines[idx] || ''
-          if (transText.trim().length > 0) {
-            translatedCount++
-          }
           return {
             id: activeLang.lines?.[idx]?.id || `line-${activeLang.code}-${Date.now()}-${idx}`,
             startTime: origL.startTime,
@@ -2746,8 +2718,6 @@ export function createSongEditorView({
           }
         })
         activeLang.plain = activeLang.lines.map(l => l.text).join('\n')
-
-        showStatus(`¡Canción traducida con éxito! Se tradujeron ${translatedCount} frases a "${activeLang.name}".`, 'success')
       } catch (err) {
         console.error('Error al traducir canción completa:', err)
         showStatus('Error al traducir la canción. Comprueba tu conexión a internet.', 'error')
@@ -2829,7 +2799,6 @@ export function createSongEditorView({
         expandedLineIndices = new Set()
         isQuickImportModalOpen = false
         render()
-        showStatus(`¡Se generaron ${generatedLines.length} versos exitosamente para "${activeLang.name}"!`, 'success')
         triggerImmediateAutoSave()
       })
     }
@@ -2916,7 +2885,6 @@ export function createSongEditorView({
 
             currentSong.lyrics_data.languages.push(newLang)
             activeLangIndex = currentSong.lyrics_data.languages.length - 1
-            showStatus(`Nuevo idioma "${name}" [${code}] añadido y ${translatedCount} frases traducidas automáticamente.`, 'success')
             triggerImmediateAutoSave()
             return
           } catch (err) {
@@ -2951,7 +2919,6 @@ export function createSongEditorView({
         activeLangIndex = currentSong.lyrics_data.languages.length - 1
         isAddLanguageModalOpen = false
         render()
-        showStatus(`Nuevo idioma "${name}" [${code}] añadido con éxito.`, 'success')
         triggerImmediateAutoSave()
       })
     }
@@ -2992,7 +2959,6 @@ export function createSongEditorView({
           activeLang.code = newCode
           isEditLanguageModalOpen = false
           render()
-          showStatus(`Idioma actualizado correctamente: "${newName}" [${newCode}].`, 'success')
           triggerImmediateAutoSave()
         }
       })
@@ -3006,7 +2972,6 @@ export function createSongEditorView({
           const songId = await handleSaveSong(false, false)
           if (!songId) return
           await exportSongPackage(songId)
-          showStatus('Paquete de canción JSON descargado con éxito.', 'success')
         } catch (err) {
           showStatus('Error al exportar JSON: ' + err.message, 'error')
         }
@@ -3022,7 +2987,6 @@ export function createSongEditorView({
           if (!songId) return
           const activeLang = getActiveLanguage()
           await exportLanguageToLyricsfile(songId, activeLang?.code || null)
-          showStatus('Archivo .lyricsfile.yaml descargado con éxito.', 'success')
         } catch (err) {
           showStatus('Error al exportar YAML: ' + err.message, 'error')
         }
@@ -3194,9 +3158,7 @@ export function createSongEditorView({
     bindSongThemeCheckbox('#check-song-completed-bold', 'completedBold')
     bindSongThemeCheckbox('#check-song-completed-italic', 'completedItalic')
 
-    // Alertas de estado
-    bindSongThemeColor('#picker-song-alert-success', '#hex-song-alert-success', 'alertSuccessColor')
-    bindSongThemeColor('#picker-song-alert-info', '#hex-song-alert-info', 'alertInfoColor')
+    // Alerta de error
     bindSongThemeColor('#picker-song-alert-error', '#hex-song-alert-error', 'alertErrorColor')
   }
 
@@ -3357,10 +3319,6 @@ export function createSongEditorView({
 
     const savedId = await performSave()
     if (!savedId) return null
-
-    if (showSuccessNotice) {
-      showStatus(`¡Canción "${currentSong.title}" guardada exitosamente!`, 'success')
-    }
 
     if (enterLyricsAfter && onEnterLyricsMode) {
       if (documentClickListener) {

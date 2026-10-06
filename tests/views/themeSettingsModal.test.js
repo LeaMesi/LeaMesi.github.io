@@ -45,7 +45,7 @@ describe('views/themeSettingsModal.js', () => {
     expect(container.classList.contains('is-open')).toBe(false)
   })
 
-  it('renderiza la sección de alertas de estado y permite configurar colores de éxito, info y error', () => {
+  it('renderiza la sección de alertas de estado y permite configurar únicamente el color de error', () => {
     const onThemeChanged = vi.fn()
     const modal = createThemeSettingsModal({ containerElement: container, onThemeChanged })
     modal.open()
@@ -54,17 +54,19 @@ describe('views/themeSettingsModal.js', () => {
     const hexSuccess = container.querySelector('#hex-alert-success')
     const pickerInfo = container.querySelector('#picker-alert-info')
     const pickerError = container.querySelector('#picker-alert-error')
+    const hexError = container.querySelector('#hex-alert-error')
 
-    expect(pickerSuccess).not.toBeNull()
-    expect(hexSuccess).not.toBeNull()
-    expect(pickerInfo).not.toBeNull()
+    expect(pickerSuccess).toBeNull()
+    expect(hexSuccess).toBeNull()
+    expect(pickerInfo).toBeNull()
     expect(pickerError).not.toBeNull()
+    expect(hexError).not.toBeNull()
 
-    // Cambiar color de éxito mediante hex
-    hexSuccess.value = '#10b981'
-    hexSuccess.dispatchEvent(new Event('input'))
+    // Cambiar color de error mediante hex
+    hexError.value = '#dc2626'
+    hexError.dispatchEvent(new Event('input'))
 
     expect(onThemeChanged).toHaveBeenCalled()
-    expect(modal.getSettings().alertSuccessColor).toBe('#10b981')
+    expect(modal.getSettings().alertErrorColor).toBe('#dc2626')
   })
 })
