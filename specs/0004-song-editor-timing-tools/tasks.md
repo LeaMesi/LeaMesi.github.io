@@ -77,7 +77,16 @@
   - El módulo del editor (~2.500 líneas) no se descarga, no se parsea ni se aloja en la memoria RAM en el arranque de la aplicación, manteniéndose completamente descargado mientras el usuario escucha música o lee letras en su dispositivo móvil.
 - [x] **20.10. Transición Continua de Reproducción y Adaptación Inmediata de Estado:**
   - Al ingresar al editor desde el Modo Letra o Menú para editar la canción activa, se suprime la pausa automática (`mediaPlayer.pause()`) y se evita la recarga/reinicio de la pista en `mediaPlayer.loadSong(...)`.
-  - El editor adapta su interfaz al estado activo: botón de reproducción con icono de pausa, reloj de asistente en vivo (`mm:ss.mmm`), slider posicionado en el tiempo actual, expansión automática de la frase en canto y scroll centrado hacia ella.
+  - El editor adapta su interfaz al estado activo: botón de reproducción con icono de pausa, reloj de asistente en vivo (`mm:ss.mmm`), slider posicionado en el tiempo actual y scroll centrado hacia la frase activa.
+  - Al entrar al editor, las frases inician con la edición de sílabas cerrada por defecto (`phrase-syllables-panel` colapsado en todas las frases), eliminando ruido visual en pantalla y permitiendo al usuario expandir las sílabas de cualquier verso solo cuando lo desee mediante `.btn-toggle-syllables`.
+- [x] **20.11. Aplicación Fiel de Offset en Videos y Botones de Paso en el Editor:**
+  - Integración completa de `lyricsTime` (`currentTime - offset`) en el reloj maestro del editor, reloj digital del asistente, slider y marcado reactivo de versos y sílabas.
+  - Incorporación de botones de paso fino `-0.1` (`.btn-vid-offset-dec`) y `+0.1` (`.btn-vid-offset-inc`) a la izquierda y derecha de cada input de offset de video en la lista de configuración.
+  - Sincronización bidireccional instantánea: al modificar el offset (tipeando en el input o pulsando los botones `-0.1` / `+0.1`), se invoca `mediaPlayer.setActiveOffset(off)` y se actualizan al vuelo la sílaba y el verso activo marcados en el editor tanto durante la reproducción como en pausa.
+- [x] **20.12. Adaptación Responsiva del Asistente de Audio en Pantallas Verticales y Reducidas:**
+  - Corrección de la superposición de elementos en pantallas verticales (`orientation: portrait` o ancho <= 1150px) eliminando el posicionamiento absoluto flotante desbordado de los controles de tiempo.
+  - Reorganización en dos filas fluidas: controles de tiempo (reproducción, saltos relativos, reloj de precisión y botón de prueba en Modo Letra) permanecen arriba en la fila 1 centrados con `position: static`, mientras que la barra de tiempo (volumen y slider interactivo) y el badge de guardado pasan ordenadamente hacia abajo en la fila 2.
+  - En espacios reducidos (ancho <= 520px), ocultamiento dinámico del texto "Guardado" mediante CSS (`display: none`), preservando el punto circular de color del estado (`.autosave-dot`) y tooltip explicativo para garantizar que la barra de progreso cuente con el máximo espacio disponible.
 
 ---
 

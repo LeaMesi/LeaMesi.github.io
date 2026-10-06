@@ -10,7 +10,6 @@ import {
   addSongToLibrary,
   getNextUniqueLibraryName
 } from './libraryService.js'
-import { importLyricsfileAsNewSong } from './lyricsfileService.js'
 import { showConfirm } from '../views/customPrompt.js'
 
 function triggerDownload(content, filename, contentType = 'application/json') {
@@ -401,6 +400,7 @@ export async function importUniversalFile(fileOrData, { onConflictChoice } = {})
   if (fileOrData instanceof Blob || (typeof File !== 'undefined' && fileOrData instanceof File)) {
     fileName = (fileOrData.name || '').toLowerCase()
     if (fileName.endsWith('.yaml') || fileName.endsWith('.yml')) {
+      const { importLyricsfileAsNewSong } = await import('./lyricsfileService.js')
       const newId = await importLyricsfileAsNewSong(fileOrData)
       return {
         type: 'song',
@@ -415,6 +415,7 @@ export async function importUniversalFile(fileOrData, { onConflictChoice } = {})
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       parsed = JSON.parse(trimmed)
     } else {
+      const { importLyricsfileAsNewSong } = await import('./lyricsfileService.js')
       const newId = await importLyricsfileAsNewSong(fileOrData)
       return {
         type: 'song',
