@@ -49,7 +49,7 @@ export const THEME_PRESETS = [
     name: 'Predeterminado Oscuro',
     settings: {
       bgColor: '#0b0f19',
-      panelBg: '#0f172a',
+      panelBg: '#172035',
       primaryColor: '#6366f1',
       textMain: '#f8fafc',
       lyricsScale: 100,
@@ -78,7 +78,7 @@ export const THEME_PRESETS = [
     name: 'Cyberpunk Neón',
     settings: {
       bgColor: '#0a0518',
-      panelBg: '#180e33',
+      panelBg: '#1f133e',
       primaryColor: '#ec4899',
       textMain: '#fdf4ff',
       lyricsScale: 100,
@@ -106,7 +106,7 @@ export const THEME_PRESETS = [
     id: 'emerald',
     name: 'Bosque Esmeralda',
     settings: {
-      bgColor: '#062019',
+      bgColor: '#021912',
       panelBg: '#0d3328',
       primaryColor: '#10b981',
       textMain: '#f0fdf4',
@@ -135,8 +135,8 @@ export const THEME_PRESETS = [
     id: 'sunset',
     name: 'Atardecer Cálido',
     settings: {
-      bgColor: '#1c0f0b',
-      panelBg: '#2f150e',
+      bgColor: '#170b07',
+      panelBg: '#3e2017',
       primaryColor: '#f97316',
       textMain: '#fff7ed',
       lyricsScale: 100,
