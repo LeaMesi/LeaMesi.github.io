@@ -24,7 +24,8 @@ import {
   iconVolume,
   iconVolumeMute,
   iconPalette,
-  iconRotateCcw
+  iconRotateCcw,
+  iconCopy
 } from './icons.js'
 import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 import { translatePhrase, translateLines } from '../services/translationService.js'
@@ -815,6 +816,7 @@ export function createSongEditorView({
                     Sílabas (${sylCount}) ${isExpanded ? iconChevronUp : iconChevronDown}
                   </button>
                 ` : ''}
+                <button type="button" class="btn btn-xs btn-outline btn-duplicate-line btn-copy-line" data-line-idx="${lineIdx}" title="Copiar frase" aria-label="Copiar frase">${iconCopy}</button>
                 <button type="button" class="btn btn-xs btn-outline btn-move-line-up" data-line-idx="${lineIdx}" title="Mover arriba" ${lineIdx === 0 ? 'disabled' : ''}>${iconChevronUp}</button>
                 <button type="button" class="btn btn-xs btn-outline btn-move-line-down" data-line-idx="${lineIdx}" title="Mover abajo" ${lineIdx === lines.length - 1 ? 'disabled' : ''}>${iconChevronDown}</button>
                 <button type="button" class="btn btn-xs btn-outline btn-delete-line" data-line-idx="${lineIdx}" title="Eliminar este verso">${iconTrash}</button>
@@ -2205,6 +2207,103 @@ export function createSongEditorView({
     if (addPhraseBottomBtn) addPhraseBottomBtn.addEventListener('click', addLineHandler)
     if (addFirstLineBtn) addFirstLineBtn.addEventListener('click', addLineHandler)
 
+    const handleDuplicateLine = (lIdx) => {
+      const sourceLine = lines[lIdx]
+      if (!sourceLine) return
+
+      // Sincronizar valores actuales de los inputs de la tarjeta antes de copiar
+      const currentCard = containerElement.querySelector(`.phrase-editor-card[data-line-idx="${lIdx}"]`)
+      if (currentCard) {
+        const textInput = currentCard.querySelector('.input-phrase-text')
+        const altInput = currentCard.querySelector('.input-phrase-alt')
+        const startInput = currentCard.querySelector('.input-phrase-start')
+        const endInput = currentCard.querySelector('.input-phrase-end')
+        if (textInput) sourceLine.text = textInput.value
+        if (altInput) sourceLine.altText = altInput.value
+        if (startInput && !isNaN(Number(startInput.value))) sourceLine.startTime = Number(startInput.value)
+        if (endInput && !isNaN(Number(endInput.value))) sourceLine.endTime = Number(endInput.value)
+      }
+
+      const copiedLine = {
+        id: `line-${activeLang.code}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        text: sourceLine.text ?? '',
+        altText: sourceLine.altText ?? sourceLine.romaji ?? '',
+        startTime: sourceLine.startTime ?? 0,
+        endTime: sourceLine.endTime ?? 0,
+        syllables: Array.isArray(sourceLine.syllables)
+          ? sourceLine.syllables.map((syl, sIdx) => ({
+              id: `syl-${Date.now()}-${sIdx}-${Math.random().toString(36).slice(2, 7)}`,
+              text: syl.text ?? '',
+              startTime: syl.startTime ?? 0,
+              duration: syl.duration ?? 0.35,
+              altText: syl.altText ?? syl.romaji ?? ''
+            }))
+          : []
+      }
+
+      // Añadir la copia directamente debajo de la frase original
+      lines.splice(lIdx + 1, 0, copiedLine)
+
+      // Si hay otras pistas/traducciones, añadir una frase nueva en la misma posición correspondiente
+      const allLanguages = currentSong.lyrics_data?.languages || []
+      allLanguages.forEach(otherLang => {
+        if (otherLang === activeLang) return
+        if (!Array.isArray(otherLang.lines)) {
+          otherLang.lines = []
+        }
+
+        const otherLines = otherLang.lines
+        // Rellenar si el idioma tiene menos versos para mantener índices correspondientes
+        while (otherLines.length < lIdx) {
+          const padIdx = otherLines.length
+          const refLine = activeLang.lines[padIdx] || sourceLine
+          otherLines.push({
+            id: `line-${otherLang.code}-${Date.now()}-${padIdx}-${Math.random().toString(36).slice(2, 7)}`,
+            text: '',
+            altText: '',
+            startTime: refLine.startTime ?? 0,
+            endTime: refLine.endTime ?? 0,
+            syllables: []
+          })
+        }
+
+        const otherSource = otherLines[lIdx]
+        const newOtherLine = {
+          id: `line-${otherLang.code}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          text: otherSource ? (otherSource.text ?? '') : '',
+          altText: otherSource ? (otherSource.altText ?? otherSource.romaji ?? '') : '',
+          startTime: sourceLine.startTime ?? 0,
+          endTime: sourceLine.endTime ?? 0,
+          syllables: otherSource && Array.isArray(otherSource.syllables)
+            ? otherSource.syllables.map((syl, sIdx) => ({
+                id: `syl-${Date.now()}-${sIdx}-${Math.random().toString(36).slice(2, 7)}`,
+                text: syl.text ?? '',
+                startTime: syl.startTime ?? 0,
+                duration: syl.duration ?? 0.35,
+                altText: syl.altText ?? syl.romaji ?? ''
+              }))
+            : []
+        }
+
+        otherLines.splice(lIdx + 1, 0, newOtherLine)
+      })
+
+      // Actualizar índices expandidos para preservar el estado de las frases posteriores
+      const nextExpanded = new Set()
+      for (const idx of expandedLineIndices) {
+        if (idx <= lIdx) {
+          nextExpanded.add(idx)
+        } else {
+          nextExpanded.add(idx + 1)
+        }
+      }
+      expandedLineIndices = nextExpanded
+
+      render()
+      showStatus(`Frase #${lIdx + 1} copiada correctamente como frase #${lIdx + 2}.`, 'success')
+      triggerImmediateAutoSave()
+    }
+
     // Selector de modo de referencia de traducción
     const refModeSelect = containerElement.querySelector('#select-translation-ref-mode')
     if (refModeSelect) {
@@ -2233,6 +2332,7 @@ export function createSongEditorView({
       const toggleSyllablesBtn = card.querySelector('.btn-toggle-syllables')
       const moveUpBtn = card.querySelector('.btn-move-line-up')
       const moveDownBtn = card.querySelector('.btn-move-line-down')
+      const duplicateLineBtn = card.querySelector('.btn-copy-line, .btn-duplicate-line')
       const deleteLineBtn = card.querySelector('.btn-delete-line')
       const copyRefBtn = card.querySelector('.btn-copy-ref-line')
 
@@ -2402,6 +2502,12 @@ export function createSongEditorView({
           lines[lIdx + 1] = temp
           render()
           triggerImmediateAutoSave()
+        })
+      }
+
+      if (duplicateLineBtn) {
+        duplicateLineBtn.addEventListener('click', () => {
+          handleDuplicateLine(lIdx)
         })
       }
 

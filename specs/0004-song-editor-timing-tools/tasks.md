@@ -90,6 +90,11 @@
 - [x] **20.13. Depuración Visual y Normalización Tipográfica en Tema Propio de Canción (`songEditorView.js`):**
   - Supresión de subtítulos y textos explicativos redundantes en los bloques de configuración de temas dentro del editor ("Tamaño de letras en modo canción", "Colores y efectos de la letra y canto", "Cuadros de aviso y notificaciones"), reduciendo la altura vertical y la sobrecarga visual.
   - Normalización tipográfica a *sentence casing* en etiquetas y estilos ("Letra original", "Texto alternativo (romaji)", "Sílaba activa (resaltada)", "Sílabas anteriores", "Aviso de éxito", "Aviso informativo", "Alerta de error"), manteniendo paridad estética con el modal global de temas.
+- [x] **20.14. Botón de Copiar Frase y Duplicación Reactiva en Traducciones (`src/views/songEditorView.js` e `icons.js`):**
+  - Incorporación de botón con icono minimalista SVG (`iconCopy`) y título "Copiar frase" en cada tarjeta de verso (`.phrase-actions`).
+  - Duplicación exacta del contenido de la frase (texto, altText/romaji, tiempos de inicio/fin y clonación profunda de sílabas con nuevos IDs únicos independientes).
+  - Inserción de la nueva frase inmediatamente debajo de la frase original (`lIdx + 1`), desplazando hacia abajo las frases posteriores y actualizando las insignias numéricas `#` consecutivas.
+  - Sincronización automática con todas las pistas de traducción existentes, añadiendo la frase correspondiente en la misma posición relativa para conservar el emparejamiento 1:1 entre el idioma original y sus traducciones.
 
 ---
 
