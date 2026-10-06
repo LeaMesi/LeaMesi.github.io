@@ -34,7 +34,7 @@
   - Integra slider vertical (`.volume-slider`), etiqueta de porcentaje (`.volume-percent-label`), botón de activación/silenciado (`.btn-mute-toggle`) y cierre automático ante clics exteriores.
 - [x] **9.4. Navegación con Flechas del Teclado y Selector de Salto Temporal (`seekStep`):**
   - Manejo global de teclas `ArrowLeft` y `ArrowRight` en `src/main.js` para retroceder y adelantar la canción en reproducción, con exclusión inteligente en campos de tipeo o combinaciones con modificadores (Alt, Ctrl, Meta).
-  - Selector "Salto flechas" en el menú popover de configuración del reproductor (`controlsView.js`) con opciones de 1s, 2s, 3s, 5s, 10s, 15s y 30s (5s por defecto), con persistencia en `localStorage` (`saranga_seek_step`) y métodos públicos `getSeekStep` y `setSeekStep`.
+  - Selector "Avanzar" en el menú popover de configuración del reproductor (`controlsView.js`) con opciones de 1s, 2s, 3s, 5s, 10s, 15s y 30s (5s por defecto), con persistencia en `localStorage` (`saranga_seek_step`) y métodos públicos `getSeekStep` y `setSeekStep`.
 - [x] **9.5. Atajo Global de Barra Espaciadora para Pausar/Reanudar en Cualquier Menú:**
   - Control de reproducción con tecla Espacio (` ` / `Spacebar` / `Space`) a nivel de ventana global en `src/main.js` llamando a `mediaPlayer.togglePlay()`.
   - Operatividad sin importar qué menú, diálogo o modal esté abierto (menú de canciones, modal de playlist, gestión de videos, configuración de temas, editor de canciones, popovers).
@@ -45,6 +45,7 @@
   - Estandarización del punto (`thumb`) y la pista del control de volumen en los tres reproductores de la aplicación: minireproductor flotante (`.floating-volume-slider`), modo letra (`.controls-volume-slider` / `.volume-slider`) y asistente del editor (`.editor-volume-slider`).
   - Adopción uniforme del estilo del minireproductor: punto circular de 9px con color de texto principal (`var(--text-main, #f8fafc)`), pista limpia de 3px (`rgba(255, 255, 255, 0.15)`) con radio de 2px, eliminando overrides de 18px en pantallas táctiles y estilos nativos dispares (`appearance: slider-vertical`).
   - Preservación íntegra de la funcionalidad de despliegue vertical (popovers emergentes que se abren con el icono de parlante y se cierran al hacer clic afuera en modo letra y en el editor de canciones) y soporte de arrastre por puntero en ambas pistas.
+  - Corrección de la animación de despliegue (`@keyframes editorVolumeFadeIn`): preservación estricta de `translateX(-50%)` tanto en `from` como en `to`, evitando que el menú emergente de volumen en el editor aparezca desplazado hacia la derecha durante la transición y salte de posición.
 
 ---
 

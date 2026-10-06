@@ -241,7 +241,7 @@ export function createControlsView({
 
                   <!-- Selector de segundos para saltar con flechas del teclado -->
                   <div class="popover-item selector-group seek-step-group" title="Segundos para adelantar o retroceder con las flechas del teclado">
-                    <label for="seek-step-select">Salto flechas:</label>
+                    <label for="seek-step-select">Avanzar:</label>
                     <select id="seek-step-select" class="select-input select-small">
                       <option value="1" ${seekStep === 1 ? 'selected' : ''}>1 segundo</option>
                       <option value="2" ${seekStep === 2 ? 'selected' : ''}>2 segundos</option>
