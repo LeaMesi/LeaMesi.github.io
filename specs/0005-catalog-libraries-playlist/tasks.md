@@ -36,6 +36,10 @@
   - Bloqueo completo al resto de la interfaz con backdrop (`position: fixed; inset: 0; z-index: 10000; backdrop-filter: blur(8px);`) y cierre con restauración del control al hacer clic fuera del prompt (backdrop) o presionar Escape.
 - [x] **26.7. Barra de Herramientas Minimalista en Modal de Playlist:**
   - Optimización de los botones de acción superior en `src/views/playlistModal.js` (`.playlist-toolbar-left`): supresión de etiquetas de texto secundarias ("Añadir", "Aleatorio", "Cargar Biblioteca", "Guardar como Biblioteca"), mostrando exclusivamente sus iconos vectoriales SVG (`${iconPlus}`, `${iconShuffle}`, `${iconFolder}`, `${iconSave}`) junto con sus atributos `title` descriptivos, previniendo desbordamientos horizontales en dispositivos móviles y unificando la estética minimalista del proyecto.
+- [x] **26.8. Vaciado Inteligente de Playlist y Alertas Estilizadas (`playlistModal.js` & `playlistService.js`):**
+  - Botón "Vaciar" (`#btn-pl-clear`) actualizado con confirmación descriptiva para invocar `playlistService.clear({ keepCurrent: true })`, vaciando todas las canciones de la cola pero conservando de forma transparente en el índice 0 la canción que se encuentra en reproducción actualmente, sin detener ni recargar el audio/video.
+  - Al eliminar manualmente la canción activa con el botón de la fila, avanza automáticamente a la siguiente canción de la lista con reproducción inmediata (`autoplay: true`), y si era la única canción de la lista, detiene la reproducción por completo (`clearActivePlayback()`) dejando la app en silencio.
+  - Alertas de estado en el modal de playlist armonizadas con el diseño global (`.status-alert`, `.status-alert-text` y botón `.btn-close-alert` con icono SVG `iconClose`), eliminando el botón "X" nativo/feo del navegador y agregando padding espacioso de 12px 18px.
 
 ---
 

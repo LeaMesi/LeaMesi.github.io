@@ -134,6 +134,21 @@ Los datos de cada canción se desacoplan en **tres estructuras conceptuales**, f
     "full": "https://www.youtube.com/watch?v=abc123xyz",
     "instrumental": "https://www.youtube.com/watch?v=inst123xyz"
   },
+  "customTheme": {
+    "bgColor": "#0d1117",
+    "panelBg": "#161b22",
+    "primaryColor": "#58a6ff",
+    "textMain": "#c9d1d9",
+    "lyricsScale": 1.1,
+    "translationScale": 1.0,
+    "altScale": 1.0,
+    "originalColor": "#f0f6fc",
+    "activeColor": "#58a6ff",
+    "completedColor": "#8b949e",
+    "translationColor": "#79c0ff",
+    "altColor": "#d2a8ff",
+    "activeGlow": true
+  },
   "languages": [
     {
       "code": "es",
@@ -489,6 +504,12 @@ La aplicación admite dos orígenes de audio bajo el mismo contrato de **Reloj M
 * **Gestión de Interacción sin Congelamiento:** Para evitar que el thumb de la barra de progreso quede estático tras hacer clic o arrastrar en la línea de tiempo (problema causado por la retención persistente de foco en navegadores sobre elementos `<input type="range">`), `controlsView.js` gestiona la barra con la bandera de interacción activa `isUserSeeking`.
 * **Ciclo de Eventos:** Eventos `pointerdown`, `mousedown`, `touchstart` e `input` activan `isUserSeeking = true`. Al soltar el control (`change`, `pointerup`, `mouseup`, `touchend`), se apaga la bandera y se desenfoca el elemento (`seekSlider.blur()`), permitiendo que el Master Clock continúe actualizando `seekSlider.value` en cada fotograma (`requestAnimationFrame`) de forma ininterrumpida sin necesidad de pausar.
 
+### 4.3. Navegación Temporal por Teclado y Control de Reproducción Global
+* **Atajos de Flechas (`ArrowLeft` / `ArrowRight`):** Se interceptan para navegar en la línea temporal por un salto discreto de segundos configurable (`seekStep`). Se omiten cuando el foco está sobre campos de texto editables (`<input>`, `<textarea>`, `contenteditable`).
+* **Atajo Global de Barra Espaciadora (`Space`):** Permite pausar y reanudar la reproducción (`mediaPlayer.togglePlay()`) de forma universal en cualquier pantalla, menú o modal abierto (menú de canciones, modal de playlist, gestión de videos, configuración de temas, editor de canciones, popovers).
+* **Detección de Contexto de Tipeo (`isTypingContext`):** Si el foco se encuentra en un campo de texto editable (`<input type="text|search|url|number">`, `<textarea>` o elemento con `contenteditable`), la barra espaciadora no interfiere ni pausa la música, permitiendo tipear espacios normalmente. Al no estar en un campo de texto, se ejecuta `preventDefault()` para evitar el desplazamiento vertical de la ventana y la pulsación accidental de botones previamente enfocados.
+* **Configuración del Salto:** Selector configurable integrado en el menú de configuración de Modo Letra (`controls-settings-popover` en `controlsView.js`), con opciones de 1s, 2s, 3s, 5s, 10s, 15s y 30s (5s por defecto). Persiste en `localStorage` (`saranga_seek_step`).
+
 ### 3.8. Servicio de Traducción Automática Gratuita (Zero-Backend): Unison & MyMemory (`src/services/translationService.js`)
 Para posibilitar la traducción instantánea de canciones completas y versos individuales sin costos operativos ni servidores intermediarios, SarangaBaranga implementa una arquitectura de traducción en cascada:
 1. **Traducción por Lotes con Unison API (`POST https://unison.boidu.dev/translate`):** Envía las líneas con contenido en una única solicitud HTTP JSON (`{ lines: string[], to: targetLang }`), traduciendo decenas de versos de forma instantánea y detectando el idioma de origen automáticamente.
@@ -534,6 +555,8 @@ En ambos orígenes de audio, el **Sincronizador de Letras** consume un único va
      - Opción de traducción automática al dar de alta un nuevo idioma ("Traducir automáticamente todas las frases desde el original") en el modal de idiomas.
 
 
+
+    * **Transición Continua y Adaptación al Estado de Reproducción:** Al abrir el editor desde Modo Letra o Menú para editar la canción activa, el flujo de reproducción no se interrumpe ni se pausa (`mediaPlayer.pause()` omitido y recarga de pista prevenida). El editor adapta inmediatamente sus controles al estado activo: botón de reproducción con icono de pausa, reloj de asistente en vivo (`mm:ss.mmm`), slider posicionado en el tiempo actual, expansión automática de la frase en canto y scroll centrado hacia ella.
 
 ### 5.1. Modo Sencillo / Básico (`BasicModeViewer`)
 * **Datos fuente:** `songs.lyrics_data` (con soporte para colección `languages`).
@@ -596,6 +619,19 @@ Para reducir el ruido visual y ofrecer una interfaz limpia, moderna y profesiona
    * Los iconos son cadenas SVG vectoriales inline (`viewBox="0 0 24 24"`, `stroke="currentColor"`), adaptándose automáticamente al color de texto del botón o contenedor. Para el icono musical distintivo de Modo Letra (`iconMic`), se emplea un glifo vectorial estilizado de alta precisión (`viewBox="0 0 340 340"`, `fill="currentColor"`) y se enlaza la hoja de estilos de Font Awesome 6.5.2 en `index.html`.
    * Reglas CSS en [`src/style.css`](file:///home/hezztia/Documents/SarangaBaranga/src/style.css) (`.icon-svg`) garantizan alineación vertical perfecta y comportamiento responsive.
 
+### 7.3. Estética Redondeada, Botones Píldora/Circulares y Reducción de Bordes Duros
+Para erradicar aristas cuadradas toscas y ofrecer una interfaz fluida, moderna y agradable al tacto:
+1. **Geometría de Botones Orgánica:**
+   * **Botones de Acción (Pill Shape):** Todos los botones textuales (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-outline`, `.btn-play-pause`, `.btn-enter-lyrics`, `.btn-open-playlist`, etc.) adoptan `border-radius: var(--radius-btn, 9999px)`.
+   * **Botones de Icono Circulares:** Controles de navegación y transporte sin texto (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`, `.btn-close-modal`, `.btn-close-alert`) adoptan `border-radius: 50% !important`.
+2. **Atenuación de Bordes Duros:**
+   * Disminución de la opacidad de borde en toda la plataforma: `--panel-border` calibrado a `rgba(255, 255, 255, 0.05)` (y `0.08` en temas claros), sustituyendo líneas divisorias visibles por separaciones de tono sutiles y sombras de oclusión suaves (`--shadow-sm`, `--shadow-md`, `--shadow-lg`).
+3. **Escala de Radios en Componentes:**
+   * Tokens en `:root`: `--radius-sm: 14px;`, `--radius-md: 20px;`, `--radius-lg: 26px;`, `--radius-btn: 9999px;`.
+   * Tarjetas del catálogo (`.song-menu-card` a 24px, filas en lista a 16px), buscador tipo cápsula (`.search-input` a 9999px), modales (`.modal-dialog` a 26px) y diálogos personalizados (`.custom-prompt-dialog` a 26px).
+4. **Ergonomía Táctil en Móvil (Vertical y Horizontal):**
+   * En pantallas móviles ($\le 768\text{px}$ portrait y $\le 520\text{px}$ landscape), los botones del dock se estandarizan como círculos y cápsulas táctiles perfectas, previniendo esquinas afiladas y garantizando una interacción táctil sedosa.
+
 ---
 
 ## 8. Sistema de Configuración de Temas, Paletas de Interfaz y Personalización de Letras (`src/services/themeService.js` y `src/views/themeSettingsModal.js`)
@@ -630,6 +666,23 @@ Control deslizante independiente para regular la escala de visualización sin ro
 ### 8.5. Importación y Exportación de Paquetes de Tema (`saranga-theme-settings.json`)
 * **Exportación (`exportThemePackage`):** Empaqueta la totalidad de los 4 colores de interfaz, escalas de texto, colores y configuraciones tipográficas (incluyendo `completedColor`, `completedBold`, `completedItalic`) en un archivo JSON portable (`saranga-theme-settings.json`), desencadenando la descarga en el navegador con `Blob` (`application/json`).
 * **Importación (`importThemePackage`):** Admite la carga de archivos `.json` mediante input file o string. Realiza validación de campos, sanea escalas entre 50% y 200%, fusiona con `DEFAULT_THEME` para asegurar robustez, persiste en `localStorage` y actualiza inmediatamente todas las variables CSS de `:root` y la previsualización activa.
+
+### 8.6. Temas Visuales Personalizados por Canción (`lyrics_data.customTheme`)
+Para permitir que canciones individuales cuenten con una atmósfera estética o cromática única (por ejemplo, colores acordes a la portada, paletas temáticas o tipografía diferenciada) sin desconfigurar las preferencias del usuario:
+* **Conmutador Maestro Global (`enableSongThemes`):**
+  * Configurable en la Sección 5 del Modal de Temas (`#check-enable-song-themes`), activo por defecto (`true`).
+  * Si se desactiva, la aplicación ignora cualquier tema individual y utiliza incondicionalmente el tema global del usuario. Si un tema de canción estaba en pantalla al desactivarlo, se restaura inmediatamente el tema global (`restoreGlobalTheme()`).
+* **Editor Integrado en `songEditorView.js` (`#editor-theme-details`):**
+  * Posicionado estratégicamente como un acordeón plegable entre los Metadatos y la Letra.
+  * Selector toggle para activar/desactivar tema personalizado en la canción (`#check-enable-song-custom-theme`).
+  * Controles completos idénticos a los del modal de temas: 5 presets temáticos rápidos, botón "Copiar Tema Global", botón "Restablecer", caja de previsualización en vivo (`#editor-theme-live-preview-box`), 4 colores de interfaz (`bgColor`, `panelBg`, `primaryColor`, `textMain`), 3 sliders de escala (letra, traducción, fonética alternativo de 50% a 200%), 5 selectores cromáticos y tipográficos (original, altText, traducción, activa con glow, completadas) y 3 colores de alerta (`alertSuccessColor`, `alertInfoColor`, `alertErrorColor`).
+  * Sincronizado en tiempo real con el auto-guardado en segundo plano (debounce de 400ms).
+* **Persistencia Transparente e Interoperabilidad:**
+  * Almacenado en `lyrics_data.customTheme` dentro del store IndexedDB `songs`, sin requerir migraciones de base de datos.
+  * Incluido automáticamente en las exportaciones e importaciones de paquetes JSON (`song-package.json`, bibliotecas y respaldos completos).
+* **Ciclo de Vida de Aplicación en Tiempo Real (`main.js`):**
+  * Al transicionar a **Modo Letra** (`showLyricsScreen`), la aplicación evalúa si la canción activa cuenta con `customTheme` y si `enableSongThemes` está activo, llamando a `applySongTheme(customTheme)`.
+  * Al salir de Modo Letra (navegando al **Menú de Canciones** o al **Editor**), el sistema invoca de forma determinista `restoreGlobalTheme()`, garantizando que la navegación general preserve el tema global del usuario.
 
 ---
 
@@ -870,6 +923,9 @@ graph TD
   * Al mover una canción hacia arriba (`moveUp`) o hacia abajo (`moveDown`), el puntero `currentIndex` se reajusta automáticamente rastreando el ID de la canción que está sonando (`currentPlayingId`), evitando saltos involuntarios de pista.
   * Al activar el modo aleatorio (`shuffle()`), se aplica el algoritmo Fisher-Yates preservando la posición de la canción que está sonando y recalculando el nuevo índice de forma determinista.
 * **Navegación Secuencial:** Métodos `next()`, `prev()`, `hasNext()` y `hasPrev()` que orquestan el avance seguro sin errores de límites.
+* **Vaciado Selectivo (`clear({ keepCurrent = false })`):** Al invocar el vaciado con `keepCurrent: true`, se purgan todos los elementos de la cola conservando de forma transparente la pista activa en reproducción como único elemento en la posición `0`, sin provocar detenciones ni recargas del reproductor de audio/video.
+* **Desalojo Manual de la Pista en Reproducción:** Si el usuario retira manualmente la canción que se encuentra sonando en la playlist modal, el sistema transiciona inmediatamente a la siguiente pista disponible con reproducción fluida (`autoplay: true`). Si era la única canción en la cola, invoca `clearActivePlayback()`, deteniendo el audio/video por completo y reseteando los visores a estado inactivo (silencio).
+* **Alertas de Estado Homogéneas:** Las notificaciones emergentes de operaciones en la playlist ("añadida a la lista", "eliminada de la lista", etc.) emplean el diseño del sistema (`.status-alert` con `.btn-close-alert` y padding de 12px 18px), sustituyendo controles nativos del navegador.
 * **Persistencia Transparente:** La cola y el índice se serializan automáticamente en `localStorage` (`saranga_playlist`) para sobrevivir a recargas de página.
 
 ### 14.3. Avance Automático al Finalizar Canción (`PLAYER_STATE.ENDED`)

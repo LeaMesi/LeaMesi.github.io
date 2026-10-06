@@ -52,6 +52,24 @@
   - Eliminación integral de traslaciones (`translateY`, `translateX`) y escalados (`scale`) en estados `:hover` y `:active` a lo largo de toda la interfaz (`src/style.css`): título del encabezado global (`.brand-title`), versos anteriores y siguientes del visor de letras (`.past-phrase-item`, `.upcoming-phrase-item`), botón de salida de pantalla completa (`.btn-exit-fullscreen`), botón de reproducción/pausa (`.btn-play-pause`), pastillas de bibliotecas (`.lib-tab-pill`), tarjetas y filas del catálogo de canciones (`.song-menu-card`, `.song-menu-list-row`), botón para entrar a la letra (`.btn-enter-lyrics`), botón flotante de retorno arriba (`.btn-online-scroll-top`), botón de cantar del asistente del editor (`.btn-assistant-sing`), icono de edición de pestañas (`.tab-edit-icon`), botones de reproducción en listas (`.btn-play-item`) y botón play del minireproductor flotante (`.btn-floating-icon.btn-floating-play`).
   - Preservación íntegra de la retroalimentación visual no disruptiva (cambios de color, brillo, fondo y sombras), eliminando la inestabilidad física o desplazamientos involuntarios al interactuar y hacer clic.
 
+- [x] **12.9. Temas Visuales Personalizados por Canción:**
+  - Nuevo apartado interactivo en el editor de canciones (`songEditorView.js`), ubicado estratégicamente abajo de metadatos y arriba de las letras (`#editor-theme-details`).
+  - Permite configurar todos los atributos de un tema: 4 colores de interfaz (`bgColor`, `panelBg`, `primaryColor`, `textMain`), 3 sliders de escala tipográfica (letra original, traducción y Romaji), estilos y colores de versos (original, alt, traducción, activa con efecto de brillo, completadas), 3 colores de alertas de estado (`alertSuccessColor`, `alertInfoColor`, `alertErrorColor`), presets rápidos, botón de copia rápida del tema global actual y restablecimiento a valores por defecto.
+  - Previsualización en vivo en tiempo real (`#editor-theme-live-preview-box`) y guardado automático integrado en segundo plano en `currentSong.lyrics_data.customTheme`.
+  - Aplicación automática del tema en Modo Letra (`showLyricsScreen`) y restauración del tema global del usuario al salir (`showMenuScreen`, `showEditorScreen`).
+  - Conmutador en el modal de temas (`themeSettingsModal.js` y `themeService.js`) para activar o desactivar la aplicación de temas de canciones (`enableSongThemes`), habilitado por defecto (`true`).
+
+- [x] **16.14. Rediseño Suave y Redondeado de la Interfaz (Bordes Reducidos y Botones Píldora/Circulares):**
+  - Renovación integral de la escala de radios en `:root`: `--radius-sm` (14px), `--radius-md` (20px), `--radius-lg` (26px), `--radius-btn` (9999px) y `--panel-border` suavizado a `0.05` de opacidad.
+  - Transformación de todos los botones de acción (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-outline`, `.btn-play-pause`, `.btn-enter-lyrics`, `.btn-open-playlist`, etc.) a formato píldora (`border-radius: 9999px`) con padding ergonómico y sombras sutiles, eliminando el aspecto cuadrado y tosco.
+  - Botones de iconos (`.btn-prev-song`, `.btn-next-song`, `.btn-controls-volume`, `.btn-controls-fullscreen`, `.btn-controls-settings-toggle`, `.btn-close-modal`, `.btn-close-alert`) transformados en botones circulares suaves (`border-radius: 50%`).
+  - Redondeo ergonómico del buscador (`.search-input`), selectores de pista (`.track-toggle-group`), badges/etiquetas (`.badge`), alertas de estado (`.status-alert`), tarjetas de catálogo (`.song-menu-card` a 24px y `.song-menu-list-row` a 16px) y modales (`.modal-dialog` a 26px).
+  - Optimización específica para móviles (vertical y horizontal): dock con botones circulares de tacto sedoso a 38px/32px, esquinas redondeadas en tarjetas y popovers sin bordes agresivos.
+
+- [x] **16.15. Unificación Visual de Puntos de Tiempo (Seek Sliders / Thumbs):**
+  - Homogeneización del punto indicador de posición temporal en los tres reproductores de la app: minireproductor (`.floating-seek-slider`), modo letra (`.seek-slider`) y selector de tiempo del editor (`.editor-progress-slider`).
+  - Adopción uniforme del estilo del minireproductor: punto circular de 11px con fondo dinámico del tema (`var(--primary-color, #6366f1)`), borde blanco puro de 1.5px (`1.5px solid #fff`), sombra sutil envolvente (`box-shadow: 0 0 6px rgba(0, 0, 0, 0.4)`), cursor pointer y micro-animación en hover (`scale(1.2)`), eliminando deformaciones en hover y discrepancias entre navegadores y dispositivos móviles.
+
 ---
 
 ## Tareas Pendientes / Por Hacer

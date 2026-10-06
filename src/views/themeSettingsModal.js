@@ -59,7 +59,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
   function applyPreset(presetId) {
     const preset = THEME_PRESETS.find(p => p.id === presetId)
     if (!preset) return
-    currentSettings = { ...DEFAULT_THEME, ...preset.settings }
+    const currentEnableSongThemes = currentSettings.enableSongThemes
+    currentSettings = { ...DEFAULT_THEME, ...preset.settings, enableSongThemes: currentEnableSongThemes !== false }
     saveThemeSettings(currentSettings)
     render()
     if (onThemeChanged) {
@@ -249,9 +250,8 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
         <div class="modal-header">
           <div>
             <h2 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
-              ${iconPalette} Configuración de Temas y Visualización
+              ${iconPalette} Configuración de temas y visualización
             </h2>
-            <p class="subtitle">Personaliza los colores de la interfaz, el tamaño de las letras y los efectos de canto.</p>
           </div>
           <button class="btn-close-modal" id="btn-close-theme-modal" title="Cerrar configuración">${iconClose}</button>
         </div>
@@ -267,7 +267,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
           <!-- 0. Presets Rápidos y Compartir -->
           <div class="theme-section theme-presets-section">
             <div class="theme-presets-header">
-              <label class="theme-section-title">Temas Predefinidos:</label>
+              <label class="theme-section-title">Temas predefinidos:</label>
               <div class="theme-share-actions">
                 <button type="button" class="btn btn-outline btn-xs" id="btn-theme-export" title="Exportar configuración de tema a archivo JSON">
                   ${iconDownload} Exportar
@@ -289,7 +289,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
           <!-- 1. Vista Previa en Vivo -->
           <div class="theme-section theme-preview-section">
             <div class="preview-header">
-              <span class="theme-section-title">Vista Previa de Letras en Vivo:</span>
+              <span class="theme-section-title">Vista previa de letras en vivo:</span>
               <span class="preview-hint">Se actualiza en tiempo real mientras configuras</span>
             </div>
             <div class="theme-live-preview-box" id="theme-live-preview-box"></div>
@@ -298,15 +298,14 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
           <!-- 2. Los 4 Colores de la Interfaz -->
           <div class="theme-section">
             <div class="theme-section-header">
-              <h3 class="theme-section-title">1. Colores de la Interfaz (4 Colores Base)</h3>
-              <p class="theme-section-desc">Estos 4 colores se aplican en toda la plataforma: fondo, barras, paneles, botones y textos.</p>
+              <h3 class="theme-section-title">Colores de la interfaz</h3>
             </div>
 
             <div class="theme-colors-grid">
               <!-- Color 1: Fondo -->
               <div class="color-picker-card">
                 <div class="color-card-info">
-                  <span class="color-card-name">Color de Fondo</span>
+                  <span class="color-card-name">Color de fondo</span>
                   <span class="color-card-hint">Fondo general y visor</span>
                 </div>
                 <div class="color-picker-input-group">
@@ -318,7 +317,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Color 2: Paneles y Barras -->
               <div class="color-picker-card">
                 <div class="color-card-info">
-                  <span class="color-card-name">Barras y Paneles</span>
+                  <span class="color-card-name">Barras y paneles</span>
                   <span class="color-card-hint">Encabezado, dock y tarjetas</span>
                 </div>
                 <div class="color-picker-input-group">
@@ -330,7 +329,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Color 3: Botones y Acentos -->
               <div class="color-picker-card">
                 <div class="color-card-info">
-                  <span class="color-card-name">Botones y Acentos</span>
+                  <span class="color-card-name">Botones y acentos</span>
                   <span class="color-card-hint">Botones principales y foco</span>
                 </div>
                 <div class="color-picker-input-group">
@@ -342,7 +341,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Color 4: Texto de Interfaz -->
               <div class="color-picker-card">
                 <div class="color-card-info">
-                  <span class="color-card-name">Texto de Interfaz</span>
+                  <span class="color-card-name">Texto de interfaz</span>
                   <span class="color-card-hint">Títulos, etiquetas y menús</span>
                 </div>
                 <div class="color-picker-input-group">
@@ -356,15 +355,14 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
           <!-- 3. Sliders de Tamaño de Letra (Modo Canción) -->
           <div class="theme-section">
             <div class="theme-section-header">
-              <h3 class="theme-section-title">2. Tamaño de Letras en Modo Canción (50% a 200%)</h3>
-              <p class="theme-section-desc">Ajusta independientemente el tamaño de la letra original y de las traducciones.</p>
+              <h3 class="theme-section-title">Tamaño de letras en modo canción</h3>
             </div>
 
             <div class="sliders-grid">
               <!-- Slider Letra Original -->
               <div class="slider-control-card">
                 <div class="slider-header-row">
-                  <label for="slider-lyrics-scale" class="slider-label">Letra de la Canción (Original):</label>
+                  <label for="slider-lyrics-scale" class="slider-label">Letra de la canción (original):</label>
                   <span class="slider-value-badge" id="badge-lyrics-scale">${currentSettings.lyricsScale}%</span>
                 </div>
                 <div class="slider-input-wrapper">
@@ -385,7 +383,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Slider Traducciones -->
               <div class="slider-control-card">
                 <div class="slider-header-row">
-                  <label for="slider-translation-scale" class="slider-label">Letra de Traducciones:</label>
+                  <label for="slider-translation-scale" class="slider-label">Letra de traducciones:</label>
                   <span class="slider-value-badge" id="badge-translation-scale">${currentSettings.translationScale}%</span>
                 </div>
                 <div class="slider-input-wrapper">
@@ -406,7 +404,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Slider Texto Alternativo -->
               <div class="slider-control-card">
                 <div class="slider-header-row">
-                  <label for="slider-alt-scale" class="slider-label">Texto Alternativo (Romaji):</label>
+                  <label for="slider-alt-scale" class="slider-label">Texto alternativo:</label>
                   <span class="slider-value-badge" id="badge-alt-scale">${currentSettings.altScale || 100}%</span>
                 </div>
                 <div class="slider-input-wrapper">
@@ -429,8 +427,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
           <!-- 4. Colores y Estilos Tipográficos de Letras -->
           <div class="theme-section">
             <div class="theme-section-header">
-              <h3 class="theme-section-title">3. Colores y Efectos de la Letra y Canto</h3>
-              <p class="theme-section-desc">Personaliza colores de texto, resaltado de sílabas y atributos tipográficos (negrita, cursiva y brillo).</p>
+              <h3 class="theme-section-title">Colores y efectos de la letra</h3>
             </div>
 
             <div class="lyrics-style-cards-grid">
@@ -553,15 +550,14 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
           <!-- 4. Cuadros de Aviso y Notificaciones (Alertas de Estado) -->
           <div class="theme-section">
             <div class="theme-section-header">
-              <h3 class="theme-section-title">4. Cuadros de Aviso y Notificaciones</h3>
-              <p class="theme-section-desc">Personaliza el color de los mensajes de confirmación (éxito en respaldos, guardados e importaciones), notas informativas y alertas de error.</p>
+              <h3 class="theme-section-title">Cuadros de aviso</h3>
             </div>
 
             <div class="theme-colors-grid">
               <!-- Color Éxito -->
               <div class="color-picker-card">
                 <div class="color-card-info">
-                  <span class="color-card-name">Aviso de Éxito</span>
+                  <span class="color-card-name">Aviso de éxito</span>
                   <span class="color-card-hint">Respaldos, guardado e importaciones</span>
                 </div>
                 <div class="color-picker-input-group">
@@ -573,7 +569,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Color Informativo -->
               <div class="color-picker-card">
                 <div class="color-card-info">
-                  <span class="color-card-name">Aviso Informativo</span>
+                  <span class="color-card-name">Aviso informativo</span>
                   <span class="color-card-hint">Notas de estado y avisos del sistema</span>
                 </div>
                 <div class="color-picker-input-group">
@@ -585,7 +581,7 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
               <!-- Color Error -->
               <div class="color-picker-card">
                 <div class="color-card-info">
-                  <span class="color-card-name">Alerta de Error</span>
+                  <span class="color-card-name">Alerta de error</span>
                   <span class="color-card-hint">Advertencias y fallos de importación</span>
                 </div>
                 <div class="color-picker-input-group">
@@ -609,6 +605,26 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
                 <span class="status-alert-text">⚠ Error al conectar con el motor online.</span>
                 <span class="btn-close-alert" title="Ejemplo de botón de cierre">${iconClose}</span>
               </div>
+            </div>
+          </div>
+
+          <!-- 5. Temas Personalizados por Canción -->
+          <div class="theme-section">
+            <div class="theme-section-header">
+              <h3 class="theme-section-title">Temas personalizados por canción</h3>
+            </div>
+
+            <div class="color-picker-card" style="padding: 14px 16px; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px;">
+              <div class="color-card-info" style="flex: 1;">
+                <span class="color-card-name" style="font-size: 0.95rem;">Activar temas propios de canciones</span>
+                <span class="color-card-hint" style="font-size: 0.8rem; line-height: 1.4;">
+                  Cuando está activado, si una canción tiene configurado un tema personalizado en el editor, se aplicará automáticamente al reproducirla en Modo Letra. Si se desactiva, se usará siempre este tema global.
+                </span>
+              </div>
+              <label class="theme-toggle-chip" style="padding: 8px 14px; font-size: 0.88rem; flex-shrink: 0; cursor: pointer;">
+                <input type="checkbox" id="check-enable-song-themes" ${currentSettings.enableSongThemes !== false ? 'checked' : ''} />
+                <span>Activado</span>
+              </label>
             </div>
           </div>
         </div>
@@ -826,6 +842,9 @@ export function createThemeSettingsModal({ containerElement, onThemeChanged }) {
     bindColorPair('#picker-alert-success', '#hex-alert-success', 'alertSuccessColor')
     bindColorPair('#picker-alert-info', '#hex-alert-info', 'alertInfoColor')
     bindColorPair('#picker-alert-error', '#hex-alert-error', 'alertErrorColor')
+
+    // Temas Personalizados por Canción
+    bindCheckbox('#check-enable-song-themes', 'enableSongThemes')
   }
 
   // Aplicar tema inicial inmediatamente

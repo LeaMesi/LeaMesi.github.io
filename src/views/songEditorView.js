@@ -22,10 +22,18 @@ import {
   iconGlobe,
   iconEye,
   iconVolume,
-  iconVolumeMute
+  iconVolumeMute,
+  iconPalette,
+  iconRotateCcw
 } from './icons.js'
 import { hasJapanese, autoGenerateRomajiForLines } from '../lyrics/transliterationHelper.js'
 import { translatePhrase, translateLines } from '../services/translationService.js'
+import {
+  DEFAULT_THEME,
+  THEME_PRESETS,
+  getThemeSettings,
+  hexToRgba
+} from '../services/themeService.js'
 
 export function createSongEditorView({
   containerElement,
@@ -41,6 +49,7 @@ export function createSongEditorView({
   let statusMessage = ''
   let statusType = 'info' // 'info' | 'success' | 'error'
   let isMetadataOpen = true
+  let isThemeSectionOpen = false
   let isQuickImportModalOpen = false
   let isAddLanguageModalOpen = false
   let isEditLanguageModalOpen = false
@@ -163,6 +172,11 @@ export function createSongEditorView({
       ]
     }
 
+    const customThemeCandidate = song.customTheme || song.lyrics_data?.customTheme || song.lyrics_data?.theme || song.basic?.customTheme || song.basic?.theme
+    if (customThemeCandidate && typeof customThemeCandidate === 'object') {
+      song.lyrics_data.customTheme = { ...customThemeCandidate }
+    }
+
     return song
   }
 
@@ -253,10 +267,33 @@ export function createSongEditorView({
     onlineSourceName = loadOptions.sourceName || ''
 
     activeLangIndex = 0
-    expandedLineIndices = new Set([0]) // Expandir la primera frase por defecto
+    let initialActiveLine = 0
+    const curTime = mediaPlayer?.getCurrentTime ? Math.max(0, mediaPlayer.getCurrentTime() || 0) : 0
+    const activeLang = currentSong?.lyrics_data?.languages?.[0]
+    const lines = activeLang?.lines || []
+
+    if (curTime > 0 && lines.length > 0) {
+      const activeIdx = lines.findIndex(l => {
+        const { start, end } = getLineTimeRange(l)
+        return curTime >= start && curTime <= end
+      })
+      if (activeIdx !== -1) {
+        initialActiveLine = activeIdx
+      } else {
+        const nextIdx = lines.findIndex(l => {
+          const { start } = getLineTimeRange(l)
+          return start > curTime
+        })
+        if (nextIdx > 0) initialActiveLine = nextIdx - 1
+        else if (nextIdx === -1) initialActiveLine = lines.length - 1
+      }
+    }
+    expandedLineIndices = new Set([initialActiveLine])
+
     statusMessage = loadOptions.initialStatus?.message || ''
     statusType = loadOptions.initialStatus?.type || 'info'
     isMetadataOpen = !currentSong.title // Abrir metadatos si es una canción nueva
+    isThemeSectionOpen = Boolean(currentSong.lyrics_data?.customTheme)
     isQuickImportModalOpen = false
     isAddLanguageModalOpen = false
     isEditLanguageModalOpen = false
@@ -269,9 +306,15 @@ export function createSongEditorView({
     isSaving = false
     pendingSave = false
 
-    // Si tiene video con URL, opcionalmente cargarlo en el reproductor multimedia
+    // Si no está ya cargada en el reproductor y tiene video con URL, cargarla
+    const loadedMediaSong = mediaPlayer?.getCurrentSong ? mediaPlayer.getCurrentSong() : null
+    const isSameSongLoaded = loadedMediaSong && currentSong && (
+      (currentSong.id !== undefined && currentSong.id !== null && loadedMediaSong.id !== undefined && loadedMediaSong.id !== null && String(currentSong.id) === String(loadedMediaSong.id)) ||
+      (currentSong.title && loadedMediaSong.title && currentSong.title === loadedMediaSong.title && currentSong.artist === loadedMediaSong.artist)
+    )
+
     const firstVideo = currentSong.videos?.find(v => v.url)
-    if (firstVideo && typeof mediaPlayer?.loadSong === 'function') {
+    if (!isSameSongLoaded && firstVideo && typeof mediaPlayer?.loadSong === 'function') {
       mediaPlayer.loadSong(currentSong, firstVideo.id).catch(() => {})
     }
 
@@ -397,6 +440,106 @@ export function createSongEditorView({
     currentActiveSylKeys = nextActiveSylKeys
   }
 
+  function getActiveSongPresetId(theme) {
+    if (!theme) return 'custom'
+    for (const preset of THEME_PRESETS) {
+      const s = preset.settings
+      const isMatch =
+        s.bgColor.toLowerCase() === (theme.bgColor || '').toLowerCase() &&
+        s.panelBg.toLowerCase() === (theme.panelBg || '').toLowerCase() &&
+        s.primaryColor.toLowerCase() === (theme.primaryColor || '').toLowerCase() &&
+        s.textMain.toLowerCase() === (theme.textMain || '').toLowerCase() &&
+        s.originalColor.toLowerCase() === (theme.originalColor || '').toLowerCase() &&
+        s.translationColor.toLowerCase() === (theme.translationColor || '').toLowerCase() &&
+        s.activeColor.toLowerCase() === (theme.activeColor || '').toLowerCase()
+      if (isMatch) return preset.id
+    }
+    return 'custom'
+  }
+
+  function updateEditorThemePreview() {
+    if (!containerElement || !currentSong?.lyrics_data?.customTheme) return
+    const previewContainer = containerElement.querySelector('#editor-theme-live-preview-box')
+    if (!previewContainer) return
+
+    const theme = currentSong.lyrics_data.customTheme
+    const {
+      lyricsScale = 100,
+      translationScale = 100,
+      altScale = 100,
+      originalColor = '#cbd5e1',
+      altColor = '#a5f3fc',
+      translationColor = '#38bdf8',
+      activeColor = '#fbbf24',
+      completedColor = '#f59e0b',
+      originalBold = true,
+      originalItalic = false,
+      altBold = false,
+      altItalic = false,
+      translationBold = false,
+      translationItalic = true,
+      activeBold = true,
+      activeItalic = false,
+      activeGlow = true,
+      completedBold = true,
+      completedItalic = false
+    } = theme
+
+    const lScale = Math.max(50, Math.min(200, Number(lyricsScale) || 100)) / 100
+    const tScale = Math.max(50, Math.min(200, Number(translationScale) || 100)) / 100
+    const aScale = Math.max(50, Math.min(200, Number(altScale) || 100)) / 100
+
+    const glowStyle = activeGlow
+      ? `text-shadow: 0 0 16px ${hexToRgba(activeColor, 0.8)}, 0 0 32px ${hexToRgba(activeColor, 0.45)};`
+      : 'text-shadow: none;'
+
+    const mainActiveStyle = `
+      font-size: calc(1.5rem * ${lScale});
+      font-weight: ${originalBold ? '700' : '400'};
+      font-style: ${originalItalic ? 'italic' : 'normal'};
+      color: ${originalColor};
+    `
+    const sylCompletedStyle = `
+      color: ${completedColor};
+      font-weight: ${completedBold !== false ? '700' : '400'};
+      font-style: ${completedItalic ? 'italic' : 'normal'};
+    `
+    const sylActiveStyle = `
+      color: ${activeColor};
+      font-weight: ${activeBold ? '700' : '400'};
+      font-style: ${activeItalic ? 'italic' : 'normal'};
+      ${glowStyle}
+    `
+    const altActiveStyle = `
+      font-size: calc(1.05rem * ${lScale} * ${aScale});
+      font-weight: ${altBold ? '700' : '500'};
+      font-style: ${altItalic ? 'italic' : 'normal'};
+      color: ${altColor || '#a5f3fc'};
+      margin-top: 3px;
+    `
+    const transActiveStyle = `
+      font-size: calc(0.9rem * ${tScale});
+      font-weight: ${translationBold ? '700' : '400'};
+      font-style: ${translationItalic ? 'italic' : 'normal'};
+      color: ${translationColor};
+      margin-top: 2px;
+    `
+
+    previewContainer.innerHTML = `
+      <div class="preview-phrase-active">
+        <div class="preview-line-main" style="${mainActiveStyle}">
+          <span class="preview-syl-completed" style="${sylCompletedStyle}">Caminando </span><span class="preview-syl-highlight" style="${sylActiveStyle}">por la </span><span>ciudad</span>
+        </div>
+        <div class="preview-line-alt" style="${altActiveStyle}">
+          <span class="preview-syl-completed" style="${sylCompletedStyle}">Caminando </span><span class="preview-syl-highlight" style="${sylActiveStyle}">por la </span><span>ciudad</span>
+        </div>
+        <div class="preview-line-trans" style="${transActiveStyle}">
+          Walking through the city
+        </div>
+      </div>
+    `
+  }
+
   function render() {
     if (!containerElement || !currentSong) return
 
@@ -420,6 +563,25 @@ export function createSongEditorView({
     const isNew = !currentSong.id
     const totalSylCount = lines.reduce((acc, l) => acc + (l.syllables?.length || 0), 0)
     const hasJpInActiveLang = (lines || []).some(l => hasJapanese(l.text)) || (activeLang && hasJapanese(activeLang.plain || ''))
+
+    const songTheme = currentSong.lyrics_data?.customTheme || null
+    const hasCustomTheme = Boolean(songTheme)
+    const effectiveSongTheme = songTheme || { ...DEFAULT_THEME, ...getThemeSettings() }
+    const activeSongPreset = getActiveSongPresetId(effectiveSongTheme)
+    const themePresetsHtml = THEME_PRESETS.map(preset => {
+      const isSelected = activeSongPreset === preset.id
+      return `
+        <button
+          type="button"
+          class="btn-theme-preset btn-editor-theme-preset ${isSelected ? 'is-selected' : ''}"
+          data-preset-id="${preset.id}"
+          title="Aplicar tema ${preset.name} a esta canción"
+        >
+          <span class="preset-dot" style="background: ${preset.settings.primaryColor}"></span>
+          <span class="preset-name">${preset.name}</span>
+        </button>
+      `
+    }).join('')
 
     // Pestañas de idiomas
     const langTabsHtml = languages.map((lang, idx) => {
@@ -908,6 +1070,313 @@ export function createSongEditorView({
             </div>
           </details>
 
+          <!-- Apartado de Tema Visual de la Canción (Abajo de Metadatos y Arriba de las Letras) -->
+          <details class="editor-section-card editor-theme-card" ${isThemeSectionOpen ? 'open' : ''} id="editor-theme-details">
+            <summary class="editor-section-summary">
+              <span class="summary-title" style="display: flex; align-items: center; gap: 8px;">
+                ${iconPalette} Tema Visual Personalizado de la Canción
+              </span>
+              <span class="summary-badge" id="editor-theme-summary-badge">
+                ${hasCustomTheme ? 'Tema Personalizado' : 'Tema Global'}
+              </span>
+            </summary>
+
+            <div class="editor-section-body">
+              <div class="song-theme-header-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--panel-border);">
+                <div>
+                  <label class="theme-toggle-chip" style="font-size: 0.95rem; font-weight: 600; cursor: pointer; padding: 8px 14px;">
+                    <input type="checkbox" id="check-enable-song-custom-theme" ${hasCustomTheme ? 'checked' : ''} />
+                    <span>Personalizar tema visual para esta canción</span>
+                  </label>
+                  <p class="theme-section-desc" style="margin-top: 6px; margin-bottom: 0;">
+                    ${hasCustomTheme
+                      ? 'Esta canción tiene configurado un tema visual propio. Se aplicará al reproducir en Modo Letra.'
+                      : 'Esta canción utiliza el tema global de la aplicación. Activa esta opción si deseas cambiar fondo, paneles, botones, fuentes, colores y efectos de letras solo para esta canción.'}
+                  </p>
+                </div>
+              </div>
+
+              ${hasCustomTheme ? `
+                <!-- 0. Presets Rápidos y Copiar -->
+                <div class="theme-section theme-presets-section" style="margin-bottom: 18px;">
+                  <div class="theme-presets-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                    <span class="theme-section-title" style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">Temas Predefinidos:</span>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                      <button type="button" class="btn btn-outline btn-xs" id="btn-editor-copy-global-theme" title="Copiar los colores y estilos del tema global actual">
+                        ${iconPalette} Copiar Tema Global
+                      </button>
+                      <button type="button" class="btn btn-outline btn-xs" id="btn-editor-reset-song-theme" title="Restablecer tema a valores por defecto">
+                        ${iconRotateCcw} Restablecer
+                      </button>
+                    </div>
+                  </div>
+                  <div class="theme-presets-bar">
+                    ${themePresetsHtml}
+                    ${activeSongPreset === 'custom' ? `
+                      <span class="badge-custom-theme">Personalizado</span>
+                    ` : ''}
+                  </div>
+                </div>
+
+                <!-- 1. Vista Previa en Vivo -->
+                <div class="theme-section theme-preview-section" style="margin-bottom: 18px;">
+                  <div class="preview-header" style="margin-bottom: 8px;">
+                    <span class="theme-section-title" style="font-size: 0.85rem; font-weight: 600;">Vista Previa de Letras en Vivo:</span>
+                  </div>
+                  <div class="theme-live-preview-box" id="editor-theme-live-preview-box"></div>
+                </div>
+
+                <!-- 2. Colores de la Interfaz (4 Colores Base) -->
+                <div class="theme-section" style="margin-bottom: 18px;">
+                  <div class="theme-section-header" style="margin-bottom: 10px;">
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">1. Colores de la Interfaz (4 Colores Base)</h4>
+                    <p class="theme-section-desc" style="font-size: 0.78rem; margin: 0;">Colores para fondo, barras, botones y textos en esta canción.</p>
+                  </div>
+                  <div class="theme-colors-grid">
+                    <div class="color-picker-card">
+                      <div class="color-card-info">
+                        <span class="color-card-name">Color de Fondo</span>
+                        <span class="color-card-hint">Fondo del visor</span>
+                      </div>
+                      <div class="color-picker-input-group">
+                        <input type="color" class="color-swatch-input" id="picker-song-bg-color" value="${effectiveSongTheme.bgColor}" />
+                        <input type="text" class="color-hex-input" id="hex-song-bg-color" value="${effectiveSongTheme.bgColor}" maxlength="7" />
+                      </div>
+                    </div>
+                    <div class="color-picker-card">
+                      <div class="color-card-info">
+                        <span class="color-card-name">Barras y Paneles</span>
+                        <span class="color-card-hint">Encabezado y dock</span>
+                      </div>
+                      <div class="color-picker-input-group">
+                        <input type="color" class="color-swatch-input" id="picker-song-panel-bg" value="${effectiveSongTheme.panelBg}" />
+                        <input type="text" class="color-hex-input" id="hex-song-panel-bg" value="${effectiveSongTheme.panelBg}" maxlength="7" />
+                      </div>
+                    </div>
+                    <div class="color-picker-card">
+                      <div class="color-card-info">
+                        <span class="color-card-name">Botones y Acentos</span>
+                        <span class="color-card-hint">Botones y foco</span>
+                      </div>
+                      <div class="color-picker-input-group">
+                        <input type="color" class="color-swatch-input" id="picker-song-primary-color" value="${effectiveSongTheme.primaryColor}" />
+                        <input type="text" class="color-hex-input" id="hex-song-primary-color" value="${effectiveSongTheme.primaryColor}" maxlength="7" />
+                      </div>
+                    </div>
+                    <div class="color-picker-card">
+                      <div class="color-card-info">
+                        <span class="color-card-name">Texto de Interfaz</span>
+                        <span class="color-card-hint">Títulos y menús</span>
+                      </div>
+                      <div class="color-picker-input-group">
+                        <input type="color" class="color-swatch-input" id="picker-song-text-main" value="${effectiveSongTheme.textMain}" />
+                        <input type="text" class="color-hex-input" id="hex-song-text-main" value="${effectiveSongTheme.textMain}" maxlength="7" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Tamaño de Letras en Modo Canción -->
+                <div class="theme-section" style="margin-bottom: 18px;">
+                  <div class="theme-section-header" style="margin-bottom: 10px;">
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">2. Tamaño de Letras en Modo Canción (50% a 200%)</h4>
+                    <p class="theme-section-desc" style="font-size: 0.78rem; margin: 0;">Escala visual de la letra original, traducciones y Romaji.</p>
+                  </div>
+                  <div class="sliders-grid">
+                    <div class="slider-control-card">
+                      <div class="slider-header-row">
+                        <label for="slider-song-lyrics-scale" class="slider-label">Letra Original:</label>
+                        <span class="slider-value-badge" id="badge-song-lyrics-scale">${effectiveSongTheme.lyricsScale}%</span>
+                      </div>
+                      <div class="slider-input-wrapper">
+                        <span class="slider-bound-label">50%</span>
+                        <input type="range" id="slider-song-lyrics-scale" class="theme-range-slider" min="50" max="200" step="5" value="${effectiveSongTheme.lyricsScale}" />
+                        <span class="slider-bound-label">200%</span>
+                      </div>
+                    </div>
+                    <div class="slider-control-card">
+                      <div class="slider-header-row">
+                        <label for="slider-song-translation-scale" class="slider-label">Traducciones:</label>
+                        <span class="slider-value-badge" id="badge-song-translation-scale">${effectiveSongTheme.translationScale}%</span>
+                      </div>
+                      <div class="slider-input-wrapper">
+                        <span class="slider-bound-label">50%</span>
+                        <input type="range" id="slider-song-translation-scale" class="theme-range-slider" min="50" max="200" step="5" value="${effectiveSongTheme.translationScale}" />
+                        <span class="slider-bound-label">200%</span>
+                      </div>
+                    </div>
+                    <div class="slider-control-card">
+                      <div class="slider-header-row">
+                        <label for="slider-song-alt-scale" class="slider-label">Texto Alternativo (Romaji):</label>
+                        <span class="slider-value-badge" id="badge-song-alt-scale">${effectiveSongTheme.altScale || 100}%</span>
+                      </div>
+                      <div class="slider-input-wrapper">
+                        <span class="slider-bound-label">50%</span>
+                        <input type="range" id="slider-song-alt-scale" class="theme-range-slider" min="50" max="200" step="5" value="${effectiveSongTheme.altScale || 100}" />
+                        <span class="slider-bound-label">200%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Colores y Estilos Tipográficos de Letras -->
+                <div class="theme-section" style="margin-bottom: 18px;">
+                  <div class="theme-section-header" style="margin-bottom: 10px;">
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">3. Colores y Efectos de la Letra y Canto</h4>
+                    <p class="theme-section-desc" style="font-size: 0.78rem; margin: 0;">Colores, pesos, cursivas y efectos de resplandor para las letras.</p>
+                  </div>
+                  <div class="lyrics-style-cards-grid">
+                    <div class="lyric-style-card">
+                      <div class="lyric-style-title-col">
+                        <strong>Letra Original</strong>
+                        <span class="lyric-style-desc">Texto cantado principal</span>
+                      </div>
+                      <div class="lyric-style-color-col">
+                        <input type="color" class="color-swatch-input" id="picker-song-orig-color" value="${effectiveSongTheme.originalColor}" />
+                        <input type="text" class="color-hex-input" id="hex-song-orig-color" value="${effectiveSongTheme.originalColor}" maxlength="7" />
+                      </div>
+                      <div class="lyric-style-toggles-col">
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-orig-bold" ${effectiveSongTheme.originalBold ? 'checked' : ''} />
+                          <span>Negrita</span>
+                        </label>
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-orig-italic" ${effectiveSongTheme.originalItalic ? 'checked' : ''} />
+                          <span>Cursiva</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="lyric-style-card">
+                      <div class="lyric-style-title-col">
+                        <strong>Texto Alternativo (Romaji)</strong>
+                        <span class="lyric-style-desc">Transcripción fonética</span>
+                      </div>
+                      <div class="lyric-style-color-col">
+                        <input type="color" class="color-swatch-input" id="picker-song-alt-color" value="${effectiveSongTheme.altColor || '#a5f3fc'}" />
+                        <input type="text" class="color-hex-input" id="hex-song-alt-color" value="${effectiveSongTheme.altColor || '#a5f3fc'}" maxlength="7" />
+                      </div>
+                      <div class="lyric-style-toggles-col">
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-alt-bold" ${effectiveSongTheme.altBold ? 'checked' : ''} />
+                          <span>Negrita</span>
+                        </label>
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-alt-italic" ${effectiveSongTheme.altItalic ? 'checked' : ''} />
+                          <span>Cursiva</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="lyric-style-card">
+                      <div class="lyric-style-title-col">
+                        <strong>Traducción</strong>
+                        <span class="lyric-style-desc">Subtítulo secundario</span>
+                      </div>
+                      <div class="lyric-style-color-col">
+                        <input type="color" class="color-swatch-input" id="picker-song-trans-color" value="${effectiveSongTheme.translationColor}" />
+                        <input type="text" class="color-hex-input" id="hex-song-trans-color" value="${effectiveSongTheme.translationColor}" maxlength="7" />
+                      </div>
+                      <div class="lyric-style-toggles-col">
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-trans-bold" ${effectiveSongTheme.translationBold ? 'checked' : ''} />
+                          <span>Negrita</span>
+                        </label>
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-trans-italic" ${effectiveSongTheme.translationItalic ? 'checked' : ''} />
+                          <span>Cursiva</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="lyric-style-card is-highlight-card">
+                      <div class="lyric-style-title-col">
+                        <strong>Sílaba Activa (Resaltada)</strong>
+                        <span class="lyric-style-desc">Color y resplandor al cantar</span>
+                      </div>
+                      <div class="lyric-style-color-col">
+                        <input type="color" class="color-swatch-input" id="picker-song-active-color" value="${effectiveSongTheme.activeColor}" />
+                        <input type="text" class="color-hex-input" id="hex-song-active-color" value="${effectiveSongTheme.activeColor}" maxlength="7" />
+                      </div>
+                      <div class="lyric-style-toggles-col">
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-active-bold" ${effectiveSongTheme.activeBold ? 'checked' : ''} />
+                          <span>Negrita</span>
+                        </label>
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-active-italic" ${effectiveSongTheme.activeItalic ? 'checked' : ''} />
+                          <span>Cursiva</span>
+                        </label>
+                        <label class="theme-toggle-chip chip-glow">
+                          <input type="checkbox" id="check-song-active-glow" ${effectiveSongTheme.activeGlow ? 'checked' : ''} />
+                          <span>Efecto de Brillo</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="lyric-style-card">
+                      <div class="lyric-style-title-col">
+                        <strong>Sílabas Anteriores</strong>
+                        <span class="lyric-style-desc">Sílabas ya cantadas</span>
+                      </div>
+                      <div class="lyric-style-color-col">
+                        <input type="color" class="color-swatch-input" id="picker-song-completed-color" value="${effectiveSongTheme.completedColor || '#f59e0b'}" />
+                        <input type="text" class="color-hex-input" id="hex-song-completed-color" value="${effectiveSongTheme.completedColor || '#f59e0b'}" maxlength="7" />
+                      </div>
+                      <div class="lyric-style-toggles-col">
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-completed-bold" ${effectiveSongTheme.completedBold !== false ? 'checked' : ''} />
+                          <span>Negrita</span>
+                        </label>
+                        <label class="theme-toggle-chip">
+                          <input type="checkbox" id="check-song-completed-italic" ${effectiveSongTheme.completedItalic ? 'checked' : ''} />
+                          <span>Cursiva</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 5. Cuadros de Aviso y Notificaciones -->
+                <div class="theme-section">
+                  <div class="theme-section-header" style="margin-bottom: 10px;">
+                    <h4 class="theme-section-title" style="font-size: 0.9rem; font-weight: 600; margin: 0 0 4px;">4. Cuadros de Aviso y Notificaciones</h4>
+                    <p class="theme-section-desc" style="font-size: 0.78rem; margin: 0;">Colores para mensajes de éxito, información y error.</p>
+                  </div>
+                  <div class="theme-colors-grid">
+                    <div class="color-picker-card">
+                      <div class="color-card-info">
+                        <span class="color-card-name">Aviso de Éxito</span>
+                      </div>
+                      <div class="color-picker-input-group">
+                        <input type="color" class="color-swatch-input" id="picker-song-alert-success" value="${effectiveSongTheme.alertSuccessColor || '#22c55e'}" />
+                        <input type="text" class="color-hex-input" id="hex-song-alert-success" value="${effectiveSongTheme.alertSuccessColor || '#22c55e'}" maxlength="7" />
+                      </div>
+                    </div>
+                    <div class="color-picker-card">
+                      <div class="color-card-info">
+                        <span class="color-card-name">Aviso Informativo</span>
+                      </div>
+                      <div class="color-picker-input-group">
+                        <input type="color" class="color-swatch-input" id="picker-song-alert-info" value="${effectiveSongTheme.alertInfoColor || '#38bdf8'}" />
+                        <input type="text" class="color-hex-input" id="hex-song-alert-info" value="${effectiveSongTheme.alertInfoColor || '#38bdf8'}" maxlength="7" />
+                      </div>
+                    </div>
+                    <div class="color-picker-card">
+                      <div class="color-card-info">
+                        <span class="color-card-name">Alerta de Error</span>
+                      </div>
+                      <div class="color-picker-input-group">
+                        <input type="color" class="color-swatch-input" id="picker-song-alert-error" value="${effectiveSongTheme.alertErrorColor || '#ef4444'}" />
+                        <input type="text" class="color-hex-input" id="hex-song-alert-error" value="${effectiveSongTheme.alertErrorColor || '#ef4444'}" maxlength="7" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          </details>
+
           <!-- Sección de Idiomas y Frases -->
           <section class="editor-section-card editor-lyrics-section">
             <div class="editor-lyrics-header">
@@ -1199,8 +1668,18 @@ export function createSongEditorView({
     `
 
     const newScrollEl = containerElement.querySelector('.editor-content-scroll')
-    if (newScrollEl && previousScrollTop > 0) {
-      newScrollEl.scrollTop = previousScrollTop
+    if (newScrollEl) {
+      if (previousScrollTop > 0) {
+        newScrollEl.scrollTop = previousScrollTop
+      } else if (expandedLineIndices && expandedLineIndices.size === 1) {
+        const activeIdx = Array.from(expandedLineIndices)[0]
+        if (activeIdx > 0) {
+          const activeCard = newScrollEl.querySelector(`.phrase-editor-card[data-line-idx="${activeIdx}"]`)
+          if (activeCard && typeof activeCard.scrollIntoView === 'function') {
+            activeCard.scrollIntoView({ block: 'center' })
+          }
+        }
+      }
     }
     const newTabsEl = containerElement.querySelector('.editor-lang-tabs-bar')
     if (newTabsEl && previousTabsScrollLeft > 0) {
@@ -1211,6 +1690,7 @@ export function createSongEditorView({
     }
 
     bindEvents()
+    updateEditorThemePreview()
 
     const curTime = (mediaPlayer && typeof mediaPlayer.getCurrentTime === 'function')
       ? Math.max(0, mediaPlayer.getCurrentTime())
@@ -1417,6 +1897,8 @@ export function createSongEditorView({
       })
     }
 
+    const sliderTrack = containerElement.querySelector('.editor-volume-slider-track')
+
     if (volumeSlider) {
       volumeSlider.addEventListener('input', (e) => {
         const val = Number(e.target.value)
@@ -1431,6 +1913,54 @@ export function createSongEditorView({
           volumeBtn.title = `Volumen: ${val}%`
         }
       })
+    }
+
+    if (sliderTrack && volumeSlider) {
+      let isDraggingTrack = false
+
+      const updateEditorVolumeFromPointer = (e) => {
+        const rect = sliderTrack.getBoundingClientRect()
+        if (!rect || rect.height <= 0) return
+        const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0)
+        const relativeY = rect.bottom - clientY
+        const percent = Math.max(0, Math.min(100, Math.round((relativeY / rect.height) * 100)))
+        volumeSlider.value = String(percent)
+        if (mediaPlayer?.setVolume) {
+          mediaPlayer.setVolume(percent)
+        }
+        if (volumePercent) {
+          volumePercent.textContent = `${percent}%`
+        }
+        if (volumeBtn) {
+          volumeBtn.innerHTML = percent === 0 ? iconVolumeMute : iconVolume
+          volumeBtn.title = `Volumen: ${percent}%`
+        }
+      }
+
+      sliderTrack.addEventListener('pointerdown', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        isDraggingTrack = true
+        try { sliderTrack.setPointerCapture(e.pointerId) } catch (_) {}
+        updateEditorVolumeFromPointer(e)
+      })
+
+      sliderTrack.addEventListener('pointermove', (e) => {
+        if (!isDraggingTrack) return
+        e.preventDefault()
+        e.stopPropagation()
+        updateEditorVolumeFromPointer(e)
+      })
+
+      const stopDraggingTrack = (e) => {
+        if (isDraggingTrack) {
+          isDraggingTrack = false
+          try { sliderTrack.releasePointerCapture(e.pointerId) } catch (_) {}
+        }
+      }
+
+      sliderTrack.addEventListener('pointerup', stopDraggingTrack)
+      sliderTrack.addEventListener('pointercancel', stopDraggingTrack)
     }
 
     // Cerrar menú vertical de volumen al hacer clic en otro lado
@@ -2335,6 +2865,161 @@ export function createSongEditorView({
         await handleSaveSong(true)
       })
     }
+
+    // 9. Acordeones y Tema Visual Personalizado de la Canción
+    const metaDetails = containerElement.querySelector('#editor-metadata-details')
+    if (metaDetails) {
+      metaDetails.addEventListener('toggle', () => {
+        isMetadataOpen = metaDetails.open
+      })
+    }
+
+    const themeDetails = containerElement.querySelector('#editor-theme-details')
+    if (themeDetails) {
+      themeDetails.addEventListener('toggle', () => {
+        isThemeSectionOpen = themeDetails.open
+      })
+    }
+
+    const toggleSongThemeCb = containerElement.querySelector('#check-enable-song-custom-theme')
+    if (toggleSongThemeCb) {
+      toggleSongThemeCb.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          currentSong.lyrics_data = currentSong.lyrics_data || {}
+          currentSong.lyrics_data.customTheme = { ...DEFAULT_THEME, ...getThemeSettings() }
+          isThemeSectionOpen = true
+        } else {
+          if (currentSong.lyrics_data) {
+            delete currentSong.lyrics_data.customTheme
+          }
+        }
+        render()
+        triggerImmediateAutoSave()
+      })
+    }
+
+    // Presets de tema para la canción
+    const presetBtns = containerElement.querySelectorAll('.btn-editor-theme-preset')
+    presetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const presetId = btn.dataset.presetId
+        const preset = THEME_PRESETS.find(p => p.id === presetId)
+        if (preset) {
+          currentSong.lyrics_data = currentSong.lyrics_data || {}
+          currentSong.lyrics_data.customTheme = { ...DEFAULT_THEME, ...preset.settings }
+          render()
+          triggerImmediateAutoSave()
+        }
+      })
+    })
+
+    // Copiar tema global
+    const copyGlobalThemeBtn = containerElement.querySelector('#btn-editor-copy-global-theme')
+    if (copyGlobalThemeBtn) {
+      copyGlobalThemeBtn.addEventListener('click', () => {
+        currentSong.lyrics_data = currentSong.lyrics_data || {}
+        currentSong.lyrics_data.customTheme = { ...DEFAULT_THEME, ...getThemeSettings() }
+        render()
+        triggerImmediateAutoSave()
+      })
+    }
+
+    // Restablecer tema de la canción
+    const resetSongThemeBtn = containerElement.querySelector('#btn-editor-reset-song-theme')
+    if (resetSongThemeBtn) {
+      resetSongThemeBtn.addEventListener('click', () => {
+        currentSong.lyrics_data = currentSong.lyrics_data || {}
+        currentSong.lyrics_data.customTheme = { ...DEFAULT_THEME }
+        render()
+        triggerImmediateAutoSave()
+      })
+    }
+
+    function updateSongThemeSetting(key, val) {
+      if (!currentSong) return
+      if (!currentSong.lyrics_data) currentSong.lyrics_data = {}
+      if (!currentSong.lyrics_data.customTheme) {
+        currentSong.lyrics_data.customTheme = { ...DEFAULT_THEME, ...getThemeSettings() }
+      }
+      currentSong.lyrics_data.customTheme[key] = val
+      updateEditorThemePreview()
+      scheduleAutoSave(400)
+    }
+
+    function bindSongThemeColor(pickerId, hexId, key) {
+      const picker = containerElement.querySelector(pickerId)
+      const hex = containerElement.querySelector(hexId)
+      if (picker && hex) {
+        picker.addEventListener('input', (e) => {
+          hex.value = e.target.value
+          updateSongThemeSetting(key, e.target.value)
+        })
+        hex.addEventListener('input', (e) => {
+          let v = e.target.value.trim()
+          if (!v.startsWith('#')) v = '#' + v
+          if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+            picker.value = v
+            updateSongThemeSetting(key, v)
+          }
+        })
+      }
+    }
+
+    function bindSongThemeSlider(sliderId, badgeId, key) {
+      const slider = containerElement.querySelector(sliderId)
+      const badge = containerElement.querySelector(badgeId)
+      if (slider && badge) {
+        slider.addEventListener('input', (e) => {
+          const val = Number(e.target.value)
+          badge.textContent = `${val}%`
+          updateSongThemeSetting(key, val)
+        })
+      }
+    }
+
+    function bindSongThemeCheckbox(checkId, key) {
+      const cb = containerElement.querySelector(checkId)
+      if (cb) {
+        cb.addEventListener('change', (e) => {
+          updateSongThemeSetting(key, Boolean(e.target.checked))
+        })
+      }
+    }
+
+    // 4 Colores de Interfaz
+    bindSongThemeColor('#picker-song-bg-color', '#hex-song-bg-color', 'bgColor')
+    bindSongThemeColor('#picker-song-panel-bg', '#hex-song-panel-bg', 'panelBg')
+    bindSongThemeColor('#picker-song-primary-color', '#hex-song-primary-color', 'primaryColor')
+    bindSongThemeColor('#picker-song-text-main', '#hex-song-text-main', 'textMain')
+
+    // Sliders de tamaño
+    bindSongThemeSlider('#slider-song-lyrics-scale', '#badge-song-lyrics-scale', 'lyricsScale')
+    bindSongThemeSlider('#slider-song-translation-scale', '#badge-song-translation-scale', 'translationScale')
+    bindSongThemeSlider('#slider-song-alt-scale', '#badge-song-alt-scale', 'altScale')
+
+    // Colores y estilos de letra
+    bindSongThemeColor('#picker-song-orig-color', '#hex-song-orig-color', 'originalColor')
+    bindSongThemeColor('#picker-song-alt-color', '#hex-song-alt-color', 'altColor')
+    bindSongThemeColor('#picker-song-trans-color', '#hex-song-trans-color', 'translationColor')
+    bindSongThemeColor('#picker-song-active-color', '#hex-song-active-color', 'activeColor')
+    bindSongThemeColor('#picker-song-completed-color', '#hex-song-completed-color', 'completedColor')
+
+    bindSongThemeCheckbox('#check-song-orig-bold', 'originalBold')
+    bindSongThemeCheckbox('#check-song-orig-italic', 'originalItalic')
+    bindSongThemeCheckbox('#check-song-alt-bold', 'altBold')
+    bindSongThemeCheckbox('#check-song-alt-italic', 'altItalic')
+    bindSongThemeCheckbox('#check-song-trans-bold', 'translationBold')
+    bindSongThemeCheckbox('#check-song-trans-italic', 'translationItalic')
+    bindSongThemeCheckbox('#check-song-active-bold', 'activeBold')
+    bindSongThemeCheckbox('#check-song-active-italic', 'activeItalic')
+    bindSongThemeCheckbox('#check-song-active-glow', 'activeGlow')
+    bindSongThemeCheckbox('#check-song-completed-bold', 'completedBold')
+    bindSongThemeCheckbox('#check-song-completed-italic', 'completedItalic')
+
+    // Alertas de estado
+    bindSongThemeColor('#picker-song-alert-success', '#hex-song-alert-success', 'alertSuccessColor')
+    bindSongThemeColor('#picker-song-alert-info', '#hex-song-alert-info', 'alertInfoColor')
+    bindSongThemeColor('#picker-song-alert-error', '#hex-song-alert-error', 'alertErrorColor')
   }
 
   function updateAutoSaveIndicator(state) {
@@ -2574,6 +3259,7 @@ export function createSongEditorView({
     updateClock,
     setPlayingState,
     flushAutoSave: triggerImmediateAutoSave,
+    getCurrentSong: () => currentSong,
     destroy: () => {
       if (documentClickListener) {
         document.removeEventListener('click', documentClickListener)

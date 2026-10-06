@@ -44,7 +44,9 @@ export function createControlsView({
   onNextSong,
   onOpenPlaylist,
   onToggleFullscreen,
-  onOffsetChange
+  onOffsetChange,
+  initialSeekStep,
+  onSeekStepChange
 }) {
   let isPlaying = false
   let duration = 0
@@ -69,6 +71,10 @@ export function createControlsView({
   let pastLinesCount = (effectiveInitialPast !== undefined && effectiveInitialPast !== null && !isNaN(Number(effectiveInitialPast)))
     ? Math.max(0, Math.min(3, Number(effectiveInitialPast)))
     : 0
+  const savedSeekStep = localStorage.getItem('saranga_seek_step')
+  let seekStep = (savedSeekStep !== null && !isNaN(Number(savedSeekStep)))
+    ? Math.max(1, Math.min(60, Number(savedSeekStep)))
+    : ((initialSeekStep !== undefined && initialSeekStep !== null && !isNaN(Number(initialSeekStep))) ? Math.max(1, Math.min(60, Number(initialSeekStep))) : 5)
   let scriptDisplayMode = (initialScriptDisplayMode === 'original' || initialScriptDisplayMode === 'alt')
     ? initialScriptDisplayMode
     : 'both'
@@ -232,6 +238,21 @@ export function createControlsView({
                   </div>
 
                   <hr style="border: none; border-top: 1px solid var(--panel-border, rgba(255, 255, 255, 0.1));">
+
+                  <!-- Selector de segundos para saltar con flechas del teclado -->
+                  <div class="popover-item selector-group seek-step-group" title="Segundos para adelantar o retroceder con las flechas del teclado">
+                    <label for="seek-step-select">Avanzar:</label>
+                    <select id="seek-step-select" class="select-input select-small">
+                      <option value="1" ${seekStep === 1 ? 'selected' : ''}>1 segundo</option>
+                      <option value="2" ${seekStep === 2 ? 'selected' : ''}>2 segundos</option>
+                      <option value="3" ${seekStep === 3 ? 'selected' : ''}>3 segundos</option>
+                      <option value="5" ${seekStep === 5 ? 'selected' : ''}>5 segundos</option>
+                      <option value="10" ${seekStep === 10 ? 'selected' : ''}>10 segundos</option>
+                      <option value="15" ${seekStep === 15 ? 'selected' : ''}>15 segundos</option>
+                      <option value="30" ${seekStep === 30 ? 'selected' : ''}>30 segundos</option>
+                      ${![1, 2, 3, 5, 10, 15, 30].includes(seekStep) ? `<option value="${seekStep}" selected>${seekStep} segundos</option>` : ''}
+                    </select>
+                  </div>
 
                   <!-- Selector de Frases Anteriores (0 a 3) -->
                   <div class="popover-item selector-group past-lines-group" title="Cantidad de frases anteriores visibles arriba de la actual">
@@ -688,6 +709,18 @@ export function createControlsView({
       })
     }
 
+    const seekStepSelect = containerElement.querySelector('#seek-step-select')
+    if (seekStepSelect) {
+      seekStepSelect.value = String(seekStep)
+      seekStepSelect.addEventListener('change', (e) => {
+        const val = Number(e.target.value)
+        const step = isNaN(val) ? 5 : Math.max(1, Math.min(60, val))
+        seekStep = step
+        localStorage.setItem('saranga_seek_step', String(step))
+        if (onSeekStepChange) onSeekStepChange(step)
+      })
+    }
+
     const pastLinesSelect = containerElement.querySelector('#past-lines-select')
     if (pastLinesSelect) {
       pastLinesSelect.addEventListener('change', (e) => {
@@ -947,6 +980,13 @@ export function createControlsView({
     if (sel) sel.value = String(pastLinesCount)
   }
 
+  function setSeekStep(step) {
+    const val = Number(step)
+    seekStep = isNaN(val) ? 5 : Math.max(1, Math.min(60, val))
+    const sel = containerElement?.querySelector('#seek-step-select')
+    if (sel) sel.value = String(seekStep)
+  }
+
   function setScriptState({ hasAltText: hasAlt, mode }) {
     if (hasAlt !== undefined) hasAltText = Boolean(hasAlt)
     if (mode === 'both' || mode === 'original' || mode === 'alt') {
@@ -1035,6 +1075,8 @@ export function createControlsView({
     getPastLinesCount: () => pastLinesCount,
     setPreviousLinesCount: setPastLinesCount,
     getPreviousLinesCount: () => pastLinesCount,
+    setSeekStep,
+    getSeekStep: () => seekStep,
     setScriptState,
     setScriptDisplayMode,
     getScriptDisplayMode: () => scriptDisplayMode,

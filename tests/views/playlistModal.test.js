@@ -96,15 +96,17 @@ describe('views/playlistModal.js', () => {
     expect(playlist.getSongs()[1].id).toBe(10)
   })
 
-  it('permite quitar una canción con el botón eliminar', async () => {
+  it('permite quitar una canción con el botón eliminar y muestra aviso', async () => {
     playlist.addSongs([
       { id: 1, title: 'Canción A' },
       { id: 2, title: 'Canción B' }
     ])
 
+    const onRemoveSong = vi.fn()
     const modal = createPlaylistModal({
       containerElement: container,
-      playlistService: playlist
+      playlistService: playlist,
+      onRemoveSong
     })
 
     await modal.open()
@@ -114,6 +116,81 @@ describe('views/playlistModal.js', () => {
 
     expect(playlist.getState().count).toBe(1)
     expect(playlist.getSongs()[0].id).toBe(2)
+    expect(onRemoveSong).toHaveBeenCalledWith(expect.objectContaining({ id: 1, title: 'Canción A' }))
+
+    // Verifica que se muestre el aviso con clase .status-alert y botón .btn-close-alert
+    const alertEl = container.querySelector('.status-alert')
+    expect(alertEl).not.toBeNull()
+    expect(alertEl.textContent).toContain('Canción A')
+    expect(alertEl.textContent).toContain('eliminada de la lista')
+
+    const closeAlertBtn = container.querySelector('#btn-close-playlist-alert')
+    expect(closeAlertBtn).not.toBeNull()
+    closeAlertBtn.click()
+    expect(container.querySelector('.status-alert')).toBeNull()
+  })
+
+  it('al tocar Vaciar con una canción en reproducción, conserva la canción actual', async () => {
+    playlist.addSongs([
+      { id: 10, title: 'Canción Uno' },
+      { id: 20, title: 'Canción Dos' },
+      { id: 30, title: 'Canción Tres' }
+    ])
+    playlist.setCurrentIndex(1) // Canción Dos está en reproducción
+
+    const modal = createPlaylistModal({
+      containerElement: container,
+      playlistService: playlist
+    })
+
+    await modal.open()
+    const clearBtn = container.querySelector('#btn-pl-clear')
+    expect(clearBtn).not.toBeNull()
+
+    // El diálogo personalizado de confirmación showConfirm crea un backdrop en document.body
+    clearBtn.click()
+
+    // Simular confirmación en customPrompt
+    const confirmBtn = document.body.querySelector('#btn-confirm-custom-prompt')
+    expect(confirmBtn).not.toBeNull()
+    confirmBtn.click()
+
+    // Esperar microtareas para que resuelva la promesa
+    await new Promise(r => setTimeout(r, 10))
+
+    // La playlist ahora contiene únicamente la canción que estaba sonando (Canción Dos) en el índice 0
+    expect(playlist.getState().count).toBe(1)
+    expect(playlist.getCurrentIndex()).toBe(0)
+    expect(playlist.getCurrentSong().id).toBe(20)
+    expect(playlist.getCurrentSong().title).toBe('Canción Dos')
+
+    const alertEl = container.querySelector('.status-alert')
+    expect(alertEl).not.toBeNull()
+    expect(alertEl.textContent).toContain('conservando la canción en reproducción')
+  })
+
+  it('al tocar Vaciar cuando solo queda la canción actual, avisa sin borrarla', async () => {
+    playlist.addSongs([
+      { id: 20, title: 'Canción Dos' }
+    ])
+    playlist.setCurrentIndex(0)
+
+    const modal = createPlaylistModal({
+      containerElement: container,
+      playlistService: playlist
+    })
+
+    await modal.open()
+    const clearBtn = container.querySelector('#btn-pl-clear')
+    expect(clearBtn).not.toBeNull()
+    clearBtn.click()
+
+    // No debe abrir diálogo destructivo y debe mostrar mensaje informativo
+    expect(document.body.querySelector('#custom-dialog-confirm')).toBeNull()
+    const alertEl = container.querySelector('.status-alert')
+    expect(alertEl).not.toBeNull()
+    expect(alertEl.textContent).toContain('únicamente la canción actual')
+    expect(playlist.getState().count).toBe(1)
   })
 
   it('cierra el modal limpiando el contenedor', async () => {

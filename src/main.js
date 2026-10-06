@@ -1,7 +1,7 @@
 import './style.css'
 import { getDB } from './services/db.js'
 import { listSongs, fetchSongById, updateSongVideos } from './services/songService.js'
-import { applyTheme, subscribeTheme } from './services/themeService.js'
+import { applyTheme, subscribeTheme, applySongTheme, restoreGlobalTheme } from './services/themeService.js'
 import { createMediaPlayer, PLAYER_STATE } from './player/mediaPlayer.js'
 import { createLanguageManager } from './lyrics/languageManager.js'
 import { createBasicViewer } from './views/basicViewer.js'
@@ -469,12 +469,11 @@ async function initApp() {
 
     // 2. Si la canción eliminada o retirada es la que está sonando o cargada actualmente
     if (currentSong && Number(currentSong.id) === Number(evictedSongId)) {
-      const wasPlaying = mediaPlayer.getIsPlaying()
       mediaPlayer.stop()
 
       const nextSong = playlistService.getCurrentSong()
       if (nextSong) {
-        await loadSongIntoApp(nextSong.id, { autoplay: wasPlaying })
+        await loadSongIntoApp(nextSong.id, { autoplay: true })
         if (currentScreen === 'lyrics') {
           showLyricsScreen()
         }
@@ -553,9 +552,21 @@ async function initApp() {
     }
   })
 
-  // 8c. Suscribir a cambios de tema visual para reactualizar el menú
+  function updateLyricsTheme() {
+    const songTheme = currentSong?.lyrics_data?.customTheme || currentSong?.customTheme
+    if (songTheme) {
+      applySongTheme(songTheme)
+    } else {
+      restoreGlobalTheme()
+    }
+  }
+
+  // 8c. Suscribir a cambios de tema visual para reactualizar el menú y el visor
   subscribeTheme(() => {
     songMenuView?.updateHighlight?.()
+    if (currentScreen === 'lyrics') {
+      updateLyricsTheme()
+    }
   })
 
   function checkHasAltText(language) {
@@ -588,7 +599,8 @@ async function initApp() {
         lines: activeLanguage.lines,
         translations: transLines,
         isTranslationActive: isBilingual,
-        styles: currentSong.lyrics_data?.styles || {}
+        styles: currentSong.lyrics_data?.styles || {},
+        customTheme: currentSong.lyrics_data?.customTheme || currentSong.customTheme || null
       })
     }
   })
@@ -660,6 +672,7 @@ async function initApp() {
   function showMenuScreen() {
     clearAllStatusAlerts()
     exitFullscreenMode()
+    restoreGlobalTheme()
     currentScreen = 'menu'
     if (appContainer) appContainer.dataset.screen = 'menu'
     // No pausamos mediaPlayer para que la música siga sonando de fondo mientras se edita la playlist o el menú
@@ -695,6 +708,7 @@ async function initApp() {
 
   function showLyricsScreen() {
     clearAllStatusAlerts()
+    updateLyricsTheme()
     currentScreen = 'lyrics'
     if (appContainer) appContainer.dataset.screen = 'lyrics'
     floatingPlayerView.setVisible(false)
@@ -715,10 +729,21 @@ async function initApp() {
   async function showEditorScreen(songToEdit = null, loadOptions = {}) {
     clearAllStatusAlerts()
     exitFullscreenMode()
+    restoreGlobalTheme()
     currentScreen = 'editor'
     if (appContainer) appContainer.dataset.screen = 'editor'
     floatingPlayerView.setVisible(false)
-    mediaPlayer.pause()
+
+    // Solo pausar si la canción a editar no es la misma que ya está sonando o cargada en el reproductor
+    const activeLoadedSong = mediaPlayer?.getCurrentSong ? mediaPlayer.getCurrentSong() : currentSong
+    const isSameSong = activeLoadedSong && songToEdit && (
+      (songToEdit.id !== undefined && songToEdit.id !== null && activeLoadedSong.id !== undefined && activeLoadedSong.id !== null && String(songToEdit.id) === String(activeLoadedSong.id)) ||
+      (songToEdit.title && activeLoadedSong.title && songToEdit.title === activeLoadedSong.title && songToEdit.artist === activeLoadedSong.artist)
+    )
+
+    if (!isSameSong) {
+      mediaPlayer.pause()
+    }
 
     if (menuScreenEl) menuScreenEl.style.display = 'none'
     if (lyricsScreenEl) lyricsScreenEl.style.display = 'none'
@@ -758,7 +783,7 @@ async function initApp() {
       showMenuScreen()
     })
     brandTitleEl.addEventListener('keydown', async (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (e.key === 'Enter') {
         e.preventDefault()
         if (currentScreen === 'editor' && songEditorInstance?.flushAutoSave) {
           await songEditorInstance.flushAutoSave()
@@ -840,7 +865,59 @@ async function initApp() {
     if (autoplay) {
       mediaPlayer.play()
     }
+
+    if (currentScreen === 'lyrics') {
+      updateLyricsTheme()
+    }
   }
+
+  // 12. Atajos de teclado: Barra espaciadora (reproducir/pausar) y flechas (retroceder/adelantar)
+  function getKeyboardSeekStep() {
+    if (controlsView && typeof controlsView.getSeekStep === 'function') {
+      return controlsView.getSeekStep()
+    }
+    const saved = localStorage.getItem('saranga_seek_step')
+    if (saved !== null && !isNaN(Number(saved))) {
+      return Math.max(1, Math.min(60, Number(saved)))
+    }
+    return 5
+  }
+
+  window.addEventListener('keydown', (e) => {
+    const isSpace = e.key === ' ' || e.key === 'Spacebar' || e.code === 'Space'
+    const isArrow = e.key === 'ArrowLeft' || e.key === 'ArrowRight'
+    if (!isSpace && !isArrow) return
+    if (e.altKey || e.ctrlKey || e.metaKey) return
+
+    if (isTypingContext(e.target)) return
+
+    if (isSpace) {
+      e.preventDefault()
+      if (e.repeat) return
+      if (mediaPlayer && typeof mediaPlayer.togglePlay === 'function') {
+        mediaPlayer.togglePlay()
+      }
+      return
+    }
+
+    if (isArrow) {
+      // Si no hay reproductor o no hay tiempo que consultar
+      if (!mediaPlayer || typeof mediaPlayer.getCurrentTime !== 'function') return
+      const curTime = mediaPlayer.getCurrentTime()
+      const dur = mediaPlayer.getDuration()
+      if (dur <= 0 && curTime <= 0) return
+
+      e.preventDefault()
+      const step = getKeyboardSeekStep()
+
+      if (e.key === 'ArrowLeft') {
+        mediaPlayer.seek(Math.max(0, curTime - step))
+      } else if (e.key === 'ArrowRight') {
+        const maxTime = dur > 0 ? dur : (curTime + step)
+        mediaPlayer.seek(Math.min(maxTime, curTime + step))
+      }
+    }
+  })
 
   // 13. Inicializar Base de Datos y cargar menú inicial
   try {
@@ -859,5 +936,21 @@ async function initApp() {
   }
 }
 
+// Función para detectar si el foco activo es un contexto de edición o tipeo de texto
+export function isTypingContext(target) {
+  if (!target) return false
+  if (target.isContentEditable || (target.closest && target.closest('[contenteditable="true"]'))) return true
+  const tag = target.tagName ? target.tagName.toUpperCase() : ''
+  if (tag === 'TEXTAREA') return true
+  if (tag === 'INPUT') {
+    const type = (target.type || 'text').toLowerCase()
+    const nonTypingTypes = ['range', 'button', 'submit', 'reset', 'checkbox', 'radio', 'color', 'file', 'image']
+    return !nonTypingTypes.includes(type)
+  }
+  return false
+}
+
 // Iniciar aplicación al cargar el DOM
 document.addEventListener('DOMContentLoaded', initApp)
+
+export { initApp }

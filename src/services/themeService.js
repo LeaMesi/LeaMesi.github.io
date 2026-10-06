@@ -37,7 +37,10 @@ export const DEFAULT_THEME = {
   // 4. Cuadros de Aviso y Notificaciones (Alertas de Estado)
   alertSuccessColor: '#22c55e',
   alertInfoColor: '#38bdf8',
-  alertErrorColor: '#ef4444'
+  alertErrorColor: '#ef4444',
+
+  // 5. Configuración de Temas de Canciones
+  enableSongThemes: true
 }
 
 export const THEME_PRESETS = [
@@ -46,7 +49,7 @@ export const THEME_PRESETS = [
     name: 'Predeterminado Oscuro',
     settings: {
       bgColor: '#0b0f19',
-      panelBg: '#0f172a',
+      panelBg: '#172035',
       primaryColor: '#6366f1',
       textMain: '#f8fafc',
       lyricsScale: 100,
@@ -75,7 +78,7 @@ export const THEME_PRESETS = [
     name: 'Cyberpunk Neón',
     settings: {
       bgColor: '#0a0518',
-      panelBg: '#180e33',
+      panelBg: '#1f133e',
       primaryColor: '#ec4899',
       textMain: '#fdf4ff',
       lyricsScale: 100,
@@ -103,7 +106,7 @@ export const THEME_PRESETS = [
     id: 'emerald',
     name: 'Bosque Esmeralda',
     settings: {
-      bgColor: '#062019',
+      bgColor: '#021912',
       panelBg: '#0d3328',
       primaryColor: '#10b981',
       textMain: '#f0fdf4',
@@ -132,8 +135,8 @@ export const THEME_PRESETS = [
     id: 'sunset',
     name: 'Atardecer Cálido',
     settings: {
-      bgColor: '#1c0f0b',
-      panelBg: '#2f150e',
+      bgColor: '#170b07',
+      panelBg: '#3e2017',
       primaryColor: '#f97316',
       textMain: '#fff7ed',
       lyricsScale: 100,
@@ -228,6 +231,57 @@ export function adjustBrightness(hex, percent) {
   return `#${toHex(clamp(r))}${toHex(clamp(g))}${toHex(clamp(b))}`
 }
 
+let activeAppliedTheme = null
+let isSongThemeActive = false
+
+/**
+ * Indica si los temas personalizados por canción están habilitados globalmente
+ */
+export function isSongThemesEnabled() {
+  const settings = getThemeSettings()
+  return settings.enableSongThemes !== false
+}
+
+/**
+ * Aplica el tema propio de una canción en el DOM si la opción está activada
+ */
+export function applySongTheme(songTheme) {
+  const globalSettings = getThemeSettings()
+  if (globalSettings.enableSongThemes !== false && songTheme && typeof songTheme === 'object') {
+    const merged = { ...globalSettings, ...songTheme }
+    isSongThemeActive = true
+    activeAppliedTheme = merged
+    applyTheme(merged)
+    return merged
+  }
+  return restoreGlobalTheme()
+}
+
+/**
+ * Restablece y aplica el tema global del usuario en el DOM
+ */
+export function restoreGlobalTheme() {
+  isSongThemeActive = false
+  const globalSettings = getThemeSettings()
+  activeAppliedTheme = globalSettings
+  applyTheme(globalSettings)
+  return globalSettings
+}
+
+/**
+ * Obtiene el tema actualmente aplicado en el DOM (canción o global)
+ */
+export function getActiveAppliedTheme() {
+  return activeAppliedTheme || getThemeSettings()
+}
+
+/**
+ * Indica si actualmente está activo un tema de canción en lugar del global
+ */
+export function isCustomSongThemeActive() {
+  return isSongThemeActive
+}
+
 /**
  * Obtiene la configuración guardada o la predeterminada
  */
@@ -253,7 +307,11 @@ export function saveThemeSettings(newSettings) {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
     }
-    applyTheme(merged)
+    if (isSongThemeActive && merged.enableSongThemes === false) {
+      restoreGlobalTheme()
+    } else if (!isSongThemeActive) {
+      applyTheme(merged)
+    }
     notifyListeners(merged)
     return merged
   } catch (err) {
@@ -268,7 +326,7 @@ export function saveThemeSettings(newSettings) {
 export function resetThemeSettings() {
   localStorage.removeItem(STORAGE_KEY)
   const defaultTheme = { ...DEFAULT_THEME }
-  applyTheme(defaultTheme)
+  restoreGlobalTheme()
   notifyListeners(defaultTheme)
   return defaultTheme
 }
@@ -277,6 +335,7 @@ export function resetThemeSettings() {
  * Inyecta las variables CSS dinámicas en :root
  */
 export function applyTheme(theme = getThemeSettings()) {
+  activeAppliedTheme = theme
   if (typeof document === 'undefined') return
   const root = document.documentElement
 
@@ -311,7 +370,7 @@ export function applyTheme(theme = getThemeSettings()) {
   root.style.setProperty('--panel-bg', panelBg)
 
   const isLightPanel = getLuminance(panelBg) > 0.5
-  const panelBorder = isLightPanel ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.08)'
+  const panelBorder = isLightPanel ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.05)'
   root.style.setProperty('--panel-border', panelBorder)
 
   root.style.setProperty('--primary-color', primaryColor)
@@ -493,7 +552,8 @@ export async function importThemePackage(fileOrString) {
     'lyricsScale', 'translationScale', 'altScale',
     'originalColor', 'altColor', 'translationColor', 'activeColor', 'completedColor',
     'originalBold', 'originalItalic', 'altBold', 'altItalic', 'translationBold', 'translationItalic',
-    'activeBold', 'activeItalic', 'activeGlow', 'completedBold', 'completedItalic'
+    'activeBold', 'activeItalic', 'activeGlow', 'completedBold', 'completedItalic',
+    'alertSuccessColor', 'alertInfoColor', 'alertErrorColor', 'enableSongThemes'
   ]
 
   const hasAnyKey = validKeys.some(key => key in rawTheme)

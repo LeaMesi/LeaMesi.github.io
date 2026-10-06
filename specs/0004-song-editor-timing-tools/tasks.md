@@ -75,6 +75,9 @@
 - [x] **20.9. Carga Perezosa (Lazy Loading) y Reducción de Consumo de RAM en Móviles:**
   - Desacoplamiento de `songEditorView.js` del bundle principal inicial mediante importación dinámica `await import('./views/songEditorView.js')` dentro de `getSongEditorView()`, separándolo en un chunk asíncrono independiente.
   - El módulo del editor (~2.500 líneas) no se descarga, no se parsea ni se aloja en la memoria RAM en el arranque de la aplicación, manteniéndose completamente descargado mientras el usuario escucha música o lee letras en su dispositivo móvil.
+- [x] **20.10. Transición Continua de Reproducción y Adaptación Inmediata de Estado:**
+  - Al ingresar al editor desde el Modo Letra o Menú para editar la canción activa, se suprime la pausa automática (`mediaPlayer.pause()`) y se evita la recarga/reinicio de la pista en `mediaPlayer.loadSong(...)`.
+  - El editor adapta su interfaz al estado activo: botón de reproducción con icono de pausa, reloj de asistente en vivo (`mm:ss.mmm`), slider posicionado en el tiempo actual, expansión automática de la frase en canto y scroll centrado hacia ella.
 
 ---
 

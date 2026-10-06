@@ -533,7 +533,7 @@ describe('views/songMenuView.js', () => {
     expect(deleteBtn).not.toBeNull()
 
     deleteBtn.click()
-    await new Promise(resolve => setTimeout(resolve, 60))
+    await new Promise(resolve => setTimeout(resolve, 150))
 
     expect(confirmSpy).toHaveBeenCalled()
     expect(onDeleteSong).toHaveBeenCalledWith(songId)

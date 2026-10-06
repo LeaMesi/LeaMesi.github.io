@@ -1,5 +1,5 @@
 import { findActiveLineIndex, evaluateSyllablesState, findMatchingTranslationLine } from '../lyrics/sync.js'
-import { applyTheme } from '../services/themeService.js'
+import { applyTheme, applySongTheme, isCustomSongThemeActive } from '../services/themeService.js'
 
 export function createBasicViewer(containerElement, options = {}) {
   const {
@@ -26,9 +26,13 @@ export function createBasicViewer(containerElement, options = {}) {
   let cachedSyllableSpans = []
   let previousSyllableStates = []
 
-  function applyStyles(styles = {}) {
+  function applyStyles(styles = {}, customTheme = null) {
     if (!containerElement) return
-    applyTheme()
+    if (customTheme) {
+      applySongTheme(customTheme)
+    } else if (!isCustomSongThemeActive()) {
+      applyTheme()
+    }
     const root = document.documentElement
     if (styles.fontFamily) root.style.setProperty('--lyrics-font-family', styles.fontFamily)
   }
@@ -68,11 +72,11 @@ export function createBasicViewer(containerElement, options = {}) {
     }
   }
 
-  function setLyrics({ lines = [], translations = [], isTranslationActive: activeTrans = false, styles = {} }) {
+  function setLyrics({ lines = [], translations = [], isTranslationActive: activeTrans = false, styles = {}, customTheme = null }) {
     currentLines = Array.isArray(lines) ? lines : []
     translationLines = Array.isArray(translations) ? translations : []
     isTranslationActive = Boolean(activeTrans) && translationLines.length > 0
-    applyStyles(styles)
+    applyStyles(styles, customTheme)
     activeLineIndex = -1
     renderedActiveIndex = -999
     cachedSyllableSpans = []

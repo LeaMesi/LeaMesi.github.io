@@ -99,6 +99,33 @@ describe('views/controlsView.js', () => {
     expect(controls.getPastLinesCount()).toBe(3)
   })
 
+  it('permite elegir cuántos segundos adelantar y retroceder con el teclado y persiste en localStorage', () => {
+    localStorage.removeItem('saranga_seek_step')
+    const onSeekStepChange = vi.fn()
+    const controls = createControlsView({
+      containerElement: container,
+      initialSeekStep: 5,
+      onSeekStepChange
+    })
+    controls.render()
+
+    const seekSelect = container.querySelector('#seek-step-select')
+    expect(seekSelect).not.toBeNull()
+    expect(seekSelect.value).toBe('5')
+
+    seekSelect.value = '10'
+    seekSelect.dispatchEvent(new Event('change'))
+
+    expect(onSeekStepChange).toHaveBeenCalledWith(10)
+    expect(localStorage.getItem('saranga_seek_step')).toBe('10')
+    expect(controls.getSeekStep()).toBe(10)
+
+    // Modificar vía método público setSeekStep
+    controls.setSeekStep(15)
+    expect(seekSelect.value).toBe('15')
+    expect(controls.getSeekStep()).toBe(15)
+  })
+
   it('no incluye botones de esconder o expandir el dock y provee botón de pantalla completa', () => {
     const onToggleFullscreen = vi.fn()
     const controls = createControlsView({ containerElement: container, onToggleFullscreen })

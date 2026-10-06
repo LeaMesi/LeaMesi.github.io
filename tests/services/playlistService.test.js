@@ -339,6 +339,42 @@ describe('services/playlistService.js', () => {
     expect(playlist.getCurrentSong()).toBeNull()
     expect(playlist.getCurrentIndex()).toBe(-1)
   })
+
+  it('vacía la playlist conservando la canción actual con clear({ keepCurrent: true })', () => {
+    const playlist = createPlaylistService({ storageKey: 'test_clear_keep_current' })
+    playlist.addSongs([
+      { id: 10, title: 'Primero' },
+      { id: 20, title: 'Segundo' },
+      { id: 30, title: 'Tercero' }
+    ])
+
+    playlist.setCurrentIndex(1) // Canción 20 ('Segundo')
+    expect(playlist.getCurrentSong().id).toBe(20)
+
+    // Vaciar conservando la canción actual
+    playlist.clear({ keepCurrent: true })
+    expect(playlist.getState().count).toBe(1)
+    expect(playlist.getCurrentIndex()).toBe(0)
+    expect(playlist.getCurrentSong().id).toBe(20)
+    expect(playlist.getSongs()[0].title).toBe('Segundo')
+
+    // Si se llama a clear sin keepCurrent, se vacía por completo
+    playlist.clear()
+    expect(playlist.getState().count).toBe(0)
+    expect(playlist.getCurrentIndex()).toBe(-1)
+    expect(playlist.getCurrentSong()).toBeNull()
+  })
+
+  it('si no hay canción actual, clear({ keepCurrent: true }) vacía toda la lista', () => {
+    const playlist = createPlaylistService({ storageKey: 'test_clear_keep_current_none' })
+    // Lista vacía sin canción activa
+    expect(playlist.getCurrentIndex()).toBe(-1)
+    expect(playlist.getCurrentSong()).toBeNull()
+
+    playlist.clear({ keepCurrent: true })
+    expect(playlist.getState().count).toBe(0)
+    expect(playlist.getCurrentIndex()).toBe(-1)
+  })
 })
 
 
