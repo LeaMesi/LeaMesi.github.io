@@ -32,6 +32,8 @@
 - [x] **13.5. Separador Visual y Formato Limpio de Offset en el Popover de Configuración:**
   - Inserción de divisor horizontal (`<hr>`) entre la sección de calibración de video y los controles de visualización de frases.
   - Formateo conciso del valor de offset en las opciones del selector de video (`[${off}s]`), simplificando la lectura en la interfaz.
+- [x] **13.6. Evaluación Silábica de Cero Asignaciones (Zero GC Churn) en `basicViewer.js`:**
+  - Sustitución de `evaluateSyllablesState` (que generaba arrays de nuevos objetos en cada frame) por evaluación directa en bucle numérico con *dirty checking* contra `previousSyllableStates[sIdx]`, suprimiendo por completo pausas de recolección de basura (*GC pauses*) en pantallas de 60/90/120 Hz.
 
 ---
 

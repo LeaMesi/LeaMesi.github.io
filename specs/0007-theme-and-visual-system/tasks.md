@@ -69,6 +69,11 @@
 - [x] **16.15. Unificación Visual de Puntos de Tiempo (Seek Sliders / Thumbs):**
   - Homogeneización del punto indicador de posición temporal en los tres reproductores de la app: minireproductor (`.floating-seek-slider`), modo letra (`.seek-slider`) y selector de tiempo del editor (`.editor-progress-slider`).
   - Adopción uniforme del estilo del minireproductor: punto circular de 11px con fondo dinámico del tema (`var(--primary-color, #6366f1)`), borde blanco puro de 1.5px (`1.5px solid #fff`), sombra sutil envolvente (`box-shadow: 0 0 6px rgba(0, 0, 0, 0.4)`), cursor pointer y micro-animación en hover (`scale(1.2)`), eliminando deformaciones en hover y discrepancias entre navegadores y dispositivos móviles.
+- [x] **12.10. Depuración Visual y Normalización Tipográfica en Selectores de Tema (`themeSettingsModal.js` y `style.css`):**
+  - Supresión de subtítulos y textos explicativos redundantes (`.color-card-hint`, `.lyric-style-desc`) en los paneles de color general, estilos de letra y avisos, optimizando la altura útil del modal.
+  - Normalización de mayúsculas a *sentence casing* ("Letra original", "Texto alternativo (romaji)", "Sílaba activa (resaltada)", "Sílabas anteriores", "Aviso de éxito", "Aviso informativo", "Alerta de error").
+  - Estilización y mejora de tarjetas de selección de temas en CSS (`293fd22`).
+  - Supresión definitiva del enlace CDN externo de Font Awesome en `index.html` (`02d42e3`), asegurando carga 100% autónoma y sin dependencias externas de red.
 
 ---
 

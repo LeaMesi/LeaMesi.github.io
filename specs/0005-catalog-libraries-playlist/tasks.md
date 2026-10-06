@@ -40,6 +40,8 @@
   - Botón "Vaciar" (`#btn-pl-clear`) actualizado con confirmación descriptiva para invocar `playlistService.clear({ keepCurrent: true })`, vaciando todas las canciones de la cola pero conservando de forma transparente en el índice 0 la canción que se encuentra en reproducción actualmente, sin detener ni recargar el audio/video.
   - Al eliminar manualmente la canción activa con el botón de la fila, avanza automáticamente a la siguiente canción de la lista con reproducción inmediata (`autoplay: true`), y si era la única canción de la lista, detiene la reproducción por completo (`clearActivePlayback()`) dejando la app en silencio.
   - Alertas de estado en el modal de playlist armonizadas con el diseño global (`.status-alert`, `.status-alert-text` y botón `.btn-close-alert` con icono SVG `iconClose`), eliminando el botón "X" nativo/feo del navegador y agregando padding espacioso de 12px 18px.
+- [x] **26.9. Compactado del Encabezado del Modal de Playlist (`playlistModal.js`):**
+  - Supresión del párrafo de subtítulo informativo en la cabecera del modal ("Gestiona la cola de reproducción sin interrumpir la música actual."), reduciendo la altura vertical ocupada y maximizando el espacio de visualización de canciones.
 
 ---
 

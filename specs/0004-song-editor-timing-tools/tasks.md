@@ -87,6 +87,9 @@
   - Corrección de la superposición de elementos en pantallas verticales (`orientation: portrait` o ancho <= 1150px) eliminando el posicionamiento absoluto flotante desbordado de los controles de tiempo.
   - Reorganización en dos filas fluidas: controles de tiempo (reproducción, saltos relativos, reloj de precisión y botón de prueba en Modo Letra) permanecen arriba en la fila 1 centrados con `position: static`, mientras que la barra de tiempo (volumen y slider interactivo) y el badge de guardado pasan ordenadamente hacia abajo en la fila 2.
   - En espacios reducidos (ancho <= 520px), ocultamiento dinámico del texto "Guardado" mediante CSS (`display: none`), preservando el punto circular de color del estado (`.autosave-dot`) y tooltip explicativo para garantizar que la barra de progreso cuente con el máximo espacio disponible.
+- [x] **20.13. Depuración Visual y Normalización Tipográfica en Tema Propio de Canción (`songEditorView.js`):**
+  - Supresión de subtítulos y textos explicativos redundantes en los bloques de configuración de temas dentro del editor ("Tamaño de letras en modo canción", "Colores y efectos de la letra y canto", "Cuadros de aviso y notificaciones"), reduciendo la altura vertical y la sobrecarga visual.
+  - Normalización tipográfica a *sentence casing* en etiquetas y estilos ("Letra original", "Texto alternativo (romaji)", "Sílaba activa (resaltada)", "Sílabas anteriores", "Aviso de éxito", "Aviso informativo", "Alerta de error"), manteniendo paridad estética con el modal global de temas.
 
 ---
 
