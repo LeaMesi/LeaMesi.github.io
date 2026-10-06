@@ -7144,21 +7144,28 @@ button svg {
 
 /* Colores y Estilos de Letra */
 .lyrics-style-cards-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 140px minmax(180px, 1fr);
   gap: 10px;
 }
 
 .lyric-style-card {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
   background: rgba(125, 125, 125, 0.06);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
-  display: flex;
   align-items: center;
   gap: 16px;
-  flex-wrap: wrap;
-  justify-content: space-between;
+}
+
+/* Fallback para navegadores sin soporte completo de subgrid */
+@supports not (grid-template-columns: subgrid) {
+  .lyric-style-card {
+    grid-template-columns: minmax(180px, 1fr) 140px minmax(180px, 1fr);
+  }
 }
 
 .lyric-style-card.is-highlight-card {
@@ -7167,10 +7174,10 @@ button svg {
 }
 
 .lyric-style-title-col {
-  min-width: 170px;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .lyric-style-desc {
@@ -7181,7 +7188,9 @@ button svg {
 .lyric-style-color-col {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 140px;
 }
 
 .lyric-style-toggles-col {
@@ -7189,6 +7198,7 @@ button svg {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .theme-toggle-chip {
@@ -7265,9 +7275,15 @@ button svg {
   }
 
   .lyric-style-card {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
+  }
+
+  .lyric-style-color-col {
+    width: 100%;
+    max-width: 220px;
   }
 
   .lyric-style-toggles-col {
