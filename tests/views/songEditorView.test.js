@@ -208,6 +208,57 @@ describe('views/songEditorView.js', () => {
     expect(progressSlider.value).toBe('60')
   })
 
+  it('permite abrir y cerrar el menú vertical de volumen en el editor y ajustar volumen desde el track', () => {
+    const setVolumeSpy = vi.fn()
+    const mockMediaPlayer = {
+      getCurrentTime: () => 0,
+      getDuration: () => 100,
+      getVolume: () => 70,
+      getIsPlaying: () => false,
+      setVolume: setVolumeSpy
+    }
+    const editor = createSongEditorView({ containerElement: container, mediaPlayer: mockMediaPlayer })
+    editor.open(sampleSong)
+
+    const volumeBtn = container.querySelector('#btn-editor-volume')
+    const volumePopover = container.querySelector('#editor-volume-popover')
+    const sliderTrack = container.querySelector('.editor-volume-slider-track')
+    const volumeSlider = container.querySelector('#editor-volume-slider')
+    const volumePercent = container.querySelector('#editor-volume-percent')
+
+    expect(volumeBtn).not.toBeNull()
+    expect(volumePopover).not.toBeNull()
+    expect(volumePopover.classList.contains('is-open')).toBe(false)
+
+    // Abrir popover
+    volumeBtn.click()
+    expect(volumePopover.classList.contains('is-open')).toBe(true)
+    expect(volumeBtn.classList.contains('is-active')).toBe(true)
+
+    // Simular arrastre en el track
+    sliderTrack.getBoundingClientRect = () => ({
+      top: 100,
+      bottom: 200,
+      left: 50,
+      right: 78,
+      width: 28,
+      height: 100
+    })
+
+    const pointerEvent = new Event('pointerdown')
+    pointerEvent.clientY = 120 // 200 - 120 = 80 -> 80%
+    sliderTrack.dispatchEvent(pointerEvent)
+
+    expect(setVolumeSpy).toHaveBeenCalledWith(80)
+    expect(volumeSlider.value).toBe('80')
+    expect(volumePercent.textContent).toBe('80%')
+
+    // Cerrar al hacer clic afuera
+    document.dispatchEvent(new MouseEvent('click'))
+    expect(volumePopover.classList.contains('is-open')).toBe(false)
+    expect(volumeBtn.classList.contains('is-active')).toBe(false)
+  })
+
   describe('Guía de referencia de frase original al traducir', () => {
     const bilingualSong = {
       id: 10,

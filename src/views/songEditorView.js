@@ -1897,6 +1897,8 @@ export function createSongEditorView({
       })
     }
 
+    const sliderTrack = containerElement.querySelector('.editor-volume-slider-track')
+
     if (volumeSlider) {
       volumeSlider.addEventListener('input', (e) => {
         const val = Number(e.target.value)
@@ -1911,6 +1913,54 @@ export function createSongEditorView({
           volumeBtn.title = `Volumen: ${val}%`
         }
       })
+    }
+
+    if (sliderTrack && volumeSlider) {
+      let isDraggingTrack = false
+
+      const updateEditorVolumeFromPointer = (e) => {
+        const rect = sliderTrack.getBoundingClientRect()
+        if (!rect || rect.height <= 0) return
+        const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0)
+        const relativeY = rect.bottom - clientY
+        const percent = Math.max(0, Math.min(100, Math.round((relativeY / rect.height) * 100)))
+        volumeSlider.value = String(percent)
+        if (mediaPlayer?.setVolume) {
+          mediaPlayer.setVolume(percent)
+        }
+        if (volumePercent) {
+          volumePercent.textContent = `${percent}%`
+        }
+        if (volumeBtn) {
+          volumeBtn.innerHTML = percent === 0 ? iconVolumeMute : iconVolume
+          volumeBtn.title = `Volumen: ${percent}%`
+        }
+      }
+
+      sliderTrack.addEventListener('pointerdown', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        isDraggingTrack = true
+        try { sliderTrack.setPointerCapture(e.pointerId) } catch (_) {}
+        updateEditorVolumeFromPointer(e)
+      })
+
+      sliderTrack.addEventListener('pointermove', (e) => {
+        if (!isDraggingTrack) return
+        e.preventDefault()
+        e.stopPropagation()
+        updateEditorVolumeFromPointer(e)
+      })
+
+      const stopDraggingTrack = (e) => {
+        if (isDraggingTrack) {
+          isDraggingTrack = false
+          try { sliderTrack.releasePointerCapture(e.pointerId) } catch (_) {}
+        }
+      }
+
+      sliderTrack.addEventListener('pointerup', stopDraggingTrack)
+      sliderTrack.addEventListener('pointercancel', stopDraggingTrack)
     }
 
     // Cerrar menú vertical de volumen al hacer clic en otro lado

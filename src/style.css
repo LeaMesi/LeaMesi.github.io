@@ -860,37 +860,29 @@ input[type="number"] {
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
-  width: 76px;
-  height: 4px;
+  width: 58px;
+  height: 3px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   outline: none;
   cursor: pointer;
 }
 
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: var(--lyrics-active-color, var(--text-active));
-  box-shadow: 0 0 6px var(--lyrics-active-color, rgba(251, 191, 36, 0.6));
+  background: var(--text-main, #f8fafc);
   cursor: pointer;
-  transition: transform 0.1s ease;
-}
-
-.volume-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
 }
 
 .volume-slider::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: 9px;
+  height: 9px;
   border: none;
   border-radius: 50%;
-  background: var(--lyrics-active-color, var(--text-active));
-  box-shadow: 0 0 6px var(--lyrics-active-color, rgba(251, 191, 36, 0.6));
+  background: var(--text-main, #f8fafc);
   cursor: pointer;
 }
 
@@ -2540,13 +2532,33 @@ button svg {
 .controls-volume-slider {
   writing-mode: vertical-lr;
   direction: rtl;
-  -webkit-appearance: slider-vertical;
-  appearance: slider-vertical;
-  width: 14px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 3px;
   height: 96px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
   cursor: pointer;
-  accent-color: var(--primary-color, #6366f1);
   touch-action: none;
+}
+
+.controls-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-main, #f8fafc);
+  cursor: pointer;
+}
+
+.controls-volume-slider::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: none;
+  border-radius: 50%;
+  background: var(--text-main, #f8fafc);
+  cursor: pointer;
 }
 
 .btn-volume-mute-action {
@@ -4005,17 +4017,42 @@ button svg {
   height: 100px;
   width: 28px;
   padding: 4px 0;
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .editor-volume-slider {
   writing-mode: vertical-lr;
   direction: rtl;
-  -webkit-appearance: slider-vertical;
-  appearance: slider-vertical;
-  width: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 3px;
   height: 96px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
   cursor: pointer;
-  accent-color: var(--primary-color);
+  touch-action: none;
+}
+
+.editor-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-main, #f8fafc);
+  cursor: pointer;
+}
+
+.editor-volume-slider::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: none;
+  border-radius: 50%;
+  background: var(--text-main, #f8fafc);
+  cursor: pointer;
 }
 
 .editor-progress-group {
@@ -5287,11 +5324,6 @@ button svg {
   .btn-play-pause {
     min-height: 46px;
     min-width: 46px;
-  }
-
-  .volume-slider::-webkit-slider-thumb {
-    width: 18px;
-    height: 18px;
   }
 }
 

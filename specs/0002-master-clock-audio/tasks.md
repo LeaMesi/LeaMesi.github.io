@@ -41,6 +41,10 @@
   - Detección precisa de contexto de tipeo (`isTypingContext`): si el usuario está enfocado en `<input>` de texto/búsqueda/url/número, `<textarea>` o `contenteditable`, el atajo no interfiere para permitir escribir espacios con naturalidad.
   - Supresión de comportamiento nativo (`preventDefault`) al no estar escribiendo para evitar scroll vertical en la página o pulsación no intencionada de botones previamente enfocados.
   - Prevención de rebote continuo (`e.repeat`).
+- [x] **9.6. Unificación Visual de Sliders de Volumen (Thumb y Pista del Minireproductor):**
+  - Estandarización del punto (`thumb`) y la pista del control de volumen en los tres reproductores de la aplicación: minireproductor flotante (`.floating-volume-slider`), modo letra (`.controls-volume-slider` / `.volume-slider`) y asistente del editor (`.editor-volume-slider`).
+  - Adopción uniforme del estilo del minireproductor: punto circular de 9px con color de texto principal (`var(--text-main, #f8fafc)`), pista limpia de 3px (`rgba(255, 255, 255, 0.15)`) con radio de 2px, eliminando overrides de 18px en pantallas táctiles y estilos nativos dispares (`appearance: slider-vertical`).
+  - Preservación íntegra de la funcionalidad de despliegue vertical (popovers emergentes que se abren con el icono de parlante y se cierran al hacer clic afuera en modo letra y en el editor de canciones) y soporte de arrastre por puntero en ambas pistas.
 
 ---
 
