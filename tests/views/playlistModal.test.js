@@ -118,15 +118,7 @@ describe('views/playlistModal.js', () => {
     expect(playlist.getSongs()[0].id).toBe(2)
     expect(onRemoveSong).toHaveBeenCalledWith(expect.objectContaining({ id: 1, title: 'Canción A' }))
 
-    // Verifica que se muestre el aviso con clase .status-alert y botón .btn-close-alert
-    const alertEl = container.querySelector('.status-alert')
-    expect(alertEl).not.toBeNull()
-    expect(alertEl.textContent).toContain('Canción A')
-    expect(alertEl.textContent).toContain('eliminada de la lista')
-
-    const closeAlertBtn = container.querySelector('#btn-close-playlist-alert')
-    expect(closeAlertBtn).not.toBeNull()
-    closeAlertBtn.click()
+    // No se muestra aviso intrusivo al eliminar una canción
     expect(container.querySelector('.status-alert')).toBeNull()
   })
 
@@ -164,12 +156,11 @@ describe('views/playlistModal.js', () => {
     expect(playlist.getCurrentSong().id).toBe(20)
     expect(playlist.getCurrentSong().title).toBe('Canción Dos')
 
-    const alertEl = container.querySelector('.status-alert')
-    expect(alertEl).not.toBeNull()
-    expect(alertEl.textContent).toContain('conservando la canción en reproducción')
+    // No se muestra aviso intrusivo al vaciar
+    expect(container.querySelector('.status-alert')).toBeNull()
   })
 
-  it('al tocar Vaciar cuando solo queda la canción actual, avisa sin borrarla', async () => {
+  it('al tocar Vaciar cuando solo queda la canción actual, no hace nada destructivo ni muestra aviso', async () => {
     playlist.addSongs([
       { id: 20, title: 'Canción Dos' }
     ])
@@ -185,12 +176,34 @@ describe('views/playlistModal.js', () => {
     expect(clearBtn).not.toBeNull()
     clearBtn.click()
 
-    // No debe abrir diálogo destructivo y debe mostrar mensaje informativo
+    // No debe abrir diálogo destructivo ni mostrar aviso intrusivo
     expect(document.body.querySelector('#custom-dialog-confirm')).toBeNull()
+    expect(container.querySelector('.status-alert')).toBeNull()
+    expect(playlist.getState().count).toBe(1)
+  })
+
+  it('muestra solo alertas de error y permite cerrarlas', async () => {
+    const modal = createPlaylistModal({
+      containerElement: container,
+      playlistService: playlist
+    })
+    await modal.open()
+
+    modal.showStatus('Operación exitosa', 'success')
+    expect(container.querySelector('.status-alert')).toBeNull()
+
+    modal.showStatus('Aviso informativo', 'info')
+    expect(container.querySelector('.status-alert')).toBeNull()
+
+    modal.showStatus('Error crítico en la playlist', 'error')
     const alertEl = container.querySelector('.status-alert')
     expect(alertEl).not.toBeNull()
-    expect(alertEl.textContent).toContain('únicamente la canción actual')
-    expect(playlist.getState().count).toBe(1)
+    expect(alertEl.textContent).toContain('Error crítico en la playlist')
+
+    const closeBtn = container.querySelector('#btn-close-playlist-alert')
+    expect(closeBtn).not.toBeNull()
+    closeBtn.click()
+    expect(container.querySelector('.status-alert')).toBeNull()
   })
 
   it('cierra el modal limpiando el contenedor', async () => {

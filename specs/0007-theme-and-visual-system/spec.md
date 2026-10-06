@@ -41,10 +41,17 @@
 ## 4. Temas Visuales Personalizados por Canción
 1. **Configuración en el Editor (`songEditorView.js`):**
    - Apartado interactivo situado entre metadatos y letras (`#editor-theme-details`).
-   - Permite personalizar los 4 colores de interfaz, 3 sliders de escala de fuentes, estilos de versos (original, alt, traducción, activa con brillo y completadas), 3 colores de cuadros de aviso y presets rápidos con opción de copiar el tema global.
+   - Permite personalizar los 4 colores de interfaz, 3 sliders de escala de fuentes, estilos de versos (original, alt, traducción, activa con brillo y completadas), personalización del color de alerta de error (`alertErrorColor`) y presets rápidos con opción de copiar el tema global.
    - Almacenamiento en `currentSong.lyrics_data.customTheme` con persistencia automática en IndexedDB y exportación/importación en paquetes JSON (`song-package.json`).
 2. **Aplicación Dinámica en Modo Letra (`main.js`):**
    - Al entrar al Modo Letra de una canción con tema personalizado, se aplica de inmediato su combinación cromática y tipográfica.
    - Al regresar al menú o editor, se restaura inmediatamente el tema global del usuario.
 3. **Preferencia Global de Activación (`themeSettingsModal.js`):**
    - Opción `enableSongThemes` configurable en la modal de temas, activa por defecto (`true`), que permite al usuario decidir si desea habilitar o deshabilitar la aplicación de temas propios de canciones en favor del tema global.
+
+---
+
+## 5. Política de Alertas y Notificaciones de Estado
+1. **Supresión de Avisos Informativos y de Éxito:** Se eliminan los banners y toasts redundantes para acciones habituales visibles de forma directa (crear, editar, eliminar, duplicar, copiar, ordenar, importar o exportar).
+2. **Exclusividad para Alertas Críticas de Error:** Los cuadros de aviso (`.status-alert.status-error`) solo se despliegan cuando ocurre una falla que requiera la atención del usuario (errores de validación, red, importación fallida, etc.).
+3. **Personalización Enfocada:** La configuración de temas (global y por canción) expone únicamente la personalización de la alerta de error (`alertErrorColor`), prescindiendo de selectores para éxito o avisos informativos.

@@ -227,12 +227,17 @@ describe('views/songMenuView.js', () => {
     const libTab = container.querySelector(`.lib-tab-pill[data-library-id="${lib.id}"]`)
     libTab.click()
 
+    const shareService = await import('../../src/services/shareService.js')
+    const exportSpy = vi.spyOn(shareService, 'exportLibraryPackage').mockResolvedValue({})
+
     const exportBtn = container.querySelector('#btn-export-active-library')
     expect(exportBtn).not.toBeNull()
     exportBtn.click()
 
     await new Promise(r => setTimeout(r, 100))
-    expect(container.textContent).toContain('exportada con éxito')
+    expect(exportSpy).toHaveBeenCalledWith(lib.id)
+    expect(container.querySelector('.status-alert')).toBeNull()
+    exportSpy.mockRestore()
   })
 
   it('permite eliminar la biblioteca activa regresando a la vista "Todas"', async () => {
@@ -492,13 +497,21 @@ describe('views/songMenuView.js', () => {
     expect(onEnterLyricsMode).toHaveBeenCalledWith(activeSong.id)
   })
 
-  it('permite cerrar la alerta de estado con el botón X y con el método clearStatus', async () => {
+  it('permite cerrar la alerta de error con el botón X y con el método clearStatus, y silencia alertas de éxito/info', async () => {
     const menu = createSongMenuView({ containerElement: container })
     await menu.refresh()
 
+    // Las alertas informativas y de éxito no deben mostrarse
     menu.showStatus('Operación completada exitosamente', 'success')
+    expect(container.querySelector('.status-alert')).toBeNull()
+
+    menu.showStatus('Otra alerta informativa', 'info')
+    expect(container.querySelector('.status-alert')).toBeNull()
+
+    // Las alertas de error sí deben mostrarse
+    menu.showStatus('Error al realizar la operación', 'error')
     expect(container.querySelector('.status-alert')).not.toBeNull()
-    expect(container.querySelector('.status-alert-text').textContent).toBe('Operación completada exitosamente')
+    expect(container.querySelector('.status-alert-text').textContent).toBe('Error al realizar la operación')
 
     const closeBtn = container.querySelector('#btn-close-menu-alert')
     expect(closeBtn).not.toBeNull()
@@ -506,8 +519,8 @@ describe('views/songMenuView.js', () => {
 
     expect(container.querySelector('.status-alert')).toBeNull()
 
-    // Probar clearStatus()
-    menu.showStatus('Otra alerta informativa', 'info')
+    // Probar clearStatus() con error
+    menu.showStatus('Segundo error al operar', 'error')
     expect(container.querySelector('.status-alert')).not.toBeNull()
     menu.clearStatus()
     expect(container.querySelector('.status-alert')).toBeNull()

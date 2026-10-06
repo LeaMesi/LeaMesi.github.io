@@ -48,3 +48,9 @@ El Editor de Canciones (`src/views/songEditorView.js`) proporciona un entorno de
    - En pantallas panorámicas (ancho > 1150px en orientación horizontal), el asistente distribuye sus 3 grupos en una única fila: a la izquierda volumen y barra de progreso, al centro los controles de tiempo y reloj centrados, y a la derecha el estado de guardado.
    - Cuando los elementos están por sobreponerse (pantallas verticales `orientation: portrait`, o ancho <= 1150px): los controles de tiempo se sitúan arriba en la fila 1 (centrados y en flujo normal mediante `position: static`, eliminando superposiciones absolutas) y la barra de tiempo junto con el indicador de guardado descienden a la fila 2.
    - En espacios inferiores muy reducidos (ancho <= 520px): el texto "Guardado" se oculta automáticamente mediante CSS (`display: none`), preservando el punto circular de color activo y el tooltip explicativo en hover para maximizar el ancho útil de la barra de progreso.
+12. **Copiado de Frases con Duplicación Reactiva en Traducciones:**
+   - Botón de copia directa (`iconCopy`) con título "Copiar frase" en las acciones de cada verso (`.phrase-actions`).
+   - Copia exacta de texto, fonética alternativa (Romaji), tiempos y sílabas (con clonación profunda e IDs únicos).
+   - Inserción inmediata debajo de la frase original (desplazando hacia abajo las frases subsiguientes y reindexando las numeraciones de versos).
+   - Inserción automática de la frase correspondiente en todas las pistas de traducción existentes para preservar la alineación 1:1 entre el idioma original y sus traducciones.
+

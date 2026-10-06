@@ -134,8 +134,10 @@ describe('Customización de Tema por Canción en Editor y Modo Letra', () => {
       expect(container.querySelector('#picker-song-active-color')).not.toBeNull()
       expect(container.querySelector('#check-song-active-glow')).not.toBeNull()
 
-      // Deben existir los colores de aviso
-      expect(container.querySelector('#picker-song-alert-success')).not.toBeNull()
+      // Debe existir el color de alerta de error y no los de éxito/info
+      expect(container.querySelector('#picker-song-alert-error')).not.toBeNull()
+      expect(container.querySelector('#picker-song-alert-success')).toBeNull()
+      expect(container.querySelector('#picker-song-alert-info')).toBeNull()
     })
 
     it('permite aplicar un preset al tema de la canción', () => {

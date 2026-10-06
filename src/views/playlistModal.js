@@ -109,8 +109,13 @@ export function createPlaylistModal({
   }
 
   function showStatus(msg, type = 'info') {
+    if (type !== 'error') {
+      statusMessage = ''
+      statusType = 'info'
+      return
+    }
     statusMessage = msg
-    statusType = type
+    statusType = 'error'
     render()
   }
 
@@ -147,8 +152,8 @@ export function createPlaylistModal({
         </header>
 
         <div class="modal-body playlist-modal-body">
-          ${statusMessage ? `
-            <div class="status-alert status-${statusType}">
+          ${statusMessage && statusType === 'error' ? `
+            <div class="status-alert status-error">
               <span class="status-alert-text">${escapeHtml(statusMessage)}</span>
               <button type="button" class="btn-close-alert" id="btn-close-playlist-alert" title="Cerrar aviso" aria-label="Cerrar aviso">${iconClose}</button>
             </div>
@@ -422,10 +427,8 @@ export function createPlaylistModal({
           const createdLib = await savePlaylistAsLibrary(name, playlistSongs)
           isSavingAsLib = false
           libraryNameInput = ''
-          showStatus(`¡Biblioteca "${createdLib.name}" creada con éxito con ${createdLib.songCount} canciones!`, 'success')
-
-          // Refrescar bibliotecas para el dropdown
           allLibraries = await listLibraries()
+          render()
           if (onLibraryCreated) onLibraryCreated(createdLib)
         } catch (err) {
           showStatus(err.message, 'error')
@@ -467,12 +470,12 @@ export function createPlaylistModal({
       btnLoadOrder.addEventListener('click', async () => {
         if (!selectedLibId) return
         try {
-          const loaded = await loadLibraryIntoPlaylist(selectedLibId, {
+          await loadLibraryIntoPlaylist(selectedLibId, {
             shuffle: false,
             playlistService
           })
           isLoadingLib = false
-          showStatus(`¡Se cargaron ${loaded} canciones en la lista de reproducción!`, 'success')
+          render()
         } catch (err) {
           showStatus(err.message, 'error')
         }
@@ -485,12 +488,12 @@ export function createPlaylistModal({
       btnLoadShuffle.addEventListener('click', async () => {
         if (!selectedLibId) return
         try {
-          const loaded = await loadLibraryIntoPlaylist(selectedLibId, {
+          await loadLibraryIntoPlaylist(selectedLibId, {
             shuffle: true,
             playlistService
           })
           isLoadingLib = false
-          showStatus(`¡Se cargaron ${loaded} canciones en orden aleatorio (shuffle)!`, 'success')
+          render()
         } catch (err) {
           showStatus(err.message, 'error')
         }
@@ -534,7 +537,7 @@ export function createPlaylistModal({
         const songToAdd = allCatalogSongs.find(s => Number(s.id) === Number(sId))
         if (songToAdd) {
           playlistService.addSong(songToAdd)
-          showStatus(`"${songToAdd.title}" añadida a la lista de reproducción.`, 'success')
+          render()
         }
       })
     })
@@ -544,7 +547,7 @@ export function createPlaylistModal({
     if (btnShuffle) {
       btnShuffle.addEventListener('click', () => {
         playlistService.shuffle()
-        showStatus('Lista barajada en orden aleatorio.', 'info')
+        render()
       })
     }
 
@@ -557,7 +560,6 @@ export function createPlaylistModal({
         const count = (state.songs || []).length
 
         if (currentSong && count <= 1) {
-          showStatus('La lista de reproducción ya contiene únicamente la canción actual.', 'info')
           return
         }
 
@@ -572,11 +574,10 @@ export function createPlaylistModal({
         if (confirmed) {
           if (currentSong) {
             playlistService.clear({ keepCurrent: true })
-            showStatus('Se vació la lista, conservando la canción en reproducción.', 'info')
           } else {
             playlistService.clear()
-            showStatus('Lista de reproducción vaciada.', 'info')
           }
+          render()
         }
       })
     }
@@ -617,7 +618,7 @@ export function createPlaylistModal({
         if (!targetSong) return
 
         playlistService.removeSongByIndex(idx)
-        showStatus(`"${targetSong.title}" eliminada de la lista.`, 'info')
+        render()
 
         if (onRemoveSong) {
           await onRemoveSong(targetSong)

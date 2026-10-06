@@ -81,6 +81,100 @@ describe('views/songEditorView.js', () => {
     expect(phraseCards.length).toBe(2)
   })
 
+  it('permite copiar una frase duplicando exactamente su contenido y ubicándola debajo de la frase original (actualizando traducciones)', () => {
+    const songWith5Lines = {
+      id: 10,
+      title: 'Cinco Frases',
+      artist: 'Artista Test',
+      lyrics_data: {
+        languages: [
+          {
+            code: 'ja',
+            name: 'Japonés (Original)',
+            isMain: true,
+            lines: [
+              { id: 'line-1', text: 'Frase 1', altText: 'F1', startTime: 1.0, endTime: 3.0, syllables: [{ text: 'F1', startTime: 1.0, duration: 2.0 }] },
+              { id: 'line-2', text: 'Frase 2', altText: 'F2', startTime: 3.5, endTime: 5.5, syllables: [{ text: 'F2', startTime: 3.5, duration: 2.0 }] },
+              { id: 'line-3', text: 'Frase 3', altText: 'F3', startTime: 6.0, endTime: 8.0, syllables: [{ id: 's3', text: 'Fra', startTime: 6.0, duration: 1.0, altText: 'Fra' }, { id: 's4', text: 'se', startTime: 7.0, duration: 1.0, altText: 'se' }] },
+              { id: 'line-4', text: 'Frase 4', altText: 'F4', startTime: 8.5, endTime: 10.5, syllables: [{ text: 'F4', startTime: 8.5, duration: 2.0 }] },
+              { id: 'line-5', text: 'Frase 5', altText: 'F5', startTime: 11.0, endTime: 13.0, syllables: [{ text: 'F5', startTime: 11.0, duration: 2.0 }] }
+            ]
+          },
+          {
+            code: 'es',
+            name: 'Español (Traducción)',
+            isMain: false,
+            lines: [
+              { id: 'trans-1', text: 'Traducción 1', startTime: 1.0, endTime: 3.0 },
+              { id: 'trans-2', text: 'Traducción 2', startTime: 3.5, endTime: 5.5 },
+              { id: 'trans-3', text: 'Traducción 3', startTime: 6.0, endTime: 8.0 },
+              { id: 'trans-4', text: 'Traducción 4', startTime: 8.5, endTime: 10.5 },
+              { id: 'trans-5', text: 'Traducción 5', startTime: 11.0, endTime: 13.0 }
+            ]
+          }
+        ]
+      }
+    }
+
+    const editor = createSongEditorView({ containerElement: container })
+    editor.open(songWith5Lines)
+
+    // Verificar que hay 5 frases inicialmente
+    let cards = container.querySelectorAll('.phrase-editor-card')
+    expect(cards.length).toBe(5)
+
+    // Copiamos la frase 3 (índice 2, badge #3)
+    const copyBtnLine3 = cards[2].querySelector('.btn-copy-line, .btn-duplicate-line')
+    expect(copyBtnLine3).not.toBeNull()
+    copyBtnLine3.click()
+
+    // Ahora deben haber 6 frases
+    cards = container.querySelectorAll('.phrase-editor-card')
+    expect(cards.length).toBe(6)
+
+    const currentSong = editor.getCurrentSong()
+    const mainLang = currentSong.lyrics_data.languages[0]
+    expect(mainLang.lines.length).toBe(6)
+
+    // Índice 0: Frase 1
+    expect(mainLang.lines[0].text).toBe('Frase 1')
+    // Índice 1: Frase 2
+    expect(mainLang.lines[1].text).toBe('Frase 2')
+    // Índice 2: Frase 3 (original)
+    expect(mainLang.lines[2].text).toBe('Frase 3')
+    // Índice 3: Nueva Frase 4 (copia exacta de Frase 3)
+    expect(mainLang.lines[3].text).toBe('Frase 3')
+    expect(mainLang.lines[3].altText).toBe('F3')
+    expect(mainLang.lines[3].startTime).toBe(6.0)
+    expect(mainLang.lines[3].endTime).toBe(8.0)
+    expect(mainLang.lines[3].syllables.length).toBe(2)
+    expect(mainLang.lines[3].syllables[0].text).toBe('Fra')
+    expect(mainLang.lines[3].syllables[1].text).toBe('se')
+    // Los IDs deben ser únicos (clonados independientemente)
+    expect(mainLang.lines[3].id).not.toBe(mainLang.lines[2].id)
+    expect(mainLang.lines[3].syllables[0].id).not.toBe(mainLang.lines[2].syllables[0].id)
+
+    // Índice 4 y 5: Ahora son las frases que antes eran 4 y 5
+    expect(mainLang.lines[4].text).toBe('Frase 4')
+    expect(mainLang.lines[5].text).toBe('Frase 5')
+
+    // Verificar que las traducciones también añadieron la frase nueva en la posición 4
+    const transLang = currentSong.lyrics_data.languages[1]
+    expect(transLang.lines.length).toBe(6)
+    expect(transLang.lines[0].text).toBe('Traducción 1')
+    expect(transLang.lines[1].text).toBe('Traducción 2')
+    expect(transLang.lines[2].text).toBe('Traducción 3')
+    expect(transLang.lines[3].text).toBe('Traducción 3')
+    expect(transLang.lines[3].startTime).toBe(6.0)
+    expect(transLang.lines[3].endTime).toBe(8.0)
+    expect(transLang.lines[4].text).toBe('Traducción 4')
+    expect(transLang.lines[5].text).toBe('Traducción 5')
+
+    // Verificar badges en el DOM: #1, #2, #3, #4, #5, #6
+    const badges = Array.from(cards).map(c => c.querySelector('.phrase-index-badge').textContent.trim())
+    expect(badges).toEqual(['#1', '#2', '#3', '#4', '#5', '#6'])
+  })
+
   it('dispara onGoToMenu al hacer clic en el botón de retroceso si está presente', () => {
     const onGoToMenu = vi.fn()
     const editor = createSongEditorView({ containerElement: container, onGoToMenu })
@@ -476,8 +570,8 @@ describe('views/songEditorView.js', () => {
       // Verso 2 (pausa original en blanco) debe permanecer vacío
       expect(phraseInputs[1].value).toBe('')
 
-      const statusAlert = container.querySelector('.status-alert')
-      expect(statusAlert.textContent).toContain('Canción traducida con éxito')
+      // No debe mostrar avisos de éxito intrusivos
+      expect(container.querySelector('.status-alert')).toBeNull()
 
       // No debe generar sílabas automáticamente
       const sylChips = container.querySelectorAll('.syllable-edit-chip')
@@ -812,24 +906,27 @@ describe('views/songEditorView.js', () => {
       expect(finalScrollContainer.scrollTop).toBe(450)
     })
 
-    it('permite cerrar la alerta de estado con el botón X y con el método clearStatus', async () => {
+    it('permite cerrar la alerta de error con el botón X y con el método clearStatus, y no muestra alertas de éxito al exportar', async () => {
       const editor = createSongEditorView({ containerElement: container })
       editor.open(sampleSong)
 
-      // Simular alerta de estado en el editor exportando la canción
+      // Exportar la canción no debe mostrar avisos de éxito
       const exportBtn = container.querySelector('#btn-editor-export-json')
       expect(exportBtn).not.toBeNull()
       exportBtn.click()
+      await new Promise(r => setTimeout(r, 50))
+      expect(container.querySelector('.status-alert')).toBeNull()
 
-      let alertEl = null
-      for (let i = 0; i < 20; i++) {
-        await new Promise(r => setTimeout(r, 25))
-        alertEl = container.querySelector('.status-alert')
-        if (alertEl && alertEl.textContent.includes('descargado con éxito')) break
-      }
+      // Si ocurre un error, sí se muestra la alerta
+      const titleInput = container.querySelector('#input-song-title')
+      titleInput.value = ''
+      const saveBtn = container.querySelector('#btn-save-and-sing')
+      saveBtn.click()
+      await new Promise(r => setTimeout(r, 20))
 
+      const alertEl = container.querySelector('.status-alert')
       expect(alertEl).not.toBeNull()
-      expect(alertEl.textContent).toContain('descargado con éxito')
+      expect(alertEl.textContent).toContain('La canción debe tener un título obligatorio')
 
       const closeBtn = container.querySelector('#btn-close-editor-alert')
       expect(closeBtn).not.toBeNull()
@@ -838,20 +935,17 @@ describe('views/songEditorView.js', () => {
       expect(container.querySelector('.status-alert')).toBeNull()
 
       // Probar clearStatus()
-      exportBtn.click()
-      for (let i = 0; i < 20; i++) {
-        await new Promise(r => setTimeout(r, 25))
-        if (container.querySelector('.status-alert')) break
-      }
+      saveBtn.click()
+      await new Promise(r => setTimeout(r, 20))
       expect(container.querySelector('.status-alert')).not.toBeNull()
       editor.clearStatus()
       expect(container.querySelector('.status-alert')).toBeNull()
     })
 
-    it('ubica el cuadro de alerta de estado debajo del controlador de tiempo y antes del contenido con scroll en el header', () => {
+    it('ubica el cuadro de alerta de error debajo del controlador de tiempo y antes del contenido con scroll en el header', () => {
       const editor = createSongEditorView({ containerElement: container })
       editor.open(sampleSong, {
-        initialStatus: { message: 'Mensaje de prueba en cabecera', type: 'info' }
+        initialStatus: { message: 'Mensaje de error en cabecera', type: 'error' }
       })
 
       const alertEl = container.querySelector('.status-alert')

@@ -42,7 +42,8 @@ describe('views/icons.js', () => {
       'iconListPlus',
       'iconEye',
       'iconMaximize',
-      'iconMinimize'
+      'iconMinimize',
+      'iconCopy'
     ]
 
     requiredIcons.forEach(iconName => {
